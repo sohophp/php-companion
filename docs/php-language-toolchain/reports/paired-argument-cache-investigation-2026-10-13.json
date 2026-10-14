@@ -1,0 +1,166 @@
+{
+  "recordedAtUtc": "2026-10-12T17:41:19.387628+00:00",
+  "decision": "Reject private cross-pass signature sharing: diagnostic P95 worsened; preserve current normal build",
+  "normalProbe": {
+    "status": "exited",
+    "pid": 68166,
+    "startedAtUtc": "2026-10-12T17:38:10.008205+00:00",
+    "stages": [
+      {
+        "variant": "control",
+        "status": "exited",
+        "pid": 68391,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "41ae20f8a37eb23b85f05f1b1f784cad1118520252dd0839cd558465ff5f0358",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "serverPid": 68402,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 763.2559270000002,
+            "maxMs": 776.102640000001
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1957.9272670000028,
+            "maxMs": 2719.178513
+          },
+          "diskUnchanged": true,
+          "scope": "Unprofiled paired argument-check prototype on fixed real-project copy; not final performance qualification."
+        }
+      },
+      {
+        "variant": "candidate",
+        "status": "exited",
+        "pid": 69234,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "17943a6bdd0abc4e4fb854190315a147b71c56132eddbdf2871a7556551f45f8",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "serverPid": 69245,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 724.1343480000005,
+            "maxMs": 755.4817699999985
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 2030.5241929999993,
+            "maxMs": 2341.8786260000006
+          },
+          "diskUnchanged": true,
+          "scope": "Unprofiled paired argument-check prototype on fixed real-project copy; not final performance qualification."
+        }
+      }
+    ],
+    "productInputs": 2085,
+    "projectInputs": 66079,
+    "qualified": true,
+    "fullObjectiveComplete": false,
+    "resultEquality": true,
+    "comparison": {
+      "control": {
+        "completionMs": {
+          "p95Ms": 763.2559270000002,
+          "medianMs": 126.8087259999993,
+          "maxMs": 776.102640000001,
+          "count": 25
+        },
+        "diagnosticMs": {
+          "p95Ms": 1957.9272670000028,
+          "medianMs": 1765.6359430000011,
+          "maxMs": 2719.178513,
+          "count": 25
+        }
+      },
+      "candidate": {
+        "completionMs": {
+          "p95Ms": 724.1343480000005,
+          "medianMs": 107.65853900000366,
+          "maxMs": 755.4817699999985,
+          "count": 25
+        },
+        "diagnosticMs": {
+          "p95Ms": 2030.5241929999993,
+          "medianMs": 1640.3655010000002,
+          "maxMs": 2341.8786260000006,
+          "count": 25
+        }
+      }
+    },
+    "changedProductInputs": [],
+    "changedProjectInputs": [],
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T17:40:47.704381+00:00"
+  },
+  "paired": {
+    "completionMs": {
+      "improvedSamples": 18,
+      "count": 25,
+      "medianImprovementPercent": 13.168246872050402
+    },
+    "diagnosticMs": {
+      "improvedSamples": 18,
+      "count": 25,
+      "medianImprovementPercent": 7.106050266945599
+    }
+  },
+  "diagnosticP95RegressionPercent": 3.707845905391153,
+  "admissionRule": {
+    "recordedAtUtc": "2026-10-12T17:39:59.336641+00:00",
+    "decisionScope": "Admission of this private prototype only; does not close final performance budget",
+    "completeVisibleResultEqualityRequired": true,
+    "unchangedProductAndProjectInputsRequired": true,
+    "sameRoundsAndEnvironmentRequired": true,
+    "diagnosticPairedImprovedSamplesMinimum": 20,
+    "diagnosticPairedMedianImprovementPercentMinimum": 5,
+    "diagnosticP95MustImprove": true,
+    "completionP95RegressionTolerancePercent": 5,
+    "diagnosticBudgetMs": 500,
+    "queryBudgetMs": 150,
+    "ifRejected": "Close this hypothesis without equivalent retries; retain previous normal build"
+  },
+  "processesExited": [
+    68166,
+    68391,
+    69234,
+    68402,
+    69245
+  ],
+  "normalBundleSha256": "41ae20f8a37eb23b85f05f1b1f784cad1118520252dd0839cd558465ff5f0358",
+  "productionSourceChanged": false,
+  "prototypeAdmitted": false,
+  "performanceBudgetsPassed": false,
+  "fullObjectiveComplete": false,
+  "correctnessScope": "Full published diagnostics and visible completion fields excluding private data, no completion resolve; real-project copied Controller with 25 normal edits per build, not full matrices or real editor",
+  "inputAudit": {
+    "productInputs": 2085,
+    "projectInputs": 66079,
+    "changedProductInputs": [],
+    "changedProjectInputs": []
+  }
+}

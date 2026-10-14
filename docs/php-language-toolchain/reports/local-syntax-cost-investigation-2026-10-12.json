@@ -1,0 +1,197 @@
+{
+  "recordedAtUtc": "2026-10-12T14:25:23.624360+00:00",
+  "hypothesis": "Reading namedChildren once per node avoids repeated materialization",
+  "decision": "rejected; getter already caches children per Node object; no stable paired latency benefit",
+  "productionSourceChanged": false,
+  "qualifiedStableBundleSha256": "4506941926dd157b2786e03b343f1cf49ec67ad4190001fd4f4572cc5eada366",
+  "probe": {
+    "status": "exited",
+    "pid": 85587,
+    "startedAtUtc": "2026-10-12T14:19:01.911167+00:00",
+    "stages": [
+      {
+        "variant": "control",
+        "status": "exited",
+        "pid": 85721,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "4506941926dd157b2786e03b343f1cf49ec67ad4190001fd4f4572cc5eada366",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 790.510884999996,
+            "maxMs": 804.5416880000012
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 2105.6432989999994,
+            "maxMs": 2524.028482999999
+          },
+          "diskUnchanged": true,
+          "scope": "Unprofiled normal stdio in a frozen real-project copy; includes debounce; not real editor or final performance qualification."
+        }
+      },
+      {
+        "variant": "candidate",
+        "status": "exited",
+        "pid": 86280,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "7598db58576be31850285da0b5575aa64ef7637102722efc9bb155dae1504968",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 723.8075950000002,
+            "maxMs": 856.9996019999999
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 2058.027734999996,
+            "maxMs": 2517.6557139999995
+          },
+          "diskUnchanged": true,
+          "scope": "Unprofiled normal stdio in a frozen real-project copy; includes debounce; not real editor or final performance qualification."
+        }
+      }
+    ],
+    "productInputs": 2085,
+    "projectInputs": 66079,
+    "qualified": true,
+    "fullObjectiveComplete": false,
+    "resultEquality": true,
+    "comparison": {
+      "control": {
+        "completionMs": {
+          "p95Ms": 790.510884999996,
+          "medianMs": 120.23262999999861,
+          "maxMs": 804.5416880000012,
+          "count": 25
+        },
+        "diagnosticMs": {
+          "p95Ms": 2105.6432989999994,
+          "medianMs": 1883.0453430000016,
+          "maxMs": 2524.028482999999,
+          "count": 25
+        }
+      },
+      "candidate": {
+        "completionMs": {
+          "p95Ms": 723.8075950000002,
+          "medianMs": 122.43180900000152,
+          "maxMs": 856.9996019999999,
+          "count": 25
+        },
+        "diagnosticMs": {
+          "p95Ms": 2058.027734999996,
+          "medianMs": 1875.7661310000003,
+          "maxMs": 2517.6557139999995,
+          "count": 25
+        }
+      }
+    },
+    "changedProductInputs": [],
+    "changedProjectInputs": [],
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T14:21:47.864461+00:00"
+  },
+  "paired": {
+    "completionMs": {
+      "improvedSamples": 12,
+      "samples": 25,
+      "medianImprovementPercent": -0.8365648875190645
+    },
+    "diagnosticMs": {
+      "improvedSamples": 13,
+      "samples": 25,
+      "medianImprovementPercent": 0.2524840366470493
+    }
+  },
+  "costEvidence": {
+    "sourceProfile": ".vscode-test/plan-completion-2026-10-12/controller-formal-profile/controller.cpuprofile",
+    "profileSha256": "408fac916fda3a40a2545ab6aa539427e5cec64d7194caa898e0314a54306f10",
+    "capturedRuntime": "5c23154249f54545b4d04356a05eb82f5bea51698fe91a945acc2e4ee1527e60",
+    "namedChildrenInclusiveCpuMs": 11280.614,
+    "paths": [
+      {
+        "callPath": "ha <- OT <- callableVariableResultType <- provenArgumentType",
+        "cpuMs": 2982.245
+      },
+      {
+        "callPath": "ha <- dt <- signaturesWithImplementation <- ",
+        "cpuMs": 2134.936
+      },
+      {
+        "callPath": "ha <- dt <- linearLocalValueType <- variableClass",
+        "cpuMs": 1404.405
+      },
+      {
+        "callPath": "ha <- dt <- linearLocalValueType <- provenArgumentType",
+        "cpuMs": 1130.381
+      },
+      {
+        "callPath": "ha <- OT <- callableVariableResultType <- variableClass",
+        "cpuMs": 399.718
+      },
+      {
+        "callPath": "nv <- ms <- (root)",
+        "cpuMs": 218.047
+      },
+      {
+        "callPath": "m8 <- nv <- ms <- (root)",
+        "cpuMs": 210.769
+      },
+      {
+        "callPath": "v8 <- nv <- ms <- (root)",
+        "cpuMs": 206.213
+      },
+      {
+        "callPath": "_8 <- nv <- ms <- (root)",
+        "cpuMs": 203.086
+      },
+      {
+        "callPath": "b8 <- nv <- ms <- (root)",
+        "cpuMs": 201.975
+      },
+      {
+        "callPath": "ha <- c <- readonlyPropertyAssignments <- ms",
+        "cpuMs": 189.26
+      },
+      {
+        "callPath": "ha <- undefinedVariables <- ms <- (root)",
+        "cpuMs": 182.798
+      }
+    ],
+    "hypothesis": "walkLocalSyntax repeatedly materializes all named children inside its per-child loop; read once per node without semantic/cache/lifecycle changes.",
+    "latencyClaim": false
+  },
+  "dependencyEvidence": {
+    "path": "/var/www/node/php-companion/node_modules/web-tree-sitter/web-tree-sitter.js",
+    "sha256": "0c868236a47296b4ff3c1570f20e0899e4a784ff6e5cd7bfc9c3a55225463e4a",
+    "lineStart": 941,
+    "lineEnd": 958,
+    "getterCachesArray": true
+  },
+  "fullObjectiveComplete": false
+}

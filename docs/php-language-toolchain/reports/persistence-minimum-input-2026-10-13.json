@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-13",
+  "qualified": true,
+  "fullObjectiveComplete": false,
+  "productionChanged": false,
+  "minimumFiles": 5,
+  "focusedPassed": 7,
+  "oldSelectedPassed": 1,
+  "oldExpectedFailed": 1,
+  "oldNotSelected": 5,
+  "rootPassed": 121,
+  "rootFiles": 23,
+  "lintPassed": true,
+  "typecheckPassed": true,
+  "scaleMatrixRerun": false,
+  "scopeLookupObservationIsNewEvidence": false,
+  "toolSHA256": "62340b20d627986a8f6b5d533f8eda83178fd5d0d700ae1d31ed99fa112add6c",
+  "coreSHA256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb"
+}

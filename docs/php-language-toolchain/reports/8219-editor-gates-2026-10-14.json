@@ -1,0 +1,63 @@
+{
+  "qualifiedFourLinuxEditorFlows": true,
+  "coreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "frozenProducts": 3316,
+  "compiledJavaScriptVerified": 105,
+  "originalFourFlowsAndTimeoutsPreserved": true,
+  "generationBoundaryCases": 80,
+  "stages": [
+    {
+      "name": "compile",
+      "exitCode": 0,
+      "seconds": 14.685751217999496
+    },
+    {
+      "name": "c1-onDemand",
+      "exitCode": 0,
+      "seconds": 117.43495878996328
+    },
+    {
+      "name": "c2-onDemand",
+      "exitCode": 0,
+      "seconds": 145.8790228300495
+    },
+    {
+      "name": "c3-onDemand",
+      "exitCode": 0,
+      "seconds": 298.78247154003475
+    },
+    {
+      "name": "c3-progressive",
+      "exitCode": 0,
+      "seconds": 259.6595896289218
+    }
+  ],
+  "ownedActorsGroupsDisplaysAndAuthorityDirectoriesGone": true,
+  "checkedProcessIds": [
+    80028,
+    80042,
+    80196,
+    80199,
+    80218,
+    83750,
+    83755,
+    83759,
+    85974,
+    85976,
+    85979,
+    94374,
+    94376,
+    94381
+  ],
+  "humanWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "recordedAtUtc": "2026-10-14T06:37:00.672437+00:00",
+  "actualOriginalFourEditorCommandExitCodes": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "independentAuditActualExitCode": 0,
+  "archiveFiles": 32
+}

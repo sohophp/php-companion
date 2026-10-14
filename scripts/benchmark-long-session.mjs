@@ -86,6 +86,12 @@ function startServer() {
     },
     async close(uri) { const promise = wait(notifications, `closed:${uri}`); send({ method: 'textDocument/didClose', params: { textDocument: { uri } } }); await promise; },
     async stop() { if (terminal) return; await this.request('shutdown', null); send({ method: 'exit', params: null }); assert.deepEqual(await ended, { code: 0, signal: null }); },
+    async terminate() {
+      if (terminal) { await ended; return; }
+      child.kill('SIGTERM');
+      const timer = setTimeout(() => { if (!terminal) child.kill('SIGKILL'); }, 1000);
+      try { await ended; } finally { clearTimeout(timer); }
+    },
   };
 }
 
@@ -229,7 +235,7 @@ try {
   report.status = 'failed'; report.error = error.stack ?? String(error); report.elapsedMs = started === undefined ? 0 : performance.now() - started;
   throw error;
 } finally {
-  if (server && !server.terminal) { server.child.kill('SIGTERM'); await server.ended; }
+  if (server) await server.terminate();
   await rm(root, { recursive: true, force: true }); report.ownedFixtureRemoved = true; await save();
   process.stdout.write(JSON.stringify({ status: report.status, evidence, cycles: report.cycles, checkedResults: report.checkedResults, qualified: report.qualified, multiHourQualified: report.multiHourQualified }) + '\n');
 }

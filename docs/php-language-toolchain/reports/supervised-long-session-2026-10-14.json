@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-14",
+  "status": "passed",
+  "qualified": true,
+  "fullObjectiveComplete": false,
+  "interruptionControlsPassed": true,
+  "oldSharedSessionExitLost": true,
+  "detachedZeroCaptured": 0,
+  "detachedNonzeroCaptured": 7,
+  "productInputs": 3186,
+  "privateInputs": 5,
+  "coreSHA256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+  "runnerSHA256": "f16a24a67e32c070436f15b78f827e157c715f0081b9dc43fd0b91f250dd6aee",
+  "driverPid": 87566,
+  "driverStartTicks": "56728691",
+  "driverProcessGroup": 87566,
+  "originalToolPid": 87575,
+  "originalToolStartTicks": "56728805",
+  "seconds": 7200,
+  "intervalMs": 250,
+  "controlArchiveFiles": 23,
+  "priorInterruptedRunCommandQualified": false,
+  "originalCommandExitCode": 0,
+  "strictTerminalAuditPassed": true,
+  "elapsedMs": 7200443.036864,
+  "cycles": 23533,
+  "checkedResults": 117665,
+  "staleResults": 0,
+  "windows": 235,
+  "allTimings": {
+    "change": {
+      "samples": 23523,
+      "p50": 29.173166000284255,
+      "p95": 31.060262999999395,
+      "maximum": 37.78377299988642
+    },
+    "betaCompletion": {
+      "samples": 23523,
+      "p50": 2.168315000133589,
+      "p95": 3.643141000531614,
+      "maximum": 10.785249999724329
+    },
+    "betaHover": {
+      "samples": 23523,
+      "p50": 1.7688349999953061,
+      "p95": 3.0469370000064373,
+      "maximum": 12.954873000271618
+    },
+    "betaDefinition": {
+      "samples": 23523,
+      "p50": 1.7875669999048114,
+      "p95": 3.0343770000035875,
+      "maximum": 27.214532000012696
+    },
+    "alphaCompletion": {
+      "samples": 23523,
+      "p50": 1.9604730000719428,
+      "p95": 3.277990000002319,
+      "maximum": 26.912497999612242
+    },
+    "alphaDefinition": {
+      "samples": 23523,
+      "p50": 3.715139999985695,
+      "p95": 6.168424000032246,
+      "maximum": 20.726962000131607
+    }
+  },
+  "peakHighWaterMiB": 313.9453125,
+  "peakCacheMiB": 3.760970115661621,
+  "terminalArchiveFiles": 15,
+  "secondFaultArchiveFiles": 4,
+  "finishedAtUtc": "2026-10-13T21:12:05.576751+00:00",
+  "scope": "Linux normal bundled LSP, 1k synthetic continuous unsaved edits/close recovery, actual process exit/cache manifest corruption; excludes editor UI, real project, cancellation, Remote and other modes/platforms"
+}

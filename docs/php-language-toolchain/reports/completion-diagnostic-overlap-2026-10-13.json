@@ -1,0 +1,355 @@
+{
+  "scope": "Eight-edit current Controller completion callback/diagnostic rule overlap observation",
+  "observation": {
+    "status": "exited",
+    "wrapperPid": 47202,
+    "startedAtUtc": "2026-10-13T03:28:03.253645+00:00",
+    "products": 2090,
+    "projectInputs": 66079,
+    "stages": [
+      {
+        "name": "build-control",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/completion-diagnostic-overlap-2026-10-13/build-private.mjs",
+          "--production",
+          "control"
+        ],
+        "status": "exited",
+        "pid": 47450,
+        "processGroup": 47450,
+        "startTicks": "51071012",
+        "exitCode": 0,
+        "logSha256": "0b66478d1081aacc6e2e9d2f05c389ba5b70cc98a6d052fd229a472785aa9407"
+      },
+      {
+        "name": "build-instrumented",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/completion-diagnostic-overlap-2026-10-13/build-private.mjs",
+          "--production",
+          "instrumented"
+        ],
+        "status": "exited",
+        "pid": 47490,
+        "processGroup": 47490,
+        "startTicks": "51071163",
+        "exitCode": 0,
+        "logSha256": "8cf59148751087eee779a7350819391b59993aeea035e4847ef3be732901cc35"
+      },
+      {
+        "name": "probe-control",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/completion-diagnostic-overlap-2026-10-13/probe.mjs",
+          "/var/www/node/php-companion/.vscode-test/completion-diagnostic-overlap-2026-10-13/control-probe",
+          "/var/www/node/php-companion/.vscode-test/completion-diagnostic-overlap-2026-10-13/control-runtime/language-server.js",
+          "8"
+        ],
+        "status": "exited",
+        "pid": 47532,
+        "processGroup": 47532,
+        "startTicks": "51071335",
+        "exitCode": 0,
+        "logSha256": "430cc9ac5d22df021db4bb89e4abbea1edb4fe67e71cb78928825992e5c07922"
+      },
+      {
+        "name": "probe-instrumented",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/completion-diagnostic-overlap-2026-10-13/probe.mjs",
+          "/var/www/node/php-companion/.vscode-test/completion-diagnostic-overlap-2026-10-13/instrumented-probe",
+          "/var/www/node/php-companion/.vscode-test/completion-diagnostic-overlap-2026-10-13/instrumented-runtime/language-server.js",
+          "8"
+        ],
+        "status": "exited",
+        "pid": 47726,
+        "processGroup": 47726,
+        "startTicks": "51074127",
+        "exitCode": 0,
+        "logSha256": "634339fcee5682cc14767eeffba63deef111b857f9b689b8d9e1620380f4d71d"
+      }
+    ],
+    "qualifiedObservation": true,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "protocolResults": {
+      "control": {
+        "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+        "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "serverSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+        "rounds": 8,
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "normalProtocol": true,
+        "profiled": false,
+        "instrumentedCounts": false,
+        "cacheDirectory": "/tmp/sophp-controller-profile-0QhR6N",
+        "cacheDirectoryRemoved": true,
+        "serverPid": 47546,
+        "exitCode": 0,
+        "signal": null,
+        "correctnessPassed": true,
+        "rows": 8,
+        "completion": {
+          "count": 8,
+          "p95Ms": 627.8761950000007,
+          "maxMs": 627.8761950000007
+        },
+        "diagnostics": {
+          "count": 8,
+          "p95Ms": 2259.3872920000003,
+          "maxMs": 2259.3872920000003
+        },
+        "diskUnchanged": true,
+        "scope": "Eight-edit completion/diagnostic timeline observation; not performance qualification."
+      },
+      "instrumented": {
+        "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+        "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "serverSha256": "92b12e9606e16f98e4f6beeb42d6a6450228680c8467f167fc9d5c4955fc0f19",
+        "rounds": 8,
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "normalProtocol": true,
+        "profiled": false,
+        "instrumentedCounts": true,
+        "cacheDirectory": "/tmp/sophp-controller-profile-2VBVe1",
+        "cacheDirectoryRemoved": true,
+        "serverPid": 47737,
+        "exitCode": 0,
+        "signal": null,
+        "correctnessPassed": true,
+        "rows": 8,
+        "completion": {
+          "count": 8,
+          "p95Ms": 693.1604199999992,
+          "maxMs": 693.1604199999992
+        },
+        "diagnostics": {
+          "count": 8,
+          "p95Ms": 2211.849094,
+          "maxMs": 2211.849094
+        },
+        "diskUnchanged": true,
+        "scope": "Eight-edit completion/diagnostic timeline observation; not performance qualification."
+      }
+    },
+    "completeVisibleResultEquality": true,
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "counterEvidence": [
+      "/var/www/node/php-companion/.vscode-test/completion-diagnostic-overlap-2026-10-13/overlap-trace.47737.json"
+    ],
+    "mainThreadCounterPid": 47737,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-13T03:29:08.858409+00:00"
+  },
+  "analysis": {
+    "analyzedAtUtc": "2026-10-13T03:44:16.219307+00:00",
+    "sampleCount": 8,
+    "publications": 10,
+    "completionRows": [
+      {
+        "version": 2,
+        "clientCompletionMs": 693.1604199999992,
+        "handlerElapsedMs": 45.73700000000008,
+        "clientMinusHandlerMs": 647.4234199999992,
+        "overlappingSynchronousMs": 0,
+        "overlappingRules": [],
+        "sameVersionSyntaxRelativeToHandlerEnd": [
+          {
+            "publicationVersion": 2,
+            "beginAfterHandlerEndMs": 2.741707000000133,
+            "endAfterHandlerEndMs": 91.34598199999982
+          }
+        ]
+      },
+      {
+        "version": 3,
+        "clientCompletionMs": 635.9909029999999,
+        "handlerElapsedMs": 26.012947999999597,
+        "clientMinusHandlerMs": 609.9779550000003,
+        "overlappingSynchronousMs": 0,
+        "overlappingRules": [],
+        "sameVersionSyntaxRelativeToHandlerEnd": [
+          {
+            "publicationVersion": 3,
+            "beginAfterHandlerEndMs": 2.8474089999999705,
+            "endAfterHandlerEndMs": 113.2267780000002
+          }
+        ]
+      },
+      {
+        "version": 4,
+        "clientCompletionMs": 120.70838700000058,
+        "handlerElapsedMs": 21.766513000000486,
+        "clientMinusHandlerMs": 98.9418740000001,
+        "overlappingSynchronousMs": 0,
+        "overlappingRules": [],
+        "sameVersionSyntaxRelativeToHandlerEnd": [
+          {
+            "publicationVersion": 4,
+            "beginAfterHandlerEndMs": 6.197328000000198,
+            "endAfterHandlerEndMs": 108.78808700000081
+          }
+        ]
+      },
+      {
+        "version": 5,
+        "clientCompletionMs": 142.0301419999996,
+        "handlerElapsedMs": 21.67169400000057,
+        "clientMinusHandlerMs": 120.35844799999904,
+        "overlappingSynchronousMs": 0,
+        "overlappingRules": [],
+        "sameVersionSyntaxRelativeToHandlerEnd": [
+          {
+            "publicationVersion": 5,
+            "beginAfterHandlerEndMs": 8.882578999999168,
+            "endAfterHandlerEndMs": 121.30999599999996
+          }
+        ]
+      },
+      {
+        "version": 6,
+        "clientCompletionMs": 104.95474299999842,
+        "handlerElapsedMs": 15.754836000000068,
+        "clientMinusHandlerMs": 89.19990699999835,
+        "overlappingSynchronousMs": 0,
+        "overlappingRules": [],
+        "sameVersionSyntaxRelativeToHandlerEnd": [
+          {
+            "publicationVersion": 6,
+            "beginAfterHandlerEndMs": 7.992717999997694,
+            "endAfterHandlerEndMs": 151.20218499999828
+          }
+        ]
+      },
+      {
+        "version": 7,
+        "clientCompletionMs": 121.68624100000306,
+        "handlerElapsedMs": 18.3505359999981,
+        "clientMinusHandlerMs": 103.33570500000496,
+        "overlappingSynchronousMs": 0,
+        "overlappingRules": [],
+        "sameVersionSyntaxRelativeToHandlerEnd": [
+          {
+            "publicationVersion": 7,
+            "beginAfterHandlerEndMs": 6.220320000000356,
+            "endAfterHandlerEndMs": 103.93189799999891
+          }
+        ]
+      },
+      {
+        "version": 8,
+        "clientCompletionMs": 133.96141299999726,
+        "handlerElapsedMs": 19.725905000002967,
+        "clientMinusHandlerMs": 114.2355079999943,
+        "overlappingSynchronousMs": 0,
+        "overlappingRules": [],
+        "sameVersionSyntaxRelativeToHandlerEnd": [
+          {
+            "publicationVersion": 8,
+            "beginAfterHandlerEndMs": 8.354417999998986,
+            "endAfterHandlerEndMs": 104.00351299999966
+          }
+        ]
+      },
+      {
+        "version": 9,
+        "clientCompletionMs": 111.51451299999826,
+        "handlerElapsedMs": 15.109556999999768,
+        "clientMinusHandlerMs": 96.40495599999849,
+        "overlappingSynchronousMs": 0,
+        "overlappingRules": [],
+        "sameVersionSyntaxRelativeToHandlerEnd": [
+          {
+            "publicationVersion": 9,
+            "beginAfterHandlerEndMs": 12.582502999997814,
+            "endAfterHandlerEndMs": 116.1840400000001
+          }
+        ]
+      }
+    ],
+    "pendingCompletionDiagnosticOverlapObserved": false,
+    "decision": "Do not prototype diagnostics waiting for active completion handlers from this observation; no overlap evidence",
+    "remainingTimingQuestion": "Slow client completion elapsed time lies largely outside callback-body timing. Queueing, response delivery and other work are not separately measured. Post-handler syntax starts are correlation only.",
+    "observedScope": "Instrumented current member completion path; eight edits, observer overhead included; no P95 admission",
+    "productionChanged": false,
+    "prototypeImplemented": false,
+    "fullObjectiveComplete": false
+  },
+  "audit": {
+    "qualified": true,
+    "auditedAtUtc": "2026-10-13T03:46:17.779261+00:00",
+    "products": 2090,
+    "projectInputs": 66079,
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "controlRuntimeByteEquality": [
+      {
+        "name": "tree-sitter-php.wasm",
+        "sameBytes": true
+      },
+      {
+        "name": "extension.js",
+        "sameBytes": true
+      },
+      {
+        "name": "candidateWorker.js",
+        "sameBytes": true
+      },
+      {
+        "name": "portableCandidateSearchWorker.js",
+        "sameBytes": true
+      },
+      {
+        "name": "language-server.js",
+        "sameBytes": true
+      },
+      {
+        "name": "sourceStatWorker.js",
+        "sameBytes": true
+      },
+      {
+        "name": "web-tree-sitter.wasm",
+        "sameBytes": true
+      },
+      {
+        "name": "builtinSnapshotWorker.js",
+        "sameBytes": true
+      }
+    ],
+    "remainingProcessGroupMembers": [],
+    "remainingCaches": [],
+    "visibleResultsEqual": true,
+    "observerOverheadIncluded": true,
+    "eightEditsPerVariant": true,
+    "performanceAdmissionExecuted": false,
+    "productionChanged": false,
+    "fullObjectiveComplete": false
+  },
+  "artifactDigests": {
+    "analysis.json": "062344bbb5c33719c1636523e86800a2a978257d14e626247d6b8fb6e0181222",
+    "analyze.py": "84f4e582551145af652842e28cf55d2298b3b3eaaacb4ec5a1912f3fb16259ed",
+    "audit.py": "4e89d2e9676e0482d549c95de30b07b8983fa9b0c61243f9dadfda7afe95178a",
+    "build-control.log": "0b66478d1081aacc6e2e9d2f05c389ba5b70cc98a6d052fd229a472785aa9407",
+    "build-instrumented.log": "8cf59148751087eee779a7350819391b59993aeea035e4847ef3be732901cc35",
+    "build-private.mjs": "ac939a32878b7ca639fb836d1ac16bc7a61f44b0d34f520aa2a7bb66cf164125",
+    "final-audit.json": "c1e480130dc1fe50aaa8e25257de21e792b6b6e98ed23f3df2b0aa4f4283860c",
+    "instrument.mjs": "52253fcd74e5b15e775cdae32a951d74605085554fc79e5926da624f0c30814a",
+    "observation-state.json": "e9f95878e0d5fb41122b4ed55440c9d1f6ee8a46655f43f1274f38eed9b241cf",
+    "overlap-trace.47737.json": "162bd710383fc933e8d703d0a0eb877e25e68a42ee5d6637da5059d971a46489",
+    "preparation.json": "97b4803f50d562106251ed4719746b535ad584cdb44c02f5db24b46f4db4e131",
+    "probe-control.log": "430cc9ac5d22df021db4bb89e4abbea1edb4fe67e71cb78928825992e5c07922",
+    "probe-instrumented.log": "634339fcee5682cc14767eeffba63deef111b857f9b689b8d9e1620380f4d71d",
+    "probe.mjs": "d231582811bd09e463af0e4a4460c827030521d520a2224112b822517e417fe3",
+    "run-observation.py": "fb81c1684dbd05b1f88f657b8a47c918a18615c1ecf9bc345259aa283e46f65e"
+  },
+  "prototypeImplemented": false,
+  "performanceAdmissionExecuted": false,
+  "productionChanged": false,
+  "fullObjectiveComplete": false
+}

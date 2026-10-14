@@ -1,0 +1,28 @@
+{
+  "editingPairs": 4,
+  "startupChecksExcluded": 4,
+  "localTypeReadsPerEdit": 68363,
+  "fullTypeReadsPerEdit": 53102,
+  "localMedianTypeReadMs": 17.543127500180162,
+  "fullMedianTypeReadMs": 13.35607050017461,
+  "medianCombinedReadMs": 31.155330500354466,
+  "perEditCombinedReadMs": [
+    27.027078999964942,
+    31.94440800020311,
+    30.69504300013614,
+    31.615618000572795
+  ],
+  "medianRepeatRatio": 0.9437533445848598,
+  "trackedEntriesMax": 3798,
+  "counterCapped": false,
+  "changedTypeReads": 0,
+  "eligibleForPrototype": false,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "fullResultsEqual": true,
+  "frozenProductsUnchanged": 1012,
+  "frozenProjectUnchanged": 66079,
+  "ownedProcessesGone": true,
+  "cacheDirectoriesRemoved": true,
+  "normalCoreSha256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375"
+}

@@ -524,13 +524,13 @@ function syntacticallyUnreachableCall(file: SemanticFile, call: ParsedCall,
     const leaf = tree.rootNode.namedDescendantForIndex(call.start, call.end);
     if (!leaf) return false;
     let boundary: SyntaxNode = leaf;
-    while (boundary.parent && !['function_definition', 'method_declaration', 'anonymous_function', 'arrow_function'].includes(boundary.type)) {
-      boundary = boundary.parent;
+    while (__argumentSyntaxParent(boundary) && !['function_definition', 'method_declaration', 'anonymous_function', 'arrow_function'].includes(boundary.type)) {
+      boundary = __argumentSyntaxParent(boundary)!;
     }
     let current: SyntaxNode | null = leaf;
     let depth = 0;
     while (current && current.id !== boundary.id && depth++ < MAX_LOCAL_SYNTAX_DEPTH) {
-      const parent: SyntaxNode | null = current.parent;
+      const parent: SyntaxNode | null = __argumentSyntaxParent(current);
       if (parent?.type === 'compound_statement' && !parent.hasError) {
         const siblings = parent.namedChildren;
         const index = siblings.findIndex(node => node.id === current!.id);
@@ -549,7 +549,7 @@ function syntacticallyUnreachableCall(file: SemanticFile, call: ParsedCall,
       });
       proven = gotos.complete && !gotos.stopped;
     }
-  } finally { temporary?.delete(); }
+  } finally { __argumentTreeDelete(temporary); }
   const entries = cached ?? new Map<number, boolean>();
   if (entries.size < 1024) entries.set(call.start, proven);
   if (!cached) unreachableCallSites.set(file, entries);
@@ -584,21 +584,66 @@ function deepestLocalSyntax(root: SyntaxNode, start: number, end: number, predic
       path.push(current);
       if (path.length > MAX_LOCAL_SYNTAX_DEPTH + 1) return undefined;
       if (current.id === root.id) break;
-      current = current.parent;
+      current = __argumentSyntaxParent(current);
     }
     if (path.at(-1)?.id !== root.id) return undefined;
     let result: SyntaxNode | undefined;
     for (const node of path.reverse()) if (node.isNamed && predicate(node)) result = node;
     return result;
   }
+  if (start !== end) {
+    let result: SyntaxNode | undefined;
+    let resultDepth = -1;
+    const traversal = walkLocalSyntax(root, (node, depth) => {
+      if (start < node.startIndex || end > node.endIndex) return 'skip';
+      if (predicate(node) && depth > resultDepth) { result = node; resultDepth = depth; }
+      return 'descend';
+    });
+    return traversal.complete ? result : undefined;
+  }
   let result: SyntaxNode | undefined;
   let resultDepth = -1;
-  const traversal = walkLocalSyntax(root, (node, depth) => {
-    if (start < node.startIndex || end > node.endIndex) return 'skip';
+  const pending: Array<{ node: SyntaxNode; depth: number } | { skip: number; depth: number }> = [{ node: root, depth: 0 }];
+  let visited = 0;
+  while (pending.length) {
+    const current = pending.pop()!;
+    if ('skip' in current) {
+      visited += current.skip;
+      if (visited > MAX_LOCAL_SYNTAX_NODES || current.skip > 0 && current.depth > MAX_LOCAL_SYNTAX_DEPTH) return undefined;
+      continue;
+    }
+    visited += 1;
+    if (visited > MAX_LOCAL_SYNTAX_NODES || current.depth > MAX_LOCAL_SYNTAX_DEPTH) return undefined;
+    const { node, depth } = current;
+    if (start < node.startIndex || end > node.endIndex) continue;
     if (predicate(node) && depth > resultDepth) { result = node; resultDepth = depth; }
-    return 'descend';
-  });
-  return traversal.complete ? result : undefined;
+    const count = node.namedChildCount;
+    if (!count) continue;
+    // Ordered siblings can touch at the cursor. Keep all containing siblings,
+    // their original left-to-right order, and the counts of skipped siblings.
+    let low = 0; let high = count;
+    while (low < high) {
+      const middle = (low + high) >>> 1;
+      if (node.namedChild(middle)!.endIndex < end) low = middle + 1; else high = middle;
+    }
+    const first = low;
+    low = first; high = count;
+    while (low < high) {
+      const middle = (low + high) >>> 1;
+      if (node.namedChild(middle)!.startIndex <= start) low = middle + 1; else high = middle;
+    }
+    const last = low;
+    if (first >= last) {
+      pending.push({ skip: count, depth: depth + 1 });
+      continue;
+    }
+    if (last < count) pending.push({ skip: count - last, depth: depth + 1 });
+    for (let index = last - 1; index >= first; index -= 1) {
+      pending.push({ node: node.namedChild(index)!, depth: depth + 1 });
+    }
+    if (first) pending.push({ skip: first, depth: depth + 1 });
+  }
+  return result;
 }
 
 function isPureReorderLiteral(node: SyntaxNode, budget = { remaining: 128 }, allowMagicConstants = false): boolean {
@@ -614,13 +659,15 @@ function isPureReorderLiteral(node: SyntaxNode, budget = { remaining: 128 }, all
 }
 
 function firstLocalSyntax(root: SyntaxNode, predicate: (node: SyntaxNode) => boolean, range?: { start: number; end: number }): SyntaxNode | undefined {
+  root = __argumentTraversalRoot(root);
   let result: SyntaxNode | undefined;
   const traversal = walkLocalSyntax(root, (node) => {
     if (range && (node.endIndex < range.start || node.startIndex > range.end)) return 'skip';
-    if (!predicate(node)) return 'descend';
+    if (!predicate(node)) { __argumentTraversalChildren(root, node); return 'descend'; }
     result = node;
     return 'stop';
   });
+  if (result) __argumentTraversalRelease(root);
   return traversal.complete ? result : undefined;
 }
 
@@ -2106,7 +2153,7 @@ export class SemanticWorkspace {
     // the tree retained while the document was open.
     const oldSource = oldFile?.source; const previousTree = this.trees.get(uri);
     const oldTree = retainTree ? previousTree : undefined;
-    if (oldTree && oldSource !== undefined) oldTree.edit(createIncrementalEdit(oldSource, source));
+    if (oldTree && oldSource !== undefined) __argumentTreeEdit(oldTree, createIncrementalEdit(oldSource, source));
     const parsed = prepared ? {
       ...emptyImplementationFacts(), ...prepared.facts, errors: prepared.kind === 'full' ? prepared.facts.errors : [],
       tree: undefined,
@@ -2492,8 +2539,8 @@ export class SemanticWorkspace {
         changedCallables: [...changedCallables].sort(), changedTypes: [...changedTypes].sort(),
       };
     } finally {
-      previousTree?.delete();
-      if (!retainTree) parsed.tree?.delete();
+      __argumentTreeDelete(previousTree);
+      if (!retainTree) __argumentTreeDelete(parsed.tree);
     }
   }
   remove(uri: string): void {
@@ -2511,10 +2558,10 @@ export class SemanticWorkspace {
       : new Set<string>();
     this.files.delete(uri); this.deferredImplementations.delete(uri); this.referenceCandidates.remove(uri); this.unindexedReferenceCandidateUris.delete(uri);
     this.typeDependencies.remove(uri); this.unindexedTypeDependencyUris.delete(uri);
-    this.assertedTargetInferenceCache.clear(); this.controlFlowAssignments.delete(uri); this.trees.get(uri)?.delete(); this.trees.delete(uri);
+    this.assertedTargetInferenceCache.clear(); this.controlFlowAssignments.delete(uri); __argumentTreeDelete(this.trees.get(uri)); this.trees.delete(uri);
     if (hasDerivedCaches) this.invalidateFileDerivedCaches(affectedTypes, changedCallables, true, oldDependents);
   }
-  dispose(): void { for (const tree of this.trees.values()) tree.delete(); this.trees.clear(); this.files.clear(); this.deferredImplementations.clear(); this.deferredImplementationGetters.clear(); this.deferredSources.clear(); this.targetedImplementationQueries.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.typeDependencies.clear(); this.unindexedTypeDependencyUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); this.clearLocalProofCaches(); this.valueParameterCallInProgress.clear(); this.readOnlyParseUrlInProgress.clear(); }
+  dispose(): void { for (const tree of this.trees.values()) __argumentTreeDelete(tree); this.trees.clear(); this.files.clear(); this.deferredImplementations.clear(); this.deferredImplementationGetters.clear(); this.deferredSources.clear(); this.targetedImplementationQueries.clear(); this.referenceCandidates.clear(); this.unindexedReferenceCandidateUris.clear(); this.typeDependencies.clear(); this.unindexedTypeDependencyUris.clear(); this.controlFlowAssignments.clear(); this.externalFacts.clear(); this.constructorInitializationSummaries.clear(); this.clearFactoryConstructionCaches(); this.assertedTargetInferenceCache.clear(); this.readonlyAnalysisInProgress.clear(); this.clearLocalProofCaches(); this.valueParameterCallInProgress.clear(); this.readOnlyParseUrlInProgress.clear(); }
   replaceExternalFacts(contribution: SemanticFactsContribution): boolean {
     if (!isSemanticFactsContribution(contribution)) return false;
     const previous = this.externalFacts.get(contribution.providerId);
@@ -2855,7 +2902,7 @@ export class SemanticWorkspace {
     this.clearLocalProofCaches();
     // Restored facts replace the source that owned any retained syntax tree.
     // Never let lazy implementation loading save and reattach a deleted tree.
-    this.trees.get(restoredFile.uri)?.delete(); this.trees.delete(restoredFile.uri);
+    __argumentTreeDelete(this.trees.get(restoredFile.uri)); this.trees.delete(restoredFile.uri);
     this.deferredImplementations.delete(restoredFile.uri); this.files.set(restoredFile.uri, restoredFile);
     this.referenceResultCache.clear();
     this.controlFlowAssignments.set(restoredFile.uri, new Set(implementationFacts.controlFlowAssignments));
@@ -2924,7 +2971,7 @@ export class SemanticWorkspace {
       if (temporaryTree) {
         if (previousTree) this.trees.set(file.uri, previousTree);
         else this.trees.delete(file.uri);
-        temporaryTree.delete();
+        __argumentTreeDelete(temporaryTree);
       }
     }
     if (references.indexed && JSON.stringify([...new Set(references.keys)].sort()) !== JSON.stringify(expectedReferenceKeys)
@@ -2934,7 +2981,7 @@ export class SemanticWorkspace {
     const uri = declarationSnapshot.uri;
     this.clearSourceImplementation(uri);
     this.clearLocalProofCaches();
-    this.trees.get(uri)?.delete(); this.trees.delete(uri);
+    __argumentTreeDelete(this.trees.get(uri)); this.trees.delete(uri);
     this.deferredImplementations.delete(uri); this.files.set(uri, this.deferredSemanticFile(file, implementationSnapshotValue));
     this.referenceResultCache.clear();
     this.controlFlowAssignments.delete(uri);
@@ -3112,16 +3159,16 @@ export class SemanticWorkspace {
       return malformed ? 'stop' : 'descend';
     });
     if (!inspection.complete || malformed || ['variable_name', 'name', 'qualified_name'].includes(expression.type)) return undefined;
-    const parent = expression.parent; let statement: SyntaxNode | undefined;
+    const parent = __argumentSyntaxParent(expression); let statement: SyntaxNode | undefined;
     if (parent?.type === 'assignment_expression') {
       const left = parent.childForFieldName('left'); const right = parent.childForFieldName('right');
-      if (left?.type !== 'variable_name' || right?.startIndex !== expression.startIndex || right.endIndex !== expression.endIndex || parent.parent?.type !== 'expression_statement') return undefined;
-      statement = parent.parent;
+      if (left?.type !== 'variable_name' || right?.startIndex !== expression.startIndex || right.endIndex !== expression.endIndex || __argumentSyntaxParent(parent)?.type !== 'expression_statement') return undefined;
+      statement = __argumentSyntaxParent(parent)!;
     } else if (parent?.type === 'return_statement' && parent.namedChildren[0]?.startIndex === expression.startIndex && parent.namedChildren[0].endIndex === expression.endIndex) statement = parent;
     else if (parent?.type === 'echo_statement' && parent.namedChildren.length === 1
       && parent.namedChildren[0]?.startIndex === expression.startIndex && parent.namedChildren[0].endIndex === expression.endIndex) statement = parent;
     else return undefined;
-    if (statement.parent?.type !== 'compound_statement') return undefined;
+    if (__argumentSyntaxParent(statement)?.type !== 'compound_statement') return undefined;
     const lineStart = file.source.lastIndexOf('\n', Math.max(0, statement.startIndex - 1)) + 1;
     const leading = file.source.slice(lineStart, statement.startIndex); if (!/^\s*$/.test(leading)) return undefined;
     const scope = this.containingScope(file, statement.startIndex); if (!scope) return undefined;
@@ -3140,9 +3187,9 @@ export class SemanticWorkspace {
   inlineVariable(uri: string, offset: number): InlineVariableInfo | undefined {
     const file = this.files.get(uri); const tree = this.trees.get(uri); if (!file || !tree) return undefined;
     const variable = deepestLocalSyntax(tree.rootNode, offset, offset, (node) => node.type === 'variable_name');
-    const assignment = variable?.parent;
+    const assignment = (variable && __argumentSyntaxParent(variable));
     if (!variable || assignment?.type !== 'assignment_expression' || assignment.childForFieldName('left')?.startIndex !== variable.startIndex
-      || assignment.parent?.type !== 'expression_statement' || assignment.parent.parent?.type !== 'compound_statement') return undefined;
+      || __argumentSyntaxParent(assignment)?.type !== 'expression_statement' || __argumentSyntaxParent(__argumentSyntaxParent(assignment)!)?.type !== 'compound_statement') return undefined;
     const right = assignment.childForFieldName('right'); if (!right || /=\s*&/.test(assignment.text)) return undefined;
     let malformed = false;
     const inspection = walkLocalSyntax(right, (node) => {
@@ -3150,7 +3197,7 @@ export class SemanticWorkspace {
       return malformed ? 'stop' : 'descend';
     });
     if (!inspection.complete || malformed) return undefined;
-    const statement = assignment.parent; const block = statement.parent; if (!block) return undefined;
+    const statement = __argumentSyntaxParent(assignment)!; const block = __argumentSyntaxParent(statement); if (!block) return undefined;
     const statementIndex = block.namedChildren.findIndex((item) => item.startIndex === statement.startIndex && item.endIndex === statement.endIndex);
     // Comments do not execute or change the value, and belong with the remaining statement after inlining.
     const next = statementIndex >= 0
@@ -3276,7 +3323,7 @@ export class SemanticWorkspace {
         const targets = this.members(className, scope, new Set(), false, undefined, true)
           .filter(member => member.kind === 'method' && member.name.toLowerCase() === methodName.toLowerCase());
         return targets.length === 1 && enqueue(targets[0]!);
-      } finally {tree.delete();}
+      } finally {__argumentTreeDelete(tree);}
     };
     const enqueueMagic = (className: string, name: string, current: typeof pending[number]): boolean => {
       if (!this.hasCompleteHierarchy(className)) return false;
@@ -3333,7 +3380,7 @@ export class SemanticWorkspace {
               }
             }
           }
-        } finally { tree.delete(); }
+        } finally { __argumentTreeDelete(tree); }
       }
       const type = this.provenArgumentType(current.file, expression.start, expression.end);
       const visit = (item: PhpType | undefined, depth = 0): boolean => {
@@ -3382,10 +3429,10 @@ export class SemanticWorkspace {
     };
     const accessContext = (input: SyntaxNode): 'read' | 'isset' | 'empty' | 'unset' => {
       let node = input;
-      while (node.parent?.type === 'parenthesized_expression') node = node.parent;
-      if (node.parent?.type === 'unset_statement') return 'unset';
-      const argument = node.parent;
-      const call = argument?.type === 'argument' ? argument.parent?.parent : undefined;
+      while (__argumentSyntaxParent(node)?.type === 'parenthesized_expression') node = __argumentSyntaxParent(node)!;
+      if (__argumentSyntaxParent(node)?.type === 'unset_statement') return 'unset';
+      const argument = __argumentSyntaxParent(node);
+      const call = argument?.type === 'argument' ? __argumentSyntaxParent(__argumentSyntaxParent(argument)) : undefined;
       const name = call?.type === 'function_call_expression' ? call.childForFieldName('function')?.text.toLowerCase() : undefined;
       return name === 'isset' || name === 'empty' ? name : 'read';
     };
@@ -3405,8 +3452,8 @@ export class SemanticWorkspace {
       const receiver = node.namedChildren[0]; if (!receiver) return false;
       const context = accessContext(node);
       let expression = node;
-      while (expression.parent?.type === 'parenthesized_expression') expression = expression.parent;
-      const parent = expression.parent;
+      while (__argumentSyntaxParent(expression)?.type === 'parenthesized_expression') expression = __argumentSyntaxParent(expression)!;
+      const parent = __argumentSyntaxParent(expression);
       const assignment = parent && ['assignment_expression', 'augmented_assignment_expression', 'reference_assignment_expression'].includes(parent.type)
         && parent.childForFieldName('left')?.id === expression.id;
       const update = parent?.type === 'update_expression';
@@ -3448,7 +3495,7 @@ export class SemanticWorkspace {
             });
             return scan.complete && (generator || values.length > 0 && values.every(value => value
               && enqueueIteration(nested, value, includeKey, new Set(seen).add(key))));
-          } finally { tree.delete(); }
+          } finally { __argumentTreeDelete(tree); }
         }
         const visibleProperties = (scope?: string): MemberInfo[] => this.members(className, scope, new Set(), false, undefined, true)
           .filter(member => member.kind === 'property' && !member.static && !member.synthetic);
@@ -3485,7 +3532,7 @@ export class SemanticWorkspace {
             return safe ? 'descend' : 'stop';
           });
           return scan.complete && safe && returned;
-        } finally { tree.delete(); }
+        } finally { __argumentTreeDelete(tree); }
       };
       const visit = (type: PhpType | undefined, depth = 0): boolean => {
         if (!type || depth >= MAX_SEMANTIC_GRAPH_DEPTH || ++inspectedCalls > MAX_LOCAL_SYNTAX_NODES) return false;
@@ -3582,15 +3629,15 @@ export class SemanticWorkspace {
             try {
               let value = deepestLocalSyntax(tree.rootNode, call.start, call.end,
                 node => node.type === 'object_creation_expression' && node.startIndex === call.start && node.endIndex === call.end);
-              while (value?.parent?.type === 'parenthesized_expression') value = value.parent;
-              const parent = value?.parent;
+              while ((value && __argumentSyntaxParent(value))?.type === 'parenthesized_expression') value = __argumentSyntaxParent(value)!;
+              const parent = (value && __argumentSyntaxParent(value));
               const accessor = parent?.type === 'member_call_expression' && parent.childForFieldName('object')?.id === value?.id
                 ? parent.childForFieldName('name') : undefined;
               const targets = accessor && /^(?:getMessage|getCode)$/iu.test(accessor.text)
                 ? this.membersAt(current.file.uri, accessor.startIndex + 1).filter(member => member.kind === 'method') : [];
               if (!this.fileAndDeclaration(owner)?.file.uri.startsWith('php-companion-builtin:')
                 || targets.length !== 1 || !targets[0]!.uri.startsWith('php-companion-builtin:')) return true;
-            } finally { tree.delete(); }
+            } finally { __argumentTreeDelete(tree); }
           }
         }
         const targets = call.kind === 'function'
@@ -3613,7 +3660,7 @@ export class SemanticWorkspace {
               let value = deepestLocalSyntax(tree.rootNode, argument.start, argument.end, node => node.startIndex === argument.start && node.endIndex === argument.end);
               if (value && ['argument', 'named_argument'].includes(value.type)) value = value.childForFieldName('value') ?? value.namedChildren.at(-1);
               if (!value || !enqueueConversion(current, { start: value.startIndex, end: value.endIndex })) return true;
-            } finally { tree.delete(); }
+            } finally { __argumentTreeDelete(tree); }
           }
           if (target.uri.startsWith('php-companion-builtin:')) {
             const nativeName = target.fqcn.toLowerCase();
@@ -3629,7 +3676,7 @@ export class SemanticWorkspace {
                     node => node.startIndex === argument.start && node.endIndex === argument.end);
                   if (value && ['argument', 'named_argument'].includes(value.type)) value = value.childForFieldName('value') ?? value.namedChildren.at(-1);
                   return !value || !enqueueNativeValue(current, {start: value.startIndex, end: value.endIndex}, effect);
-                } finally { tree.delete(); }
+                } finally { __argumentTreeDelete(tree); }
               })) return true;
             }
             const callbackFirst = /^(?:call_user_func|call_user_func_array|forward_static_call|forward_static_call_array|closure::fromcallable)$/iu.test(target.fqcn);
@@ -3685,7 +3732,7 @@ export class SemanticWorkspace {
           return unsafe ? 'stop' : 'descend';
         });
         if (!scan.complete || unsafe) return true;
-      } finally { tree.delete(); }
+      } finally { __argumentTreeDelete(tree); }
     }
     return false;
   }
@@ -3881,9 +3928,9 @@ export class SemanticWorkspace {
         if (['include_expression','include_once_expression','require_expression','require_once_expression','eval_expression'].includes(node.type)) { supported = false; return 'stop'; }
         if (node.type === 'variable_name' && node.text === '$this') { supported = false; return 'stop'; }
         if (!['name','qualified_name','relative_scope'].includes(node.type)) return 'descend';
-        if (node.parent?.type === 'qualified_name' || node.parent?.type === 'namespace_name') return 'descend';
+        if (__argumentSyntaxParent(node)?.type === 'qualified_name' || __argumentSyntaxParent(node)?.type === 'namespace_name') return 'descend';
         if (node.startIndex === method.start && node.endIndex === method.end) return 'descend';
-        const parent = node.parent;
+        const parent = __argumentSyntaxParent(node);
         if (!parent) { supported = false; return 'stop'; }
         if (parent.type === 'variable_name') return 'descend';
         if (file.memberAccesses.some(access => access.start === node.startIndex && access.end === node.endIndex)) return 'descend';
@@ -3973,7 +4020,7 @@ export class SemanticWorkspace {
               if (!add(edit.start, edit.end, edit.newText)) return undefined;
             } else edits.push(edit);
             references.add(`${ownerFile.uri}:${access.start}:${access.end}`);
-          } finally { if (syntax !== sourceSyntax) syntax.tree.delete(); }
+          } finally { if (syntax !== sourceSyntax) __argumentTreeDelete(syntax.tree); }
         }
       }
       if (family.locations.some(location => !references.has(`${location.uri}:${location.start}:${location.end}`))) return undefined;
@@ -4021,7 +4068,7 @@ export class SemanticWorkspace {
       const legacy = this.preserveLegacyConstruction(edits, undefined, [target.declaration.fqcn]); if (!legacy) return undefined;
       return { uri, callable: method.fqcn, targetClass: target.declaration.fqcn, kind: 'static-method', edits,
         checkedUris: [...new Set([...this.files.keys(), ...legacy])].filter(checkedUri => checkedUri.startsWith('file:')) };
-    } finally { sourceSyntax.tree.delete(); targetSyntax.tree.delete(); }
+    } finally { __argumentTreeDelete(sourceSyntax.tree); __argumentTreeDelete(targetSyntax.tree); }
   }
 
   extractInterface(uri: string, offset: number, phpVersion = '8.5'): ExtractInterfaceInfo | undefined {
@@ -4038,8 +4085,8 @@ export class SemanticWorkspace {
     const namespace = declaration.fqcn.slice(0, declaration.fqcn.length - declaration.name.length).replace(/\\$/u, '');
     const interfaceFqcn = namespace ? `${namespace}\\${interfaceName}` : interfaceName;
     if ([...this.files.values()].some((candidate) => candidate.declarations.some((item) => item.fqcn.toLowerCase() === interfaceFqcn.toLowerCase()))) return undefined;
-    const lexicalParent = classNode.parent;
-    if (lexicalParent?.type !== 'program' && !(lexicalParent?.type === 'compound_statement' && lexicalParent.parent?.type === 'namespace_definition')) return undefined;
+    const lexicalParent = __argumentSyntaxParent(classNode);
+    if (lexicalParent?.type !== 'program' && !(lexicalParent?.type === 'compound_statement' && __argumentSyntaxParent(lexicalParent)?.type === 'namespace_definition')) return undefined;
     const siblings = lexicalParent.namedChildren;
     const classIndex = siblings.findIndex((node) => node.type === 'class_declaration' && node.startIndex === classNode.startIndex && node.endIndex === classNode.endIndex);
     if (classIndex < 0) return undefined;
@@ -4110,14 +4157,14 @@ export class SemanticWorkspace {
     const interfaceSource = `<?php\n\n${namespace ? `namespace ${namespace};\n\n` : ''}${importText ? `${importText}\n\n` : ''}interface ${interfaceName}\n{\n${signatures.join('\n')}\n}\n`;
     const parsedInterface = this.parser.parse(interfaceSource);
     try { if (parsedInterface.errors.length || parsedInterface.declarations.length !== 1 || parsedInterface.callables.length !== signatures.length) return undefined; }
-    finally { parsedInterface.tree.delete(); }
+    finally { __argumentTreeDelete(parsedInterface.tree); }
     let insertOffset = body.startIndex;
     while (insertOffset > declaration.declarationStart && /\s/u.test(file.source[insertOffset - 1]!)) insertOffset -= 1;
     const insertText = `${declaration.implementsNames.length ? ', ' : ' implements '}${interfaceName}${insertOffset === body.startIndex ? ' ' : ''}`;
     const altered = `${file.source.slice(0, insertOffset)}${insertText}${file.source.slice(insertOffset)}`;
     const parsedClass = this.parser.parse(altered);
     try { if (parsedClass.errors.length) return undefined; }
-    finally { parsedClass.tree.delete(); }
+    finally { __argumentTreeDelete(parsedClass.tree); }
     return { uri, classFqcn: declaration.fqcn, interfaceFqcn, interfaceName, insertOffset, insertText, interfaceSource };
   }
 
@@ -4129,7 +4176,7 @@ export class SemanticWorkspace {
     const callable = this.containingCallable(file, start);
     if (!callable || callable.kind !== 'method' || !callable.containerFqcn || end > callable.declarationEnd) return undefined;
     const body = deepestLocalSyntax(tree.rootNode, start, end,
-      (node) => node.type === 'compound_statement' && node.parent?.type === 'method_declaration');
+      (node) => node.type === 'compound_statement' && __argumentSyntaxParent(node)?.type === 'method_declaration');
     if (!body) return undefined;
     const statements = body.namedChildren.filter((node) => node.startIndex >= start && node.endIndex <= end);
     const scalarEchoVariable = (node: SyntaxNode): boolean => {
@@ -4222,17 +4269,17 @@ export class SemanticWorkspace {
       if (node.type === 'name' && /^(?:__METHOD__|__FUNCTION__|__LINE__)$/iu.test(node.text)
         || callable.static && node.type === 'relative_scope' && /^(?:static|parent)$/iu.test(node.text)) malformed = true;
       if (node.type === 'variable_name' && node.text !== '$this') {
-        const parent = node.parent; const object = parent?.childForFieldName('object');
+        const parent = __argumentSyntaxParent(node); const object = parent?.childForFieldName('object');
         const safeReceiver = Boolean(parent && (parent.type === 'member_call_expression' || parent.type === 'member_access_expression')
           && object?.startIndex === node.startIndex && object.endIndex === node.endIndex && this.variableType(file, node.text, node.startIndex));
-        const echo = parent?.type === 'echo_statement' ? parent : parent?.type === 'sequence_expression' && parent.parent?.type === 'echo_statement' ? parent.parent : undefined;
+        const echo = parent?.type === 'echo_statement' ? parent : parent?.type === 'sequence_expression' && __argumentSyntaxParent(parent)?.type === 'echo_statement' ? __argumentSyntaxParent(parent)! : undefined;
         const safeEchoInput = Boolean(echo && echoOperands(echo).some((child) => child.startIndex === node.startIndex && child.endIndex === node.endIndex)
           && (scope.parameters.some((parameter) => `$${parameter.name}` === node.text) || this.variableType(file, node.text, node.startIndex)));
-        const concatenatedEcho = Boolean(parent && scalarEchoConcatenation(parent) && parent.parent?.type === 'echo_statement'
+        const concatenatedEcho = Boolean(parent && scalarEchoConcatenation(parent) && __argumentSyntaxParent(parent)?.type === 'echo_statement'
           && parent.namedChildren.some((child) => child.startIndex === node.startIndex && child.endIndex === node.endIndex));
         const scalarBinaryReturn = Boolean(parent && (scalarEchoConcatenation(parent) || numericReturnExpression(parent)
           || strictIdentityReturnExpression(parent) || pureScalarChoiceReturn(parent))
-          && parent.parent?.type === 'return_statement'
+          && __argumentSyntaxParent(parent)?.type === 'return_statement'
           && parent.namedChildren.some((child) => child.startIndex === node.startIndex && child.endIndex === node.endIndex));
         const safeReturnInput = Boolean(parent?.type === 'return_statement' && parent.namedChildren.length === 1
           && parent.namedChildren[0]?.startIndex === node.startIndex && parent.namedChildren[0].endIndex === node.endIndex
@@ -4590,7 +4637,7 @@ export class SemanticWorkspace {
         const key = `${scope.start}:${scope.end}`;
         const group = groups.get(key) ?? []; group.push(item); groups.set(key, group);
       }
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
     const eol = file.source.includes('\r\n') ? '\r\n' : '\n';
     const organizations: ImportOrganization[] = [];
     for (const scopedImports of groups.values()) {
@@ -4879,7 +4926,7 @@ export class SemanticWorkspace {
       return 'descend';
     });
     const hasError = root.hasError;
-    temporaryTree?.delete();
+    __argumentTreeDelete(temporaryTree);
     if (hasError || !traversal.complete || incomplete) return [];
     return file.typeReferences.flatMap((reference): InvalidAllowDynamicProperties[] => {
       if (reference.context !== 'attribute') return [];
@@ -5419,7 +5466,7 @@ export class SemanticWorkspace {
         }
         // A reference nested in a hook/default is not the declaration's name.
         if (['property_hook', 'formal_parameters', 'property_declaration'].includes(node.type) && !node.hasError) return undefined;
-        node = node.parent;
+        node = __argumentSyntaxParent(node);
       }
       if (parameterHeader) return result('parameter', 'parameter');
       const member = recoverPhpKeywordCompletionContext(source, start, recoveryTree);
@@ -5427,7 +5474,7 @@ export class SemanticWorkspace {
         && /\b(?:public|protected|private|var|static|readonly)\b[^;{}()]*$/iu.test(variableHeader))
         return result('property', 'property');
       return undefined;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   declarationTypeNameAvailable(uri: string, offset: number, name: string): boolean {
@@ -5489,10 +5536,10 @@ export class SemanticWorkspace {
         if (node.type === 'string_content' || node.type === 'string' || node.type === 'nowdoc') return true;
         if (node.type === 'encapsed_string' || node.type === 'heredoc_body'
           || node.type === 'shell_command_expression') return false;
-        node = node.parent;
+        node = __argumentSyntaxParent(node);
       }
       return false;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private completionQuotedOpening(file: SemanticFile, offset: number): number | undefined {
@@ -5542,7 +5589,7 @@ export class SemanticWorkspace {
       if (attribute && this.signatureContext(attribute.argumentsText, []).namedArgumentPrefix === undefined) return 'attribute';
       return this.recoveredInitializerQuery(file, offset, tree,
         (recovered, at) => this.initializerCompletionKindAt(recovered, at));
-    } finally { temporary?.delete(); }
+    } finally { __argumentTreeDelete(temporary); }
   }
 
   private recoveredInitializerQuery<T>(file: SemanticFile, offset: number,
@@ -5573,14 +5620,14 @@ export class SemanticWorkspace {
       if (recoveredContext || !completeSignature) return recoveredContext;
       const completed = this.parser.parseTree(recoveredSource + ') {}');
       try { return query(completed, start + placeholder.length); }
-      finally { completed.delete(); }
+      finally { __argumentTreeDelete(completed); }
     }
-    finally { recovered.delete(); }
+    finally { __argumentTreeDelete(recovered); }
   }
 
   private initializerCompletionKindAt(tree: ReturnType<PhpSyntaxParser['parseTree']>, offset: number): PhpInitializerCompletionKind | undefined {
     let node = tree.rootNode.namedDescendantForIndex(Math.max(0, offset - 1), offset);
-    for (let remaining = 256; node && remaining-- > 0; node = node.parent) {
+    for (let remaining = 256; node && remaining-- > 0; node = __argumentSyntaxParent(node)) {
       if (['simple_parameter', 'property_promotion_parameter', 'property_element'].includes(node.type)) {
         const value = node.childForFieldName('default_value');
         if (value && offset > value.startIndex && offset <= value.endIndex)
@@ -5593,7 +5640,7 @@ export class SemanticWorkspace {
       if (node.type === 'const_element') {
         const value = node.namedChildren.filter(child => child.type !== 'comment')[1];
         if (value && offset > value.startIndex && offset <= value.endIndex)
-          return ['declaration_list', 'enum_declaration_list'].includes(node.parent?.parent?.type ?? '')
+          return ['declaration_list', 'enum_declaration_list'].includes(__argumentSyntaxParent(__argumentSyntaxParent(node))?.type ?? '')
             ? 'class-constant' : 'global-constant';
       }
       if (node.type === 'enum_case' || node.type === 'static_variable_declaration') {
@@ -5650,7 +5697,7 @@ export class SemanticWorkspace {
           // not inherit the containing callable's result or an outer argument.
           const value = node.childForFieldName('default_value');
           if (!value || offset <= value.startIndex || offset > value.endIndex) return undefined;
-          const declaration = node.type === 'property_element' ? node.parent : node;
+          const declaration = node.type === 'property_element' ? __argumentSyntaxParent(node) : node;
           const nativeType = declaration?.childForFieldName('type');
           const owner = file.declarations.filter(item => node!.startIndex >= item.declarationStart && node!.endIndex <= item.declarationEnd)
             .sort((left, right) => (left.declarationEnd - left.declarationStart) - (right.declarationEnd - right.declarationStart))[0];
@@ -5664,7 +5711,7 @@ export class SemanticWorkspace {
           if (!value || offset <= value.startIndex || offset > value.endIndex) return undefined;
           const owner = file.declarations.filter(item => node!.startIndex >= item.declarationStart && node!.endIndex <= item.declarationEnd)
             .sort((left, right) => (left.declarationEnd - left.declarationStart) - (right.declarationEnd - right.declarationStart))[0];
-          const nativeType = node.type === 'const_element' ? node.parent?.childForFieldName('type') : undefined;
+          const nativeType = node.type === 'const_element' ? __argumentSyntaxParent(node)?.childForFieldName('type') : undefined;
           // An enum case expression produces the backing scalar, not the enum object.
           // Untyped constants have no contract; do not infer one from their current value.
           const type = nativeType ? this.nativeSourceType(file, nativeType.text, owner?.fqcn, nativeType.startIndex)
@@ -5675,7 +5722,7 @@ export class SemanticWorkspace {
         }
         const caseValue = node.type === 'case_statement' ? node.childForFieldName('value') : undefined;
         if (node.type === 'match_condition_list' || caseValue && offset > caseValue.startIndex && offset <= caseValue.endIndex) {
-          const selection = node.type === 'match_condition_list' ? node.parent?.parent?.parent : node.parent?.parent;
+          const selection = node.type === 'match_condition_list' ? __argumentSyntaxParent(__argumentSyntaxParent(__argumentSyntaxParent(node))) : __argumentSyntaxParent(__argumentSyntaxParent(node));
           let subject = selection?.childForFieldName('condition');
           while (subject?.type === 'parenthesized_expression') subject = subject.namedChildren[0] ?? null;
           const scope = subject && this.containingScope(file, subject.startIndex);
@@ -5709,10 +5756,10 @@ export class SemanticWorkspace {
           if (node.childForFieldName('body') && condition && offset > condition.startIndex && offset <= condition.endIndex) return undefined;
           valueStart = node.startIndex;
         } else if (node.type === 'parenthesized_expression') valueStart = node.startIndex;
-        node = node.parent;
+        node = __argumentSyntaxParent(node);
       }
       return remaining > 0 ? { start: valueStart, allowsNull } : undefined;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private expectedArgumentCompletionType(file: SemanticFile, offset: number): PhpType | undefined {
@@ -5782,7 +5829,7 @@ export class SemanticWorkspace {
       const completed = recovered.calls.find(candidate => candidate.argumentsStart === opening
         && candidate.argumentsEnd === offset + 1 && !candidate.firstClassCallable);
       return completed && this.callTemplateArguments(file, completed, signature, owner, templates, ignored, { tree: recovered.tree });
-    } finally { recovered.tree.delete(); }
+    } finally { __argumentTreeDelete(recovered.tree); }
   }
 
   private expectedVariableCompletionType(file: SemanticFile, scope: ParsedScope, start: number, offset: number,
@@ -5845,9 +5892,9 @@ export class SemanticWorkspace {
               returning = node.childForFieldName('body')?.startIndex === start;
               break;
             }
-            node = node.parent;
+            node = __argumentSyntaxParent(node);
           }
-        } finally { temporaryTree?.delete(); }
+        } finally { __argumentTreeDelete(temporaryTree); }
       }
       if (returning) return scope.returnType
         ? this.nativeSourceType(file, scope.returnType, scope.containerFqcn, scope.start) : undefined;
@@ -5870,11 +5917,11 @@ export class SemanticWorkspace {
   }
 
   private enclosingArrayElement(array: SyntaxNode): { element: SyntaxNode; outerArray: SyntaxNode } | undefined {
-    let element = array.parent;
-    while (element?.type === 'parenthesized_expression') element = element.parent;
+    let element = __argumentSyntaxParent(array);
+    while (element?.type === 'parenthesized_expression') element = __argumentSyntaxParent(element);
     if (element?.type !== 'array_element_initializer') return undefined;
-    let outerArray = element.parent;
-    while (outerArray?.type === 'parenthesized_expression') outerArray = outerArray.parent;
+    let outerArray = __argumentSyntaxParent(element);
+    while (outerArray?.type === 'parenthesized_expression') outerArray = __argumentSyntaxParent(outerArray);
     return outerArray?.type === 'array_creation_expression' ? { element, outerArray } : undefined;
   }
 
@@ -5960,7 +6007,7 @@ export class SemanticWorkspace {
       const recovered = fork.files.get(file.uri)!;
       if (recovered.syntaxErrors.length) return undefined;
       return query(fork);
-    } finally { fork?.dispose(); temporaryTree?.delete(); }
+    } finally { fork?.dispose(); __argumentTreeDelete(temporaryTree); }
   }
 
   private recoveredArrayAccessKeys(file: SemanticFile, offset: number): ReturnType<SemanticWorkspace['completeArrayAccessKeys']> {
@@ -5980,11 +6027,11 @@ export class SemanticWorkspace {
     const retainedTree = this.trees.get(uri), temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     try {
       let node: SyntaxNode | null = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(Math.max(0, offset - 1));
-      while (node && node.type !== 'subscript_expression') node = node.parent;
+      while (node && node.type !== 'subscript_expression') node = __argumentSyntaxParent(node);
       const receiver = node?.namedChildren[0];
       if (!receiver) return [];
       return this.expressionValueOwnerTypes(file, (retainedTree ?? temporaryTree)!.rootNode, receiver);
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   /** Declaration dependencies of a queried variable; loading them does not prove its value. */
@@ -6062,7 +6109,7 @@ export class SemanticWorkspace {
       const variable = deepestLocalSyntax(tree.rootNode, reference.start, reference.end,
         candidate => candidate.type === 'variable_name' && candidate.startIndex === reference.start && candidate.endIndex === reference.end);
       return variable ? this.expressionValueOwnerTypes(file, tree.rootNode, variable, functionNames) : [];
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   /** Named function dependencies of a member receiver; they are not value proofs. */
@@ -6082,10 +6129,10 @@ export class SemanticWorkspace {
         const root = (retained ?? temporary)!.rootNode;
         let node: SyntaxNode | null = root.namedDescendantForIndex(Math.max(0, offset - 1));
         while (node && !['member_access_expression', 'nullsafe_member_access_expression',
-          'member_call_expression', 'nullsafe_member_call_expression'].includes(node.type)) node = node.parent;
+          'member_call_expression', 'nullsafe_member_call_expression'].includes(node.type)) node = __argumentSyntaxParent(node);
         const receiver = node?.childForFieldName('object');
         return receiver ? this.expressionValueOwnerTypes(file, root, receiver, functionNames) : [];
-      } finally { temporary?.delete(); }
+      } finally { __argumentTreeDelete(temporary); }
     });
   }
 
@@ -6343,7 +6390,7 @@ export class SemanticWorkspace {
     const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     try {
       let node: SyntaxNode | null = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(Math.max(0, offset - 1));
-      while (node && node.type !== 'subscript_expression') node = node.parent;
+      while (node && node.type !== 'subscript_expression') node = __argumentSyntaxParent(node);
       const receiver = node?.namedChildren[0], key = node?.namedChildren[1];
       if (!receiver) return undefined;
       const empty = !key && /^\s*\[\s*$/u.test(file.source.slice(receiver.endIndex, offset));
@@ -6361,7 +6408,7 @@ export class SemanticWorkspace {
         .sort((left, right) => (completionMatchRank(left.name, prefix) ?? 5)
           - (completionMatchRank(right.name, prefix) ?? 5) || left.name.localeCompare(right.name));
       return {start: quoted?.start ?? offset, end: quoted?.end ?? offset, quote: quoted?.quote ?? "'", keys};
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private expectedShapeAtArray(file: SemanticFile, array: SyntaxNode, root: PhpType): Extract<PhpType, { kind: 'shape' }> | undefined {
@@ -6405,11 +6452,11 @@ export class SemanticWorkspace {
     let outermost = array;
     for (let parent = this.enclosingArrayElement(outermost); parent; parent = this.enclosingArrayElement(outermost))
       outermost = parent.outerArray;
-    const expression = outermost.parent;
+    const expression = __argumentSyntaxParent(outermost);
     if (expression?.type !== 'assignment_expression' && expression?.type !== 'return_statement') return undefined;
-    let callable = expression.parent;
+    let callable = __argumentSyntaxParent(expression);
     while (callable && !['function_definition', 'method_declaration', 'anonymous_function', 'arrow_function'].includes(callable.type))
-      callable = callable.parent;
+      callable = __argumentSyntaxParent(callable);
     if (!callable || (callable.type !== 'function_definition' && callable.type !== 'method_declaration')) return undefined;
     const doc = adjacentPhpDoc(file, callable.startIndex);
     if (!doc || doc.errors.length) return undefined;
@@ -6470,20 +6517,20 @@ export class SemanticWorkspace {
       : delimiter === '[' ? ']' : ';}').join('') + ';';
     const tree = this.parser.parseTree(file.source.slice(0, offset) + quote + suffix);
     let array: SyntaxNode | null = tree.rootNode.namedDescendantForIndex(Math.max(0, offset - 1));
-    while (array && array.type !== 'array_creation_expression') array = array.parent;
-    if (!array) { tree.delete(); return undefined; }
+    while (array && array.type !== 'array_creation_expression') array = __argumentSyntaxParent(array);
+    if (!array) { __argumentTreeDelete(tree); return undefined; }
     let outermost = array;
     for (let parent = this.enclosingArrayElement(outermost); parent; parent = this.enclosingArrayElement(outermost))
       outermost = parent.outerArray;
-    let contractPosition = outermost.parent;
+    let contractPosition = __argumentSyntaxParent(outermost);
     while (contractPosition && !['arguments', 'return_statement', 'assignment_expression', 'compound_statement', 'program', 'ERROR'].includes(contractPosition.type))
-      contractPosition = contractPosition.parent;
+      contractPosition = __argumentSyntaxParent(contractPosition);
     if (!contractPosition || !['arguments', 'return_statement', 'assignment_expression'].includes(contractPosition.type)
       || contractPosition.type === 'assignment_expression' && contractPosition.childForFieldName('right')?.startIndex !== outermost.startIndex) {
-      tree.delete(); return undefined;
+      __argumentTreeDelete(tree); return undefined;
     }
     if (!this.completionValuePosition(file, outermost.startIndex + 1, outermost.startIndex + 1, tree)) {
-      tree.delete(); return undefined;
+      __argumentTreeDelete(tree); return undefined;
     }
     return tree;
   }
@@ -6527,7 +6574,7 @@ export class SemanticWorkspace {
           'nullsafe_member_call_expression', 'scoped_call_expression', 'scoped_property_access_expression',
           'class_constant_access_expression', 'object_creation_expression', 'function_call_expression'].includes(array.type))
           valueStart = Math.min(valueStart, array.startIndex);
-        array = array.parent;
+        array = __argumentSyntaxParent(array);
       }
       if (remaining <= 0) return { insideArray: true };
       if (!array && (unclosedQuote || file.syntaxErrors.length)) {
@@ -6547,7 +6594,7 @@ export class SemanticWorkspace {
             'nullsafe_member_call_expression', 'scoped_call_expression', 'scoped_property_access_expression',
             'class_constant_access_expression', 'object_creation_expression', 'function_call_expression'].includes(array.type))
             valueStart = Math.min(valueStart, array.startIndex);
-          array = array.parent;
+          array = __argumentSyntaxParent(array);
         }
         if (remaining <= 0) return { insideArray: true };
       }
@@ -6565,7 +6612,7 @@ export class SemanticWorkspace {
       if (key === undefined) return { insideArray: true };
       const type = this.expectedShapeAtArray(file, array, expectedRoot)?.fields.find((field) => field.key === key)?.type;
       return { insideArray: true, type: type && position.start > array.startIndex && position.allowsNull ? nullable(type) : type };
-    } finally { completedTree?.delete(); temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(completedTree); __argumentTreeDelete(temporaryTree); }
   }
 
   private recoveredMiddleArrayLiteral<T>(file: SemanticFile, offset: number,
@@ -6591,7 +6638,7 @@ export class SemanticWorkspace {
       // existing arrow or a later string in the unmodified invalid source.
       if (fork.files.get(file.uri)!.syntaxErrors.length) return { invalid: true };
       let node = fork.trees.get(file.uri)!.rootNode.namedDescendantForIndex(Math.max(0, offset - 1));
-      while (node && node.type !== 'array_creation_expression') node = node.parent;
+      while (node && node.type !== 'array_creation_expression') node = __argumentSyntaxParent(node);
       if (!node) return undefined;
       return { value: query(fork), end };
     } finally { fork.dispose(); }
@@ -6676,7 +6723,7 @@ export class SemanticWorkspace {
       let node: SyntaxNode | null = (retainedTree ?? temporaryTree)!.rootNode
         .namedDescendantForIndex(Math.max(0, offset - 1));
       let array: SyntaxNode | null = node;
-      while (array && array.type !== 'array_creation_expression') array = array.parent;
+      while (array && array.type !== 'array_creation_expression') array = __argumentSyntaxParent(array);
       if (!array) {
         const opening = this.completionQuotedOpening(file, offset);
         const trailing = opening === undefined ? undefined : quotedCompletion(file.source, opening, offset);
@@ -6686,13 +6733,13 @@ export class SemanticWorkspace {
           completedTree = this.completedUnclosedArrayTree(file, offset, trailing.start, trailing.quote, (retainedTree ?? temporaryTree)!);
           node = completedTree?.rootNode.namedDescendantForIndex(Math.max(0, offset - 1)) ?? null;
           array = node;
-          while (array && array.type !== 'array_creation_expression') array = array.parent;
+          while (array && array.type !== 'array_creation_expression') array = __argumentSyntaxParent(array);
         }
       }
       if (!array || offset <= array.startIndex || offset > array.endIndex) return undefined;
 
       let element: SyntaxNode | null = node;
-      while (element && element !== array && element.type !== 'array_element_initializer') element = element.parent;
+      while (element && element !== array && element.type !== 'array_element_initializer') element = __argumentSyntaxParent(element);
       if (element === array) element = null;
       element = array.namedChildren.find((child) => child.type === 'array_element_initializer'
         && child.startIndex <= offset && offset <= child.endIndex) ?? element;
@@ -6725,7 +6772,7 @@ export class SemanticWorkspace {
         .sort((left, right) => (completionMatchRank(left.name, prefix) ?? 5)
           - (completionMatchRank(right.name, prefix) ?? 5) || left.name.localeCompare(right.name));
       return { start, end: Math.min(end, file.source.length), quote, hasArrow, keys };
-    } finally { completedTree?.delete(); temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(completedTree); __argumentTreeDelete(temporaryTree); }
   }
 
   private completionVariableType(file: SemanticFile, scope: ParsedScope, variable: string, offset: number, depth = 0): PhpType | undefined {
@@ -6806,7 +6853,7 @@ export class SemanticWorkspace {
           let remaining = 256;
           while (node && node.startIndex >= target.start && remaining-- > 0) {
             if (['unset_statement', 'global_declaration', 'function_static_declaration'].includes(node.type)) return true;
-            node = node.parent;
+            node = __argumentSyntaxParent(node);
           }
           if (remaining <= 0) return true;
         }
@@ -6822,7 +6869,7 @@ export class SemanticWorkspace {
         && unavailableBinding(parent, before)) return undefined;
       return this.completionVariableType(file, parent, variable, before, depth + 1);
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
       this.capturedValueInferenceInProgress.delete(key);
     }
   }
@@ -6853,7 +6900,7 @@ export class SemanticWorkspace {
     try {
       const at = Math.max(0, Math.min(offset - 1, file.source.length - 1));
       return (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(at, at + 1)?.type !== 'text';
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private canUseThisInScope(file: SemanticFile, current: ParsedScope, root?: SyntaxNode): boolean {
@@ -6868,7 +6915,7 @@ export class SemanticWorkspace {
       staticClosure = node !== null && node.type === (current.kind === 'closure' ? 'anonymous_function' : 'arrow_function')
         && node.startIndex === current.start && node.endIndex === current.end
         && node.namedChildren.some((child) => child.type === 'static_modifier');
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
     if (staticClosure) return false;
     const parent = file.scopes.find((candidate) => candidate.id === current.parentId);
     return parent ? this.canUseThisInScope(file, parent, root) : false;
@@ -6882,7 +6929,7 @@ export class SemanticWorkspace {
       // brace arrives, but its completed statements remain direct children.
       if (current.type === 'ERROR' && /^(?:(?:public|protected|private|static|final|abstract)\s+)*function\s+[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\s*\(/u
         .test(current.text.slice(0, 160)) && current.text.includes('{')) return current;
-      current = current.parent;
+      current = __argumentSyntaxParent(current);
     }
     return undefined;
   }
@@ -6990,7 +7037,7 @@ export class SemanticWorkspace {
       const root = (retainedTree ?? temporaryTree!).rootNode;
       for (const name of this.directByReferenceOutputNames(file, root, offset)) add(name);
       for (const name of this.directlyUnsetVariables(root, offset)) names.delete(name);
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
     return [...names];
   }
 
@@ -7046,7 +7093,7 @@ export class SemanticWorkspace {
         .map(node => ({ start: node.startIndex, end: node.endIndex, endTag: node.type === 'php_end_tag' }));
       this.completionNonPhpRangesCache.set(file, ranges);
       return ranges;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private cursorInsideNonPhp(file: SemanticFile, offset: number): boolean {
@@ -7144,15 +7191,15 @@ export class SemanticWorkspace {
       const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
       try {
         const node = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(start, start + 1);
-        let parent = node?.parent;
-        while (parent && !['encapsed_string', 'heredoc_body', 'shell_command_expression'].includes(parent.type)) parent = parent.parent;
+        let parent = __argumentSyntaxParent(node);
+        while (parent && !['encapsed_string', 'heredoc_body', 'shell_command_expression'].includes(parent.type)) parent = __argumentSyntaxParent(parent);
         let backslashes = 0;
         for (let index = start - 1; file.source[index] === '\\'; index -= 1) backslashes += 1;
         const parsedVariable = node?.type === 'variable_name' && node.startIndex === start && node.endIndex >= end;
         const bareDollar = match[0] === '$' && node?.type === 'string_content'
           && node.startIndex <= start && start < node.endIndex && backslashes % 2 === 0;
         if (!parent || (!parsedVariable && !bareDollar)) return undefined;
-      } finally { temporaryTree?.delete(); }
+      } finally { __argumentTreeDelete(temporaryTree); }
     }
     const scope = this.containingScope(file, offset); if (!scope) return undefined;
     const names = this.visibleVariableNames(file, scope, offset, true);
@@ -7415,9 +7462,9 @@ export class SemanticWorkspace {
     const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     try {
       let node: SyntaxNode | null = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(Math.max(0, offset - 1));
-      while (node && node.type !== 'attribute_list') node = node.parent;
+      while (node && node.type !== 'attribute_list') node = __argumentSyntaxParent(node);
       if (!node) return undefined;
-      const owner = node.parent;
+      const owner = __argumentSyntaxParent(node);
       switch (owner?.type) {
         case 'class_declaration': case 'anonymous_class': case 'interface_declaration': case 'trait_declaration': case 'enum_declaration':
           return ATTRIBUTE_TARGET_FLAGS.TARGET_CLASS;
@@ -7428,11 +7475,11 @@ export class SemanticWorkspace {
         case 'simple_parameter': case 'variadic_parameter': case 'property_promotion_parameter':
           return ATTRIBUTE_TARGET_FLAGS.TARGET_PARAMETER;
         case 'const_declaration':
-          return owner.parent?.type === 'declaration_list'
+          return __argumentSyntaxParent(owner)?.type === 'declaration_list'
             ? ATTRIBUTE_TARGET_FLAGS.TARGET_CLASS_CONSTANT : ATTRIBUTE_TARGET_FLAGS.TARGET_CONSTANT;
         default: return undefined;
       }
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private precedingAttributesAt(uri: string, file: SemanticFile, offset: number): Set<string> {
@@ -7441,8 +7488,8 @@ export class SemanticWorkspace {
     const temporaryTree = retainedTree ? undefined : this.parser.parseTree(file.source);
     try {
       let node: SyntaxNode | null = (retainedTree ?? temporaryTree)!.rootNode.namedDescendantForIndex(Math.max(0, offset - 1));
-      while (node && node.type !== 'attribute_list') node = node.parent;
-      const owner = node?.parent;
+      while (node && node.type !== 'attribute_list') node = __argumentSyntaxParent(node);
+      const owner = __argumentSyntaxParent(node);
       if (!owner) return used;
       for (const list of owner.namedChildren.filter((child) => child.type === 'attribute_list')) {
         for (const group of list.namedChildren) {
@@ -7455,7 +7502,7 @@ export class SemanticWorkspace {
         }
       }
       return used;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private attributeTargetFlags(file: SemanticFile, declaration: ParsedDeclaration): number | undefined {
@@ -7701,7 +7748,7 @@ export class SemanticWorkspace {
       const unresolved = file.rawNames.flatMap((raw): Array<SemanticLocation & { name: string }> => {
         const name = raw.text.slice(raw.text.lastIndexOf('\\') + 1);
         const syntax = tree.rootNode.namedDescendantForIndex(raw.start, raw.end);
-        const constructor = syntax?.type === 'name' && syntax.parent?.type === 'object_creation_expression';
+        const constructor = syntax?.type === 'name' && __argumentSyntaxParent(syntax)?.type === 'object_creation_expression';
         const typeContext = constructor || raw.context === 'phpdoc'
           || file.typeReferences.some((type) => raw.start >= type.start && raw.end <= type.end);
         if (!typeContext || !this.isSemanticTypeRawName(file, raw) || raw.text.includes('\\')
@@ -7712,7 +7759,7 @@ export class SemanticWorkspace {
         return [{ uri, start: raw.start, end: raw.end, name }];
       });
       return [...new Map(unresolved.map((item) => [item.name.toLowerCase(), item])).values()];
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   typeCopySymbols(uri: string, ranges: readonly SourceRange[]): TypeCopySymbol[] {
@@ -7749,7 +7796,7 @@ export class SemanticWorkspace {
       // ranges so neither old source objects nor temporary syntax trees are retained.
       if (!syntaxRoot) this.importScopeCache.set(file, scopes);
       return scopes;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   planTypeImports(uri: string, offset: number, symbols: readonly { fqcn: string; sourceAlias: string; alias?: string }[]): TypeImportPlan | undefined {
@@ -7808,7 +7855,7 @@ export class SemanticWorkspace {
       if (oldNamespace.toLowerCase() !== move.newNamespace.toLowerCase()) {
         const parsed = this.parser.parse(file.source);
         const edit = namespaceMoveEdit(file.source, parsed.tree, oldNamespace, move.newNamespace);
-        parsed.tree.delete();
+        __argumentTreeDelete(parsed.tree);
         if (!edit) return { error: `Cannot move ${move.oldUri}: its namespace declaration is missing or ambiguous.` };
         namespaceEdits.push({ uri: move.newUri, ...edit });
       }
@@ -7887,7 +7934,7 @@ export class SemanticWorkspace {
       if (currentNamespace.toLowerCase() !== move.newNamespace.toLowerCase()) {
         const parsed = this.parser.parse(moved.source);
         const edit = namespaceMoveEdit(moved.source, parsed.tree, currentNamespace, move.newNamespace);
-        parsed.tree.delete();
+        __argumentTreeDelete(parsed.tree);
         if (!edit) return { error: `Cannot reconcile ${move.newUri}: its namespace declaration is missing or ambiguous.` };
         edits.push({ uri: move.newUri, ...edit }); touchedSourceUris.add(move.newUri);
       }
@@ -7999,7 +8046,7 @@ export class SemanticWorkspace {
           else if (current.type === 'compound_statement') kind = 'statement';
           else if (current.type === 'program') kind = 'top-level';
         }
-        current = current.parent;
+        current = __argumentSyntaxParent(current);
       }
       if ((retainedTree ?? temporaryTree)!.rootNode.hasError && kind !== 'expression'
         && this.initializerCompletionContext(uri, offset)) kind = 'expression';
@@ -8008,7 +8055,7 @@ export class SemanticWorkspace {
         return recovered ? { prefix, start, ...recovered } : undefined;
       }
       return kind ? { prefix, start, kind, inCallable, ...(propertyHookKind ? { propertyHookKind } : {}), inLoop, inSwitch, inEnum } : undefined;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   completeFunctions(uri: string, offset: number): FunctionCompletionInfo[] {
@@ -8590,11 +8637,24 @@ export class SemanticWorkspace {
     const unsetCache = new Map<string, { offset: number; nextIndex: number; statements: SyntaxNode[]; names: Set<string> }>();
     const contains = (container: SyntaxNode | null | undefined, node: SyntaxNode): boolean => Boolean(container
       && node.startIndex >= container.startIndex && node.endIndex <= container.endIndex);
+    // This synchronous check retains one immutable tree. Reuse its parent
+    // wrappers locally, with at most 4096 entries; full ancestor searches continue
+    // after the cache fills, and the next query always starts with a fresh cache.
+    const parentCache = new Map<number, SyntaxNode | null>();
+    const parentOf = (node: SyntaxNode): SyntaxNode | null => {
+      const cached = parentCache.get(node.id);
+      if (cached !== undefined) return cached;
+      const parent = __argumentSyntaxParent(node);
+      if (parentCache.size < 4096) parentCache.set(node.id, parent);
+      return parent;
+    };
     const enclosing = (node: SyntaxNode, scopeNode: SyntaxNode, predicate: (candidate: SyntaxNode) => boolean): SyntaxNode | undefined => {
-      let current = node.parent;
-      while (current && current !== scopeNode) {
+      let current = parentOf(node);
+      // Parent access creates new wrappers for the same syntax node. Compare
+      // tree identities so a safe read outside a closure cannot suppress its body.
+      while (current && current.id !== scopeNode.id) {
         if (predicate(current)) return current;
-        current = current.parent;
+        current = parentOf(current);
       }
       return undefined;
     };
@@ -8654,7 +8714,7 @@ export class SemanticWorkspace {
           if (!argument || argument.namedChildren.at(-1)?.startIndex !== node.startIndex || argument.namedChildren.at(-1)?.endIndex !== node.endIndex) {
             argumentDefinitionCache.set(node.startIndex, null); return undefined;
           }
-          const callNode = argument.parent?.parent;
+          const callNode = __argumentSyntaxParent(__argumentSyntaxParent(argument));
           if (!callNode || !['function_call_expression', 'member_call_expression', 'nullsafe_member_call_expression', 'scoped_call_expression'].includes(callNode.type)) {
             argumentDefinitionCache.set(node.startIndex, null); return undefined;
           }
@@ -8751,7 +8811,7 @@ export class SemanticWorkspace {
         }
       }
       return result;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   unresolvedMembers(uri: string): UnresolvedMemberInfo[] {
@@ -8882,7 +8942,7 @@ export class SemanticWorkspace {
       });
       if (!traversal.complete) complete = false;
       return complete ? results : [];
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   nullableMemberAccesses(uri: string): NullableMemberAccess[] {
@@ -8987,84 +9047,90 @@ export class SemanticWorkspace {
   }
 
   incompatibleArguments(uri: string, localOnly = false): IncompatibleArgument[] {
-    const ownsCache = !argumentSignatureCaches.has(this);
-    if (ownsCache) argumentSignatureCaches.set(this, { generation: 0, entries: new Map() });
+    const __previousArgumentParents = __activeArgumentParents;
+    __activeArgumentParents = { parents: new WeakMap(), size: 0, previous: __previousArgumentParents, traversalRoots: new WeakMap(), traversalSize: 0, blockedTraversalTrees: new WeakSet() };
     try {
-    const file = this.files.get(uri); if (!file) return [];
-    return file.calls.flatMap((call): IncompatibleArgument[] => {
-      if (call.arguments.some((argument) => argument.unpacked)) return [];
-      const signature = this.completedCallSignature(file, call); if (!signature) return [];
-      if (localOnly && signature.uri !== uri && !signature.uri.startsWith('php-companion-builtin:')) return [];
-      if (signature.synthetic === 'phpdoc-callable' || signature.synthetic === 'closure-literal') {
-        // The callable contract is carried by a precise local source rather than a declared function.
-      } else if (signature.kind === 'function') {
-        if (this.callableDeclarationsForSignature(signature).length !== 1) return [];
-      } else {
-        if (!this.hasUniqueCallableDeclaration(signature) && signature.synthetic !== 'enum-native') return [];
-      }
-      const declarationFile = this.files.get(signature.uri); if (!declarationFile) return [];
-      const constructorTemplates = call.kind==='constructor' ? signature.callableTemplates : undefined;
-      const constructorTemplateBound = constructorTemplates?.length
-        ? this.phpDocTemplateBoundResolver(declarationFile,[signature.fqcn],signature.typeScopeFqcn,constructorTemplates) : undefined;
-      let positional = 0;
-      return call.arguments.flatMap((argument): IncompatibleArgument[] => {
-        const parameter = argument.name
-          ? signature.parameters.find((candidate) => candidate.name === argument.name)
-          : signature.parameters[Math.min(positional++, Math.max(0, signature.parameters.length - 1))];
-        if (!parameter) return [];
-        const separator = argument.nameEnd === undefined ? -1 : file.source.indexOf(':', argument.nameEnd);
-        const valueStart = separator >= 0 && separator < argument.end ? separator + 1 : argument.start;
-        const callableDocumented = signature.synthetic === 'phpdoc-callable' && parameter.type
-          ? parsePhpDocType(parameter.type).type : undefined;
-        const untypedDocumented = !parameter.nativeType && parameter.type
-          ? parsePhpDocType(parameter.type).type : undefined;
-        const templateDocumented = parameter.type && constructorTemplates?.some(template=>
-          new RegExp(`(?<![A-Za-z0-9_\\\\])${template.name}(?![A-Za-z0-9_])`).test(parameter.type!))
-          ? parsePhpDocType(parameter.type).type : undefined;
-        const inheritedConstructorDoc = call.kind === 'constructor' && signature.documentedConstructorParameters
-          && parameter.type !== parameter.nativeType && parameter.type ? parsePhpDocType(parameter.type).type : undefined;
-        const expected = templateDocumented ? this.phpDocDiagnosticType(declarationFile,templateDocumented,signature.typeScopeFqcn,
-          {remaining:256},name=>constructorTemplates!.some(template=>template.name===name)
-            ? constructorTemplateBound?.(name) ?? unknown('unresolved constructor template bound') : undefined)
-          ?? (parameter.nativeType ? this.nativeSourceType(declarationFile,nativeParameterType(parameter,declarationFile.uri),signature.typeScopeFqcn) : undefined)
-          : inheritedConstructorDoc ? this.phpDocDiagnosticType(declarationFile,inheritedConstructorDoc,signature.typeScopeFqcn)
-          ?? (parameter.nativeType ? this.nativeSourceType(declarationFile,nativeParameterType(parameter,declarationFile.uri),signature.typeScopeFqcn) : undefined)
-          : callableDocumented
-          ? this.phpDocDiagnosticType(declarationFile, callableDocumented, signature.typeScopeFqcn)
-          : this.documentedClassString(declarationFile, parameter.type, signature.typeScopeFqcn)
-          ?? this.documentedList(declarationFile, parameter.type, signature.typeScopeFqcn)
-          ?? this.documentedShape(declarationFile, parameter.type, signature.typeScopeFqcn)
-          ?? this.documentedCallable(declarationFile, parameter.type, signature.typeScopeFqcn)
-          ?? this.documentedGeneric(declarationFile, parameter.type, signature.typeScopeFqcn)
-          ?? (untypedDocumented ? this.phpDocDiagnosticType(declarationFile, untypedDocumented, signature.typeScopeFqcn) : undefined)
-          ?? (parameter.nativeType ? this.nativeSourceType(declarationFile, nativeParameterType(parameter, declarationFile.uri), signature.typeScopeFqcn) : undefined);
-        if (!expected) return [];
-        const fact = parameter.nativeType ? this.scalarArgumentFact(file, valueStart, argument.end) : undefined;
-        let actual = this.provenArgumentType(file, valueStart, argument.end) ?? fact?.type; if (!actual) return [];
-        if (expected.kind === 'integer-range') {
-          const integer = /^\s*(-?(?:0|[1-9][0-9_]*))\s*$/.exec(file.source.slice(valueStart, argument.end));
-          const value = integer ? Number(integer[1]!.replaceAll('_', '')) : undefined;
-          if (value !== undefined && Number.isSafeInteger(value)) actual = literal(value);
+      const ownsCache = !argumentSignatureCaches.has(this);
+      if (ownsCache) argumentSignatureCaches.set(this, { generation: 0, entries: new Map() });
+      try {
+      const file = this.files.get(uri); if (!file) return [];
+      return file.calls.flatMap((call): IncompatibleArgument[] => {
+        if (call.arguments.some((argument) => argument.unpacked)) return [];
+        const signature = this.completedCallSignature(file, call); if (!signature) return [];
+        if (localOnly && signature.uri !== uri && !signature.uri.startsWith('php-companion-builtin:')) return [];
+        if (signature.synthetic === 'phpdoc-callable' || signature.synthetic === 'closure-literal') {
+          // The callable contract is carried by a precise local source rather than a declared function.
+        } else if (signature.kind === 'function') {
+          if (this.callableDeclarationsForSignature(signature).length !== 1) return [];
+        } else {
+          if (!this.hasUniqueCallableDeclaration(signature) && signature.synthetic !== 'enum-native') return [];
         }
-        const hasLiteralConstraint = (type: PhpType): boolean => type.kind === 'literal'
-          || (type.kind === 'union' && type.types.some(hasLiteralConstraint));
-        if (hasLiteralConstraint(expected)) {
-          const source = file.source.slice(valueStart, argument.end).trim();
-          const integer = /^-?(?:0|[1-9](?:_?[0-9])*)$/.exec(source);
-          const string = /^'([^'\\]*)'$/.exec(source);
-          if (integer) {
-            const value = Number(integer[0].replaceAll('_', '')); if (Number.isSafeInteger(value)) actual = literal(value);
-          } else if (string) actual = literal(string[1]!);
-        }
-        const scalar = parameter.nativeType ? nativeScalarInput(fact?.type ?? actual, expected, this.hasStrictTypes(file), this.targetPhpVersion, fact?.numericKind) : undefined;
-        if (scalar) return scalar.accepted === 'no' ? [{ uri, start: valueStart, end: argument.end, callable: signature.fqcn,
-          parameter: parameter.name, actualType: displayType(actual), expectedType: displayType(expected) }] : [];
-        if (isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(file)) return [];
-        const result = compatibility(actual, expected, this.typeRelationContext());
-        return result === 'no' ? [{ uri, start: valueStart, end: argument.end, callable: signature.fqcn, parameter: parameter.name, actualType: displayType(actual), expectedType: displayType(expected) }] : [];
+        const declarationFile = this.files.get(signature.uri); if (!declarationFile) return [];
+        const constructorTemplates = call.kind==='constructor' ? signature.callableTemplates : undefined;
+        const constructorTemplateBound = constructorTemplates?.length
+          ? this.phpDocTemplateBoundResolver(declarationFile,[signature.fqcn],signature.typeScopeFqcn,constructorTemplates) : undefined;
+        let positional = 0;
+        return call.arguments.flatMap((argument): IncompatibleArgument[] => {
+          const parameter = argument.name
+            ? signature.parameters.find((candidate) => candidate.name === argument.name)
+            : signature.parameters[Math.min(positional++, Math.max(0, signature.parameters.length - 1))];
+          if (!parameter) return [];
+          const separator = argument.nameEnd === undefined ? -1 : file.source.indexOf(':', argument.nameEnd);
+          const valueStart = separator >= 0 && separator < argument.end ? separator + 1 : argument.start;
+          const callableDocumented = signature.synthetic === 'phpdoc-callable' && parameter.type
+            ? parsePhpDocType(parameter.type).type : undefined;
+          const untypedDocumented = !parameter.nativeType && parameter.type
+            ? parsePhpDocType(parameter.type).type : undefined;
+          const templateDocumented = parameter.type && constructorTemplates?.some(template=>
+            new RegExp(`(?<![A-Za-z0-9_\\\\])${template.name}(?![A-Za-z0-9_])`).test(parameter.type!))
+            ? parsePhpDocType(parameter.type).type : undefined;
+          const inheritedConstructorDoc = call.kind === 'constructor' && signature.documentedConstructorParameters
+            && parameter.type !== parameter.nativeType && parameter.type ? parsePhpDocType(parameter.type).type : undefined;
+          const expected = templateDocumented ? this.phpDocDiagnosticType(declarationFile,templateDocumented,signature.typeScopeFqcn,
+            {remaining:256},name=>constructorTemplates!.some(template=>template.name===name)
+              ? constructorTemplateBound?.(name) ?? unknown('unresolved constructor template bound') : undefined)
+            ?? (parameter.nativeType ? this.nativeSourceType(declarationFile,nativeParameterType(parameter,declarationFile.uri),signature.typeScopeFqcn) : undefined)
+            : inheritedConstructorDoc ? this.phpDocDiagnosticType(declarationFile,inheritedConstructorDoc,signature.typeScopeFqcn)
+            ?? (parameter.nativeType ? this.nativeSourceType(declarationFile,nativeParameterType(parameter,declarationFile.uri),signature.typeScopeFqcn) : undefined)
+            : callableDocumented
+            ? this.phpDocDiagnosticType(declarationFile, callableDocumented, signature.typeScopeFqcn)
+            : this.documentedClassString(declarationFile, parameter.type, signature.typeScopeFqcn)
+            ?? this.documentedList(declarationFile, parameter.type, signature.typeScopeFqcn)
+            ?? this.documentedShape(declarationFile, parameter.type, signature.typeScopeFqcn)
+            ?? this.documentedCallable(declarationFile, parameter.type, signature.typeScopeFqcn)
+            ?? this.documentedGeneric(declarationFile, parameter.type, signature.typeScopeFqcn)
+            ?? (untypedDocumented ? this.phpDocDiagnosticType(declarationFile, untypedDocumented, signature.typeScopeFqcn) : undefined)
+            ?? (parameter.nativeType ? this.nativeSourceType(declarationFile, nativeParameterType(parameter, declarationFile.uri), signature.typeScopeFqcn) : undefined);
+          if (!expected) return [];
+          const fact = parameter.nativeType ? this.scalarArgumentFact(file, valueStart, argument.end) : undefined;
+          let actual = this.provenArgumentType(file, valueStart, argument.end) ?? fact?.type; if (!actual) return [];
+          if (expected.kind === 'integer-range') {
+            const integer = /^\s*(-?(?:0|[1-9][0-9_]*))\s*$/.exec(file.source.slice(valueStart, argument.end));
+            const value = integer ? Number(integer[1]!.replaceAll('_', '')) : undefined;
+            if (value !== undefined && Number.isSafeInteger(value)) actual = literal(value);
+          }
+          const hasLiteralConstraint = (type: PhpType): boolean => type.kind === 'literal'
+            || (type.kind === 'union' && type.types.some(hasLiteralConstraint));
+          if (hasLiteralConstraint(expected)) {
+            const source = file.source.slice(valueStart, argument.end).trim();
+            const integer = /^-?(?:0|[1-9](?:_?[0-9])*)$/.exec(source);
+            const string = /^'([^'\\]*)'$/.exec(source);
+            if (integer) {
+              const value = Number(integer[0].replaceAll('_', '')); if (Number.isSafeInteger(value)) actual = literal(value);
+            } else if (string) actual = literal(string[1]!);
+          }
+          const scalar = parameter.nativeType ? nativeScalarInput(fact?.type ?? actual, expected, this.hasStrictTypes(file), this.targetPhpVersion, fact?.numericKind) : undefined;
+          if (scalar) return scalar.accepted === 'no' ? [{ uri, start: valueStart, end: argument.end, callable: signature.fqcn,
+            parameter: parameter.name, actualType: displayType(actual), expectedType: displayType(expected) }] : [];
+          if (isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(file)) return [];
+          const result = compatibility(actual, expected, this.typeRelationContext());
+          return result === 'no' ? [{ uri, start: valueStart, end: argument.end, callable: signature.fqcn, parameter: parameter.name, actualType: displayType(actual), expectedType: displayType(expected) }] : [];
+        });
       });
-    });
-    } finally { if (ownsCache) argumentSignatureCaches.delete(this); }
+      } finally { if (ownsCache) argumentSignatureCaches.delete(this); }
+    } finally {
+      __activeArgumentParents = __previousArgumentParents;
+    }
   }
 
   variableValueAt(uri: string, offset: number): { variable: string; type: string; start: number; end: number } | undefined {
@@ -9113,8 +9179,8 @@ export class SemanticWorkspace {
     const tree = retainedTree ?? temporaryTree!;
     try {
       let statement = deepestLocalSyntax(tree.rootNode, start, end, () => true);
-      while (statement && statement.parent?.type !== 'compound_statement') statement = statement.parent ?? undefined;
-      const block = statement?.parent;
+      while (statement && __argumentSyntaxParent(statement)?.type !== 'compound_statement') statement = __argumentSyntaxParent(statement) ?? undefined;
+      const block = (statement && __argumentSyntaxParent(statement));
       if (!statement || !block || statement.type !== 'expression_statement') return false;
       const escapedVariable = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       if (new RegExp(`(?:&\\s*${escapedVariable}(?![\\p{L}\\p{N}_])|${escapedVariable}\\s*=&)`, 'u')
@@ -9141,7 +9207,7 @@ export class SemanticWorkspace {
         if (candidate.text.includes(variable) || !this.directScalarLiteralType(right.text.trim())) return false;
       }
       return false;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   /** Exact constructor source and all declared hierarchy inputs for an argument diagnostic.
@@ -9206,8 +9272,8 @@ export class SemanticWorkspace {
     const tree = retainedTree ?? temporaryTree!;
     try {
       let statement = deepestLocalSyntax(tree.rootNode, call.start, call.end, () => true);
-      while (statement && statement.parent?.type !== 'compound_statement') statement = statement.parent ?? undefined;
-      const block = statement?.parent;
+      while (statement && __argumentSyntaxParent(statement)?.type !== 'compound_statement') statement = __argumentSyntaxParent(statement) ?? undefined;
+      const block = (statement && __argumentSyntaxParent(statement));
       if (!statement || !block || statement.type !== 'expression_statement') return false;
       const escapedVariable = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       if (new RegExp(`(?:&\\s*${escapedVariable}(?![\\p{L}\\p{N}_])|${escapedVariable}\\s*=&)`, 'u')
@@ -9232,7 +9298,7 @@ export class SemanticWorkspace {
         if (candidate.text.includes(variable) || !this.directScalarLiteralType(right.text.trim())) return false;
       }
       return false;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   nativeScalarReturnMethodCall(uri: string, start: number, end: number, actualType: string):
@@ -9260,8 +9326,8 @@ export class SemanticWorkspace {
     const tree = retainedTree ?? temporaryTree!;
     try {
       let statement = deepestLocalSyntax(tree.rootNode, start, end, () => true);
-      while (statement && statement.parent?.type !== 'compound_statement') statement = statement.parent ?? undefined;
-      const block = statement?.parent;
+      while (statement && __argumentSyntaxParent(statement)?.type !== 'compound_statement') statement = __argumentSyntaxParent(statement) ?? undefined;
+      const block = (statement && __argumentSyntaxParent(statement));
       if (!statement || !block || statement.type !== 'expression_statement') return undefined;
       const escapedVariable = variable.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       if (new RegExp(`(?:&\\s*${escapedVariable}(?![\\p{L}\\p{N}_])|${escapedVariable}\\s*=&)`, 'u')
@@ -9282,7 +9348,7 @@ export class SemanticWorkspace {
         if (candidate.text.includes(variable) || !this.directScalarLiteralType(right.text.trim())) return undefined;
       }
       return undefined;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   incompatibleReturns(uri: string, localOnly = false): IncompatibleReturn[] {
@@ -9392,8 +9458,8 @@ export class SemanticWorkspace {
       return Boolean(parent && allowsDynamicProperties(parent, visited));
     };
     const consider = (memberNode: SyntaxNode): void => {
-      const assignment = memberNode.parent;
-      const statement = assignment?.parent;
+      const assignment = __argumentSyntaxParent(memberNode);
+      const statement = __argumentSyntaxParent(assignment);
       if (assignment?.type !== 'assignment_expression' || statement?.type !== 'expression_statement' || statement.namedChildren[0]?.id !== assignment.id) return;
       const name = memberNode.childForFieldName('name');
       if (!name || name.type !== 'name') return;
@@ -9408,8 +9474,8 @@ export class SemanticWorkspace {
       if (members.some((member) => member.kind === 'method' && member.name.toLowerCase() === '__set')) return;
       const object = memberNode.childForFieldName('object');
       const creationKey = object?.type === 'variable_name' ? `${target.fqcn.toLowerCase()}\0${object.text}\0${access.name}` : undefined;
-      if (creationKey && statement.parent?.type === 'compound_statement') {
-        const siblings = statement.parent.namedChildren;
+      if (creationKey && __argumentSyntaxParent(statement)?.type === 'compound_statement') {
+        const siblings = __argumentSyntaxParent(statement)!.namedChildren;
         const index = siblings.findIndex((candidate) => candidate.id === statement.id);
         if (index > 0 && createdStatements.get(siblings[index - 1]!.id) === creationKey) {
           createdStatements.set(statement.id, creationKey);
@@ -9432,7 +9498,7 @@ export class SemanticWorkspace {
       });
       if (!traversal.complete || incomplete) return [];
       return results.sort((left, right) => left.start - right.start);
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   dynamicPropertyDeclaration(uri: string, offset: number): DynamicPropertyDeclaration | undefined {
@@ -9446,8 +9512,8 @@ export class SemanticWorkspace {
     try {
       const member = deepestLocalSyntax((retainedTree ?? temporaryTree!).rootNode, creation.start, creation.end,
         (node) => node.type === 'member_access_expression' && node.childForFieldName('name')?.startIndex === creation.start);
-      const assignment = member?.parent; const right = assignment?.childForFieldName('right');
-      if (assignment?.type !== 'assignment_expression' || assignment.parent?.type !== 'expression_statement' || !right) return undefined;
+      const assignment = (member && __argumentSyntaxParent(member)); const right = assignment?.childForFieldName('right');
+      if (assignment?.type !== 'assignment_expression' || __argumentSyntaxParent(assignment)?.type !== 'expression_statement' || !right) return undefined;
       const actual = this.provenArgumentType(file, right.startIndex, right.endIndex); if (!actual) return undefined;
       let type: string | undefined;
       if (actual.kind === 'primitive' && ['bool', 'int', 'float', 'string', 'array', 'object'].includes(actual.name)) type = actual.name;
@@ -9465,7 +9531,7 @@ export class SemanticWorkspace {
       return insertOffset >= owner.declaration.declarationStart
         ? { uri: owner.file.uri, name: creation.name, ownerFqcn: owner.declaration.fqcn, insertOffset, type }
         : undefined;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private readonlyPropertyMinimumVersion(member: MemberInfo): '8.1' | '8.2' | '8.3' {
@@ -9607,8 +9673,8 @@ export class SemanticWorkspace {
                   if (inferred) return new Set([inferred]);
                 }
               }
-              if (returned?.type === 'variable_name' && statement.parent?.type === 'compound_statement') {
-                const siblings = statement.parent.namedChildren; const index = siblings.findIndex((candidate) => candidate.id === statement.id);
+              if (returned?.type === 'variable_name' && __argumentSyntaxParent(statement)?.type === 'compound_statement') {
+                const siblings = __argumentSyntaxParent(statement)!.namedChildren; const index = siblings.findIndex((candidate) => candidate.id === statement.id);
                 const previous = index > 0 ? siblings[index - 1] : undefined;
                 const assignment = previous?.type === 'expression_statement' ? previous.namedChildren[0] : undefined;
                 const left = assignment?.type === 'assignment_expression' ? assignment.childForFieldName('left') : undefined;
@@ -9752,7 +9818,7 @@ export class SemanticWorkspace {
             };
             const flow = analyzeFactory(factoryBody);
             return flow.valid && !flow.fallsThrough && flow.constructedTypes.size === 1 ? [...flow.constructedTypes][0] : undefined;
-          } finally { temporaryTargetTree?.delete(); }
+          } finally { __argumentTreeDelete(temporaryTargetTree); }
           })();
           this.factoryConstructionSummaries.set(cacheKey, resolvedConstruction ?? null);
           this.replaceCallableDependency(target.file.uri, cacheKey, dependencies);
@@ -9859,7 +9925,7 @@ export class SemanticWorkspace {
             if (!assignment) return;
             const assignmentNode = deepestLocalSyntax(body, assignment.start, assignment.end,
               (candidate) => candidate.type === 'assignment_expression' && candidate.startIndex === assignment.start && candidate.endIndex === assignment.end);
-            const assignmentBlock = assignmentNode?.parent?.parent; const iterationBlock = node.parent;
+            const assignmentBlock = __argumentSyntaxParent((assignmentNode && __argumentSyntaxParent(assignmentNode))); const iterationBlock = __argumentSyntaxParent(node);
             if (!assignmentNode || assignmentBlock?.type !== 'compound_statement' || iterationBlock?.type !== 'compound_statement'
               || assignmentBlock.startIndex !== iterationBlock.startIndex || assignmentBlock.endIndex !== iterationBlock.endIndex) return;
             const directNew = assignment.typeName && new RegExp(`^\\s*${iterable.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*=\\s*new\\b`, 'iu')
@@ -10098,9 +10164,15 @@ export class SemanticWorkspace {
           }
         }
       }
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
     for (const call of file.calls) {
       if (call.arguments.some((argument) => argument.unpacked)) continue;
+      // This loop can only report reference writes for direct property arguments.
+      if (!call.arguments.some((argument) => {
+        const separator = argument.nameEnd === undefined ? -1 : file.source.indexOf(':', argument.nameEnd);
+        const valueStart = separator >= 0 && separator < argument.end ? separator + 1 : argument.start;
+        return /^\s*\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*\s*->\s*([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*$/u.test(file.source.slice(valueStart, argument.end));
+      })) continue;
       // Resolve at the opening parenthesis so nested calls and callback parameter lists in later
       // arguments cannot hide the outer callable from the text-based signature matcher.
       const signature = this.signatureForParsedCall(file, call); if (!signature) continue;
@@ -10499,7 +10571,7 @@ export class SemanticWorkspace {
         || open.type !== '{' || close.type !== '}' || close.endIndex - close.startIndex !== 1
         || file.source.slice(close.startIndex, close.endIndex) !== '}') return undefined;
       return close.startIndex;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   missingInterfaceImplementation(uri: string, offset: number): MissingInterfaceImplementation | undefined {
@@ -10817,7 +10889,7 @@ export class SemanticWorkspace {
           if (resolved.some((members) => !members.length || members.some((member) => !familyIds.has(member.fqcn.toLowerCase())))) return undefined;
           locations.push({ uri: file.uri, start: methodStart, end: methodStart + parsed[3]!.length });
         }
-      } finally { temporaryTree?.delete(); }
+      } finally { __argumentTreeDelete(temporaryTree); }
     }
     return locations;
   }
@@ -11009,14 +11081,14 @@ export class SemanticWorkspace {
         if (!tree) return undefined;
         const methodNode = deepestLocalSyntax(tree.rootNode, member.callable.start, member.callable.end,
           (node) => node.type === 'name' && node.startIndex === member.callable.start && node.endIndex === member.callable.end);
-        const parameterList = methodNode?.parent?.namedChildren.find((node) => node.type === 'formal_parameters');
+        const parameterList = (methodNode && __argumentSyntaxParent(methodNode))?.namedChildren.find((node) => node.type === 'formal_parameters');
         if (!parameterList) return undefined;
         const insertion = parameterList.endIndex - 1;
         if (this.hasPunctuationOutsideTrivia(member.file, ',',
           parameterList.namedChildren.at(-1)?.endIndex ?? parameterList.startIndex + 1, insertion)) return undefined;
         edits.push({ uri: member.file.uri, start: insertion, end: insertion,
           newText: `${member.callable.parameters.length ? ', ' : ''}${type} $${name}` });
-      } finally { temporaryTree?.delete(); }
+      } finally { __argumentTreeDelete(temporaryTree); }
       if (/\bfunc_(?:get_args|get_arg|num_args)\s*\(/i.test(member.file.source.slice(member.callable.declarationStart, member.callable.declarationEnd))) return undefined;
       const doc = member.file.commentRanges.filter((comment) => comment.end <= member.callable.declarationStart
         && member.file.source.startsWith('/**', comment.start)).sort((left, right) => right.end - left.end)[0];
@@ -11086,12 +11158,12 @@ export class SemanticWorkspace {
     if (file.variableReferences.some((item) => item.scopeId === callable.fqcn && item.variable === `$${name}`)) return undefined;
     const methodNode = deepestLocalSyntax(tree.rootNode, callable.start, callable.end,
       (node) => node.type === 'name' && node.startIndex === callable.start && node.endIndex === callable.end);
-    let parameterList = methodNode?.parent;
-    while (parameterList && parameterList.type !== 'formal_parameters') parameterList = parameterList.parent;
+    let parameterList = (methodNode && __argumentSyntaxParent(methodNode));
+    while (parameterList && parameterList.type !== 'formal_parameters') parameterList = __argumentSyntaxParent(parameterList);
     // The method name and formal parameters are siblings in tree-sitter.
     if (!parameterList) {
       const header = tree.rootNode.namedDescendantForIndex(callable.start);
-      parameterList = header?.parent?.namedChildren.find((node) => node.type === 'formal_parameters');
+      parameterList = __argumentSyntaxParent(header)?.namedChildren.find((node) => node.type === 'formal_parameters');
     }
     if (parameterList?.type !== 'formal_parameters') return undefined;
     const insertion = parameterList.endIndex - 1;
@@ -11209,8 +11281,8 @@ export class SemanticWorkspace {
         let node = deepestLocalSyntax(tree.rootNode, parameter.start, parameter.end,
           (candidate) => candidate.type === 'variable_name' && candidate.startIndex === parameter.start && candidate.endIndex === parameter.end);
         if (!node) return undefined;
-        while (node.parent && node.parent.type !== 'formal_parameters') node = node.parent;
-        const list = node.parent; if (list?.type !== 'formal_parameters') return undefined;
+        while (__argumentSyntaxParent(node) && __argumentSyntaxParent(node)!.type !== 'formal_parameters') node = __argumentSyntaxParent(node)!;
+        const list = __argumentSyntaxParent(node); if (list?.type !== 'formal_parameters') return undefined;
         const parameterNodes = list.namedChildren.filter((candidate) => ['simple_parameter', 'variadic_parameter', 'property_promotion_parameter'].includes(candidate.type));
         const parameterIndex = parameterNodes.findIndex((candidate) => candidate.startIndex === node!.startIndex && candidate.endIndex === node!.endIndex);
         if (parameterIndex !== index) return undefined;
@@ -11218,7 +11290,7 @@ export class SemanticWorkspace {
           parameterNodes.map((candidate) => ({ start: candidate.startIndex, end: candidate.endIndex })), index);
         if (!range) return undefined;
         edits.push({ uri: member.file.uri, ...range, newText: '' });
-      } finally { temporaryTree?.delete(); }
+      } finally { __argumentTreeDelete(temporaryTree); }
       const doc = member.file.commentRanges.filter((comment) => comment.end <= member.callable.declarationStart
         && member.file.source.startsWith('/**', comment.start)).sort((left, right) => right.end - left.end)[0];
       if (doc && /^[\s]*(?:#\[[\s\S]*?\][\s]*)*$/.test(member.file.source.slice(doc.end, member.callable.declarationStart))) {
@@ -11283,12 +11355,12 @@ export class SemanticWorkspace {
       if (/\b(?:unset|extract|eval|global|include|include_once|require|require_once)\b|\$\$|\$\{/i.test(
         file.source.slice(assignment.end, before))) return false;
       let node = tree.rootNode.namedDescendantForIndex(assignment.start);
-      while (node && node.type !== 'assignment_expression') node = node.parent!;
+      while (node && node.type !== 'assignment_expression') node = __argumentSyntaxParent(node)!;
       if (!node || node.startIndex !== assignment.start || node.namedChildren[0]?.type !== 'variable_name'
         || node.namedChildren[0].text !== variable) return false;
-      const statement = node.parent;
-      const body = statement?.parent;
-      const declaration = body?.parent;
+      const statement = __argumentSyntaxParent(node);
+      const body = __argumentSyntaxParent(statement);
+      const declaration = __argumentSyntaxParent(body);
       return statement?.type === 'expression_statement' && body?.type === 'compound_statement'
         && (declaration?.type === 'method_declaration' || declaration?.type === 'function_definition')
         && declaration.startIndex === owner.declarationStart && declaration.endIndex === owner.declarationEnd;
@@ -11371,7 +11443,7 @@ export class SemanticWorkspace {
         if (!tree) return undefined;
         const methodNode = deepestLocalSyntax(tree.rootNode, member.callable.start, member.callable.end,
           (node) => node.type === 'name' && node.startIndex === member.callable.start && node.endIndex === member.callable.end);
-        const list = methodNode?.parent?.namedChildren.find((node) => node.type === 'formal_parameters');
+        const list = (methodNode && __argumentSyntaxParent(methodNode))?.namedChildren.find((node) => node.type === 'formal_parameters');
         if (!list || list.namedChildren.length !== order.length) return undefined;
         const nodes = list.namedChildren;
         if (nodes.some((node, index) => node.startIndex > member.callable.parameters[index]!.start
@@ -11388,7 +11460,7 @@ export class SemanticWorkspace {
           starts.set(index, rewritten.length); rewritten += pieces[index]!;
         });
         const behavior = { observable: new Set<number>(), shiftedLines: new Set<number>(),
-          concrete: Boolean(methodNode?.parent?.childForFieldName('body')) };
+          concrete: Boolean((methodNode && __argumentSyntaxParent(methodNode))?.childForFieldName('body')) };
         for (let index = 0; index < nodes.length; index += 1) {
           const node = nodes[index]!;
           const value = node.childForFieldName('default_value');
@@ -11414,7 +11486,7 @@ export class SemanticWorkspace {
         edits.push({ uri: member.file.uri, start: nodes[0]!.startIndex, end: nodes.at(-1)!.endIndex,
           newText: rewritten });
       } finally {
-        temporaryTree?.delete();
+        __argumentTreeDelete(temporaryTree);
       }
       const doc = member.file.commentRanges.filter((comment) => comment.end <= member.callable.declarationStart
         && member.file.source.startsWith('/**', comment.start)).sort((left, right) => right.end - left.end)[0];
@@ -11562,7 +11634,7 @@ export class SemanticWorkspace {
     return { uri, callable: callable.fqcn, parameter: selected.names[selected.index]!, targetIndex,
       scope: callable.visibility === 'private' ? 'private' : 'workspace-method-family', edits };
     } finally {
-      for (const tree of temporaryArgumentTrees.values()) tree.delete();
+      for (const tree of temporaryArgumentTrees.values()) __argumentTreeDelete(tree);
     }
   }
 
@@ -11594,8 +11666,8 @@ export class SemanticWorkspace {
     let parameterNode = deepestLocalSyntax(tree.rootNode, parameter.start, parameter.end,
       (node) => node.type === 'variable_name' && node.startIndex === parameter.start && node.endIndex === parameter.end);
     if (!parameterNode) return undefined;
-    while (parameterNode.parent && parameterNode.parent.type !== 'formal_parameters') parameterNode = parameterNode.parent;
-    const parameterList = parameterNode.parent; if (parameterList?.type !== 'formal_parameters') return undefined;
+    while (__argumentSyntaxParent(parameterNode) && __argumentSyntaxParent(parameterNode)!.type !== 'formal_parameters') parameterNode = __argumentSyntaxParent(parameterNode)!;
+    const parameterList = __argumentSyntaxParent(parameterNode); if (parameterList?.type !== 'formal_parameters') return undefined;
     const parameterNodes = parameterList.namedChildren.filter((item) => ['simple_parameter', 'variadic_parameter', 'property_promotion_parameter'].includes(item.type));
     const parameterIndex = parameterNodes.findIndex((item) => item.startIndex === parameterNode!.startIndex && item.endIndex === parameterNode!.endIndex);
     if (parameterIndex < 0) return undefined;
@@ -12303,7 +12375,7 @@ export class SemanticWorkspace {
         } finally {
           if (queryTree) {
             if (this.trees.get(file.uri) === queryTree) this.trees.delete(file.uri);
-            queryTree.delete();
+            __argumentTreeDelete(queryTree);
           }
         }
       }
@@ -12462,7 +12534,7 @@ export class SemanticWorkspace {
       if (close?.type === '}') return { uri: file.uri, start: close.startIndex, end: close.startIndex, newText: ` ${alias} ` };
       const terminator = node.children.at(-1);
       return terminator?.type === ';' ? { uri: file.uri, start: terminator.startIndex, end: terminator.endIndex, newText: ` { ${alias} }` } : undefined;
-    } finally { temporary?.delete(); }
+    } finally { __argumentTreeDelete(temporary); }
   }
 
   private preserveLegacyConstruction(edits: Array<SemanticLocation & { newText: string }>,
@@ -12665,9 +12737,9 @@ export class SemanticWorkspace {
           };
           break;
         }
-        node = node.parent;
+        node = __argumentSyntaxParent(node);
       }
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
     const trivia = [...file.commentRanges, ...file.stringRanges].sort((left, right) => left.start - right.start);
     const rangeAt = (index: number): SourceRange | undefined => {
       let low = 0; let high = trivia.length;
@@ -13029,15 +13101,15 @@ export class SemanticWorkspace {
       const root = (retained ?? temporary!).rootNode;
       const statementAt = (position: number): SyntaxNode | undefined => {
         let node = deepestLocalSyntax(root, position, position, () => true), remaining = 256;
-        while (node && node.parent?.type !== 'compound_statement' && node.parent?.type !== 'program' && remaining-- > 0)
-          node = node.parent ?? undefined;
+        while (node && __argumentSyntaxParent(node)?.type !== 'compound_statement' && __argumentSyntaxParent(node)?.type !== 'program' && remaining-- > 0)
+          node = __argumentSyntaxParent(node) ?? undefined;
         return remaining > 0 ? node : undefined;
       };
       const before = statementAt(assignment.start), current = statementAt(offset);
       return before?.type === 'expression_statement' && before.endIndex <= (current?.startIndex ?? -1)
-        && before.parent?.startIndex === current?.parent?.startIndex
-        && before.parent?.endIndex === current?.parent?.endIndex;
-    } finally { temporary?.delete(); }
+        && __argumentSyntaxParent(before)?.startIndex === (current && __argumentSyntaxParent(current))?.startIndex
+        && __argumentSyntaxParent(before)?.endIndex === (current && __argumentSyntaxParent(current))?.endIndex;
+    } finally { __argumentTreeDelete(temporary); }
   }
 
   private invokableObjectSignatures(file: SemanticFile, variable: string, offset: number, parametersOnly = false): SignatureInfo[] {
@@ -13251,8 +13323,8 @@ export class SemanticWorkspace {
           this.namespaceAt(file, reference.start), ownerFqcn)?.toLowerCase();
         let node = deepestLocalSyntax(root, reference.start, reference.end,
           (candidate) => candidate.startIndex === reference.start && candidate.endIndex === reference.end);
-        while (node && node.type !== 'attribute_list') node = node.parent ?? undefined;
-        const subject = node?.parent;
+        while (node && node.type !== 'attribute_list') node = __argumentSyntaxParent(node) ?? undefined;
+        const subject = (node && __argumentSyntaxParent(node));
         return subject ? [{ reference, resolved, subjectType: subject.type,
           subjectStart: subject.startIndex, subjectEnd: subject.endIndex,
           nativeReturnType: subject.childForFieldName('return_type')?.text }] : [];
@@ -13263,7 +13335,7 @@ export class SemanticWorkspace {
         delayedValidation: subjects.some((candidate) => candidate.resolved === 'delayedtargetvalidation'
           && candidate.subjectType === item.subjectType && candidate.subjectStart === item.subjectStart && candidate.subjectEnd === item.subjectEnd),
       }));
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private builtinAttributeMetadata(file: SemanticFile, declarationStart: number, declarationEnd: number, subjectStart: number,
@@ -13509,8 +13581,8 @@ export class SemanticWorkspace {
     const tree = retainedTree ?? temporaryTree!;
     try {
       let statement = deepestLocalSyntax(tree.rootNode, start, end, () => true);
-      while (statement && statement.parent?.type !== 'compound_statement') statement = statement.parent ?? undefined;
-      const block = statement?.parent;
+      while (statement && __argumentSyntaxParent(statement)?.type !== 'compound_statement') statement = __argumentSyntaxParent(statement) ?? undefined;
+      const block = (statement && __argumentSyntaxParent(statement));
       if (statement && block) {
         const prefix = file.source.slice(block.startIndex, statement.startIndex);
         const escaped = expression.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -13530,7 +13602,7 @@ export class SemanticWorkspace {
           }
         }
       }
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
     const type = this.provenArgumentType(file, start, end); return type ? { type } : undefined;
   }
 
@@ -14132,7 +14204,7 @@ export class SemanticWorkspace {
           if (!node.hasError) statementStart = node.startIndex;
           break;
         }
-        node = node.parent;
+        node = __argumentSyntaxParent(node);
       }
     }
     const before = commentMaskedSlice(file.source, statementStart, offset, file.commentRanges);
@@ -14160,14 +14232,14 @@ export class SemanticWorkspace {
         let receiver: SyntaxNode | undefined; let remaining = 256;
         while (node && node.endIndex === end && remaining-- > 0) {
           if (['parenthesized_expression', 'function_call_expression', 'scoped_call_expression', 'object_creation_expression', 'subscript_expression', 'member_call_expression', 'nullsafe_member_call_expression'].includes(node.type)) receiver = node;
-          node = node.parent;
+          node = __argumentSyntaxParent(node);
         }
         const target = remaining > 0 && receiver && this.expressionReceiverTarget(file, receiver, '', accessFrom, bareReceiver[1] === '?->');
         if (target) return target;
       }
       if (receiverTree && offset > 0 && expressionReceiverCandidate) {
         const nameNode = receiverTree.rootNode.namedDescendantForIndex(offset - 1);
-        const memberNode = nameNode?.parent;
+        const memberNode = __argumentSyntaxParent(nameNode);
         const receiver = memberNode?.childForFieldName('object');
         if (nameNode && memberNode?.childForFieldName('name')?.id === nameNode.id && receiver?.type === 'member_call_expression' && !receiver.hasError) {
           const createdReceiver = (node: SyntaxNode, depth: number): ObjectClass | undefined => {
@@ -14222,7 +14294,7 @@ export class SemanticWorkspace {
         }
       }
     } finally {
-      if (temporaryTree) { this.trees.delete(uri); temporaryTree.delete(); }
+      if (temporaryTree) { this.trees.delete(uri); __argumentTreeDelete(temporaryTree); }
     }
     if (staticChain) {
       const namespace = accessFrom?.split('\\').slice(0, -1).join('\\') ?? file.namespace;
@@ -14832,13 +14904,13 @@ export class SemanticWorkspace {
     const tree = retainedTree ?? temporaryTree!;
     try {
       let statement = deepestLocalSyntax(tree.rootNode, offset, offset, () => true);
-      while (statement && statement.parent?.type !== 'compound_statement') statement = statement.parent ?? undefined;
-      const block = statement?.parent; if (!block) return undefined;
+      while (statement && __argumentSyntaxParent(statement)?.type !== 'compound_statement') statement = __argumentSyntaxParent(statement) ?? undefined;
+      const block = (statement && __argumentSyntaxParent(statement)); if (!block) return undefined;
       for (const range of ranges) {
         const comment = deepestLocalSyntax(tree.rootNode, range.start, range.end,
           (node) => node.type === 'comment' && node.startIndex === range.start && node.endIndex === range.end);
-        if (comment?.parent?.type !== 'compound_statement' || comment.parent.startIndex !== block.startIndex
-          || comment.parent.endIndex !== block.endIndex) continue;
+        if ((comment && __argumentSyntaxParent(comment))?.type !== 'compound_statement' || __argumentSyntaxParent(comment)!.startIndex !== block.startIndex
+          || __argumentSyntaxParent(comment)!.endIndex !== block.endIndex) continue;
         const source = file.source.slice(range.start, range.end);
         const doc = parsePhpDoc(source, range.start);
         if (doc.errors.length && namedVarTag.test(source)) return undefined;
@@ -14858,7 +14930,7 @@ export class SemanticWorkspace {
       }
       return undefined;
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
   }
 
@@ -15059,9 +15131,9 @@ export class SemanticWorkspace {
           && node.childForFieldName('name')?.startIndex === access.start
           && node.childForFieldName('name')?.endIndex === access.end);
       let expression = member;
-      while (expression?.parent && ['subscript_expression', 'parenthesized_expression'].includes(expression.parent.type)
-        && expression.parent.namedChildren[0]?.id === expression.id) expression = expression.parent;
-      const parent = expression?.parent;
+      while ((expression && __argumentSyntaxParent(expression)) && ['subscript_expression', 'parenthesized_expression'].includes(__argumentSyntaxParent(expression)!.type)
+        && __argumentSyntaxParent(expression)!.namedChildren[0]?.id === expression.id) expression = __argumentSyntaxParent(expression)!;
+      const parent = (expression && __argumentSyntaxParent(expression));
       const indirectWrite = Boolean(member && expression && member.id !== expression.id);
       if (expression && parent?.type === 'assignment_expression' && parent.childForFieldName('left')?.id === expression.id) {
         return indirectWrite ? { read: true, write: true, indirectWrite: true } : { read: false, write: true };
@@ -15079,9 +15151,8 @@ export class SemanticWorkspace {
         const value = parent.namedChildren[1];
         if (value?.type === 'by_ref') return { read: true, write: true, indirectWrite: true };
       }
-      const argument = expression?.parent?.type === 'argument' && expression.parent.namedChildren.at(-1)?.id === expression.id
-        ? expression.parent : undefined;
-      const callNode = argument?.parent?.parent;
+      const argument = expression && ((expression && __argumentSyntaxParent(expression))?.type === 'argument' && __argumentSyntaxParent(expression)!.namedChildren.at(-1)?.id === expression.id) ? __argumentSyntaxParent(expression)! : undefined;
+      const callNode = __argumentSyntaxParent((argument && __argumentSyntaxParent(argument)));
       if (argument && callNode && ['function_call_expression', 'member_call_expression', 'nullsafe_member_call_expression', 'scoped_call_expression'].includes(callNode.type)) {
         const call = file.calls.find((candidate) => candidate.start === callNode.startIndex && candidate.end === callNode.endIndex);
         const signature = call && this.signature(file.uri, call.argumentsStart + 1);
@@ -15101,7 +15172,7 @@ export class SemanticWorkspace {
         }
       }
       return { read: true, write: false };
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private containingCallable(file: SemanticFile, offset: number): ParsedCallableDeclaration | undefined {
@@ -15461,7 +15532,7 @@ export class SemanticWorkspace {
       if (bareIdentity && expression.type === 'variable_name'
         && expression.text === `$${scope.parameters[0]?.name}`) return 'carry';
       return this.provenArgumentType(file, expression.startIndex, expression.endIndex);
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private arrayFilterMode(file: SemanticFile, call: ParsedCall): 'value' | 'key' | 'both' | 'unknown' {
@@ -15547,7 +15618,7 @@ export class SemanticWorkspace {
       return array && array.namedChildren.length <= 256 && array.namedChildren.every((element) =>
         element.type === 'array_element_initializer' && !/^\s*\.\.\./u.test(element.text))
         ? array.namedChildren.length : undefined;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private arrayMapCallbackParameterType(file: SemanticFile, call: ParsedCall, parameterIndex: number): PhpType | undefined {
@@ -15698,11 +15769,11 @@ export class SemanticWorkspace {
           if (node.type === 'reference_assignment_expression' && node.endIndex <= offset
             && [node.childForFieldName('left'), node.childForFieldName('right')].some(value =>
               value?.type === 'variable_name' && value.text === variable)) return true;
-          node = node.parent ?? undefined;
+          node = __argumentSyntaxParent(node) ?? undefined;
         }
       }
       return false;
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private variableClass(file: SemanticFile, variable: string, offset: number, visited = new Set<string>(), allowNullable = false): ObjectClass | undefined {
@@ -16361,7 +16432,7 @@ export class SemanticWorkspace {
         return phpDocUse || scope && new RegExp(`(?<![\\p{L}\\p{N}_])${escaped}(?![\\p{L}\\p{N}_])`, flags).test(searchable.slice(scope.start, scope.end))
           ? [`${item.statementStart}:${item.start}`] : [];
       }));
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
   }
 
   private nativeType(file: SemanticFile, input: string | undefined, scopeFqcn?: string, budget = { remaining: 256 }, sourceNames = false, sourceOffset?: number): PhpType {
@@ -16806,7 +16877,7 @@ export class SemanticWorkspace {
       };
       return infer(root, 0);
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
   }
 
@@ -17015,9 +17086,9 @@ export class SemanticWorkspace {
       }
       const bodyStart = scopeNode?.childForFieldName('body')?.startIndex ?? scope.start;
       let statement = deepestLocalSyntax(tree.rootNode, offset, offset, () => true);
-      while (statement && statement.parent?.type !== 'compound_statement' && statement.parent?.type !== 'program')
-        statement = statement.parent ?? undefined;
-      const block = statement?.parent; if (!statement || !block) return undefined;
+      while (statement && __argumentSyntaxParent(statement)?.type !== 'compound_statement' && __argumentSyntaxParent(statement)?.type !== 'program')
+        statement = __argumentSyntaxParent(statement) ?? undefined;
+      const block = (statement && __argumentSyntaxParent(statement)); if (!statement || !block) return undefined;
       const index = block.namedChildren.findIndex((candidate) => candidate.startIndex === statement!.startIndex && candidate.endIndex === statement!.endIndex);
       const scalarLiteral = (value: string): boolean => /^(?:true|false|null|[+-]?(?:0|[1-9][0-9_]*|0[xX][0-9a-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+)|[+-]?(?:(?:[0-9][0-9_]*)?\.[0-9][0-9_]*(?:[eE][+-]?[0-9][0-9_]*)?|[0-9][0-9_]*[eE][+-]?[0-9][0-9_]*)|'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*")$/is.test(value.trim());
       const literalConstructor = (value: SyntaxNode): boolean => {
@@ -17397,7 +17468,7 @@ export class SemanticWorkspace {
           const right = expression?.type === 'assignment_expression' ? expression.childForFieldName('right') : undefined;
           if (left?.type === 'variable_name' && left.text === variable) {
             if (!right || right.text.trim() === variable) return { valid: false, breaks: false };
-            const assignmentNode = left.parent;
+            const assignmentNode = __argumentSyntaxParent(left);
             const parsedAssignment = file.assignments.find((candidate) => candidate.scopeId === scope.id
               && candidate.variable === variable && candidate.start === assignmentNode?.startIndex && candidate.end === assignmentNode?.endIndex);
             value = (parsedAssignment && this.localVariableAnnotationType(file, parsedAssignment, scope))
@@ -17578,7 +17649,7 @@ export class SemanticWorkspace {
       const result = withOptionalLoops(captured ? applyUpdates(captured) : undefined);
       return !allowMixed && result?.kind === 'primitive' && result.name === 'mixed' ? undefined : result;
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
   }
 
@@ -17622,7 +17693,7 @@ export class SemanticWorkspace {
         ? undefined : callableType(parameters.map((parameter) => ({ ...parameter, type: parameter.type! })), returnType);
       return result;
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
   }
 
@@ -17910,7 +17981,7 @@ export class SemanticWorkspace {
       const source = this.provenArgumentType(file, operand.startIndex, operand.endIndex);
       return source && this.delegatedGeneratorReturnType(source);
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
   }
 
@@ -17989,7 +18060,7 @@ export class SemanticWorkspace {
       return displayType(generic(named('Generator'), union(...keys), union(...values), primitive('mixed'), returnType));
     } finally {
       this.generatorInferenceInProgress.delete(inferenceKey);
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
   }
 
@@ -18120,7 +18191,7 @@ export class SemanticWorkspace {
           return members.map((member) => BigInt((member as Extract<PhpType, { kind: 'literal' }>).value as number));
         };
         values = root && evaluate(root);
-      } finally { temporary?.delete(); }
+      } finally { __argumentTreeDelete(temporary); }
     }
     if (!values?.length) return undefined;
     const offset = shape([{ key: 0, type: primitive('string'), optional: false }, { key: 1, type: primitive('int'), optional: false }]);
@@ -18428,7 +18499,7 @@ export class SemanticWorkspace {
       };
       return infer(root, 0)?.type;
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
   }
 
@@ -18544,8 +18615,8 @@ export class SemanticWorkspace {
       };
       const expandLinearNumericLocal = (variable: SyntaxNode, unpack: SyntaxNode): ExpandedArgument[] | undefined => {
         let statement: SyntaxNode | undefined = unpack;
-        while (statement && statement.parent?.type !== 'compound_statement') statement = statement.parent ?? undefined;
-        const block = statement?.parent; if (!statement || !block) return undefined;
+        while (statement && __argumentSyntaxParent(statement)?.type !== 'compound_statement') statement = __argumentSyntaxParent(statement) ?? undefined;
+        const block = (statement && __argumentSyntaxParent(statement)); if (!statement || !block) return undefined;
         const statementIndex = block.namedChildren.findIndex((candidate) => candidate.startIndex === statement!.startIndex
           && candidate.endIndex === statement!.endIndex);
         if (statementIndex < 0) return undefined;
@@ -18644,7 +18715,7 @@ export class SemanticWorkspace {
       }
       return result;
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
   }
 
@@ -18690,10 +18761,10 @@ export class SemanticWorkspace {
               || /assignment_expression$/u.test(node.type) && left
                 && left.startIndex <= reference.start && left.endIndex >= reference.end) return undefined;
           }
-          node = node.parent ?? undefined;
+          node = __argumentSyntaxParent(node) ?? undefined;
         }
       }
-    } finally { temporaryTree?.delete(); }
+    } finally { __argumentTreeDelete(temporaryTree); }
     for (const call of file.calls.filter((item) => item.start >= scope.start && item.end <= offset
       && this.containingScope(file, item.start)?.id === scope.id)) {
       if (call.kind === 'function') {
@@ -19094,7 +19165,7 @@ export class SemanticWorkspace {
       if (functionNode?.type !== 'variable_name') return undefined;
       variable = functionNode.text; callStart = call!.startIndex; callEnd = call!.endIndex;
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
     const callArguments = this.expandedCallArguments(file, callStart, callEnd); if (!callArguments) return undefined;
     if (!variable) return undefined;
@@ -19220,7 +19291,7 @@ export class SemanticWorkspace {
       const node = exactNode?.type === 'argument' ? exactNode.namedChildren.at(-1) : exactNode;
       chain = node ? parse(node) : undefined;
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
     if (!chain || chain.steps.length < 1 || (chain.steps.length === 1 && chain.steps[0]?.kind === 'method')) return undefined;
     const scope = this.containingScope(file, start); let target = this.variableClass(file, chain.variable, start, new Set(), true);
@@ -19354,7 +19425,7 @@ export class SemanticWorkspace {
         ...(syntax.childForFieldName('operator') ? { operator: syntax.childForFieldName('operator')!.text } : {}),
       };
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
   }
 
@@ -19476,7 +19547,7 @@ export class SemanticWorkspace {
           : result && this.provenArgumentType(file, result.startIndex, result.endIndex));
       return results.every((result): result is PhpType => Boolean(result)) ? union(...results) : undefined;
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
   }
 
@@ -19505,7 +19576,7 @@ export class SemanticWorkspace {
     if (!properties) {
       const parsed = this.parser.parseDeclarations(owner.source, owner.uri);
       try { properties = parsed.properties; }
-      finally { parsed.tree.delete(); }
+      finally { __argumentTreeDelete(parsed.tree); }
       this.nativePropertyDeclarationsByArray.set(owner.properties, properties);
     }
     return properties;
@@ -19593,7 +19664,7 @@ export class SemanticWorkspace {
       }
       return type;
     } finally {
-      temporaryTree?.delete();
+      __argumentTreeDelete(temporaryTree);
     }
   }
 
@@ -20240,19 +20311,19 @@ export class SemanticWorkspace {
       const tree = retained ?? temporary!;
       const statementAt = (offset: number): SyntaxNode | undefined => {
         let node = deepestLocalSyntax(tree.rootNode, offset, offset, () => true);
-        while (node && node.parent?.type !== 'compound_statement' && node.parent?.type !== 'program') node = node.parent ?? undefined;
+        while (node && __argumentSyntaxParent(node)?.type !== 'compound_statement' && __argumentSyntaxParent(node)?.type !== 'program') node = __argumentSyntaxParent(node) ?? undefined;
         return node;
       };
       const statement = statementAt(assignment.start); const current = statementAt(call.start);
       const expression = statement?.type === 'expression_statement' ? statement.namedChildren[0] : undefined;
       const right = expression?.type === 'assignment_expression' ? expression.childForFieldName('right') : undefined;
-      if (!statement?.parent || !current?.parent || statement.parent.startIndex !== current.parent.startIndex
-        || statement.parent.endIndex !== current.parent.endIndex || right?.type !== 'object_creation_expression' || right.hasError) return false;
+      if (!(statement && __argumentSyntaxParent(statement)) || !(current && __argumentSyntaxParent(current)) || __argumentSyntaxParent(statement)!.startIndex !== __argumentSyntaxParent(current)!.startIndex
+        || __argumentSyntaxParent(statement)!.endIndex !== __argumentSyntaxParent(current)!.endIndex || right?.type !== 'object_creation_expression' || right.hasError) return false;
       const type = this.linearLocalValueType(file, variable, call.start);
       const objects = type && this.objectGroups(type);
       return Boolean(objects && !objects.nullable && objects.groups.length === 1 && objects.groups[0]?.length === 1
         && objects.groups[0][0]!.fqcn.toLowerCase() === expectedFqcn.toLowerCase());
-    } finally { temporary?.delete(); }
+    } finally { __argumentTreeDelete(temporary); }
   }
 
   private isBuiltinArrayPointerCall(file: SemanticFile, call: ParsedCall, variable: string): boolean {
@@ -20722,5 +20793,70 @@ export class SemanticWorkspace {
       const parent = this.resolveSourceType(file, name, namespace);
       return parent ? this.isSubclassOf(parent, target, visited) : false;
     });
+  }
+}
+
+// Parent nodes are reused only during one synchronous argument check.
+
+interface __ArgumentTraversalRootEntry { root: SyntaxNode; id: number; start: number; end: number; row: number; column: number; size: number; expanded: WeakSet<SyntaxNode>; }
+interface __ArgumentParentContext { parents: WeakMap<SyntaxTree, Map<number, SyntaxNode | null>>; size: number; previous?: __ArgumentParentContext; traversalRoots: WeakMap<SyntaxTree, __ArgumentTraversalRootEntry>; traversalSize: number; blockedTraversalTrees: WeakSet<SyntaxTree>; }
+let __activeArgumentParents: __ArgumentParentContext | undefined;
+function __argumentSyntaxParent(node: SyntaxNode): SyntaxNode | null;
+function __argumentSyntaxParent(node: SyntaxNode | null | undefined): SyntaxNode | null | undefined;
+function __argumentSyntaxParent(node: SyntaxNode | null | undefined): SyntaxNode | null | undefined {
+  if (!node) return undefined;
+  const context = __activeArgumentParents;
+  if (!context || typeof node.id !== 'number' || !node.tree) return node.parent;
+  let parents = context.parents.get(node.tree);
+  if (parents?.has(node.id)) return parents.get(node.id)!;
+  const result = node.parent;
+  if (context.size < 8192) {
+    if (!parents) { parents = new Map(); context.parents.set(node.tree, parents); }
+    parents.set(node.id, result); context.size++;
+  }
+  return result;
+}
+function __argumentTreeInvalidated(tree: SyntaxTree): void {
+  for (let context = __activeArgumentParents; context; context = context.previous) {
+    context.size -= context.parents.get(tree)?.size ?? 0; context.parents.delete(tree);
+    context.traversalSize -= context.traversalRoots.get(tree)?.size ?? 0;
+    context.traversalRoots.delete(tree); context.blockedTraversalTrees.delete(tree);
+  }
+}
+function __argumentTreeEdit(tree: SyntaxTree, edit: Parameters<SyntaxTree['edit']>[0]): void {
+  __argumentTreeInvalidated(tree); tree.edit(edit);
+}
+function __argumentTreeDelete(tree: SyntaxTree | null | undefined): void {
+  if (tree) { __argumentTreeInvalidated(tree); tree.delete(); }
+}
+
+function __argumentTraversalRelease(root: SyntaxNode): void {
+  const context = __activeArgumentParents, entry = context?.traversalRoots.get(root.tree);
+  if (context && entry?.root === root) {
+    context.traversalSize -= entry.size; context.traversalRoots.delete(root.tree);
+  }
+}
+// Only the two read-only internal firstLocalSyntax searches share this root wrapper.
+function __argumentTraversalRoot(root: SyntaxNode): SyntaxNode {
+  const context = __activeArgumentParents;
+  if (!context || context.blockedTraversalTrees.has(root.tree)) return root;
+  const previous = context.traversalRoots.get(root.tree);
+  if (previous && previous.id === root.id && previous.start === root.startIndex && previous.end === root.endIndex
+    && previous.row === root.startPosition.row && previous.column === root.startPosition.column)
+    return previous.root;
+  if (previous) { context.traversalSize -= previous.size; context.traversalRoots.delete(root.tree); }
+  if (context.traversalSize >= 8192) return root;
+  context.traversalRoots.set(root.tree, { root, id: root.id, start: root.startIndex, end: root.endIndex,
+    row: root.startPosition.row, column: root.startPosition.column, size: 1, expanded: new WeakSet() });
+  context.traversalSize++; return root;
+}
+function __argumentTraversalChildren(root: SyntaxNode, node: SyntaxNode): void {
+  const context = __activeArgumentParents, entry = context?.traversalRoots.get(root.tree);
+  if (!context || !entry || entry.root !== root || entry.expanded.has(node)) return;
+  const children = node.namedChildren; entry.expanded.add(node);
+  entry.size += children.length; context.traversalSize += children.length;
+  if (context.traversalSize > 8192) {
+    context.traversalSize -= entry.size; context.traversalRoots.delete(root.tree);
+    context.blockedTraversalTrees.add(root.tree);
   }
 }

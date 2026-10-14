@@ -41,6 +41,23 @@ jobs:
       - run: pnpm verify:packages
       - run: node scripts/benchmark-editing.mjs 1000 100 > editing-resilience-Linux-X64.json
       - run: pnpm test
+      - name: Build reference cache test providers
+        run: pnpm --dir packages/php-companion-symfony build
+      - name: Cross-process reference cache regression
+        id: reference_cache_test
+        working-directory: packages/language-server
+        run: |
+          pnpm exec vitest run test/stdio.test.ts -t "restores proven references across processes and rejects changed query inputs" --reporter=json --outputFile=../../reference-cache-${{ runner.os }}-${{ runner.arch }}.json
+          node ../../scripts/verify-reference-cache-test.mjs ../../reference-cache-${{ runner.os }}-${{ runner.arch }}.json
+        env:
+          PHP_COMPANION_TEST_REFERENCE_BUNDLE: ${{ github.workspace }}/dist/language-server.js
+      - name: Upload reference cache regression result
+        if: always() && steps.reference_cache_test.outcome != 'skipped'
+        uses: actions/upload-artifact@v7
+        with:
+          name: reference-cache-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          path: reference-cache-${{ runner.os }}-${{ runner.arch }}.json
       - run: pnpm package:all
       - run: pnpm verify:vsix
       - run: pnpm exec tsc -p test/extension/tsconfig.json

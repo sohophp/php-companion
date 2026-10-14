@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-14",
+  "status": "completed",
+  "fullObjectiveComplete": false,
+  "productionChanged": false,
+  "snapshotChecks": [
+    {
+      "snapshot": ".vscode-test/final-lsp-node20-2026-10-13/inputs.json",
+      "count": 1012,
+      "changed": []
+    },
+    {
+      "snapshot": ".vscode-test/performance-paired-arguments-2026-10-13/project-inputs.json",
+      "count": 66079,
+      "changed": []
+    }
+  ],
+  "actorsGone": [
+    61977,
+    62205,
+    62216,
+    62481,
+    62492
+  ],
+  "cacheDirectoriesGone": true,
+  "controlAssetsEqual": 8,
+  "pairs": [
+    {
+      "calls": 788,
+      "outerCalls": 494,
+      "outerMs": 75.40569799999594,
+      "eligibleCalls": 2,
+      "eligibleMs": 0.016896999999516993,
+      "repeatedEligibleCalls": 0,
+      "repeatedEligibleMs": 0
+    },
+    {
+      "calls": 788,
+      "outerCalls": 494,
+      "outerMs": 75.5598350000073,
+      "eligibleCalls": 2,
+      "eligibleMs": 0.016555000000153086,
+      "repeatedEligibleCalls": 0,
+      "repeatedEligibleMs": 0
+    },
+    {
+      "calls": 788,
+      "outerCalls": 494,
+      "outerMs": 75.38531300001705,
+      "eligibleCalls": 2,
+      "eligibleMs": 0.020886999998765532,
+      "repeatedEligibleCalls": 0,
+      "repeatedEligibleMs": 0
+    },
+    {
+      "calls": 788,
+      "outerCalls": 494,
+      "outerMs": 82.30255899999611,
+      "eligibleCalls": 2,
+      "eligibleMs": 0.01622299999871757,
+      "repeatedEligibleCalls": 0,
+      "repeatedEligibleMs": 0
+    }
+  ],
+  "medianRepeatedEligibleMs": 0.0,
+  "medianOuterMs": 75.48276650000162,
+  "medianEligibleMs": 0.01672599999983504,
+  "capped": false,
+  "changedDigests": 0,
+  "generationChanged": 0,
+  "resultsEqual": true,
+  "prototypeAdmitted": false,
+  "reason": "Repeated eligible cost 0ms below predeclared 50ms; explicit visited sets and active recursion guards excluded; no prototype or equivalent rerun",
+  "productionCoreSha256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375"
+}

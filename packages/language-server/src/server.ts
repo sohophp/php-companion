@@ -3101,6 +3101,27 @@ function startIndexWorkspace(reason = 'semantic-query', changedComposerPaths?: r
 }
 
 let watchedFileChanges: Promise<void> = Promise.resolve();
+let pendingWatchedFileChanges = 0;
+
+async function waitForQueryDependency(pending: Promise<void>, token: CancellationToken): Promise<boolean> {
+  if (token.isCancellationRequested) return false;
+  let cancellationSubscription: { dispose(): void } | undefined;
+  const cancelled = new Promise<boolean>(resolveCancelled => {
+    cancellationSubscription = token.onCancellationRequested(() => resolveCancelled(false));
+  });
+  try {
+    return await Promise.race([pending.then(() => true), cancelled]) && !token.isCancellationRequested;
+  } finally { cancellationSubscription?.dispose(); }
+}
+
+async function waitForWatchedFileChanges(token: CancellationToken): Promise<boolean> {
+  while (!token.isCancellationRequested) {
+    const pending = watchedFileChanges;
+    if (!await waitForQueryDependency(pending, token)) return false;
+    if (pending === watchedFileChanges) return true;
+  }
+  return false;
+}
 
 async function ensureCompleteRoot(root: string, isCancellationRequested: () => boolean): Promise<boolean> {
   if (indexingMode !== 'experimental') return false;
@@ -6218,7 +6239,9 @@ async function processWatchedFileChanges(changes: readonly { uri: string; type: 
   }
 }
 connection.onDidChangeWatchedFiles(({ changes }) => {
-  const processing = watchedFileChanges.then(() => processWatchedFileChanges(changes));
+  pendingWatchedFileChanges += 1;
+  const processing = watchedFileChanges.then(() => processWatchedFileChanges(changes))
+    .finally(() => { pendingWatchedFileChanges -= 1; });
   watchedFileChanges = processing.catch(() => undefined);
   return processing;
 });
@@ -6330,7 +6353,13 @@ async function otherOpenPhysicalDocuments(document: TextDocument, root: string):
   return aliases;
 }
 
-async function semanticForOpenQuery(document: TextDocument): Promise<SemanticWorkspace> {
+async function semanticForOpenQuery(document: TextDocument): Promise<SemanticWorkspace>;
+async function semanticForOpenQuery(document: TextDocument, token: CancellationToken): Promise<SemanticWorkspace | undefined>;
+async function semanticForOpenQuery(document: TextDocument, token?: CancellationToken): Promise<SemanticWorkspace | undefined> {
+  // A configuration watcher can refresh external return types while a query
+  // still sees the old facts. Consume the queued changes before reading them,
+  // but let cancellation return without waiting for a held provider.
+  if (token && pendingWatchedFileChanges > 0 && !await waitForWatchedFileChanges(token)) return undefined;
   const projectWorkspace = await semanticForUri(document.uri);
   const stale = localAliasQueryWorkspaces.get(document.uri);
   const projectRevision = projectWorkspace.revision();
@@ -7555,13 +7584,13 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (!document || token.isCancellationRequested) return [];
   const queryVersion = document.version;
   if (testPauseNextQueries.has('completion')) await pauseTestQuery('completion');
-  await semanticProviderQueryReadiness;
-  const workspace = await semanticForOpenQuery(document);
+  if (!await waitForQueryDependency(semanticProviderQueryReadiness, token)) return [];
+  const workspace = await semanticForOpenQuery(document, token); if (!workspace) return [];
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   const offset = document.offsetAt(position);
   const initialContext = workspace.completionContext(document.uri, offset, Number(phpVersionForUri(document.uri)) >= 8);
   if (initialContext.kind !== 'member' && initialContext.kind !== 'variable') {
-    await semanticProviderReconciliation;
+    if (!await waitForQueryDependency(semanticProviderReconciliation, token)) return [];
     if (!currentQueryDocument(document, token, queryVersion)) return [];
   }
   const deprecation = (location: SemanticLocation): Pick<CompletionItem, 'tags' | 'deprecated'> =>
@@ -7813,7 +7842,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (completionContext.kind === 'member' && !resolvedMembers.length) {
     // An unresolved member may require a provider's synthetic facts. Retain
     // that dependency instead of treating an empty pending list as final.
-    await semanticProviderReconciliation;
+    if (!await waitForQueryDependency(semanticProviderReconciliation, token)) return [];
     if (!currentQueryDocument(document, token, queryVersion)) return [];
     resolvedMembers = workspace.completeMembers(document.uri, offset);
   }
@@ -8117,8 +8146,8 @@ connection.onCompletionResolve(async (item, token) => {
   const document = documents.get(data.uri);
   if (!document || document.version !== data.version || completionDocumentIdentities.get(document) !== data.documentIdentity
     || token.isCancellationRequested || data.offset > document.getText().length) return unresolved;
-  await semanticProviderReconciliation;
-  const workspace = await semanticForOpenQuery(document);
+  if (!await waitForQueryDependency(semanticProviderReconciliation, token)) return unresolved;
+  const workspace = await semanticForOpenQuery(document, token); if (!workspace) return unresolved;
   if (!currentQueryDocument(document, token, data.version) || documents.get(data.uri) !== document) return unresolved;
   const detail = workspace.completionVariableDetail(data.uri, data.offset, data.variable);
   return detail ? { ...unresolved, detail } : unresolved;
@@ -8132,7 +8161,7 @@ connection.onHover(async ({ textDocument, position }, token) => {
   const queryVersion = document.version;
   if (testPauseNextQueries.has('hover')) await pauseTestQuery('hover');
   const workspaceStarted = testMode ? performance.now() : 0;
-  const workspace = await semanticForOpenQuery(document); if (!currentQueryDocument(document, token, queryVersion)) return null; const offset = document.offsetAt(position);
+  const workspace = await semanticForOpenQuery(document, token); if (!workspace || !currentQueryDocument(document, token, queryVersion)) return null; const offset = document.offsetAt(position);
   recordTestQueryDuration('hoverWorkspace', workspaceStarted);
   const frameworkStarted = testMode ? performance.now() : 0;
   const serviceRoot = rootForUri(document.uri);
@@ -8202,7 +8231,7 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
   const includedUri = await staticIncludeDefinition(document, offset);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (includedUri) return [{ uri: includedUri, range: { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } } }];
-  const workspace = await semanticForOpenQuery(document);
+  const workspace = await semanticForOpenQuery(document, token); if (!workspace) return [];
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   const routeCall = await provenSymfonyRouteCall(document, offset, workspace);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
@@ -8313,7 +8342,7 @@ connection.onDefinition(async ({ textDocument, position }, token) => {
 connection.onTypeDefinition(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri); if (!document || token.isCancellationRequested) return [];
   const queryVersion = document.version;
-  const workspace = await semanticForOpenQuery(document);
+  const workspace = await semanticForOpenQuery(document, token); if (!workspace) return [];
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   const offset = document.offsetAt(position), root = rootForUri(document.uri);
   if (root && document.languageId === 'php') {
@@ -8345,7 +8374,7 @@ connection.onImplementation(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri);
   if (!document || token.isCancellationRequested) return [];
   const queryVersion = document.version;
-  const workspace = await semanticForOpenQuery(document);
+  const workspace = await semanticForOpenQuery(document, token); if (!workspace) return [];
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   const offset = document.offsetAt(position);
   let member = workspace.referenceMemberAt(document.uri, offset);
@@ -8753,7 +8782,7 @@ connection.onSignatureHelp(async ({ textDocument, position }, token) => {
   if (!document || token.isCancellationRequested) return null;
   const queryVersion = document.version;
   if (testPauseNextQueries.has('signatureHelp')) await pauseTestQuery('signatureHelp');
-  const workspace = await semanticForOpenQuery(document); const offset = document.offsetAt(position);
+  const workspace = await semanticForOpenQuery(document, token); if (!workspace) return null; const offset = document.offsetAt(position);
   if (!currentQueryDocument(document, token, queryVersion)) return null;
   if (document.languageId === 'php' && phpVersionForUri(document.uri).startsWith('7.')
     && workspace.isLegacyHashCommentAt(document.uri, offset)) return null;

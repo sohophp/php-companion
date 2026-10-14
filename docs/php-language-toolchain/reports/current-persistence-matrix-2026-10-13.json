@@ -1,0 +1,653 @@
+{
+  "date": "2026-10-13",
+  "status": "passed",
+  "checkpoint": {
+    "qualifiedCompletedGroupsOnly": true,
+    "wholeMatrixQualified": false,
+    "completedGroups": [
+      {
+        "files": 1000,
+        "rounds": 5,
+        "coldIndexP95Ms": 2944.94,
+        "warmRestoreP95Ms": 1835.19,
+        "wholeProcessPeakMiB": 158.11,
+        "warmCacheMaximumBytes": 5742880
+      },
+      {
+        "files": 10000,
+        "rounds": 5,
+        "coldIndexP95Ms": 24757.92,
+        "warmRestoreP95Ms": 17621.71,
+        "wholeProcessPeakMiB": 541.79,
+        "warmCacheMaximumBytes": 57412126
+      }
+    ],
+    "frozenInputsChecked": 2096,
+    "currentRun": {
+      "files": 50000,
+      "round": 1,
+      "pid": 82326,
+      "sameProcessVerifiedLive": true
+    },
+    "fullObjectiveComplete": false
+  },
+  "wholeMatrixQualified": true,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "firstLargeRound": {
+    "size": 50000,
+    "round": 1,
+    "status": "exited",
+    "command": [
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/scripts/benchmark-persistent-index.mjs",
+      "50000",
+      "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+      "/var/www/node/php-companion/dist/tree-sitter-php.wasm"
+    ],
+    "output": "/var/www/node/php-companion/.vscode-test/current-persistence-matrix-2026-10-13/50000-round-1.json",
+    "stderr": "/var/www/node/php-companion/.vscode-test/current-persistence-matrix-2026-10-13/50000-round-1.stderr",
+    "childPid": 82326,
+    "processGroup": 82326,
+    "startTicks": "52756889",
+    "ownedFixtureRoot": "/tmp/php-companion-persistent-index-50000-qcwEvp",
+    "exitCode": 0,
+    "durationSeconds": 500.0685562189901,
+    "result": {
+      "schema": 1,
+      "files": 50000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 122651.09,
+        "parsed": 50000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 89450.36,
+        "parsed": 0,
+        "restored": 50000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.7293,
+      "cache": {
+        "cold": {
+          "files": 50002,
+          "bytes": 287070978,
+          "mebibytes": 273.77
+        },
+        "warm": {
+          "files": 50002,
+          "bytes": 287070978,
+          "mebibytes": 273.77
+        },
+        "frozenBudgetMb": 2560
+      },
+      "coldIndexBudget": {
+        "milliseconds": 300000,
+        "passed": true
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 801.19,
+        "warmPeakRssMb": 1234.8,
+        "layerRecoveryPeakRssMb": 1105.75,
+        "callableRecoveryPeakRssMb": 1111.23,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 1536,
+        "processPeakRssMb": 1235.32,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": true
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 50000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 99999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "changedInputs": [],
+    "outputSha256": "b5785ff3872ec4936e6a1d00df3481d24310660cf59103a50f58e7d9d2bcc147",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "childGone": true,
+    "fixtureRemoved": true,
+    "functionalQualified": true,
+    "budgetChecks": {
+      "coldTime": true,
+      "wholeProcessRSS": true,
+      "warmCacheBytes": true
+    },
+    "qualified": true
+  },
+  "currentRunAtUpdate": null,
+  "completedLargeRounds": [
+    {
+      "size": 50000,
+      "round": 1,
+      "status": "exited",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/scripts/benchmark-persistent-index.mjs",
+        "50000",
+        "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+        "/var/www/node/php-companion/dist/tree-sitter-php.wasm"
+      ],
+      "output": "/var/www/node/php-companion/.vscode-test/current-persistence-matrix-2026-10-13/50000-round-1.json",
+      "stderr": "/var/www/node/php-companion/.vscode-test/current-persistence-matrix-2026-10-13/50000-round-1.stderr",
+      "childPid": 82326,
+      "processGroup": 82326,
+      "startTicks": "52756889",
+      "ownedFixtureRoot": "/tmp/php-companion-persistent-index-50000-qcwEvp",
+      "exitCode": 0,
+      "durationSeconds": 500.0685562189901,
+      "result": {
+        "schema": 1,
+        "files": 50000,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "cold": {
+          "durationMs": 122651.09,
+          "parsed": 50000,
+          "restored": 0,
+          "doctrineParsed": 1
+        },
+        "warm": {
+          "durationMs": 89450.36,
+          "parsed": 0,
+          "restored": 50000,
+          "doctrineParsed": 0
+        },
+        "warmToColdRatio": 0.7293,
+        "cache": {
+          "cold": {
+            "files": 50002,
+            "bytes": 287070978,
+            "mebibytes": 273.77
+          },
+          "warm": {
+            "files": 50002,
+            "bytes": 287070978,
+            "mebibytes": 273.77
+          },
+          "frozenBudgetMb": 2560
+        },
+        "coldIndexBudget": {
+          "milliseconds": 300000,
+          "passed": true
+        },
+        "loadMemory": {
+          "coldPeakRssMb": 801.19,
+          "warmPeakRssMb": 1234.8,
+          "layerRecoveryPeakRssMb": 1105.75,
+          "callableRecoveryPeakRssMb": 1111.23,
+          "sampledIntervalMs": 10,
+          "frozenScalePeakRssMb": 1536,
+          "processPeakRssMb": 1235.32,
+          "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+          "processRssBudgetPassed": true
+        },
+        "exactness": {
+          "transitiveDependencyRestored": true,
+          "derivedFactInvalidated": true,
+          "doctrineFactsRestored": true,
+          "callableFactsRestored": 3,
+          "deferredImplementations": 50000,
+          "implementationsLoadedByQuery": 4,
+          "callableImplementationsLoadedByFocusedQuery": [
+            "benchmark\\consumer::inspect"
+          ],
+          "callableImplementationRecords": 99999,
+          "corruptLayerReparsedFiles": 1,
+          "corruptCallableReparsedFiles": 1,
+          "completionAfterLayerRecovery": true,
+          "completionAfterCallableRecovery": true,
+          "constructorFactsAfterRecovery": true
+        }
+      },
+      "changedInputs": [],
+      "outputSha256": "b5785ff3872ec4936e6a1d00df3481d24310660cf59103a50f58e7d9d2bcc147",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "childGone": true,
+      "fixtureRemoved": true,
+      "functionalQualified": true,
+      "budgetChecks": {
+        "coldTime": true,
+        "wholeProcessRSS": true,
+        "warmCacheBytes": true
+      },
+      "qualified": true
+    },
+    {
+      "size": 50000,
+      "round": 2,
+      "status": "exited",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/scripts/benchmark-persistent-index.mjs",
+        "50000",
+        "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+        "/var/www/node/php-companion/dist/tree-sitter-php.wasm"
+      ],
+      "output": "/var/www/node/php-companion/.vscode-test/current-persistence-matrix-2026-10-13/50000-round-2.json",
+      "stderr": "/var/www/node/php-companion/.vscode-test/current-persistence-matrix-2026-10-13/50000-round-2.stderr",
+      "childPid": 87339,
+      "processGroup": 87339,
+      "startTicks": "52806916",
+      "ownedFixtureRoot": "/tmp/php-companion-persistent-index-50000-VShW1I",
+      "exitCode": 0,
+      "durationSeconds": 501.09976965293754,
+      "result": {
+        "schema": 1,
+        "files": 50000,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "cold": {
+          "durationMs": 116891.56,
+          "parsed": 50000,
+          "restored": 0,
+          "doctrineParsed": 1
+        },
+        "warm": {
+          "durationMs": 87187.24,
+          "parsed": 0,
+          "restored": 50000,
+          "doctrineParsed": 0
+        },
+        "warmToColdRatio": 0.7459,
+        "cache": {
+          "cold": {
+            "files": 50002,
+            "bytes": 287066016,
+            "mebibytes": 273.77
+          },
+          "warm": {
+            "files": 50002,
+            "bytes": 287066016,
+            "mebibytes": 273.77
+          },
+          "frozenBudgetMb": 2560
+        },
+        "coldIndexBudget": {
+          "milliseconds": 300000,
+          "passed": true
+        },
+        "loadMemory": {
+          "coldPeakRssMb": 792.1,
+          "warmPeakRssMb": 1195.4,
+          "layerRecoveryPeakRssMb": 1139.92,
+          "callableRecoveryPeakRssMb": 1150,
+          "sampledIntervalMs": 10,
+          "frozenScalePeakRssMb": 1536,
+          "processPeakRssMb": 1195.41,
+          "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+          "processRssBudgetPassed": true
+        },
+        "exactness": {
+          "transitiveDependencyRestored": true,
+          "derivedFactInvalidated": true,
+          "doctrineFactsRestored": true,
+          "callableFactsRestored": 3,
+          "deferredImplementations": 50000,
+          "implementationsLoadedByQuery": 4,
+          "callableImplementationsLoadedByFocusedQuery": [
+            "benchmark\\consumer::inspect"
+          ],
+          "callableImplementationRecords": 99999,
+          "corruptLayerReparsedFiles": 1,
+          "corruptCallableReparsedFiles": 1,
+          "completionAfterLayerRecovery": true,
+          "completionAfterCallableRecovery": true,
+          "constructorFactsAfterRecovery": true
+        }
+      },
+      "changedInputs": [],
+      "outputSha256": "c5ded74f6047bb3b90ec9482aeb2c1aeac7898bf78d9e2f9a2a240076d13a288",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "childGone": true,
+      "fixtureRemoved": true,
+      "functionalQualified": true,
+      "budgetChecks": {
+        "coldTime": true,
+        "wholeProcessRSS": true,
+        "warmCacheBytes": true
+      },
+      "qualified": true
+    },
+    {
+      "size": 50000,
+      "round": 3,
+      "status": "exited",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/scripts/benchmark-persistent-index.mjs",
+        "50000",
+        "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+        "/var/www/node/php-companion/dist/tree-sitter-php.wasm"
+      ],
+      "output": "/var/www/node/php-companion/.vscode-test/current-persistence-matrix-2026-10-13/50000-round-3.json",
+      "stderr": "/var/www/node/php-companion/.vscode-test/current-persistence-matrix-2026-10-13/50000-round-3.stderr",
+      "childPid": 94190,
+      "processGroup": 94190,
+      "startTicks": "52857034",
+      "ownedFixtureRoot": "/tmp/php-companion-persistent-index-50000-8M4G55",
+      "exitCode": 0,
+      "durationSeconds": 511.65890050597955,
+      "result": {
+        "schema": 1,
+        "files": 50000,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "cold": {
+          "durationMs": 123576.99,
+          "parsed": 50000,
+          "restored": 0,
+          "doctrineParsed": 1
+        },
+        "warm": {
+          "durationMs": 89213.62,
+          "parsed": 0,
+          "restored": 50000,
+          "doctrineParsed": 0
+        },
+        "warmToColdRatio": 0.7219,
+        "cache": {
+          "cold": {
+            "files": 50002,
+            "bytes": 287063660,
+            "mebibytes": 273.77
+          },
+          "warm": {
+            "files": 50002,
+            "bytes": 287063660,
+            "mebibytes": 273.77
+          },
+          "frozenBudgetMb": 2560
+        },
+        "coldIndexBudget": {
+          "milliseconds": 300000,
+          "passed": true
+        },
+        "loadMemory": {
+          "coldPeakRssMb": 873.86,
+          "warmPeakRssMb": 935.74,
+          "layerRecoveryPeakRssMb": 1003.19,
+          "callableRecoveryPeakRssMb": 1043.93,
+          "sampledIntervalMs": 10,
+          "frozenScalePeakRssMb": 1536,
+          "processPeakRssMb": 1045.16,
+          "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+          "processRssBudgetPassed": true
+        },
+        "exactness": {
+          "transitiveDependencyRestored": true,
+          "derivedFactInvalidated": true,
+          "doctrineFactsRestored": true,
+          "callableFactsRestored": 3,
+          "deferredImplementations": 50000,
+          "implementationsLoadedByQuery": 4,
+          "callableImplementationsLoadedByFocusedQuery": [
+            "benchmark\\consumer::inspect"
+          ],
+          "callableImplementationRecords": 99999,
+          "corruptLayerReparsedFiles": 1,
+          "corruptCallableReparsedFiles": 1,
+          "completionAfterLayerRecovery": true,
+          "completionAfterCallableRecovery": true,
+          "constructorFactsAfterRecovery": true
+        }
+      },
+      "changedInputs": [],
+      "outputSha256": "092c3d3a1cfbc2ae80f9bb67b60e6e0d1a37ca6a546d9ca5798df1df54db039b",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "childGone": true,
+      "fixtureRemoved": true,
+      "functionalQualified": true,
+      "budgetChecks": {
+        "coldTime": true,
+        "wholeProcessRSS": true,
+        "warmCacheBytes": true
+      },
+      "qualified": true
+    },
+    {
+      "size": 50000,
+      "round": 4,
+      "status": "exited",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/scripts/benchmark-persistent-index.mjs",
+        "50000",
+        "/var/www/node/php-companion/dist/web-tree-sitter.wasm",
+        "/var/www/node/php-companion/dist/tree-sitter-php.wasm"
+      ],
+      "output": "/var/www/node/php-companion/.vscode-test/current-persistence-matrix-2026-10-13/50000-round-4.json",
+      "stderr": "/var/www/node/php-companion/.vscode-test/current-persistence-matrix-2026-10-13/50000-round-4.stderr",
+      "childPid": 5863,
+      "processGroup": 5863,
+      "startTicks": "52908197",
+      "ownedFixtureRoot": "/tmp/php-companion-persistent-index-50000-gA5lIA",
+      "exitCode": 0,
+      "durationSeconds": 497.43913757707924,
+      "result": {
+        "schema": 1,
+        "files": 50000,
+        "runtime": "v22.14.0",
+        "platform": "linux",
+        "architecture": "x64",
+        "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+        "cold": {
+          "durationMs": 122352.79,
+          "parsed": 50000,
+          "restored": 0,
+          "doctrineParsed": 1
+        },
+        "warm": {
+          "durationMs": 86937.48,
+          "parsed": 0,
+          "restored": 50000,
+          "doctrineParsed": 0
+        },
+        "warmToColdRatio": 0.7105,
+        "cache": {
+          "cold": {
+            "files": 50002,
+            "bytes": 287079088,
+            "mebibytes": 273.78
+          },
+          "warm": {
+            "files": 50002,
+            "bytes": 287079088,
+            "mebibytes": 273.78
+          },
+          "frozenBudgetMb": 2560
+        },
+        "coldIndexBudget": {
+          "milliseconds": 300000,
+          "passed": true
+        },
+        "loadMemory": {
+          "coldPeakRssMb": 834.51,
+          "warmPeakRssMb": 889.62,
+          "layerRecoveryPeakRssMb": 1430.45,
+          "callableRecoveryPeakRssMb": 1429.82,
+          "sampledIntervalMs": 10,
+          "frozenScalePeakRssMb": 1536,
+          "processPeakRssMb": 1430.45,
+          "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+          "processRssBudgetPassed": true
+        },
+        "exactness": {
+          "transitiveDependencyRestored": true,
+          "derivedFactInvalidated": true,
+          "doctrineFactsRestored": true,
+          "callableFactsRestored": 3,
+          "deferredImplementations": 50000,
+          "implementationsLoadedByQuery": 4,
+          "callableImplementationsLoadedByFocusedQuery": [
+            "benchmark\\consumer::inspect"
+          ],
+          "callableImplementationRecords": 99999,
+          "corruptLayerReparsedFiles": 1,
+          "corruptCallableReparsedFiles": 1,
+          "completionAfterLayerRecovery": true,
+          "completionAfterCallableRecovery": true,
+          "constructorFactsAfterRecovery": true
+        }
+      },
+      "changedInputs": [],
+      "outputSha256": "a34c2d266751a16120d7fda253a5276f14e5f60221b271c611c402e46e9b0f44",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "childGone": true,
+      "fixtureRemoved": true,
+      "functionalQualified": true,
+      "budgetChecks": {
+        "coldTime": true,
+        "wholeProcessRSS": true,
+        "warmCacheBytes": true
+      },
+      "qualified": true
+    }
+  ],
+  "terminalCommandExitCode": 0,
+  "terminalAudit": {
+    "verified": true,
+    "mode": "matrix",
+    "functionalQualified": true,
+    "allThreeMeasuredBudgetTypesQualified": true,
+    "qualified": true,
+    "parentMatrixQualification": true,
+    "parentDriverGatesColdTimeAndExactCacheBytes": true,
+    "auditorAlsoChecksColdTimeAndExactWarmCacheBytes": true,
+    "groups": [
+      {
+        "files": 1000,
+        "rounds": 5,
+        "coldIndexMs": {
+          "samples": 5,
+          "p50": 2639.39,
+          "p95": 2944.94,
+          "max": 2944.94
+        },
+        "coldIndexBudgetMs": 8000,
+        "warmRestoreMs": {
+          "samples": 5,
+          "p50": 1786.25,
+          "p95": 1835.19,
+          "max": 1835.19
+        },
+        "wholeProcessRssMiB": {
+          "samples": 5,
+          "p50": 153.02,
+          "p95": 158.11,
+          "max": 158.11
+        },
+        "rssBudgetMiB": 384,
+        "warmCacheMiB": {
+          "samples": 5,
+          "p50": 5.476367950439453,
+          "p95": 5.476837158203125,
+          "max": 5.476837158203125
+        },
+        "warmCacheBudgetMiB": 64
+      },
+      {
+        "files": 10000,
+        "rounds": 5,
+        "coldIndexMs": {
+          "samples": 5,
+          "p50": 23462.74,
+          "p95": 24757.92,
+          "max": 24757.92
+        },
+        "coldIndexBudgetMs": 60000,
+        "warmRestoreMs": {
+          "samples": 5,
+          "p50": 17089.34,
+          "p95": 17621.71,
+          "max": 17621.71
+        },
+        "wholeProcessRssMiB": {
+          "samples": 5,
+          "p50": 396,
+          "p95": 541.79,
+          "max": 541.79
+        },
+        "rssBudgetMiB": 768,
+        "warmCacheMiB": {
+          "samples": 5,
+          "p50": 54.75074005126953,
+          "p95": 54.75247001647949,
+          "max": 54.75247001647949
+        },
+        "warmCacheBudgetMiB": 512
+      },
+      {
+        "files": 50000,
+        "rounds": 5,
+        "coldIndexMs": {
+          "samples": 5,
+          "p50": 122352.79,
+          "p95": 123576.99,
+          "max": 123576.99
+        },
+        "coldIndexBudgetMs": 300000,
+        "warmRestoreMs": {
+          "samples": 5,
+          "p50": 87187.24,
+          "p95": 89450.36,
+          "max": 89450.36
+        },
+        "wholeProcessRssMiB": {
+          "samples": 5,
+          "p50": 1235.32,
+          "p95": 1430.45,
+          "max": 1430.45
+        },
+        "rssBudgetMiB": 1536,
+        "warmCacheMiB": {
+          "samples": 5,
+          "p50": 273.7678108215332,
+          "p95": 273.7799530029297,
+          "max": 273.7799530029297
+        },
+        "warmCacheBudgetMiB": 2560
+      }
+    ],
+    "budgetFailures": [],
+    "frozenInputsUnchanged": 2096,
+    "allOwnedProcessesGone": true,
+    "allOwnedFixtureRootsRemoved": true,
+    "originalFourLoadsSameProcessRetained": true,
+    "noForcedGcOrStageSplitting": true,
+    "sourceScriptSha256": "d985b4fd4060fbd853dd1e1ef1aa1069ba8e2666179a4697cb88c6987de47157",
+    "auditorSha256": "35f52629e7458000613faeebce71e260046f9d805e8d6ba96a57002cfc773ae7",
+    "stateEvidence": "/var/www/node/php-companion/.vscode-test/current-persistence-matrix-2026-10-13/state.json",
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "openMajorItems": 26,
+    "scope": "Linux synthetic package API original four-stage whole-process cache sequence; excludes bundled LSP/UI, real projects and other platforms",
+    "observedAtUtc": "2026-10-13T08:50:45.296861+00:00",
+    "remainingOwnedProcessGroups": [],
+    "normalCoreSHA256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb"
+  },
+  "archiveFilesVerified": 39
+}

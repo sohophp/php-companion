@@ -1,0 +1,394 @@
+{
+  "date": "2026-10-13",
+  "sourceEvidence": {
+    "sourcePath": ".vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+    "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+    "ampersands": 32,
+    "referenceAssignmentCount": 0,
+    "originalSemanticSha256": "761e112d2e09292455ecb124ad527bfd175ab9893a58442c276d9ea7de6dacdc",
+    "noOriginalStatementsRemoved": true,
+    "productionChanged": false
+  },
+  "admissionRule": {
+    "completeResultEqualityRequired": true,
+    "unchangedInputsRequired": true,
+    "diagnosticImprovedSamplesMinimum": 20,
+    "diagnosticPairedMedianImprovementPercentMinimum": 5,
+    "diagnosticP95MustImprove": true,
+    "queryP95RegressionTolerancePercent": 5,
+    "originalDiagnosticBudgetMs": 500,
+    "originalQueryBudgetMs": 150,
+    "noProductionChangeYet": true,
+    "noNewRuleOrSupportDomain": true,
+    "rejectWithoutEquivalentRetryIfNotAdmitted": true
+  },
+  "prevalidation": {
+    "status": "exited",
+    "pid": 6993,
+    "startedAtUtc": "2026-10-12T23:19:21.767488+00:00",
+    "stages": [
+      {
+        "name": "prepare-clones",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/prepare-clones.mjs"
+        ],
+        "status": "exited",
+        "pid": 7049,
+        "processGroup": 7049,
+        "startTicks": "49579224",
+        "exitCode": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "prototype-syntax",
+        "command": [
+          "node",
+          "--check",
+          "/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/prepared-prototype.mjs"
+        ],
+        "status": "exited",
+        "pid": 7077,
+        "processGroup": 7077,
+        "startTicks": "49579382",
+        "exitCode": 0,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "build-control",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/build-prototype.mjs",
+          "--production",
+          "control"
+        ],
+        "status": "exited",
+        "pid": 7084,
+        "processGroup": 7084,
+        "startTicks": "49579390",
+        "exitCode": 0,
+        "logSha256": "1374e10d0e7bed2c028c8b07bcb722ef3c549e15e6f054e8d0d9fdfe9b28d020"
+      },
+      {
+        "name": "semantic-control-focused",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/private-semantic.config.mjs",
+          "test/semantic.test.ts",
+          "-t",
+          "reference|binding",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/semantic-control-focused.json"
+        ],
+        "status": "exited",
+        "pid": 7122,
+        "processGroup": 7122,
+        "startTicks": "49579518",
+        "exitCode": 0,
+        "logSha256": "0409b646fbac447dfefa375bd4c70fa049134a423278141ecf79862d2b9f7cf5"
+      },
+      {
+        "name": "semantic-control-contracts",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/private-semantic.config.mjs",
+          "test/extract-shared-bindings.test.ts",
+          "test/receiver-guard-argument-assertions.test.ts",
+          "test/value-call-binding.test.ts",
+          "test/documented-callable-reuse.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/semantic-control-contracts.json"
+        ],
+        "status": "exited",
+        "pid": 7227,
+        "processGroup": 7227,
+        "startTicks": "49580177",
+        "exitCode": 0,
+        "logSha256": "2d413e79f2eab6e822991d05c91278d4b2115cf93446fa13ac2d563083404dae"
+      },
+      {
+        "name": "lsp-control-related",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/private-lsp.config.mjs",
+          "test/receiver-guard-argument-assertions-stdio.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/lsp-control-related.json"
+        ],
+        "status": "exited",
+        "pid": 7431,
+        "processGroup": 7431,
+        "startTicks": "49581203",
+        "exitCode": 0,
+        "logSha256": "f54e81bd2517fd5a06469501e453116022cff16c91a70c4809a471a8569c1d91"
+      },
+      {
+        "name": "build-prototype",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/build-prototype.mjs",
+          "--production",
+          "prototype"
+        ],
+        "status": "exited",
+        "pid": 7666,
+        "processGroup": 7666,
+        "startTicks": "49582472",
+        "exitCode": 0,
+        "logSha256": "5dadd23573b3e04477d4825ee2c8733a528ad18b4d3afdeb3fe92abcd40749e3"
+      },
+      {
+        "name": "semantic-prototype-focused",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/private-semantic.config.mjs",
+          "test/semantic.test.ts",
+          "-t",
+          "reference|binding",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/semantic-prototype-focused.json"
+        ],
+        "status": "exited",
+        "pid": 7700,
+        "processGroup": 7700,
+        "startTicks": "49582680",
+        "exitCode": 0,
+        "logSha256": "810d82f149e8873aa946d2cce10f7f826ccaac162e47880851a560ab08284a8e"
+      },
+      {
+        "name": "semantic-prototype-contracts",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/private-semantic.config.mjs",
+          "test/extract-shared-bindings.test.ts",
+          "test/receiver-guard-argument-assertions.test.ts",
+          "test/value-call-binding.test.ts",
+          "test/documented-callable-reuse.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/semantic-prototype-contracts.json"
+        ],
+        "status": "exited",
+        "pid": 7785,
+        "processGroup": 7785,
+        "startTicks": "49583267",
+        "exitCode": 0,
+        "logSha256": "d44427e6350d810659861023190746e5b9e127b60da80ae0420713e317bde4ff"
+      },
+      {
+        "name": "lsp-prototype-related",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/private-lsp.config.mjs",
+          "test/receiver-guard-argument-assertions-stdio.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/reference-binding-absence-2026-10-13/lsp-prototype-related.json"
+        ],
+        "status": "exited",
+        "pid": 7905,
+        "processGroup": 7905,
+        "startTicks": "49584278",
+        "exitCode": 0,
+        "logSha256": "5a812b67cb9d434f7cb2eb9cff6e58bce996e34d6ed89d97d6600695edf83050"
+      }
+    ],
+    "qualified": true,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "changedProducts": [],
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T23:20:25.858508+00:00"
+  },
+  "performance": {
+    "status": "exited",
+    "pid": 8189,
+    "startedAtUtc": "2026-10-12T23:20:45.803413+00:00",
+    "stages": [
+      {
+        "variant": "control",
+        "status": "exited",
+        "pid": 8273,
+        "startTicks": "49587568",
+        "processGroup": 8273,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "cacheDirectory": "/tmp/sophp-controller-profile-eEUMdl",
+          "cacheDirectoryRemoved": true,
+          "serverPid": 8284,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 147.13231799999994,
+            "maxMs": 598.6400229999999
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1711.1006290000005,
+            "maxMs": 2094.037373
+          },
+          "diskUnchanged": true,
+          "scope": "Normal unsampled stdio comparison with 25 edits and original 500/150ms budgets."
+        }
+      },
+      {
+        "variant": "prototype",
+        "status": "exited",
+        "pid": 8583,
+        "startTicks": "49594502",
+        "processGroup": 8583,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "b4d2dd0e8f7aa3fbb701723cb4ca8fa0d6265e62d62ec58df9c19f347c12973c",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "cacheDirectory": "/tmp/sophp-controller-profile-bfq8s7",
+          "cacheDirectoryRemoved": true,
+          "serverPid": 8594,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 652.5688710000031,
+            "maxMs": 686.0981200000006
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1830.1365440000009,
+            "maxMs": 2373.5355870000003
+          },
+          "diskUnchanged": true,
+          "scope": "Normal unsampled stdio comparison with 25 edits and original 500/150ms budgets."
+        }
+      }
+    ],
+    "products": 2087,
+    "projectInputs": 66079,
+    "privateInputs": 17,
+    "qualifiedComparison": true,
+    "admitted": false,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "completeVisibleResultEquality": true,
+    "comparison": {
+      "control": {
+        "diagnosticMs": {
+          "p95Ms": 1711.1006290000005,
+          "medianMs": 1492.7385489999942,
+          "maxMs": 2094.037373
+        },
+        "completionMs": {
+          "p95Ms": 147.13231799999994,
+          "medianMs": 125.29483900000196,
+          "maxMs": 598.6400229999999
+        }
+      },
+      "prototype": {
+        "diagnosticMs": {
+          "p95Ms": 1830.1365440000009,
+          "medianMs": 1638.1839469999995,
+          "maxMs": 2373.5355870000003
+        },
+        "completionMs": {
+          "p95Ms": 652.5688710000031,
+          "medianMs": 120.95364900000277,
+          "maxMs": 686.0981200000006
+        }
+      }
+    },
+    "paired": {
+      "diagnosticMs": {
+        "improvedSamples": 6,
+        "medianImprovementPercent": -10.202530237331246
+      },
+      "completionMs": {
+        "improvedSamples": 12,
+        "medianImprovementPercent": -0.1780406045783679
+      }
+    },
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "changedPrivateInputs": [],
+    "admissionChecks": {
+      "diagnosticImprovedSamples": false,
+      "diagnosticPairedMedian": false,
+      "diagnosticP95Improved": false,
+      "queryP95NoExcessRegression": false,
+      "completeResultsAndInputsUnchanged": true
+    },
+    "originalDiagnosticBudgetPassed": false,
+    "originalQueryBudgetPassedInThisProbe": false,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T23:23:14.666619+00:00"
+  },
+  "audit": {
+    "auditedAtUtc": "2026-10-12T23:24:09.936477+00:00",
+    "qualifiedComparison": true,
+    "admitted": false,
+    "decision": "rejected-no-equivalent-retry",
+    "normalCoreSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "productionChanged": false,
+    "completeVisibleResultsEqual": true,
+    "unchangedProducts": 2087,
+    "unchangedProjectInputs": 66079,
+    "unchangedPrivateRuntimeInputs": 17,
+    "remainingStageProcesses": [],
+    "cacheDirectoriesRemoved": true,
+    "fullObjectiveComplete": false,
+    "semanticFocusedPassedEach": 33,
+    "semanticContractsPassedEach": 148,
+    "semanticUnselectedByNameEach": 466,
+    "actualProtocolPassedEach": 4,
+    "newFullRegressionExecuted": false
+  },
+  "artifactDigests": {
+    "source-evidence.json": "32d38d03823aecf4dbe7838972db880586204202927bf5a7e9df945b8d03eb92",
+    "prevalidation.json": "7c4d383257b4d8a78f73796000f905bcce5117035203b8be1c9de7406da72609",
+    "performance-state.json": "9fe73ab5d3ec3acaa8887829e574d7a0f2ffb0fec276b4357b9209522c28cf2d",
+    "final-audit.json": "911020f2b56b21a85d090c428ff305568cdfbc92ebc918c2aca2f377d840ba89"
+  }
+}

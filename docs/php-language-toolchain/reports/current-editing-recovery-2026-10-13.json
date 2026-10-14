@@ -1,0 +1,183 @@
+{
+  "date": "2026-10-13",
+  "status": "passed-bounded-current-snapshot",
+  "state": {
+    "status": "exited",
+    "wrapperPid": 4117,
+    "coreSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "startedAtUtc": "2026-10-12T23:13:31.497558+00:00",
+    "command": [
+      "node",
+      "scripts/benchmark-editing.mjs",
+      "1000",
+      "100",
+      "dist/language-server.js",
+      "dist/web-tree-sitter.wasm",
+      "dist/tree-sitter-php.wasm"
+    ],
+    "environment": {
+      "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+      "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+      "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+    },
+    "frozenProductInputs": 2087,
+    "frozenTools": {
+      "/var/www/node/php-companion/scripts/benchmark-editing.mjs": "2f02b930e8ea455f7c891d9686942950297f568896b9ec7b8eb5c8e49b1886de",
+      "/var/www/node/php-companion/packages/testkit/dist/index.js": "3d5dfee5b9a83ed5c98ea0a10e6472c54fb49f37e4fa9f9c580d166f6d4f098f"
+    },
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "pid": 4173,
+    "processGroup": 4173,
+    "observedProcesses": [
+      {
+        "pid": 4173,
+        "startTicks": "49544194",
+        "state": "S",
+        "command": "node scripts/benchmark-editing.mjs 1000 100 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+      },
+      {
+        "pid": 4184,
+        "startTicks": "49544202",
+        "state": "S",
+        "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+      },
+      {
+        "pid": 4666,
+        "startTicks": "49548997",
+        "state": "S",
+        "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+      }
+    ],
+    "temporaryDirectories": [
+      "/tmp/php-companion-editing-Yl2TnC"
+    ],
+    "lastObservedUtc": "2026-10-12T23:14:21.827416+00:00",
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T23:14:22.828474+00:00",
+    "changedProductInputs": [],
+    "changedTools": [],
+    "coreUnchanged": true,
+    "remainingProcessGroup": [],
+    "remainingTemporaryDirectories": [],
+    "stdoutSha256": "21acc6bb362ce2f80b7ed98760d13d9a169a9bb5491ef83bd37ad31f4dd4f00d",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "report": {
+      "schema": 2,
+      "iterations": 1000,
+      "warmupIterations": 100,
+      "completionNoiseFunctions": 500,
+      "fixtureLayout": "psr4",
+      "runtime": "v22.14.0",
+      "phpVersion": "8.5",
+      "indexingMode": "onDemand",
+      "diagnosticsVersionMatched": true,
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "updateToDiagnosticsMs": {
+        "samples": 1000,
+        "p50": 28.408752000003005,
+        "p95": 30.292514999993728,
+        "maximum": 32.301557999999204
+      },
+      "hotCompletionMs": {
+        "samples": 1000,
+        "p50": 1.4789060000002792,
+        "p95": 2.68476599999849,
+        "maximum": 4.241353999997955
+      },
+      "hotTypedArgumentCompletionMs": {
+        "samples": 1000,
+        "p50": 3.125980000004347,
+        "p95": 5.470409999999902,
+        "maximum": 8.398599999998623
+      },
+      "hotBareArgumentCompletionMs": {
+        "samples": 1000,
+        "p50": 2.5352960000018356,
+        "p95": 4.316384999998263,
+        "maximum": 7.669303000002401
+      },
+      "hotTypedMemberCompletionMs": {
+        "samples": 1000,
+        "p50": 2.0020599999988917,
+        "p95": 3.466807000000699,
+        "maximum": 5.327345999998215
+      },
+      "hotHoverMs": {
+        "samples": 1000,
+        "p50": 1.074706999999762,
+        "p95": 1.8296980000013718,
+        "maximum": 2.9114620000000286
+      },
+      "hotDefinitionMs": {
+        "samples": 1000,
+        "p50": 1.1268249999993714,
+        "p95": 1.8692079999964335,
+        "maximum": 2.7415299999993294
+      },
+      "cancellationMs": 4.311774000001606,
+      "cancellationOutcome": "cancelled",
+      "cancellationProbes": [
+        {
+          "query": "",
+          "controlSymbols": 100,
+          "durationMs": 4.311774000001606,
+          "outcome": "cancelled"
+        },
+        {
+          "query": "Alpha",
+          "controlSymbols": 59,
+          "durationMs": 2.2726779999939026,
+          "outcome": "cancelled"
+        }
+      ],
+      "cancellationControlSymbols": 159,
+      "languageServerRssMb": {
+        "baseline": 247.83203125,
+        "sampledPeak": 346.66015625,
+        "final": 346.66015625,
+        "endMinusBaseline": 98.828125,
+        "samples": 112,
+        "sampledEveryIterations": 10,
+        "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+      },
+      "persistentCache": {
+        "files": 1,
+        "rebuiltSchema": 2,
+        "verifiedRebuiltPayloads": 1,
+        "corruptedFile": "ae8a4a6ad99398f487a8dd89a8ba86630261c84e860f5f5be32cb1900faeb7cc.json",
+        "corruptCacheRecovered": true,
+        "rebuiltCacheValidated": true,
+        "corruptionWarningObserved": false,
+        "referencesRecoveredAfterRestart": true,
+        "completionRecoveredAfterRestart": true,
+        "hoverRecoveredAfterRestart": true,
+        "definitionRecoveredAfterRestart": true,
+        "unsavedReplayDiffersFromDisk": true
+      },
+      "staleCompletionFailures": 0,
+      "staleHoverFailures": 0,
+      "staleDefinitionFailures": 0,
+      "budgets": {
+        "hotCompletionP95Ms": 150,
+        "hotHoverP95Ms": 150,
+        "hotDefinitionP95Ms": 150,
+        "updateToDiagnosticsP95Ms": 500,
+        "cancellationMs": 100,
+        "rssEndMinusBaselineMb": 128
+      }
+    },
+    "qualifiedThisBatch": true
+  },
+  "scope": "Linux x64 PHP 8.5 onDemand PSR-4 synthetic ordinary editing; excludes complex Controller and other modes/platforms/human WSL",
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "artifacts": {
+    "run.py": "bc5751e0271e95ad0f29f62d83ee76cb24662b82e49e8372c1a1abca5c139b87",
+    "stdout.json": "21acc6bb362ce2f80b7ed98760d13d9a169a9bb5491ef83bd37ad31f4dd4f00d",
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "state.json": "5b7a66bc949df83f784c3cf286fed10aced5414334bedb5c7365ed390ebe4c89"
+  }
+}

@@ -1,0 +1,420 @@
+{
+  "audit": {
+    "observedAtUtc": "2026-10-13T23:56:41.736033+00:00",
+    "qualifiedDefaultExecution": true,
+    "fullObjectiveComplete": false,
+    "originalCommand": [
+      "pnpm",
+      "test"
+    ],
+    "coreSHA256": "b403e33a2c93c6959507fd8248703c148886849b91b1d05f0a9ffbb23f4d5951",
+    "frozenInputsUnchanged": 3316,
+    "vitestStages": [
+      {
+        "path": "/var/www/node/php-companion/packages/runtime-probe",
+        "counts": {
+          "passed": 34
+        },
+        "fileSummary": "2 passed (2)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/language-spec",
+        "counts": {
+          "passed": 360
+        },
+        "fileSummary": "19 passed (19)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/phpdoc",
+        "counts": {
+          "passed": 86
+        },
+        "fileSummary": "4 passed (4)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/parser",
+        "counts": {
+          "passed": 254
+        },
+        "fileSummary": "16 passed (16)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/project",
+        "counts": {
+          "passed": 14
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/index",
+        "counts": {
+          "passed": 69
+        },
+        "fileSummary": "4 passed (4)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/type-system",
+        "counts": {
+          "passed": 18
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/interop",
+        "counts": {
+          "passed": 4
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic-provider",
+        "counts": {
+          "passed": 14
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic-provider-host",
+        "counts": {
+          "passed": 16
+        },
+        "fileSummary": "2 passed (2)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/route-provider",
+        "counts": {
+          "passed": 3
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/route-provider-host",
+        "counts": {
+          "passed": 2
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/plugin-api",
+        "counts": {
+          "passed": 2
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/provider-winstar-routes",
+        "counts": {
+          "passed": 6
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/framework-symfony",
+        "counts": {
+          "passed": 72
+        },
+        "fileSummary": "6 passed (6)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/provider-symfony-routes",
+        "counts": {
+          "passed": 14
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/provider-symfony-services",
+        "counts": {
+          "passed": 14
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/provider-symfony-events",
+        "counts": {
+          "passed": 5
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/provider-symfony-controller-contexts",
+        "counts": {
+          "passed": 12
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/framework-doctrine",
+        "counts": {
+          "passed": 9
+        },
+        "fileSummary": "2 passed (2)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/semantic",
+        "counts": {
+          "passed": 24145
+        },
+        "fileSummary": "191 passed (191)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/refactor",
+        "counts": {
+          "passed": 6
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/language-server",
+        "counts": {
+          "passed": 1652,
+          "skipped": 1
+        },
+        "fileSummary": "142 passed (142)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/testkit",
+        "counts": {
+          "passed": 5
+        },
+        "fileSummary": "1 passed (1)"
+      },
+      {
+        "path": "/var/www/node/php-companion/packages/php-companion-symfony",
+        "counts": {
+          "passed": 13
+        },
+        "fileSummary": "3 passed (3)"
+      },
+      {
+        "path": "/var/www/node/php-companion",
+        "counts": {
+          "passed": 121
+        },
+        "fileSummary": "23 passed (23)"
+      }
+    ],
+    "vitestPassed": 26950,
+    "vitestSkipped": 1,
+    "nativePassed": 7,
+    "nativeFailures": 0,
+    "nativeSkipped": 0,
+    "ownedProcessGroupEmpty": true,
+    "driverGone": true,
+    "commandGone": true,
+    "temporaryDirectoryEvidence": "Native cleanup and runtime tests passed their original resource lifecycle assertions; no exhaustive global temporary directory claim",
+    "humanWslAcceptance": false,
+    "remoteCiExecuted": false
+  },
+  "execution": {
+    "status": "exited",
+    "parentPid": 22367,
+    "parentStartTicks": "58194543",
+    "stages": [
+      {
+        "name": "normal-build",
+        "command": [
+          "pnpm",
+          "build"
+        ],
+        "status": "exited",
+        "pid": 22372,
+        "startTicks": "58194682",
+        "processGroup": 22372,
+        "exitCode": 0,
+        "seconds": 87.39464398601558,
+        "logSHA256": "82b90b7c4a3530c996e8588ed604d20590bb6f049e540bafb08f1fbafafec155"
+      },
+      {
+        "name": "normal-semantic-typecheck",
+        "command": [
+          "pnpm",
+          "--dir",
+          "packages/semantic",
+          "exec",
+          "tsc",
+          "--noEmit"
+        ],
+        "status": "exited",
+        "pid": 23476,
+        "startTicks": "58203614",
+        "processGroup": 23476,
+        "exitCode": 0,
+        "seconds": 9.670318410964683,
+        "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "normal-lint",
+        "command": [
+          "pnpm",
+          "exec",
+          "eslint",
+          "packages/semantic/src/index.ts"
+        ],
+        "status": "exited",
+        "pid": 23548,
+        "startTicks": "58204581",
+        "processGroup": 23548,
+        "exitCode": 0,
+        "seconds": 9.08171797695104,
+        "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "full-default",
+        "command": [
+          "pnpm",
+          "test"
+        ],
+        "status": "exited",
+        "pid": 23680,
+        "startTicks": "58205490",
+        "processGroup": 23680,
+        "exitCode": 0,
+        "seconds": 2302.7761736810207,
+        "logSHA256": "ea7158a9fd954bb000f65fb4775f2de7f142823823146932f88b71162e3225e3"
+      }
+    ],
+    "qualifiedAdoptedBuild": true,
+    "qualifiedDefaultExecution": true,
+    "fullObjectiveComplete": false,
+    "startedAtUtc": "2026-10-13T23:16:18.160502+00:00",
+    "coreSha256": "b403e33a2c93c6959507fd8248703c148886849b91b1d05f0a9ffbb23f4d5951",
+    "qualifiedPrototypeAssets": [
+      "tree-sitter-php.wasm",
+      "extension.js",
+      "candidateWorker.js",
+      "portableCandidateSearchWorker.js",
+      "language-server.js",
+      "sourceStatWorker.js",
+      "web-tree-sitter.wasm",
+      "builtinSnapshotWorker.js"
+    ],
+    "adoptedInputCount": 3316,
+    "inputsUnchanged": true,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-13T23:56:32.965239+00:00"
+  },
+  "archive": {
+    "qualifiedDefaultExecution": true,
+    "count": 22,
+    "entries": [
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/adopted-inputs.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/adopted-inputs.json",
+        "sha256": "c8be56c402f304466c18500c18b0c3cf6a15108032dfa46530d7dc8fe8888817"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/adoption-current.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/adoption-current.json",
+        "sha256": "900d07a81c39dadcd305b69ac96483128c2979d332d70af5113089c0704cb488"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/adoption.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/adoption.json",
+        "sha256": "da3697e22ef9cd240ba570dbe3c58d821050b78e3c933bca128abd9f64961854"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/build-checkpoint.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/build-checkpoint.json",
+        "sha256": "2bbd99dafcf29fa2aaccfa822aad44ab1440ccc3b4f46a7daf233054fc22b667"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/build-private.mjs",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/build-private.mjs",
+        "sha256": "371621c604ba211a9bd90774f4714b68d55acb29c4f2344c29e993f7cb6d0772"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/candidate.js",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/candidate.js",
+        "sha256": "5107426c55f6a441bd81045ccdfba7102ea8e85b0a761808c73231002615d0a1"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/candidate.ts",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/candidate.ts",
+        "sha256": "1feccfb93ca73abebdcede2d6431898219cfe22fdb49723d27bb8eedc28fa1d3"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/default-audit.py",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/default-audit.py",
+        "sha256": "26dff40b73e6cae85a179ac325f63e380e7a136f0662872c688c5c067faf0b13"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/driver.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/driver.log",
+        "sha256": "1dc2e4e4c2fa67e0ff8b783f338327921839a46c6992a06674595089b50c91c8"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/final-audit.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/final-audit.json",
+        "sha256": "8d2689eea3382c53b1c45b509082be0ec1de7c425b2f7b01d73eac875969395d"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/full-default.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/full-default.log",
+        "sha256": "ea7158a9fd954bb000f65fb4775f2de7f142823823146932f88b71162e3225e3"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/launch.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/launch.json",
+        "sha256": "c8b0adb52e762d033b73bcd87d1451060eb5e58a1140a1cae522be51b9d31be7"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/normal-build.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/normal-build.log",
+        "sha256": "82b90b7c4a3530c996e8588ed604d20590bb6f049e540bafb08f1fbafafec155"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/normal-lint.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/normal-lint.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/normal-semantic-typecheck.log",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/normal-semantic-typecheck.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/preparation.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/preparation.json",
+        "sha256": "b52ac7db7fd4130b713822f2dc7b19a2b999d10122f61bffddb12982e5608372"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/prepare.mjs",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/prepare.mjs",
+        "sha256": "c1be7412285b0fa2dbef95cf3f39e51ef8f29f4fb9c7ead7c5c1b5222dd127d1"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/prototype.mjs",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/prototype.mjs",
+        "sha256": "1243be4093a65485ad489c4c104426680c02862b0de2c3f82f8a854d91bf3753"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/run.py",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/run.py",
+        "sha256": "22133a0c217f11e856324ff5e7b957e563de57756f6928324b10645dc3e8411a"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/semantic-checkpoint.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/semantic-checkpoint.json",
+        "sha256": "1408e5f33239451d04a9a5344363ca716cbaa281a10121f5e3f4108c05202475"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/source-before.ts",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/source-before.ts",
+        "sha256": "8c018f89c3d23966b0c02e4530cb20739203bfd924b984a25614a7c6a204882f"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/state.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/argument-parent-adoption-2026-10-14/terminal-archive/state.json",
+        "sha256": "5519352e89fb43fcbaf160c01718c5ab1a65480e56d5be31ff9e78e1dc77f035"
+      }
+    ]
+  },
+  "editorFollowupLaunch": {
+    "pid": 80384,
+    "startTicks": "58438152",
+    "driverSHA256": "e1746f638f99be94f5cdd93d68a59ee758f737a3f2328b4450d2e614c8f06da0",
+    "launchedAtUtc": "2026-10-13T23:56:55.330584+00:00",
+    "precedingDefaultAuditSHA256": "8d2689eea3382c53b1c45b509082be0ec1de7c425b2f7b01d73eac875969395d"
+  }
+}

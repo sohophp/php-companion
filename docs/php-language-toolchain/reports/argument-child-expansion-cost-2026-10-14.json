@@ -1,0 +1,120 @@
+{
+  "analysis": {
+    "qualifiedObservation": true,
+    "prototypeAdmitted": true,
+    "prototypeImplemented": false,
+    "repeatedDistinctWrapperExpansionMsLocalPlusFull": [
+      130.46654499983651,
+      135.27083500017943,
+      127.33249999996042,
+      121.74019899993982
+    ],
+    "medianRepeatedDistinctWrapperExpansionMs": 128.89952249989847,
+    "callsPerEdit": [
+      209966,
+      209966,
+      209966,
+      209966
+    ],
+    "uniqueKeysPerEdit": [
+      5200,
+      5200,
+      5200,
+      5200
+    ],
+    "repeatedCallsPerEdit": [
+      28823,
+      28823,
+      28823,
+      28823
+    ],
+    "allExpansionMsPerEdit": [
+      136.9730719998597,
+      142.58646300019063,
+      134.00816999987,
+      128.2896159999218
+    ],
+    "changedShapes": 0,
+    "capped": false,
+    "freshExpansionRepeatedOnSameWrapper": 0,
+    "objectCacheHitsPerEdit": [
+      175943,
+      175943,
+      175943,
+      175943
+    ],
+    "expansionCallsPerEdit": [
+      34023,
+      34023,
+      34023,
+      34023
+    ],
+    "repeatedDistinctWrapperCallsPerEdit": [
+      28823,
+      28823,
+      28823,
+      28823
+    ],
+    "initialRows": 4,
+    "editRows": 8,
+    "resultsEqual": true,
+    "normalProductsUnchanged": true,
+    "fixedProjectUnchanged": true,
+    "p95Qualification": false
+  },
+  "audit": {
+    "qualifiedObservation": true,
+    "independentTerminalAuditPassed": true,
+    "prototypeInvestigationEligible": true,
+    "prototypeImplemented": false,
+    "medianRepeatedDistinctWrapperExpansionMs": 128.89952249989847,
+    "samples": [
+      130.46654499983651,
+      135.27083500017943,
+      127.33249999996042,
+      121.74019899993982
+    ],
+    "changedShapes": 0,
+    "freshExpansionRepeatedOnSameWrapper": 0,
+    "capped": false,
+    "originalGetterComputationAndReturnUnchanged": true,
+    "completeResultsEqual": true,
+    "controlAssetsMatchNormal": 8,
+    "frozenProducts": 3316,
+    "frozenProject": 66079,
+    "frozenPrivate": 28,
+    "frozenSetup": 9,
+    "ownedActorsAndGroupsGone": true,
+    "checkedProcessIds": [
+      19906,
+      19911,
+      19987,
+      20020,
+      20054,
+      20070,
+      20149,
+      20160
+    ],
+    "actualOriginalCommandExitCode": 0,
+    "actualStageExitCodes": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "sourceGetterAuditExitCode": 0,
+    "p95Qualification": false,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "observedAtUtc": "2026-10-14T04:33:41.974876+00:00"
+  },
+  "actualIndependentAuditorExitCode": 0,
+  "originalGetterSourceAuditExitCode": 0,
+  "archiveFiles": 34,
+  "archiveOriginalAndCopyHashesVerified": true,
+  "auditSHA256": "8186d9b222e420258ea38007343a1f17dab991324f9c544047080c3c70c32559",
+  "archiveManifestSHA256": "7bebab7ca90bb75757d5b9feeb8336532977261aa4cbe81f8d8f24956308ab88",
+  "prototypeImplemented": false,
+  "productionChanged": false,
+  "fullObjectiveComplete": false
+}

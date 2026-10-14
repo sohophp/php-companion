@@ -1,0 +1,274 @@
+{
+  "recordedAtUtc": "2026-10-12T17:58:17.969733+00:00",
+  "normalBundleSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+  "sourceSha256": "0b6a1a06c340a42dcf472a96ccc12401c9dcc6cfb86041376716c55c18c45a2e",
+  "qualifiedAffectedScope": true,
+  "fullLspQualifiedCurrentBuild": false,
+  "defaultConcurrencySemanticQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "newNumberedFixture": "F06-DIAG-05",
+  "fixtureCount": 188,
+  "fixtureFamilies": 14,
+  "before": {
+    "semanticFailed": 8,
+    "semanticLegalControlsPassed": 2,
+    "normalLspFailed": 4,
+    "phpRuntimeWarningsConfirmed": 5
+  },
+  "after": {
+    "status": "exited",
+    "wrapperPid": 78518,
+    "startedAtUtc": "2026-10-12T17:54:45.432419+00:00",
+    "normalBundleSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+    "frozenInputCount": 2087,
+    "stages": [
+      {
+        "name": "semantic-bounded-workers",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/semantic",
+          "exec",
+          "vitest",
+          "run",
+          "--maxWorkers=8",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile.json=/var/www/node/php-companion/.vscode-test/undefined-variable-scope-boundary-2026-10-13/semantic-bounded-workers.json"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T17:54:45.448303+00:00",
+        "pid": 78648,
+        "exitCode": 0,
+        "seconds": 73.74060122802621,
+        "logSha256": "cbe2996af826537d8661a21d5c4207609f5bbf5bd41167ca51d6c902aba0d4b6",
+        "testFiles": 191,
+        "total": 24143,
+        "passed": 24143,
+        "failed": 0,
+        "pending": 0
+      },
+      {
+        "name": "lsp-boundary",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/language-server",
+          "exec",
+          "vitest",
+          "run",
+          "test/undefined-variable-scope-boundary-stdio.test.ts",
+          "test/declaration-variable-boundaries-stdio.test.ts",
+          "test/variable-value-hover-stdio.test.ts",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile.json=/var/www/node/php-companion/.vscode-test/undefined-variable-scope-boundary-2026-10-13/lsp-boundary.json"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T17:55:59.373553+00:00",
+        "pid": 81901,
+        "exitCode": 0,
+        "seconds": 13.94926022697473,
+        "logSha256": "2e6d6e4436fab3ef44bc5444fb7569626fe4895ef6e7a459ea105dbddccf5ba1",
+        "testFiles": 3,
+        "total": 11,
+        "passed": 11,
+        "failed": 0,
+        "pending": 0
+      },
+      {
+        "name": "lsp-existing",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/language-server",
+          "exec",
+          "vitest",
+          "run",
+          "test/stdio.test.ts",
+          "-t",
+          "reports unbound|keeps independent top-level|refreshes variable completion after unsaved unset|returns references for a local variable|serves native closure and arrow variable invocation",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile.json=/var/www/node/php-companion/.vscode-test/undefined-variable-scope-boundary-2026-10-13/lsp-existing.json"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T17:56:13.334279+00:00",
+        "pid": 82304,
+        "exitCode": 0,
+        "seconds": 18.06930293800542,
+        "logSha256": "b8d03a39cc21d4c8956529477619a7a284883ba1c960eb9a9dfe92a0d0384db4",
+        "testFiles": 1,
+        "total": 568,
+        "passed": 5,
+        "failed": 0,
+        "pending": 563
+      },
+      {
+        "name": "root-typecheck",
+        "command": [
+          "pnpm",
+          "exec",
+          "tsc",
+          "--noEmit"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T17:56:31.448267+00:00",
+        "pid": 82531,
+        "exitCode": 0,
+        "seconds": 5.882645975972991,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "scoped-lint",
+        "command": [
+          "pnpm",
+          "exec",
+          "eslint",
+          "packages/semantic/src/index.ts",
+          "packages/semantic/test/undefined-variable-scope-boundary.test.ts",
+          "packages/language-server/test/undefined-variable-scope-boundary-stdio.test.ts"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T17:56:37.532925+00:00",
+        "pid": 82642,
+        "exitCode": 0,
+        "seconds": 9.775511948973872,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "public-contracts",
+        "command": [
+          "pnpm",
+          "check:public-contracts"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T17:56:47.310346+00:00",
+        "pid": 82762,
+        "exitCode": 0,
+        "seconds": 2.5402932279976085,
+        "logSha256": "96d5257ecf7cb0a9b38d9d2e32388b62d812e3cb76f1353ace084d1feec976d3"
+      },
+      {
+        "name": "component-boundaries",
+        "command": [
+          "pnpm",
+          "check:component-boundaries"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T17:56:49.869665+00:00",
+        "pid": 82791,
+        "exitCode": 0,
+        "seconds": 3.940492018009536,
+        "logSha256": "0319798450e2f1e97e65ed8a6af638b1a08c3e8d6c50649dbe2db3eae3c6f01d"
+      }
+    ],
+    "qualifiedAffectedScope": true,
+    "fullObjectiveComplete": false,
+    "scope": "New scope boundary regression plus complete Semantic and related LSP/quality checks; not full LSP/editor/platform qualification",
+    "changedInputs": [],
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T17:56:54.215009+00:00"
+  },
+  "nativeWindows": {
+    "wrapperPid": 83733,
+    "nativeTemporaryDirectory": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-scope-final-p4qyf7n6",
+    "status": "exited",
+    "bundleSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+    "probeSha256": "39f80ec0c6dcc1b9b35e3be7f1db14303cbc87f4b8d876909eb0fe00dff80106",
+    "testSourceSha256": "2cabd4bad753665621eb5455ec9d6e32db932edbdc811a3ba8336fa7791a04be",
+    "qualified": true,
+    "pid": 83792,
+    "exitCode": 0,
+    "result": {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "bundleSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+      "normalProtocol": true,
+      "testMode": false,
+      "cases": [
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "passed": true,
+          "diagnosticVersions": 8,
+          "ms": 2426.57
+        },
+        {
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "passed": true,
+          "diagnosticVersions": 8,
+          "ms": 2391.040900000001
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "passed": true,
+          "diagnosticVersions": 14,
+          "ms": 2954.0567
+        },
+        {
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "passed": true,
+          "diagnosticVersions": 14,
+          "ms": 3070.2893999999997
+        }
+      ],
+      "allPassed": true,
+      "temporaryRootsCleaned": true,
+      "fullObjectiveComplete": false
+    },
+    "nativeTemporaryDirectoryRemoved": true,
+    "finishedAtUtc": "2026-10-12T17:57:38.020521+00:00"
+  },
+  "inputAudit": {
+    "frozenInputs": 2087,
+    "changedInputs": [],
+    "processesExited": [
+      78518,
+      83733,
+      83792,
+      78648,
+      81901,
+      82304,
+      82531,
+      82642,
+      82762,
+      82791
+    ]
+  },
+  "firstFullSemantic": {
+    "passed": 24138,
+    "failed": 5,
+    "reason": "Five original 5000ms timeouts; no root cause fix claimed",
+    "evidence": "semantic-full.json"
+  },
+  "validationBuilderFailure": "Native observer rebuild had an escaping error; corrected builder was rebuilt and final matching-hash native probe passed",
+  "remaining": "Full current-build LSP/editor/complete matrices, default-concurrency timeout investigation, performance budgets, manual WSL and original long-term scope remain open",
+  "semanticCaseIdentitiesRetainedBetweenRounds": true,
+  "defaultConcurrencyTimeoutCases": [
+    {
+      "file": "/var/www/node/php-companion/packages/semantic/test/commented-return-inference.test.ts",
+      "name": "comments in return statements (deferred=false) preserves Generator contracts: 'block comment'"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/semantic/test/generator-delegation-expanded.test.ts",
+      "name": "Generator delegated results across expressions and contracts 'delegatedNoReturn' (deferred=false)"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/semantic/test/generator-delegation-local-calls.test.ts",
+      "name": "Delegated local identity across direct zero-argument member calls 'result' (deferred=false)"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/semantic/test/generator-delegation-return.test.ts",
+      "name": "Generator delegation result propagation 'inner' (deferred=false)"
+    },
+    {
+      "file": "/var/www/node/php-companion/packages/semantic/test/generator-send-contract.test.ts",
+      "name": "Generator plain yield uses its own documented send contract 'parenthesized plain yield' (deferred=false)"
+    }
+  ]
+}

@@ -1,0 +1,364 @@
+{
+  "performance": {
+    "status": "exited",
+    "pid": 84355,
+    "startedAtUtc": "2026-10-12T21:18:18.975366+00:00",
+    "stages": [
+      {
+        "variant": "control",
+        "status": "exited",
+        "pid": 84552,
+        "startTicks": "48852998",
+        "processGroup": 84552,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "858b320622c7c601bf6be781436d90f3e45f9a2b5d6e21905f7ed535ee31afac",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "cacheDirectory": "/tmp/sophp-controller-profile-xiQYy9",
+          "cacheDirectoryRemoved": true,
+          "serverPid": 84563,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 646.5383010000005,
+            "maxMs": 664.9212240000006
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1789.812089000001,
+            "maxMs": 2405.808255
+          },
+          "diskUnchanged": true,
+          "scope": "Normal unsampled stdio comparison with 25 edits and original 500/150ms budgets."
+        }
+      },
+      {
+        "variant": "prototype",
+        "status": "exited",
+        "pid": 85172,
+        "startTicks": "48860269",
+        "processGroup": 85172,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "cacheDirectory": "/tmp/sophp-controller-profile-sPO7ny",
+          "cacheDirectoryRemoved": true,
+          "serverPid": 85183,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 561.8564310000002,
+            "maxMs": 628.2536570000002
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1690.2918200000004,
+            "maxMs": 2204.231503000001
+          },
+          "diskUnchanged": true,
+          "scope": "Normal unsampled stdio comparison with 25 edits and original 500/150ms budgets."
+        }
+      }
+    ],
+    "products": 2087,
+    "projectInputs": 66079,
+    "privateInputs": 17,
+    "qualifiedComparison": true,
+    "admitted": true,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "completeVisibleResultEquality": true,
+    "comparison": {
+      "control": {
+        "diagnosticMs": {
+          "p95Ms": 1789.812089000001,
+          "medianMs": 1606.8028919999997,
+          "maxMs": 2405.808255
+        },
+        "completionMs": {
+          "p95Ms": 646.5383010000005,
+          "medianMs": 110.9132710000049,
+          "maxMs": 664.9212240000006
+        }
+      },
+      "prototype": {
+        "diagnosticMs": {
+          "p95Ms": 1690.2918200000004,
+          "medianMs": 1461.5100750000056,
+          "maxMs": 2204.231503000001
+        },
+        "completionMs": {
+          "p95Ms": 561.8564310000002,
+          "medianMs": 115.47899100000359,
+          "maxMs": 628.2536570000002
+        }
+      }
+    },
+    "paired": {
+      "diagnosticMs": {
+        "improvedSamples": 21,
+        "medianImprovementPercent": 9.042354710922073
+      },
+      "completionMs": {
+        "improvedSamples": 14,
+        "medianImprovementPercent": 2.8834251979514205
+      }
+    },
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "changedPrivateInputs": [],
+    "admissionChecks": {
+      "diagnosticImprovedSamples": true,
+      "diagnosticPairedMedian": true,
+      "diagnosticP95Improved": true,
+      "queryP95NoExcessRegression": true,
+      "completeResultsAndInputsUnchanged": true
+    },
+    "originalDiagnosticBudgetPassed": false,
+    "originalQueryBudgetPassedInThisProbe": false,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T21:20:47.004143+00:00"
+  },
+  "admissionFinalAudit": {
+    "atUtc": "2026-10-12T21:22:14.012428+00:00",
+    "measurementExited": true,
+    "processGroupsEmpty": true,
+    "normalBaselineSha256": "858b320622c7c601bf6be781436d90f3e45f9a2b5d6e21905f7ed535ee31afac",
+    "measuredPrototypeSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "frozenProductInputs": 2087,
+    "changedProductInputs": [],
+    "completeVisibleResultEquality": true,
+    "admissionChecks": {
+      "diagnosticImprovedSamples": true,
+      "diagnosticPairedMedian": true,
+      "diagnosticP95Improved": true,
+      "queryP95NoExcessRegression": true,
+      "completeResultsAndInputsUnchanged": true
+    },
+    "qualifiedForProductionAdoption": true,
+    "productionChangedYet": false,
+    "fullObjectiveComplete": false
+  },
+  "normalAdoption": {
+    "atUtc": "2026-10-12T21:26:31.480280+00:00",
+    "normalBundleSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "normalRuntimeMatchesMeasuredPrototype": true,
+    "runtimeFilesCompared": [
+      "tree-sitter-php.wasm",
+      "extension.js",
+      "candidateWorker.js",
+      "portableCandidateSearchWorker.js",
+      "language-server.js",
+      "sourceStatWorker.js",
+      "web-tree-sitter.wasm",
+      "builtinSnapshotWorker.js"
+    ],
+    "frozenInputs": 2087,
+    "completeStageQualification": false,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false
+  },
+  "normalSemanticFinalAudit": {
+    "atUtc": "2026-10-12T21:29:29.538169+00:00",
+    "qualifiedCompleteSemantic": true,
+    "normalBundleSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "testFiles": 191,
+    "passed": 24145,
+    "originalCasesCountsAndStatusesRetained": true,
+    "frozenInputs": 2087,
+    "changedInputs": [],
+    "ordinaryDefaultCommand": [
+      "pnpm",
+      "--filter",
+      "@php-companion/semantic",
+      "test",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=/var/www/node/php-companion/.vscode-test/readonly-argument-cost-2026-10-13/semantic-normal-full.json"
+    ],
+    "maxWorkers": 8,
+    "perTestTimeoutMs": 5000,
+    "fullObjectiveComplete": false
+  },
+  "qualificationStatePath": ".vscode-test/performance-readonly-prefilter-2026-10-13/candidate-qualification-state.json",
+  "completeStageQualification": true,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "fullLspCurrentSnapshotAudit": {
+    "atUtc": "2026-10-12T22:08:17.287637+00:00",
+    "qualifiedFullLsp": true,
+    "bundleSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "testFiles": 142,
+    "passed": 1652,
+    "oldConditionalSkipped": 1,
+    "oldCaseIdentitiesCountsAndStatusesRetained": true,
+    "frozenInputs": 2087,
+    "changedInputs": [],
+    "processGroup": 94725,
+    "processGroupEmpty": true,
+    "recompiledEditorArtifactsUnchanged": 105,
+    "remainingEditorAndWindowsStages": true,
+    "fullObjectiveComplete": false
+  },
+  "qualificationFinalAudit": {
+    "recordedAtUtc": "2026-10-12T22:21:26.229189+00:00",
+    "qualifiedThisBatch": true,
+    "bundleSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "semanticPassed": 24145,
+    "semanticOriginalCaseIdentitiesCountsAndStatusesRetained": true,
+    "semanticAddedCases": 0,
+    "semanticDefaultCommand": true,
+    "semanticMaxWorkers": 8,
+    "semanticOriginalTestTimeoutMs": 5000,
+    "rootPassed": 113,
+    "fullLsp": {
+      "testFiles": 142,
+      "passed": 1652,
+      "oldConditionalSkipped": 1,
+      "oldCaseIdentitiesCountsAndStatusesRetained": true,
+      "processGroupEmpty": true
+    },
+    "editors": [
+      {
+        "name": "editor-c1-onDemand",
+        "seconds": 117.83377876499435,
+        "generationBoundaryCases": null,
+        "displayCleaned": true
+      },
+      {
+        "name": "editor-c2-onDemand",
+        "seconds": 133.09564374596812,
+        "generationBoundaryCases": null,
+        "displayCleaned": true
+      },
+      {
+        "name": "editor-c3-onDemand",
+        "seconds": 299.8148018599604,
+        "generationBoundaryCases": 40,
+        "displayCleaned": true
+      },
+      {
+        "name": "editor-c3-progressive",
+        "seconds": 289.6435649539926,
+        "generationBoundaryCases": 40,
+        "displayCleaned": true
+      }
+    ],
+    "editorCompiledArtifactsUnchanged": 105,
+    "nativeWindows": [
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "onDemand",
+        "serverPid": 18260,
+        "bundleSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "cancellationMs": 2.676800000000185,
+        "correct": true,
+        "providerCalls": [
+          {
+            "pid": 29076,
+            "held": false
+          },
+          {
+            "pid": 21240,
+            "held": true
+          }
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      },
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "progressive",
+        "serverPid": 6120,
+        "bundleSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "cancellationMs": 2.759599999999409,
+        "correct": true,
+        "providerCalls": [
+          {
+            "pid": 1824,
+            "held": false
+          },
+          {
+            "pid": 34232,
+            "held": true
+          }
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      },
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "progressive",
+        "serverPid": 36576,
+        "bundleSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "foregroundHeld": true,
+        "cancelPendingBeforeRequest": true,
+        "cancelReturnedWithin100ms": true,
+        "cancellationMs": 4.331199999999626,
+        "foregroundStillHeld": true,
+        "survivingQueryRecovered": true,
+        "finalCancellationMs": 411.3556999999996,
+        "providerCalls": [
+          {
+            "pid": 11224,
+            "held": false
+          },
+          {
+            "providerVersion": "replacement",
+            "pid": 27104,
+            "held": true
+          }
+        ],
+        "correct": true,
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      }
+    ],
+    "frozenInputs": 2087,
+    "changedInputs": [],
+    "allStagesExited": true,
+    "allDisplaysCleaned": true,
+    "nativeTemporaryDirectoryRemoved": true,
+    "manifestAndPluginApiUnchanged": true,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false
+  }
+}
