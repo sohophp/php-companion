@@ -1,0 +1,66 @@
+{
+  "baseCommit": "64395e0989c6ce0ef005cc3273807ce598e4439a",
+  "branch": "fix/clean-core-build-20261015",
+  "beforeTests": {
+    "exitCode": 1,
+    "passed": 0,
+    "failed": 2
+  },
+  "afterTests": {
+    "exitCode": 0,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0
+  },
+  "lintFirstExitCode": 1,
+  "lintFirstIssue": "URL was not explicitly imported in the new test; corrected.",
+  "lintFinalExitCode": 0,
+  "fullBuildExitCode": 0,
+  "repeatBuildExitCode": 0,
+  "packageCoreExitCode": 0,
+  "verifyVsixExitCode": 0,
+  "coreVsixEntries": 20,
+  "coreRuntimeEntries": 8,
+  "runtimeAssets": {
+    "dist/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+    "dist/extension.js": "e69452f11955447f3d5d453d3a5536405b9dacc70686ecd670dc3c79778d0ac8",
+    "dist/candidateWorker.js": "49e00f6068f134c4b422fc59617de0d46897e697722f4ba1d742c0061ee9ec87",
+    "dist/portableCandidateSearchWorker.js": "25488cd3ba4751e3e7a3e727aee8940b4fbc83ee2977880dac51f6c874fb0de6",
+    "dist/language-server.js": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+    "dist/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+    "dist/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+    "dist/builtinSnapshotWorker.js": "b4e2b84781fb17ecf80509c8aa02fa31bdd6551391dd5b646073b39f8e3c9627"
+  },
+  "coreVsixBytes": 1557149,
+  "coreVsixSHA256": "37756c059cd7f5cbb19d98d22f10894ed9daca707f04b3b005643f1e712a3376",
+  "unchangedSymfonyAndPackFromQualifiedRemoteCi": true,
+  "semanticRuntimeChanged": false,
+  "newRemoteCiExecuted": false,
+  "humanWslAcceptanceExecuted": false,
+  "complexDiagnosticBudgetAchieved": false,
+  "fullObjectiveComplete": false,
+  "allPackageRuntimeEntriesIdentical": 16,
+  "coreEntryNamesMatchQualifiedCleanCi": true,
+  "nodeVersion": "v22.14.0",
+  "originalWorkspacePreserved": true,
+  "sourceFiles": {
+    "esbuild.mjs": "8affd09e1b45165631b463b3bae8b3371a10adeea24224d0b5b1effc9b1d4f42",
+    "package.json": "3be78a90284f588ea0d321a2f6d7d31cc5e4723419e3a44ccfdf57c4507db1f9",
+    "scripts/test/esbuild-output-cleanup.test.mjs": "fa6050eb3bada8df6124b824ff8118f19989d3aa4233084b7c1c395373b9f61e"
+  },
+  "rawLogs": {
+    ".vscode-test/build-output-cleanup-2026-10-15/after-import-fix.tap": "73482cefb0d47c0579761da40f529914087024c038eff437b076a5ed4c106129",
+    ".vscode-test/build-output-cleanup-2026-10-15/runtime-before-repeat.json": "c98dede45fe3bec7dbcde35fadbf98cfef70b82c24102145cd70012c8493596c",
+    ".vscode-test/build-output-cleanup-2026-10-15/after.tap": "930027f8e207264445e19a46ffcc98c3dc4a4d1acfca67796da33be4fdf246a6",
+    ".vscode-test/build-output-cleanup-2026-10-15/lint.log": "b5695f0675bc552098b090d24dd211030d99adf7c87c8000d89e4891ea4744ae",
+    ".vscode-test/build-output-cleanup-2026-10-15/repeat-build.log": "d483b55e425cede930f5a9d776620a1a9159c98f1f74711494b0820abd076c6d",
+    ".vscode-test/build-output-cleanup-2026-10-15/build.log": "659bf533afea5e5f183b3c91bb4f37884b69398f37fa98fafa5ebe3d28183732",
+    ".vscode-test/build-output-cleanup-2026-10-15/package.log": "b3a2ed889828d419cb63ae9c2253579da4163dbf890f9fb20f3a7f7158fadc7e",
+    ".vscode-test/build-output-cleanup-2026-10-15/lint-before.log": "b5695f0675bc552098b090d24dd211030d99adf7c87c8000d89e4891ea4744ae",
+    ".vscode-test/build-output-cleanup-2026-10-15/repeat-check.json": "cb1f4a4f48831625a314c1eb576021ca1aac82c09407e0957b6fffce746a750a",
+    ".vscode-test/build-output-cleanup-2026-10-15/verify-vsix.log": "f32350724df2c6a14a808cecdb9adfd454b8b0d792a33391a179a7580806937c",
+    ".vscode-test/build-output-cleanup-2026-10-15/before.tap": "70ca877ac3f72f19722dc8078eeb0afb70b11fd1905c22ec823f725229f7c2b7",
+    ".vscode-test/build-output-cleanup-2026-10-15/lint-after.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "evidenceDirectory": "/var/www/node/php-companion-build-clean-20261015/.vscode-test/build-output-cleanup-2026-10-15"
+}
