@@ -17,7 +17,7 @@ async function checkRename(indexingMode: 'onDemand' | 'experimental', controlled
   const disk = '<?php class C {}', traitSource = '<?php trait Init {function C(int $value){}}';
   await writeFile(file, disk); await writeFile(traitFile, traitSource);
   const uri = pathToFileURL(file).toString(), traitUri = pathToFileURL(traitFile).toString();
-  const server = spawn(process.execPath, [...(gates ? ['--import', resolve('test/helpers/rename-open-read-gates.mjs')] : []), resolve('dist/server.js'), '--stdio', '--parser-core-wasm',
+  const server = spawn(process.execPath, [...(gates ? ['--import', pathToFileURL(resolve('test/helpers/rename-open-read-gates.mjs')).href] : []), resolve('dist/server.js'), '--stdio', '--parser-core-wasm',
     resolve('../../dist/web-tree-sitter.wasm'), '--php-wasm', resolve('../../dist/tree-sitter-php.wasm')], { stdio: 'pipe', env: gates ? { ...process.env, SOPHP_RENAME_GATES: gates, SOPHP_RENAME_SOURCE: file } : process.env });
   const decoder = new LspMessageDecoder(), messages: any[] = [];
   const waiters: Array<{ matches: (message: any) => boolean; done: (message: any) => void }> = [];
