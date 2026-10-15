@@ -1,0 +1,225 @@
+{
+  "baseCommit": "0b99a98f5a26214f0c39a108338c9fe640e5f51a",
+  "branch": "fix/route-attribute-scan-20261015",
+  "upstreamCiRunId": 38667665924,
+  "upstreamCiConclusion": "failure",
+  "upstreamFailedJob": "Quality (windows-latest)",
+  "upstreamFailedCase": "keeps a normal controller directory complete within the default route budget",
+  "upstreamTimeoutMs": 5000,
+  "boundedConcurrentSourceReads": 4,
+  "originalControllerCaseBodySHA256": "7ce4a20d71e3f8b8e55bed45ad8053bff334d587cf214067bdd3a85b879dbc20",
+  "originalControllerCaseAndTimeoutUnchanged": true,
+  "defaultTraversalBudgetUnchanged": 1024,
+  "publicDeclarationByteIdentical": true,
+  "sourceFiles": {
+    "packages/provider-symfony-routes/src/index.ts": "d27d3d6c34d7f9895eb1c53f147a0407575a9f47095e2e309c7d89e532612e92",
+    "packages/provider-symfony-routes/test/unit/provider-symfony-routes.test.ts": "2f7486819682a13abd9659ff3d45e6de03db35c0f633c80023c263ef2295db2b"
+  },
+  "nativeWindows": {
+    "sourceCommitBefore": "0b99a98f5a26214f0c39a108338c9fe640e5f51a",
+    "afterSourceSHA256": "d27d3d6c34d7f9895eb1c53f147a0407575a9f47095e2e309c7d89e532612e92",
+    "node": "22.23.3",
+    "platform": "win32",
+    "fullSnapshotsEqual": true,
+    "allFourOriginalCaseTotalsBelow5000Ms": true,
+    "medianCollectionImprovementFraction": 0.39667406873841216,
+    "before": [
+      {
+        "iteration": 0,
+        "setupMs": 293.32360000000006,
+        "collectMs": 3709.3073,
+        "totalMs": 4002.6308999999997,
+        "routes": [
+          "home",
+          "route_0",
+          "route_499"
+        ],
+        "complete": true,
+        "snapshotSHA256": "2ed26a48055dc0bda6cbb09a47b0fffce297d0e6ebf0afb7ac87059abe596190"
+      },
+      {
+        "iteration": 1,
+        "setupMs": 258.58870000000024,
+        "collectMs": 3274.7313999999997,
+        "totalMs": 3533.3201,
+        "routes": [
+          "home",
+          "route_0",
+          "route_499"
+        ],
+        "complete": true,
+        "snapshotSHA256": "2ed26a48055dc0bda6cbb09a47b0fffce297d0e6ebf0afb7ac87059abe596190"
+      },
+      {
+        "iteration": 2,
+        "setupMs": 260.66029999999955,
+        "collectMs": 3497.357400000001,
+        "totalMs": 3758.0177000000003,
+        "routes": [
+          "home",
+          "route_0",
+          "route_499"
+        ],
+        "complete": true,
+        "snapshotSHA256": "2ed26a48055dc0bda6cbb09a47b0fffce297d0e6ebf0afb7ac87059abe596190"
+      },
+      {
+        "iteration": 3,
+        "setupMs": 271.2636999999995,
+        "collectMs": 3453.2191999999995,
+        "totalMs": 3724.482899999999,
+        "routes": [
+          "home",
+          "route_0",
+          "route_499"
+        ],
+        "complete": true,
+        "snapshotSHA256": "2ed26a48055dc0bda6cbb09a47b0fffce297d0e6ebf0afb7ac87059abe596190"
+      }
+    ],
+    "after": [
+      {
+        "iteration": 0,
+        "setupMs": 284.60429999999997,
+        "collectMs": 2469.6504,
+        "totalMs": 2754.2547,
+        "routes": [
+          "home",
+          "route_0",
+          "route_499"
+        ],
+        "complete": true,
+        "snapshotSHA256": "2ed26a48055dc0bda6cbb09a47b0fffce297d0e6ebf0afb7ac87059abe596190"
+      },
+      {
+        "iteration": 1,
+        "setupMs": 261.67509999999993,
+        "collectMs": 2103.7543,
+        "totalMs": 2365.4294,
+        "routes": [
+          "home",
+          "route_0",
+          "route_499"
+        ],
+        "complete": true,
+        "snapshotSHA256": "2ed26a48055dc0bda6cbb09a47b0fffce297d0e6ebf0afb7ac87059abe596190"
+      },
+      {
+        "iteration": 2,
+        "setupMs": 240.49419999999918,
+        "collectMs": 2089.7088000000003,
+        "totalMs": 2330.2029999999995,
+        "routes": [
+          "home",
+          "route_0",
+          "route_499"
+        ],
+        "complete": true,
+        "snapshotSHA256": "2ed26a48055dc0bda6cbb09a47b0fffce297d0e6ebf0afb7ac87059abe596190"
+      },
+      {
+        "iteration": 3,
+        "setupMs": 237.91519999999946,
+        "collectMs": 2003.5842000000011,
+        "totalMs": 2241.4994000000006,
+        "routes": [
+          "home",
+          "route_0",
+          "route_499"
+        ],
+        "complete": true,
+        "snapshotSHA256": "2ed26a48055dc0bda6cbb09a47b0fffce297d0e6ebf0afb7ac87059abe596190"
+      }
+    ],
+    "fullCiQualified": false,
+    "complexControllerQualified": false
+  },
+  "providerTests": {
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0
+  },
+  "frameworkTests": {
+    "passed": 72,
+    "failed": 0,
+    "skipped": 0
+  },
+  "finalChecks": [
+    {
+      "check": "provider-tests",
+      "exitCode": 0
+    },
+    {
+      "check": "lint",
+      "exitCode": 0
+    },
+    {
+      "check": "provider-types",
+      "exitCode": 0
+    }
+  ],
+  "negativeControl": {
+    "failedTests": 1,
+    "removedBehavior": "删除末批收尾后，A/B两条已准入路由被错误遗漏，断言实际失败；源码已精确恢复"
+  },
+  "rejectedPrototypes": [
+    {
+      "name": "无特性标记时只做语法解析",
+      "medianCollectionImprovementFraction": 0.042791630604669395,
+      "adopted": false,
+      "reason": "变化较小，不能确认解决超时"
+    },
+    {
+      "name": "去除重复元数据校验",
+      "medianCollectionImprovementFraction": 0.07570147370769176,
+      "adopted": false,
+      "reason": "未达到预先固定的20%门槛"
+    }
+  ],
+  "sourceUnchangedSinceNativeMeasurement": true,
+  "archivedWindowsFiles": 31,
+  "evidenceDirectory": "/var/www/node/php-companion-route-test-20261015/.vscode-test/route-test-setup-2026-10-15",
+  "rawLogs": {
+    "provider-tests.log": "e7e18d8b9b419d1fbf7147afb7b44e15d519b27acf5447899ae5ac1c376d0143",
+    "framework-tests.log": "29a198dc0659c25d97db43bdd4c223dc4e04ae70c811527cda5fa89a86373783",
+    "lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "provider-types.log": "38ac890c60e7f38d59ddfb410325cdfb5fca83c9411765c5481754e01c021630",
+    "partial-batch-negative.json": "0dc6f77d82f28910d31c9ead8219dff4fcc0bf0734d303166ca5d1b52f91dd52",
+    "partial-batch-negative.log": "3238e3d3a807c4e1246beb218a8fef44f238568b8233656a2361e6b720f5937b",
+    "final-checks.json": "5f1ab41b4d29d763d88ff8f87c952f5d1e5a1da7e3778981d50059eaa32295db",
+    "build-provider.log": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b",
+    "build-dependencies.log": "b3e43ccc5130ea98574dc80314d40a41b4d1fc8c00a070ae702d4d1c640abae5",
+    "install.log": "fa41a7acfdfa3666d38bbdc7a96d2515ec99d7ca956967be6cf2f65585b0296c",
+    "syntax-filter-prototype.patch": "ef3307b605f6ce6bdc87051b0d40e780a82c5db847e2b8cf64598a6a1d6df08b",
+    "duplicate-metadata-prototype.patch": "efb5fe5c1b323156f14ec66fa33b7da1e49299430fbb0486cb0a256cced74c3e",
+    "windows-archive-manifest.json": "63b86d6490cee7a43e825b9d39b85b71158f9993746f178a48c5d902b15fbd9b"
+  },
+  "preparationFailures": [
+    {
+      "kind": "esbuild调用方式",
+      "exitCode": 1,
+      "log": "windows/bundle-first-attempt.log"
+    },
+    {
+      "kind": "ESM的Node内建模块加载上下文",
+      "exitCode": 1,
+      "log": "windows/windows-phase-module-loading-failure.log"
+    },
+    {
+      "kind": "早期共享依赖映射构建",
+      "exitCode": 2,
+      "evidence": "执行会话71409",
+      "resolution": "改用独立pnpm安装及受影响依赖构建后通过"
+    }
+  ],
+  "candidateRemoteCiExecuted": false,
+  "candidateFullPnpmTestExecuted": false,
+  "nativeWindowsVitestExecutedForCandidate": false,
+  "releasePublished": false,
+  "humanWslAcceptanceExecuted": false,
+  "complexControllerBudgetAchieved": false,
+  "fullObjectiveComplete": false,
+  "finalLocalAuditSHA256": "68c9c692554d2618eb82babd0f2c976f25bf302ee61078aa09719efb92b6c188",
+  "nativeTemporaryStageRemoved": true,
+  "originalWorkspace225FilesPreserved": true
+}

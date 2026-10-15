@@ -176,7 +176,7 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
   }
   const read = async (path: string, namePrefix: string, pathPrefix: SymfonyRoutePathPrefix, ancestors: Set<string>, attribute = false, php = false,
     excludedPaths: string[] = [], mapping?: { root: string; namespace: string }, scope = projectScope,
-    countedByGlob = false): Promise<void> => {
+    countedByGlob = false, attributeReads?: { enqueue(consume: () => Promise<void>): Promise<void> }): Promise<void> => {
     const local = relative(scope.path, path);
     if (excludedRoutePath(path, excludedPaths)) return;
     if (ancestors.has(path)) { complete = false; return; }
@@ -186,6 +186,14 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
       if (/[*?{[]/.test(path)) {
         const segments = path.split(sep); const firstMagic = segments.findIndex((segment) => /[*?{[]/.test(segment));
         const base = segments.slice(0, firstMagic).join(sep) || sep;
+        const pendingAttributes: Array<() => Promise<void>> = [];
+        const flushAttributes = async (): Promise<void> => {
+          for (const consume of pendingAttributes.splice(0)) await consume();
+        };
+        const reads = { enqueue: async (consume: () => Promise<void>): Promise<void> => {
+          pendingAttributes.push(consume);
+          if (pendingAttributes.length >= 4) await flushAttributes();
+        } };
         const walk = async (candidate: string, seen: Set<string>): Promise<void> => {
           if (excludedRoutePath(candidate, excludedPaths)) return;
           if (remaining-- <= 0) { complete = false; inputEvidenceComplete = false; return; }
@@ -196,7 +204,9 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
             const info = await stat(candidate);
             if (info.isDirectory()) { inputPaths.delete(resolve(candidate)); inputDirectories.add(resolve(candidate)); }
             if (routePathMatches(candidate, path)) {
-              await read(candidate, namePrefix, pathPrefix, ancestors, attribute, php, excludedPaths, mapping, scope, true);
+              if (!attribute || !info.isFile()) await flushAttributes();
+              await read(candidate, namePrefix, pathPrefix, ancestors, attribute, php, excludedPaths, mapping, scope, true,
+                attribute && info.isFile() ? reads : undefined);
               return;
             }
             if (!info.isDirectory()) return;
@@ -211,7 +221,7 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
             }
           } catch (error) { complete = false; if (!missing(error)) inputEvidenceComplete = false; }
         };
-        await walk(base, new Set(ancestors)); return;
+        await walk(base, new Set(ancestors)); await flushAttributes(); return;
       }
       inputPaths.add(resolve(path));
       const snapshot = sources.get(resolve(path));
@@ -245,15 +255,28 @@ export async function collectSymfonyStaticRouteSnapshot(rootPath: string, parser
       }
       if (info && !info.isFile() || attribute && !path.endsWith('.php')
         || (info?.size ?? Buffer.byteLength(snapshot ?? '', 'utf8')) > 1_000_000) { complete = false; return; }
-      const uri = pathToFileURL(path).toString(); const source = await sourceFor(path); if (source.length > 1_000_000) { complete = false; return; }
-      if (attribute) {
+      const uri = pathToFileURL(path).toString();
+      const collectAttribute = (source: string): void => {
+        if (source.length > 1_000_000) { complete = false; return; }
         const facts = analyzeSymfonyRouteAttributes(parser, uri, source, defaultNameStyle, options.environment);
         const expectedOwner = mapping ? `${mapping.namespace}\\${relative(mapping.root, path).slice(0, -4).split(sep).join('\\')}` : undefined;
         if (!facts.complete) complete = false;
         routes.push(...facts.routes.filter((route) => !expectedOwner || route.ownerFqcn === expectedOwner)
           .flatMap((route) => applyPathPrefix(route, pathPrefix).map((candidate) => ({ ...candidate, name: namePrefix + candidate.name }))));
+      };
+      if (attribute && attributeReads) {
+        const pendingSource = sourceFor(path).then(source => ({ source }), error => ({ error }));
+        await attributeReads.enqueue(async () => {
+          try {
+            const result = await pendingSource;
+            if ('error' in result) throw result.error;
+            collectAttribute(result.source);
+          } catch (error) { complete = false; if (!missing(error)) inputEvidenceComplete = false; }
+        });
         return;
       }
+      const source = await sourceFor(path); if (source.length > 1_000_000) { complete = false; return; }
+      if (attribute) { collectAttribute(source); return; }
       const facts = php ? analyzeSymfonyRoutePhp(parser, uri, source) : analyzeSymfonyRouteYaml(uri, source, options.environment);
       if (!facts.complete) complete = false;
       routes.push(...facts.routes.flatMap((route) => applyPathPrefix(route, pathPrefix)

@@ -169,6 +169,36 @@ admin:
     expect(snapshot.routes.map((route) => route.name)).toEqual(['home', 'route_0', 'route_499']);
   });
 
+  it('keeps admitted attribute routes when a glob stops before filling a read batch', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-route-partial-batch-')); roots.push(root);
+    const controllers = join(root, 'src', 'Controller');
+    await mkdir(controllers, { recursive: true }); await mkdir(join(root, 'config'));
+    await writeFile(join(root, 'composer.json'), '{}');
+    await writeFile(join(root, 'config', 'routes.yaml'), 'controllers: {resource: ../src/Controller/**/*.php, type: attribute}\n');
+    for (const name of ['A', 'B', 'C']) await writeFile(join(controllers, `${name}.php`),
+      `<?php class ${name} { #[\\Symfony\\Component\\Routing\\Attribute\\Route('/${name}', name: '${name}')] public function run() {} }`);
+    const snapshot = await collectSymfonyStaticRouteSnapshot(root, parser, { maxEntries: 5 });
+    expect(snapshot.complete).toBe(false);
+    expect(snapshot.inputEvidenceComplete).toBe(false);
+    expect(snapshot.routes.map(route => route.name)).toEqual(['A', 'B']);
+    expect(snapshot.inputUris).not.toContain(pathToFileURL(join(controllers, 'C.php')).toString());
+  });
+
+  it('keeps valid admitted routes and syntax incompleteness in a partial read batch', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-route-malformed-batch-')); roots.push(root);
+    const controllers = join(root, 'src', 'Controller');
+    await mkdir(controllers, { recursive: true }); await mkdir(join(root, 'config'));
+    await writeFile(join(root, 'composer.json'), '{}');
+    await writeFile(join(root, 'config', 'routes.yaml'), 'controllers: {resource: ../src/Controller/**/*.php, type: attribute}\n');
+    for (const name of ['A', 'C']) await writeFile(join(controllers, `${name}.php`),
+      `<?php class ${name} { #[\\Symfony\\Component\\Routing\\Attribute\\Route('/${name}', name: '${name}')] public function run() {} }`);
+    await writeFile(join(controllers, 'B.php'), '<?php class B { public function broken( }');
+    const snapshot = await collectSymfonyStaticRouteSnapshot(root, parser);
+    expect(snapshot.complete).toBe(false);
+    expect(snapshot.inputEvidenceComplete).toBe(true);
+    expect(snapshot.routes.map(route => route.name)).toEqual(['A', 'C']);
+  });
+
   it('does not spend a PHP route glob budget on ordinary files that cannot match', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-route-mixed-directory-')); roots.push(root);
     const controllers = join(root, 'src', 'Controller');
