@@ -512,6 +512,27 @@ const MAX_CACHED_REFERENCE_LOCATIONS = 2_048;
 type SyntaxWalkDecision = 'descend' | 'skip' | 'stop';
 
 const unreachableCallSites = new WeakMap<SemanticFile, Map<number, boolean>>();
+const directUnsetNamesByFile = new WeakMap<SemanticFile, {
+  source: string; hasDirectUnset: boolean | undefined; empty: Set<string>; offsets: Map<number, Set<string>>;
+}>();
+
+function directUnsetTargets(node: SyntaxNode): SyntaxNode[] | undefined {
+  if (node.type === 'unset_statement') return node.namedChildren;
+  if (node.type === 'expression_statement') node = node.namedChildren[0] ?? node;
+  // The grammar represents a mixed-case unset keyword as a function call.
+  // Only an unqualified, standalone keyword form can remove a local binding.
+  if (node.type !== 'function_call_expression' || __argumentSyntaxParent(node)?.type !== 'expression_statement') return undefined;
+  const name = node.childForFieldName('function');
+  if (name?.type !== 'name' || name.text.toLowerCase() !== 'unset') return undefined;
+  const argumentsNode = node.childForFieldName('arguments');
+  const arguments_ = argumentsNode?.namedChildren.filter(child => child.type !== 'comment');
+  if (!arguments_ || arguments_.some(argument => argument.type !== 'argument'
+    || argument.childForFieldName('name') || argument.text.trimStart().startsWith('...'))) return undefined;
+  return arguments_.flatMap(argument => {
+    const value = argument.namedChildren.filter(child => child.type !== 'comment').at(-1);
+    return value ? [value] : [];
+  });
+}
 
 function syntacticallyUnreachableCall(file: SemanticFile, call: ParsedCall,
   parser: PhpSyntaxParser, retainedTree?: ReturnType<PhpSyntaxParser['parseTree']>): boolean {
@@ -6936,8 +6957,33 @@ export class SemanticWorkspace {
 
   // Track only straight-line, direct unsets in the current block. A branch or
   // opaque statement may define a variable again, so stop carrying the fact.
-  private directlyUnsetVariables(root: SyntaxNode, offset: number,
+  private directlyUnsetVariables(root: SyntaxNode | SemanticFile, offset: number,
     cache?: Map<string, { offset: number; nextIndex: number; statements: SyntaxNode[]; names: Set<string> }>): Set<string> {
+    if ('source' in root) {
+      const file = root;
+      let known = directUnsetNamesByFile.get(file);
+      if (!known || known.source !== file.source) {
+        known = { source: file.source, hasDirectUnset: /\bunset\b/iu.test(file.source) ? undefined : false,
+          empty: new Set(), offsets: new Map() };
+        directUnsetNamesByFile.set(file, known);
+      }
+      if (known.hasDirectUnset === false) return known.empty;
+      const cached = known.offsets.get(offset); if (cached) return cached;
+      const retained = this.trees.get(file.uri);
+      const temporary = retained ? undefined : this.parser.parseTree(file.source);
+      try {
+        const syntax = (retained ?? temporary!).rootNode;
+        // Array/property element unsets do not remove their receiver binding.
+        known.hasDirectUnset ??= syntax.descendantsOfType(['unset_statement', 'function_call_expression'])
+          .some(statement => directUnsetTargets(statement)?.some(target => target.type === 'variable_name') === true);
+        if (!known.hasDirectUnset) return known.empty;
+        const names = this.directlyUnsetVariables(syntax, offset);
+        if (known.offsets.size >= 1024) known.offsets.clear();
+        // Keep only syntax-derived names, never nodes owned by a temporary tree.
+        known.offsets.set(offset, names);
+        return names;
+      } finally { __argumentTreeDelete(temporary); }
+    }
     const block = this.completionStatementBlock(root, offset);
     if (!block) return new Set();
     const key = `${block.startIndex}:${block.endIndex}`;
@@ -6957,8 +7003,10 @@ export class SemanticWorkspace {
       const statement = state.statements[index]!;
       if (statement.endIndex > offset) break;
       state.nextIndex = index + 1;
-      if (statement.type === 'unset_statement') {
-        for (const target of statement.namedChildren) {
+      if (statement.type === 'comment') continue;
+      const unsetTargets = directUnsetTargets(statement);
+      if (unsetTargets) {
+        for (const target of unsetTargets) {
           if (target.type === 'variable_name') unset.add(target.text);
           else if (mayMutate(target)) unset.clear();
         }
@@ -14472,6 +14520,7 @@ export class SemanticWorkspace {
   private variableObjectGroups(file: SemanticFile, variable: string, offset: number, visited = new Set<string>()): { groups: ObjectClass[][]; nullable: boolean } | undefined {
     const scope = this.containingScope(file, offset); if (!scope) return undefined;
     if (variable === '$this' && !this.canUseThisInScope(file, scope)) return undefined;
+    if (variable !== '$this' && this.directlyUnsetVariables(file, offset).has(variable)) return undefined;
     const visitKey = `${scope.id}:${variable}:${offset}`;
     if (visited.size >= MAX_SEMANTIC_GRAPH_DEPTH || visited.has(visitKey)) return undefined; visited.add(visitKey);
     const assignment = file.assignments.filter((item) => item.scopeId === scope.id && item.variable === variable && item.end <= offset
@@ -15781,6 +15830,7 @@ export class SemanticWorkspace {
     if (!scope) return undefined;
     if (variable === '$this') return scope.containerFqcn && this.canUseThisInScope(file, scope)
       ? { fqcn: scope.containerFqcn, nullable: false } : undefined;
+    if (this.directlyUnsetVariables(file, offset).has(variable)) return undefined;
     // A prior class assignment is not sufficient once this binding is shared.
     // Only the strict statement proof may recover its current value.
     if (this.localReferenceBindingBefore(file, scope, variable, offset)) {
@@ -19822,6 +19872,7 @@ export class SemanticWorkspace {
           || (parameterCollection && fullyIndexable(parameterCollection)) ? element : undefined;
     }
     if (/^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/.test(expression)) {
+      if (expression !== '$this' && this.directlyUnsetVariables(file, start).has(expression)) return undefined;
       const scope = this.containingScope(file, start);
       const foreachAssignment = scope && activeForeachValueAssignment(file, scope, expression, start);
       const entryParameter = scope?.parameters.find(candidate => `$${candidate.name}` === expression);
