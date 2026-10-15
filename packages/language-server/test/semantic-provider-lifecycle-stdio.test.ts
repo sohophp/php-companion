@@ -11,7 +11,7 @@ import type { SemanticProviderDescriptor } from '@php-companion/semantic-provide
 import { encodeLspMessage, LspMessageDecoder } from '../../testkit/dist/index.js';
 
 type Kind = 'container' | 'events' | 'controllers' | 'generic';
-interface Call { pid: number; state: string; generation: string; }
+interface Call { pid: number; state: string; generation: string; readyTimeNs: string; }
 const kinds: Kind[] = ['events', 'controllers', 'generic'];
 const configurations = kinds.flatMap(kind => ['7.2', '8.5'].map(phpVersion => ({ kind, phpVersion })));
 const source = String.raw`<?php namespace App;
@@ -90,11 +90,14 @@ async function fixture(kind: Kind, phpVersion: string, indexingMode = 'experimen
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 const [root,kind,mode]=process.argv.slice(2);
-process.on('SIGTERM',()=>{});
+process.on('SIGTERM',()=>{
+  // Observe the ignored signal without changing cancellation behavior if tracing fails.
+  try { appendFileSync(join(root,'signals.jsonl'),JSON.stringify({pid:process.pid,receivedTimeNs:process.hrtime.bigint().toString()})+'\n'); } catch {}
+});
 let input=''; for await(const chunk of process.stdin) input+=chunk;
 const request=JSON.parse(input), phase=request.params.documents?.find(d=>d.uri.endsWith('/lifecycle.yaml'))?.source;
 const state=phase??(mode==='replacement'?'fast':mode==='hold-initial'?'hold-initial':'initial');
-appendFileSync(join(root,'calls.jsonl'),JSON.stringify({pid:process.pid,state,generation:request.params.generation})+'\n');
+appendFileSync(join(root,'calls.jsonl'),JSON.stringify({pid:process.pid,state,generation:request.params.generation,readyTimeNs:process.hrtime.bigint().toString()})+'\n');
 const watchdog=setTimeout(()=>process.exit(4),15000);
 while((state==='slow'||state==='hold-initial')&&!existsSync(join(root,'release-'+process.pid))){
   if(existsSync(join(root,'cleanup'))){clearTimeout(watchdog);process.exit(0);}
@@ -149,6 +152,11 @@ global.setInterval = (callback, ms, ...args) => interval(ms === 25 ? () => {} : 
       await exited; expect(stderr).toBe('');
     } finally {
       if (server.exitCode === null && server.signalCode === null) { server.kill(); await exited; }
+      const signals = await readFile(join(root, 'signals.jsonl'), 'utf8')
+        .then(text => text.split('\n').filter(Boolean).map(line => JSON.parse(line)))
+        .catch(error => (error as NodeJS.ErrnoException).code === 'ENOENT' ? []
+          : { traceError: (error as NodeJS.ErrnoException).code ?? (error as Error).name });
+      console.log(JSON.stringify({ case: 'provider-signal-observation', kind, phpVersion, signals }));
       await rm(root, { recursive: true, force: true });
     }
   };
@@ -193,10 +201,17 @@ it.each((['container', ...kinds] as Kind[]).flatMap(kind => ['7.2', '8.5'].map(p
   'reaps $kind before shutdown replies to an immediate exit client at PHP $phpVersion', async ({ kind, phpVersion }) => {
     const f = await fixture(kind, phpVersion, 'experimental', 'hold-initial');
     try {
-      await until(async () => (await f.calls()).length === 1); const pid = (await f.calls())[0]!.pid;
+      await until(async () => (await f.calls()).length === 1); const call = (await f.calls())[0]!, pid = call.pid;
       let goneAtReply = false;
-      const shutdown = f.client.start('shutdown', null).response.then(response => { goneAtReply = !alive(pid); f.client.send({ method: 'exit', params: null }); return response; });
-      const observed = await stopped(pid); console.log(JSON.stringify({ case: 'shutdown-immediate-exit', kind, phpVersion, ...observed }));
+      const requestedTimeNs = process.hrtime.bigint().toString();
+      const shutdown = f.client.start('shutdown', null).response.then(response => {
+        goneAtReply = !alive(pid); const repliedTimeNs = process.hrtime.bigint().toString();
+        f.client.send({ method: 'exit', params: null });
+        console.log(JSON.stringify({ case: 'shutdown-reply-observation', kind, phpVersion, pid, goneAtReply, requestedTimeNs, repliedTimeNs }));
+        return response;
+      });
+      const observed = await stopped(pid); console.log(JSON.stringify({ case: 'shutdown-immediate-exit', kind, phpVersion, ...observed,
+        requestedTimeNs, providerReadyTimeNs: call.readyTimeNs }));
       expect(observed.gone).toBe(true); expect(observed.elapsedMs).toBeLessThanOrEqual(100);
       expect((await shutdown).error).toBeUndefined(); expect(goneAtReply).toBe(true);
     } finally { await f.dispose(); }
