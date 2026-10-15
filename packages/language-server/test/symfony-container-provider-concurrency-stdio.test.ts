@@ -5,10 +5,39 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { encodeLspMessage, LspMessageDecoder } from '../../testkit/dist/index.js';
 
 const runtime = resolve('../../dist');
+function providerCallsFromLog(text: string, finished = false): any[] {
+  // A concurrent read can end before the writer commits its final line.
+  const complete = text.slice(0, text.lastIndexOf('\n') + 1);
+  if (finished && complete.length !== text.length) throw new SyntaxError('Provider call log ended inside a record');
+  return complete.trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
+}
+
+describe('provider call log framing', () => {
+  it('preserves escaped newlines and Unicode in completed records', () => {
+    const record = { pid: 1, request: { source: 'services:\n  demo: 中文\n', escaped: '\\n' } };
+    expect(providerCallsFromLog(JSON.stringify(record) + '\n')).toEqual([record]);
+    expect(providerCallsFromLog(JSON.stringify(record) + '\n', true)).toEqual([record]);
+  });
+
+  it('waits for an incomplete tail record without losing completed calls', () => {
+    const first = { pid: 1 }, second = { pid: 2, request: { source: 'services:\n  demo: true\n' } };
+    const encoded = JSON.stringify(second), prefix = JSON.stringify(first) + '\n';
+    const cut = encoded.length - 3;
+    expect(providerCallsFromLog(prefix + encoded.slice(0, cut))).toEqual([first]);
+    expect(() => providerCallsFromLog(prefix + encoded.slice(0, cut), true)).toThrow(SyntaxError);
+    expect(providerCallsFromLog(prefix + encoded.slice(0, cut) + encoded.slice(cut) + '\n')).toEqual([first, second]);
+    expect(providerCallsFromLog(encoded.slice(0, cut))).toEqual([]);
+  });
+
+  it('rejects malformed completed records', () => {
+    expect(() => providerCallsFromLog('{"pid":1}\n{"pid":}\n')).toThrow(SyntaxError);
+  });
+});
+
 function clientFor(server: ChildProcessWithoutNullStreams): {
   send: (message: object) => void; request: (method: string, params: unknown) => Promise<any>; start: (method: string, params: unknown) => { id: number; result: Promise<any> }; messages: any[];
 } {
@@ -74,7 +103,7 @@ const child = spawn(process.execPath, [${JSON.stringify(cli)}, '--parser-core-wa
 child.stdin.end(input); child.on('exit', code => {process.exitCode = code ?? 1;});`);
   const calls = async (): Promise<any[]> => {
     const text = await readFile(callsPath, 'utf8').catch(() => '');
-    return text.trim().split('\n').filter(Boolean).map(line => JSON.parse(line));
+    return providerCallsFromLog(text);
   };
   const hold = async (): Promise<void> => { await rm(releasePath, {force:true}); await writeFile(holdPath, 'hold'); };
   const release = async (): Promise<void> => { await writeFile(releasePath, 'release'); };
@@ -90,6 +119,7 @@ child.stdin.end(input); child.on('exit', code => {process.exitCode = code ?? 1;}
         expect((await exited)[0], stderr).toBe(0);
       }
       expect(stderr).toBe('');
+      providerCallsFromLog(await readFile(callsPath, 'utf8').catch(() => ''), true);
     } finally {
       if (server.exitCode === null && server.signalCode === null) { server.kill(); await exited; }
       await rm(root, { recursive: true, force: true });
