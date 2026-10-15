@@ -282,10 +282,16 @@ it.each(['7.2','8.5'])('withdraws an interrupted constructor diagnostic after a 
     // positive control separate from the resumed, post-edit publication.
     const beforeChange=await waitFor(message=>message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === 1);
     expect(beforeChange.params.diagnostics.filter((item:any)=>item.code === 'php.argument.type-mismatch')).toHaveLength(1);
-    // didOpen starts two independent validations. Observe both before arming
-    // the pause, so it belongs to a related refresh with duplicate suppression.
-    await waitFor(message=>message.method === 'textDocument/publishDiagnostics' && message.params.uri === uri && message.params.version === 1
-      && messages.filter(item=>item.method === 'textDocument/publishDiagnostics' && item.params.uri === uri && item.params.version === 1).length >= 2);
+    // Both initial validations must finish before arming the pause. An older
+    // validation may be discarded, so two publications are not guaranteed.
+    const initialDeadline=Date.now()+5_000;
+    while(true) {
+      const state=await request('phpCompanion/testQueryState',{method:'diagnostics',uri});
+      expect(state.version).toBe(1);
+      if(state.pending === 0) break;
+      expect(Date.now()).toBeLessThan(initialDeadline);
+      await new Promise(done=>setTimeout(done,20));
+    }
     expect(await request('phpCompanion/testPauseNextQuery',{method:'constructorDiagnostics'})).toBe(true);
     send({method:'textDocument/didChange',params:{textDocument:{uri:dependencyUri,version:2},contentChanges:[{text:original.replace('int $value','float $value')}]}});
     await waitFor(message=>message.method === 'textDocument/publishDiagnostics' && message.params.uri === dependencyUri && message.params.version === 2);

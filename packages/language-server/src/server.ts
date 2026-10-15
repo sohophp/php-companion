@@ -203,10 +203,12 @@ const diagnosticEditCoalesceMs = 25;
 // diagnostics converge without a second, longer debounce after a declaration edit.
 const relatedDiagnosticRefreshMs = diagnosticEditCoalesceMs;
 const relatedDiagnosticRefreshes = new Map<string, { timer: ReturnType<typeof setTimeout>; editedUris: Set<string>; priorityNames: Set<string> }>();
-const lastPublishedDiagnostics = new Map<string, { document: TextDocument; version: number; serialized: string }>();
+let nextDiagnosticPublicationSequence = 0;
+const lastPublishedDiagnostics = new Map<string, { document: TextDocument; version: number; serialized: string; sequence: number }>();
 const testPauseNextQueries = new Set<string>();
 const testPausedQueries = new Map<string, () => void>();
 const testQueryDurations = new Map<string, number[]>();
+const testActiveDiagnosticPublications = new Map<string, number>();
 let testCopyImportEvidence: unknown;
 let experimentalReferenceClosure = false;
 let experimentalReferenceSourceOnly = false;
@@ -2396,8 +2398,11 @@ async function provenOnDemandExternalMissingArguments(workspace: SemanticWorkspa
 
 async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0, onlyIfChanged = false): Promise<void> {
   if (shuttingDown) return;
+  const publicationSequence = ++nextDiagnosticPublicationSequence;
   const diagnosticStarted = testMode ? performance.now() : 0;
   const version = document.version;
+  if (testMode) testActiveDiagnosticPublications.set(document.uri, (testActiveDiagnosticPublications.get(document.uri) ?? 0) + 1);
+  try {
   if (coalesceMs > 0) {
     await new Promise<void>((resolve) => setTimeout(resolve, coalesceMs));
     if (documents.get(document.uri) !== document || document.version !== version) return;
@@ -2945,12 +2950,32 @@ async function publishDocumentDiagnostics(document: TextDocument, coalesceMs = 0
     const diagnostics = configuredDiagnostics(result.diagnostics);
     const serialized = JSON.stringify(diagnostics);
     const previous = lastPublishedDiagnostics.get(document.uri);
-    if (onlyIfChanged && previous?.document === document && previous.version === version && previous.serialized === serialized) return;
-    if (versionedDiagnostics) await connection.sendNotification('phpCompanion/versionedDiagnostics', { uri: document.uri, version, diagnostics });
-    else await connection.sendDiagnostics({ uri: document.uri, version, diagnostics });
-    lastPublishedDiagnostics.set(document.uri, { document, version, serialized });
+    // Dependency refreshes can finish out of order without changing the caller's
+    // document version. Once a newer result is queued, an older task cannot replace it.
+    if (previous?.document === document && previous.version === version && previous.sequence > publicationSequence) {
+      if (testMode) connection.console.info(`[test-diagnostics-superseded] uri=${document.uri} version=${version}`);
+      return;
+    }
+    if (onlyIfChanged && previous?.document === document && previous.version === version && previous.serialized === serialized) {
+      // An identical current result still supersedes older in-flight work.
+      previous.sequence = publicationSequence;
+      if (testMode) connection.console.info(`[test-diagnostics-unchanged] uri=${document.uri} version=${version}`);
+      return;
+    }
+    const sent = versionedDiagnostics
+      ? connection.sendNotification('phpCompanion/versionedDiagnostics', { uri: document.uri, version, diagnostics })
+      : connection.sendDiagnostics({ uri: document.uri, version, diagnostics });
+    lastPublishedDiagnostics.set(document.uri, { document, version, serialized, sequence: publicationSequence });
+    await sent;
     recordTestQueryDuration('diagnostics', diagnosticStarted);
     if (root && completeRoots.has(root)) scheduleCallableFactPersistence(root, workspace);
+  }
+  } finally {
+    if (testMode) {
+      const remaining = (testActiveDiagnosticPublications.get(document.uri) ?? 1) - 1;
+      if (remaining) testActiveDiagnosticPublications.set(document.uri, remaining);
+      else testActiveDiagnosticPublications.delete(document.uri);
+    }
   }
 }
 
@@ -4756,9 +4781,10 @@ connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unkn
   return true;
 });
 
-connection.onRequest('phpCompanion/testQueryState', (params: { method?: unknown; uri?: unknown }): { paused: boolean; version: number | null; epoch?: number } | null => {
+connection.onRequest('phpCompanion/testQueryState', (params: { method?: unknown; uri?: unknown }): { paused: boolean; version: number | null; epoch?: number; pending?: number } | null => {
   if (!testMode || typeof params?.method !== 'string' || typeof params.uri !== 'string') return null;
   return { paused: testPausedQueries.has(params.method), version: documents.get(params.uri)?.version ?? null,
+    ...(params.method === 'diagnostics' ? { pending: testActiveDiagnosticPublications.get(params.uri) ?? 0 } : {}),
     ...(['indexProjectSource', 'safeMoveDiskRefresh'].includes(params.method) ? { epoch: projectEpochs.get(rootForUri(params.uri) ?? '') ?? 0 } : {}) };
 });
 
