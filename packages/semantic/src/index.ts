@@ -9109,7 +9109,12 @@ export class SemanticWorkspace {
         if (signature.synthetic === 'phpdoc-callable' || signature.synthetic === 'closure-literal') {
           // The callable contract is carried by a precise local source rather than a declared function.
         } else if (signature.kind === 'function') {
-          if (this.callableDeclarationsForSignature(signature).length !== 1) return [];
+          // Argument count can select one signature even when project declarations
+          // conflict. Only native overloads may share a concrete function name.
+          const declarations = this.functionDeclarations(signature.fqcn);
+          if (declarations.length !== 1 && (!signature.uri.startsWith('php-companion-builtin:')
+            || declarations.some(({ file }) => !file.uri.startsWith('php-companion-builtin:')))) return [];
+          if (declarations.filter(({ file, item }) => file.uri === signature.uri && item.start === signature.start).length !== 1) return [];
         } else {
           if (!this.hasUniqueCallableDeclaration(signature) && signature.synthetic !== 'enum-native') return [];
         }
