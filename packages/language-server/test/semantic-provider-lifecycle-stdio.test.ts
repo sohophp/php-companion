@@ -130,8 +130,44 @@ process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:fact
   if (pausePolling) {
     // Remove the server's 25ms polling opportunity. Snapshot replacement must
     // cancel obsolete work directly, while the host's force-kill timer stays active.
-    await writeFile(monitor, `const interval = global.setInterval;
-global.setInterval = (callback, ms, ...args) => interval(ms === 25 ? () => {} : callback, ms, ...args);`);
+    await writeFile(monitor, String.raw`const interval = global.setInterval;
+global.setInterval = (callback, ms, ...args) => interval(ms === 25 ? () => {} : callback, ms, ...args);
+if (require('node:path').basename(process.argv[1] || '') === 'language-server.js') {
+  // Buffer observations until exit so logging adds no synchronous I/O to cancellation.
+  const events = [], now = () => process.hrtime.bigint().toString();
+  const record = event => { if (events.length < 128) events.push(event); };
+  const children = require('node:child_process'), spawn = children.spawn;
+  children.spawn = function (...args) {
+    const child = Reflect.apply(spawn, this, args);
+    if (!Array.isArray(args[1]) || !args[1].some(arg => typeof arg === 'string' && require('node:path').basename(arg) === 'lifecycle-provider.mjs')) return child;
+    record({ event: 'spawn', pid: child.pid, timeNs: now() });
+    const kill = child.kill;
+    child.kill = function (...signals) {
+      const timeNs = now();
+      try { return Reflect.apply(kill, this, signals); }
+      finally { record({ event: 'kill', pid: child.pid, signal: signals[0] || 'SIGTERM', timeNs }); }
+    };
+    child.on('exit', (code, signal) => record({ event: 'exit', pid: child.pid, code, signal, timeNs: now() }));
+    child.on('close', (code, signal) => record({ event: 'close', pid: child.pid, code, signal, timeNs: now() }));
+    return child;
+  };
+  require('node:module').syncBuiltinESMExports();
+  const timeout = global.setTimeout;
+  global.setTimeout = function (callback, ms, ...args) {
+    if (ms !== 25 || typeof callback !== 'function' || !Function.prototype.toString.call(callback).includes('SIGKILL')) return Reflect.apply(timeout, this, [callback, ms, ...args]);
+    const scheduledTimeNs = now();
+    const timer = Reflect.apply(timeout, this, [function (...values) {
+      const timeNs = now();
+      try { return Reflect.apply(callback, this, values); }
+      finally { record({ event: 'force-timer-fired', scheduledTimeNs, timeNs }); }
+    }, ms, ...args]);
+    record({ event: 'force-timer-scheduled', timeNs: scheduledTimeNs });
+    return timer;
+  };
+  process.once('exit', () => {
+    try { require('node:fs').writeFileSync(require('node:path').join(__dirname, 'parent-lifecycle.json'), JSON.stringify({ events, limit: 128, limitReached: events.length === 128 })); } catch {}
+  });
+}`);
   }
   const server = spawn(process.execPath, [join(runtime, 'language-server.js'), '--stdio', '--parser-core-wasm', join(runtime, 'web-tree-sitter.wasm'), '--php-wasm', join(runtime, 'tree-sitter-php.wasm')], {
     stdio: 'pipe', ...(pausePolling ? { env: { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --require=${monitor}`.trim() } } : {}),
@@ -157,6 +193,12 @@ global.setInterval = (callback, ms, ...args) => interval(ms === 25 ? () => {} : 
         .catch(error => (error as NodeJS.ErrnoException).code === 'ENOENT' ? []
           : { traceError: (error as NodeJS.ErrnoException).code ?? (error as Error).name });
       console.log(JSON.stringify({ case: 'provider-signal-observation', kind, phpVersion, signals }));
+      if (pausePolling) {
+        const parentLifecycle = await readFile(join(root, 'parent-lifecycle.json'), 'utf8')
+          .then(text => JSON.parse(text))
+          .catch(error => ({ traceError: (error as NodeJS.ErrnoException).code ?? (error as Error).name }));
+        console.log(JSON.stringify({ case: 'provider-parent-lifecycle-observation', kind, phpVersion, parentLifecycle }));
+      }
       await rm(root, { recursive: true, force: true });
     }
   };
@@ -236,8 +278,9 @@ it.each(configurations)('cancels replaced $kind snapshots without polling at PHP
     const before = commits(f, kind);
     snapshot(f, 'slow', 1); await until(async () => (await f.calls()).some(call => call.state === 'slow'));
     const pid = (await f.calls()).find(call => call.state === 'slow')!.pid; expect(alive(pid)).toBe(true);
+    const requestedTimeNs = process.hrtime.bigint().toString();
     snapshot(f, 'fast', 2); const observed = await stopped(pid);
-    console.log(JSON.stringify({ case: 'superseded-without-polling', kind, phpVersion, ...observed }));
+    console.log(JSON.stringify({ case: 'superseded-without-polling', kind, phpVersion, ...observed, requestedTimeNs }));
     expect(observed.gone).toBe(true); expect(observed.elapsedMs).toBeLessThanOrEqual(100);
     await until(async () => (await f.calls()).some(call => call.state === 'fast'));
     await newest(f, kind, before);
