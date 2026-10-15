@@ -564,6 +564,19 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   ): Promise<boolean> => {
     const { edit, sourceUri, sourceVersion, sourceText } = request;
     const source = await vscode.workspace.openTextDocument(sourceUri);
+    const cancelled = (reason: string): false => {
+      if (context.extensionMode === vscode.ExtensionMode.Test) {
+        try {
+          output.warn(`[previewed-refactor-cancelled] ${JSON.stringify({
+            reason, title: request.title, requestedVersion: sourceVersion, actualVersion: source.version,
+            sourceClosed: source.isClosed, sourceTextUnchanged: source.getText() === sourceText,
+            diffTabs: vscode.window.tabGroups.all.flatMap((group) => group.tabs)
+              .filter((tab) => tab.input instanceof vscode.TabInputTextDiff).length,
+          })}`);
+        } catch { /* Diagnostic logging must preserve cancellation. */ }
+      }
+      return false;
+    };
     const diskBytes = async (uri: vscode.Uri): Promise<Uint8Array | undefined> => {
       try { return await vscode.workspace.fs.readFile(uri); }
       catch (error) {
@@ -579,9 +592,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       return await diskHash(uri) === expected;
     };
     const sourceDiskHash = await diskHash(sourceUri);
-    if (!sourceDiskHash) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
+    if (!sourceDiskHash) { void vscode.window.showWarningMessage(t('extractCancelled')); return cancelled('source-disk-missing'); }
     if (request.sourceDiskHash && sourceDiskHash !== request.sourceDiskHash) {
-      void vscode.window.showWarningMessage(t('extractCancelled')); return false;
+      void vscode.window.showWarningMessage(t('extractCancelled')); return cancelled('source-disk-changed');
     }
     const targets = edit.entries().filter(([uri]) => uri.toString() !== sourceUri.toString());
     const participantUris = [sourceUri, ...targets.map(([uri]) => uri)];
@@ -590,25 +603,25 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
     const existingTargets = new Map<string, { document?: vscode.TextDocument; version?: number; text: string; diskHash: string }>();
     if (request.targetHashes) {
       if (targets.some(([uri]) => !request.targetHashes?.[uri.toString()])) {
-        void vscode.window.showWarningMessage(t('extractCancelled')); return false;
+        void vscode.window.showWarningMessage(t('extractCancelled')); return cancelled('target-snapshot-missing');
       }
       for (const [uriText, expected] of Object.entries(request.targetHashes)) {
         if (uriText === sourceUri.toString()) continue;
         const uri = vscode.Uri.parse(uriText);
-        if (!expected) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
+        if (!expected) { void vscode.window.showWarningMessage(t('extractCancelled')); return cancelled('target-snapshot-empty'); }
         const document = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uri.toString());
         const bytes = await diskBytes(uri);
-        if (!bytes) { void vscode.window.showWarningMessage(t('extractCancelled')); return false; }
+        if (!bytes) { void vscode.window.showWarningMessage(t('extractCancelled')); return cancelled('target-disk-missing'); }
         const text = document?.getText() ?? Buffer.from(bytes).toString('utf8');
         if (createHash('sha256').update(text).digest('hex') !== expected) {
-          void vscode.window.showWarningMessage(t('extractCancelled')); return false;
+          void vscode.window.showWarningMessage(t('extractCancelled')); return cancelled('target-source-changed');
         }
         existingTargets.set(uri.toString(), { document, version: document?.version, text,
           diskHash: createHash('sha256').update(bytes).digest('hex') });
       }
     }
     const environmentUnchanged = async (): Promise<boolean> => {
-      if (!await runtimeEnvironmentUnchanged()) return false;
+      if (!await runtimeEnvironmentUnchanged()) return cancelled('runtime-environment-changed');
       const configuration = vscode.workspace.getConfiguration('phpCompanion', sourceUri);
       const setting = configuration.get<string>('phpVersion', 'auto');
       const executableSetting = configuration.get<string | null>('phpExecutablePath') ?? null;
@@ -622,58 +635,58 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
           && effective === request.sourcePhpVersion));
     };
     const documentsUnchanged = (): boolean => {
-      if (source.isClosed || source.version !== sourceVersion || source.getText() !== sourceText) return false;
+      if (source.isClosed || source.version !== sourceVersion || source.getText() !== sourceText) return cancelled('source-document-changed');
       for (const [uriText, existing] of existingTargets) {
         const current = vscode.workspace.textDocuments.find((item) => item.uri.toString() === uriText);
-        if (current && current.getText() !== existing.text) return false;
+        if (current && current.getText() !== existing.text) return cancelled('target-text-changed');
         if (existing.document && (existing.document.isClosed || existing.document.version !== existing.version
-          || existing.document.getText() !== existing.text)) return false;
+          || existing.document.getText() !== existing.text)) return cancelled('target-document-changed');
       }
       return true;
     };
     const unchanged = async (): Promise<boolean> => {
-      if (!await environmentUnchanged() || !documentsUnchanged()) return false;
+      if (!await environmentUnchanged() || !documentsUnchanged()) return cancelled('participant-snapshot-changed');
       if (request.generation) {
         try {
           const client = await languageServer;
           if (!client || await client.sendRequest<boolean>('phpCompanion/validateGenerationHierarchy', {
             textDocument: { uri: sourceUri.toString(), version: sourceVersion }, ...request.generation,
-          }) !== true) return false;
-        } catch { return false; }
+          }) !== true) return cancelled('generation-validation-rejected');
+        } catch { return cancelled('generation-validation-error'); }
       }
       if (request.interfaceExtraction) {
         try {
           const client = await languageServer;
           if (!client || await client.sendRequest<boolean>('phpCompanion/validateInterfaceExtraction', {
             textDocument: { uri: sourceUri.toString(), version: sourceVersion }, ...request.interfaceExtraction,
-          }) !== true) return false;
-        } catch { return false; }
+          }) !== true) return cancelled('interface-validation-rejected');
+        } catch { return cancelled('interface-validation-error'); }
       }
       if (request.moveMember) {
         try {
           const client = await languageServer;
           if (!client || await client.sendRequest<boolean>('phpCompanion/validateMoveMember', {
             textDocument: { uri: sourceUri.toString(), version: sourceVersion }, ...request.moveMember,
-          }) !== true) return false;
-        } catch { return false; }
+          }) !== true) return cancelled('move-validation-rejected');
+        } catch { return cancelled('move-validation-error'); }
       }
       // A verified response can arrive after the user changes another participant.
       // Check disk snapshots after the server reply, then all open buffers after
       // the final asynchronous environment check and immediately before applying.
-      if (!await sameDiskHash(sourceUri, sourceDiskHash)) return false;
+      if (!await sameDiskHash(sourceUri, sourceDiskHash)) return cancelled('source-disk-changed-after-validation');
       for (const [uriText, existing] of existingTargets) {
-        if (!await sameDiskHash(vscode.Uri.parse(uriText), existing.diskHash)) return false;
+        if (!await sameDiskHash(vscode.Uri.parse(uriText), existing.diskHash)) return cancelled('target-disk-changed-after-validation');
       }
       for (const [uri] of targets) {
         if (existingTargets.has(uri.toString())) continue;
-        try { await vscode.workspace.fs.stat(uri); return false; }
+        try { await vscode.workspace.fs.stat(uri); return cancelled('target-already-exists'); }
         catch (error) {
           if (!(error instanceof vscode.FileSystemError) || error.code !== 'FileNotFound') throw error;
         }
       }
       return await environmentUnchanged() && documentsUnchanged();
     };
-    if (!await unchanged()) { void vscode.window.showWarningMessage(t(await environmentUnchanged() ? 'extractCancelled' : 'refactorEnvironmentChanged')); return false; }
+    if (!await unchanged()) { void vscode.window.showWarningMessage(t(await environmentUnchanged() ? 'extractCancelled' : 'refactorEnvironmentChanged')); return cancelled('initial-validation-rejected'); }
     const previewUris = new Set<string>();
     try {
       const showDiff = async (uri: vscode.Uri, previous: string, next: string): Promise<void> => {
@@ -689,11 +702,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
         const previous = existingTargets.get(uri.toString())?.text ?? '';
         await showDiff(uri, previous, applyTextEdits(previous, edits));
       }
-      if (!await confirmPreviewedEdit(t('applyPreviewedExtract', request.title), options?.testPreviewAction)) return false;
-      if (!previewDiffsComplete(previewUris)) { void vscode.window.showWarningMessage(t('previewClosed')); return false; }
+      if (!await confirmPreviewedEdit(t('applyPreviewedExtract', request.title), options?.testPreviewAction)) return cancelled('preview-cancelled');
+      if (!previewDiffsComplete(previewUris)) { void vscode.window.showWarningMessage(t('previewClosed')); return cancelled('preview-incomplete-before-validation'); }
       if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeApply?.();
-      if (!await unchanged()) { void vscode.window.showWarningMessage(t(await environmentUnchanged() ? 'extractCancelled' : 'refactorEnvironmentChanged')); return false; }
-      if (!previewDiffsComplete(previewUris)) { void vscode.window.showWarningMessage(t('previewClosed')); return false; }
+      if (!await unchanged()) { void vscode.window.showWarningMessage(t(await environmentUnchanged() ? 'extractCancelled' : 'refactorEnvironmentChanged')); return cancelled('final-validation-rejected'); }
+      if (!previewDiffsComplete(previewUris)) { void vscode.window.showWarningMessage(t('previewClosed')); return cancelled('preview-incomplete-before-apply'); }
       const expectedSource = applyTextEdits(sourceText, edit.get(sourceUri));
       const expectedTargets = targets.map(([uri, edits]) => ({ uri,
         text: applyTextEdits(existingTargets.get(uri.toString())?.text ?? '', edits) }));
@@ -714,7 +727,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       if (!applied || (expectedSource === sourceText && expectedTargets.every(({ uri, text }) =>
         text === (existingTargets.get(uri.toString())?.text ?? '')))) {
         void vscode.window.showErrorMessage(t('extractApplyFailed'));
-        return false;
+        return cancelled('applied-text-mismatch');
       }
       try {
         if (context.extensionMode === vscode.ExtensionMode.Test) await options?.testBeforeOpen?.();
