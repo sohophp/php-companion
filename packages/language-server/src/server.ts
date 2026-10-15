@@ -6516,17 +6516,9 @@ documents.onDidChangeContent(({ document }) => trackOpenSourcePublication(docume
   const update = queryUpdate ? combineOpenSourceUpdates(queryUpdate.update, currentUpdate) : currentUpdate;
   if (queryUpdate) publication!.queryUpdates.delete(workspace);
   published();
-  if (opening) {
-    const diskPath = pathForUri(document.uri);
-    const diskSource = root && diskPath ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
-    if (documents.get(document.uri) !== document || document.version !== contentVersion) return;
-    const unscannedSource = Boolean(root && referenceSourcePreparations.has(root)
-      && !scanFilesByRoot.get(root)?.has(document.uri) && previousSource === undefined);
-    if (diskSource !== document.getText()
-      || previousSource !== undefined && previousSource !== document.getText() && !unscannedSource) {
-      invalidateCandidates(document.uri, indexingMode === 'progressive' || update.kind !== 'declaration');
-    }
-  } else if (sourceChanged && root !== initialRoot) {
+  // didOpen owns the initial disk comparison and invalidation. Repeating it
+  // here can supersede both a refactor source scan and its bounded retry.
+  if (!opening && sourceChanged && root !== initialRoot) {
     invalidateCandidates(document.uri);
   }
   if (!opening && sourceChanged && root && root === initialRoot && candidateEpochBeforeEdit !== undefined

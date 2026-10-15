@@ -1,0 +1,401 @@
+{
+  "baseCommit": "0854c44df88e9202f4bad3fdbde488d6e704e3db",
+  "branch": "fix/legacy-constructor-rename-20261015",
+  "scope": "首次打开PHP文件时去除重复磁盘失效检查，保留重构扫描唯一一次重试、取消和输入预算",
+  "originalCaseRepeated": {
+    "runs": 6,
+    "passedCases": 12,
+    "failures": 0,
+    "purpose": "未复现，未将本地通过作为CI通过"
+  },
+  "controlledNegative": {
+    "oldSourceFailedCases": 1,
+    "unselectedCases": 2,
+    "error": "expected null not to be null",
+    "confirmedReturnBranch": "refreshRefactorDiskSources returned false",
+    "provesExactCiScheduling": false
+  },
+  "initialPositive": {
+    "passedCases": 3,
+    "failedCases": 0
+  },
+  "lintExitCode": 0,
+  "fullLanguageServerTest": {
+    "status": "completed",
+    "exitCode": 0,
+    "filesPassed": 142,
+    "passed": 1653,
+    "skipped": 1,
+    "failed": 0,
+    "durationSeconds": 1949.45,
+    "command": "pnpm --dir packages/language-server exec vitest run"
+  },
+  "sourceSHA256": {
+    "packages/language-server/src/server.ts": "766ea11228e8cca70195c2f4762ffc014c14f2599ef349f286e1de506481bbb0",
+    "packages/language-server/test/legacy-constructor-rename-stdio.test.ts": "d4237bb9eef4a3378c8be2956b698f8979698fe3199ae5702ef83037889d638d",
+    "packages/language-server/test/helpers/rename-open-read-gates.mjs": "ffa070852cbe26faf8bc671f2331db6a38dc5fbaac476ce3eb2fc5a6a71bbcb0"
+  },
+  "newPushAuthorized": false,
+  "pushExecuted": false,
+  "releasePublished": false,
+  "fullObjectiveComplete": false,
+  "finalChecks": [
+    {
+      "name": "root-unit",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 28.433
+    },
+    {
+      "name": "build-output-tests",
+      "command": [
+        "node",
+        "--test",
+        "scripts/test/esbuild-output-cleanup.test.mjs"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.769
+    },
+    {
+      "name": "package-all",
+      "command": [
+        "pnpm",
+        "package:all"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 110.876
+    },
+    {
+      "name": "verify-vsix",
+      "command": [
+        "pnpm",
+        "verify:vsix"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.269
+    }
+  ],
+  "rootTypecheckExitCode": 0,
+  "symfonyTypecheckExitCode": 0,
+  "componentBoundaries": {
+    "components": 24,
+    "sourceFiles": 200,
+    "imports": 511,
+    "violations": 0
+  },
+  "publicContracts": {
+    "contracts": 43,
+    "sourceFiles": 12,
+    "violations": 0
+  },
+  "originalEightRenameInputsAndExpectationsUnchanged": true,
+  "unchangedRefactorGuards": [
+    {
+      "function": "async function ensureProjectCompleteRoot",
+      "unchangedSHA256": "3b409108edf4c8b828096f61ecb4b86c2b6c964e3fe900a1aae7681b2c390366"
+    },
+    {
+      "function": "async function refreshRefactorDiskSources",
+      "unchangedSHA256": "6795c92888d94211fcbcb28a55b7b1fa4d9df2aec7f8e5b4e74eb2f84262b5c1"
+    }
+  ],
+  "localPackageAudit": {
+    "packages": [
+      {
+        "name": "php-companion-0.4.13.vsix",
+        "bytes": 1557087,
+        "sha256": "a2d1bcb94999f8be5c107505eb8cdcbcf0303337a7f4cc33f06245c8edacd179",
+        "zipEntries": 20
+      },
+      {
+        "name": "php-companion-symfony-0.4.13.vsix",
+        "bytes": 647594,
+        "sha256": "6c1f1e3d41d0f6010f339de23e9be6384191ccb237dfa3b3465b4ccd33f6c960",
+        "zipEntries": 17
+      },
+      {
+        "name": "php-companion-open-source-pack-0.4.13.vsix",
+        "bytes": 69945,
+        "sha256": "2ec322c6582f1b41d00b89b4db2c5d6a8fce11bd31c84c61da017511cd37af52",
+        "zipEntries": 8
+      }
+    ],
+    "runtimeEntries": [
+      {
+        "package": "php-companion-0.4.13.vsix",
+        "entry": "extension/dist/web-tree-sitter.wasm",
+        "localFile": "dist/web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "priorCandidateSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-0.4.13.vsix",
+        "entry": "extension/dist/tree-sitter-php.wasm",
+        "localFile": "dist/tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "priorCandidateSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-0.4.13.vsix",
+        "entry": "extension/dist/sourceStatWorker.js",
+        "localFile": "dist/sourceStatWorker.js",
+        "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+        "priorCandidateSha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-0.4.13.vsix",
+        "entry": "extension/dist/portableCandidateSearchWorker.js",
+        "localFile": "dist/portableCandidateSearchWorker.js",
+        "sha256": "25488cd3ba4751e3e7a3e727aee8940b4fbc83ee2977880dac51f6c874fb0de6",
+        "priorCandidateSha256": "25488cd3ba4751e3e7a3e727aee8940b4fbc83ee2977880dac51f6c874fb0de6",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-0.4.13.vsix",
+        "entry": "extension/dist/language-server.js",
+        "localFile": "dist/language-server.js",
+        "sha256": "c03ed0b4d02fe38d62e32218c39411ce5741e86c3ac40855026f020abe7c6b6f",
+        "priorCandidateSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+        "changedFrom0854": true
+      },
+      {
+        "package": "php-companion-0.4.13.vsix",
+        "entry": "extension/dist/extension.js",
+        "localFile": "dist/extension.js",
+        "sha256": "e69452f11955447f3d5d453d3a5536405b9dacc70686ecd670dc3c79778d0ac8",
+        "priorCandidateSha256": "e69452f11955447f3d5d453d3a5536405b9dacc70686ecd670dc3c79778d0ac8",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-0.4.13.vsix",
+        "entry": "extension/dist/candidateWorker.js",
+        "localFile": "dist/candidateWorker.js",
+        "sha256": "49e00f6068f134c4b422fc59617de0d46897e697722f4ba1d742c0061ee9ec87",
+        "priorCandidateSha256": "49e00f6068f134c4b422fc59617de0d46897e697722f4ba1d742c0061ee9ec87",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-0.4.13.vsix",
+        "entry": "extension/dist/builtinSnapshotWorker.js",
+        "localFile": "dist/builtinSnapshotWorker.js",
+        "sha256": "b4e2b84781fb17ecf80509c8aa02fa31bdd6551391dd5b646073b39f8e3c9627",
+        "priorCandidateSha256": "b4e2b84781fb17ecf80509c8aa02fa31bdd6551391dd5b646073b39f8e3c9627",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-symfony-0.4.13.vsix",
+        "entry": "extension/dist/winstar-route-provider.js",
+        "localFile": "packages/php-companion-symfony/dist/winstar-route-provider.js",
+        "sha256": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+        "priorCandidateSha256": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-symfony-0.4.13.vsix",
+        "entry": "extension/dist/web-tree-sitter.wasm",
+        "localFile": "packages/php-companion-symfony/dist/web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "priorCandidateSha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-symfony-0.4.13.vsix",
+        "entry": "extension/dist/tree-sitter-php.wasm",
+        "localFile": "packages/php-companion-symfony/dist/tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "priorCandidateSha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-symfony-0.4.13.vsix",
+        "entry": "extension/dist/static-route-provider.js",
+        "localFile": "packages/php-companion-symfony/dist/static-route-provider.js",
+        "sha256": "345df96976fd03f54168d408248154f2d5139290b19622d4e8c7f25ff86ae9fb",
+        "priorCandidateSha256": "345df96976fd03f54168d408248154f2d5139290b19622d4e8c7f25ff86ae9fb",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-symfony-0.4.13.vsix",
+        "entry": "extension/dist/service-provider.js",
+        "localFile": "packages/php-companion-symfony/dist/service-provider.js",
+        "sha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "priorCandidateSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-symfony-0.4.13.vsix",
+        "entry": "extension/dist/extension.js",
+        "localFile": "packages/php-companion-symfony/dist/extension.js",
+        "sha256": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+        "priorCandidateSha256": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-symfony-0.4.13.vsix",
+        "entry": "extension/dist/event-provider.js",
+        "localFile": "packages/php-companion-symfony/dist/event-provider.js",
+        "sha256": "f7e98415a871b97cf1b3d3a81edc55b2ebf6f0a383ae96566b4ad9755098665e",
+        "priorCandidateSha256": "f7e98415a871b97cf1b3d3a81edc55b2ebf6f0a383ae96566b4ad9755098665e",
+        "changedFrom0854": false
+      },
+      {
+        "package": "php-companion-symfony-0.4.13.vsix",
+        "entry": "extension/dist/controller-context-provider.js",
+        "localFile": "packages/php-companion-symfony/dist/controller-context-provider.js",
+        "sha256": "7a2d9fb763afec492187e1f4957daeb7beba2f223e988386e1787346315c877c",
+        "priorCandidateSha256": "7a2d9fb763afec492187e1f4957daeb7beba2f223e988386e1787346315c877c",
+        "changedFrom0854": false
+      }
+    ],
+    "runtimeEntriesVerified": 16,
+    "runtimeEntriesUnchangedFrom0854": 15,
+    "originalWorkspace225Preserved": true,
+    "semanticSourceSHA256": "0d3521b01b1ca13794ef9eb0871d8035afeecb2f75184088d9c2cdd90c83c974",
+    "semanticDistSHA256": "b4db7030ef642cb79ea79b5eaac4b711c1d23e0933229fe4f066ec03dffe20ca",
+    "releasePublished": false
+  },
+  "rootDefaultPnpmTestExecuted": false,
+  "newRemoteCiExecuted": false,
+  "humanWslAcceptanceExecuted": false,
+  "complexController500MsQualified": false,
+  "evidenceLogs": [
+    {
+      "file": "baseline-original-case.log",
+      "bytes": 259,
+      "sha256": "ad97e140ea318720497ef71e9073c3a4400dd102fe32c8519150aa8d2f29325a"
+    },
+    {
+      "file": "baseline-probe-0.log",
+      "bytes": 258,
+      "sha256": "4593c6af6747c27831b0d2938669e7deb24a8076ad646d9ec2de5bd1d2f378c7"
+    },
+    {
+      "file": "baseline-probe-1.log",
+      "bytes": 258,
+      "sha256": "524066c6a0fc44d8fa8c398d0576fa3480bf65e931459a59501a5ed9d936f96c"
+    },
+    {
+      "file": "baseline-probe-2.log",
+      "bytes": 258,
+      "sha256": "36c169edfe073290daf7a69393914d83dd1f341e9b4e2dcb92d165694f3d815f"
+    },
+    {
+      "file": "baseline-probe-3.log",
+      "bytes": 258,
+      "sha256": "15f759b1f24e034e0807e3ab0b776bb243f8d2ceeeeaa1112992b8ec9ad186e6"
+    },
+    {
+      "file": "baseline-probe-4.log",
+      "bytes": 258,
+      "sha256": "53ee06364fcc64a04acdb70ab07aa9858cb6f3a3f70f75ad421c5e414f0459f7"
+    },
+    {
+      "file": "baseline-probe-5.log",
+      "bytes": 258,
+      "sha256": "04d208bbe6e8560dca2661d23dcd2fefd6d22116134454b5ecc48b8cc7abee08"
+    },
+    {
+      "file": "baseline-repeat-summary.log",
+      "bytes": 192,
+      "sha256": "5d53875e2aa873889f3d436cc04641fa8efb9219e02cbb7a813736f5ed0b3086"
+    },
+    {
+      "file": "build-after.log",
+      "bytes": 23,
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "file": "build-before.log",
+      "bytes": 2223,
+      "sha256": "1d59df3f7cd67b798b1527e4db832f384c32ea79ec1e54cca0408af8eb3c448c"
+    },
+    {
+      "file": "build-output-tests.log",
+      "bytes": 607,
+      "sha256": "96f058dd2abf0e9133c555076df833bf3d8ed3fa394fc8f321a21e92db6af33f"
+    },
+    {
+      "file": "component-boundaries.log",
+      "bytes": 65,
+      "sha256": "282a0cb5ce617fcb6020ca2af25d737b9609a38794171d17d3b82e0ad14a7664"
+    },
+    {
+      "file": "controlled-after.log",
+      "bytes": 258,
+      "sha256": "3a3b7e80609bba8f85e43c01cfdb0009545d8db8a6fcea83bc266eb7f1cb63a7"
+    },
+    {
+      "file": "controlled-before.log",
+      "bytes": 4437,
+      "sha256": "8e4e1975b2d05dcd314a7f230992a4b55d4e62da9515b99fa6a78f121101380e"
+    },
+    {
+      "file": "final-build.log",
+      "bytes": 23,
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "file": "install.log",
+      "bytes": 7637,
+      "sha256": "c760542e5bded9209de1bc169e25d64f9bec531712002cb61a7ec043918f0762"
+    },
+    {
+      "file": "language-server-full.log",
+      "bytes": 341,
+      "sha256": "97892b7840b1cc5a8051635c3547f4533220bc074f8dae27fb888b119a0885f6"
+    },
+    {
+      "file": "lint.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "negative-build.log",
+      "bytes": 23,
+      "sha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+    },
+    {
+      "file": "negative-control.log",
+      "bytes": 1391,
+      "sha256": "f9069625d7b7c37f7978b88a0e39ece752d0d52f0f5eb502a1ceed0934df0453"
+    },
+    {
+      "file": "package-all.log",
+      "bytes": 5407,
+      "sha256": "2d789e6548bb90f7db5db7a423b6f9dff9201603c0905ce911ac476b2193f5ab"
+    },
+    {
+      "file": "public-contracts.log",
+      "bytes": 49,
+      "sha256": "84d805bbb54ac97a76d962cbe3067830a565fa6999f480383ee07a657a45eaac"
+    },
+    {
+      "file": "root-types.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "root-unit.log",
+      "bytes": 242,
+      "sha256": "32305320d268a286e71f9bea355e16094c6bf10a7a2f810dccddcd1c426e0f48"
+    },
+    {
+      "file": "symfony-types.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "verify-vsix.log",
+      "bytes": 230,
+      "sha256": "f32350724df2c6a14a808cecdb9adfd454b8b0d792a33391a179a7580806937c"
+    }
+  ]
+}
