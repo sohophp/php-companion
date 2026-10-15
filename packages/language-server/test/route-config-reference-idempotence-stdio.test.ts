@@ -7,11 +7,12 @@ import { pathToFileURL } from 'node:url';
 import { expect, it } from 'vitest';
 import { encodeLspMessage, LspMessageDecoder } from '../../testkit/dist/index.js';
 
-const scenarios = ['7.2', '8.5'].flatMap(phpVersion => [false, true].flatMap(nonempty =>
-  ['control', 'duplicate', 'changed'].map(mode => ({ phpVersion, nonempty, mode }))));
+const scenarios = ['symfony', 'bundled', 'configured'].flatMap(source =>
+  ['7.2', '8.5'].flatMap(phpVersion => [false, true].flatMap(nonempty =>
+    ['control', 'duplicate', 'changed'].map(mode => ({ source, phpVersion, nonempty, mode })))));
 
-it.each(scenarios)('keeps unchanged route configuration reference inputs at PHP $phpVersion ($nonempty, $mode)',
-  async ({ phpVersion, nonempty, mode }) => {
+it.each(scenarios)('keeps unchanged route configuration reference inputs at PHP $phpVersion ($source, $nonempty, $mode)',
+  async ({ source, phpVersion, nonempty, mode }) => {
     const owned = await realpath(await mkdtemp(join(tmpdir(), 'sophp-route-config-reference-')));
     const root = join(owned, 'project'), control = join(owned, 'control'), runtime = resolve('../../dist');
     await mkdir(join(root, 'src'), { recursive: true }); await mkdir(join(root, 'config')); await mkdir(control);
@@ -33,7 +34,12 @@ process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{sch
       replacesContainerServices: true, requiresProjectTypes: true, acceptsDocumentSnapshots: true, timeoutMs: 15_000 };
     const events = { providerId: 'vendor.gated.events', command: process.execPath, args: [provider, control],
       replacesEventRelations: true, requiresContainerServices: true, requiresProjectTypes: true, acceptsDocumentSnapshots: true, timeoutMs: 15_000 };
-    const configuredRoutes = nonempty ? [{ uri: rootUri, external: false }] : [];
+    const routeProvider = { providerId: 'php-companion.symfony.routes', command: process.execPath,
+      args: [resolve('../provider-symfony-routes/dist/cli.js'), '--parser-core-wasm', join(runtime, 'web-tree-sitter.wasm'), '--php-wasm', join(runtime, 'tree-sitter-php.wasm')],
+      timeoutMs: 15_000, cacheUntilInvalidated: true };
+    const configuredRoutes = nonempty || source !== 'symfony' ? [{ uri: rootUri, external: false }] : [];
+    const descriptors = nonempty ? [routeProvider] : [];
+    const changedDescriptors = [{ ...routeProvider, timeoutMs: 10_000 }];
     const server = spawn(process.execPath, [join(runtime, 'language-server.js'), '--stdio', '--parser-core-wasm',
       join(runtime, 'web-tree-sitter.wasm'), '--php-wasm', join(runtime, 'tree-sitter-php.wasm')], { stdio: 'pipe' });
     const closed = once(server, 'close'), decoder = new LspMessageDecoder(), messages: any[] = [];
@@ -74,6 +80,8 @@ process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{sch
       expect((await request('initialize', { processId: null, rootUri, capabilities: {}, initializationOptions: {
         phpVersion, indexingMode: 'onDemand', cacheDirectory: join(owned, 'cache'), bundledSemanticProviders: [services],
         symfonyRouteProviders: configuredRoutes,
+        ...(source === 'bundled' ? { bundledRouteProviders: descriptors } : {}),
+        ...(source === 'configured' ? { routeProviders: descriptors } : {}),
       } })).error).toBeUndefined();
       send({ method: 'initialized', params: {} });
       for (const [uri, text] of [[rowUri, row], [useUri, use]]) send({ method: 'textDocument/didOpen',
@@ -91,10 +99,14 @@ process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:{sch
       }
       expect(messages.slice(after).some(message => message.method === 'window/logMessage'
         && /\[references:\d+\] routes elapsedMs=/.test(message.params.message))).toBe(true);
-      if (mode === 'duplicate') send({ method: 'phpCompanion/symfonyRouteProviders', params: { providers: configuredRoutes } });
-      if (mode === 'changed') send({ method: 'phpCompanion/symfonyRouteProviders', params: {
-        providers: [{ uri: rootUri, external: false, environment: 'prod' }],
-      } });
+      if (mode !== 'control') {
+        if (source === 'symfony') send({ method: 'phpCompanion/symfonyRouteProviders', params: { providers:
+          mode === 'changed' ? [{ uri: rootUri, external: false, environment: 'prod' }] : configuredRoutes } });
+        else if (source === 'bundled') send({ method: 'phpCompanion/bundledRouteProviders', params: { providers:
+          mode === 'changed' ? changedDescriptors : descriptors } });
+        else send({ method: 'workspace/didChangeConfiguration', params: { settings: { phpCompanion: { routeProviders:
+          mode === 'changed' ? changedDescriptors : descriptors } } } });
+      }
       // MethodNotFound confirms the preceding configuration notification was dispatched.
       expect((await request('phpCompanion/privateObservationBarrier', {})).error?.code).toBe(-32601);
       await writeFile(join(control, 'release'), 'yes');

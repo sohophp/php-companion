@@ -872,10 +872,14 @@ function rebuildRouteProviders(): void {
   })];
 }
 function setConfiguredRouteProviders(value: unknown): void {
-  configuredRouteProviders = acceptedRouteProviders(value, 'configured'); rebuildRouteProviders(); invalidateRouteProviderCache();
+  const next = acceptedRouteProviders(value, 'configured');
+  if (JSON.stringify(next) === JSON.stringify(configuredRouteProviders)) return;
+  configuredRouteProviders = next; rebuildRouteProviders(); invalidateRouteProviderCache();
 }
 function setBundledRouteProviders(value: unknown): void {
-  bundledRouteProviders = acceptedRouteProviders(value, 'bundled'); rebuildRouteProviders(); invalidateRouteProviderCache();
+  const next = acceptedRouteProviders(value, 'bundled');
+  if (JSON.stringify(next) === JSON.stringify(bundledRouteProviders)) return;
+  bundledRouteProviders = next; rebuildRouteProviders(); invalidateRouteProviderCache();
 }
 
 function semanticProviderDocuments(root: string): { complete: boolean; documents: SemanticProviderDocument[] } {
