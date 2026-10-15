@@ -1400,9 +1400,11 @@ function setSymfonyRouteProviders(value: unknown): boolean {
   if (!Array.isArray(value) || value.some((entry) => !entry || typeof entry.uri !== 'string' || typeof entry.external !== 'boolean'
     || (entry.environment !== undefined && (typeof entry.environment !== 'string' || !/^[A-Za-z0-9_.-]{1,64}$/.test(entry.environment))) || !pathForUri(entry.uri))) return false;
   const previousEnvironments = JSON.stringify(symfonyRouteProviders.map(({ path, environment }) => ({ path, environment })));
-  symfonyRouteProviders = value.map((entry: { uri: string; external: boolean; environment?: string }) => ({
+  const nextProviders = value.map((entry: { uri: string; external: boolean; environment?: string }) => ({
     path: pathForUri(entry.uri)!, external: entry.external, ...(entry.environment ? { environment: entry.environment } : {}),
   }));
+  if (JSON.stringify(nextProviders) === JSON.stringify(symfonyRouteProviders)) return false;
+  symfonyRouteProviders = nextProviders;
   invalidateRouteProviderCache();
   invalidateContainerFacts();
   return previousEnvironments !== JSON.stringify(symfonyRouteProviders.map(({ path, environment }) => ({ path, environment })));
