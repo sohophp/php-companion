@@ -22340,9 +22340,11 @@ final class Subscriber implements \\Symfony\\Component\\EventDispatcher\\EventSu
         && message.params.changedUris.includes(controllerUri));
       server.stdin.write(encode({ jsonrpc: '2.0', id: 680, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));
       expect((await output.waitFor((message) => message.id === 680)).result.contexts).toEqual([]);
+      const beforeClose = output.messages.length;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didClose', params: { textDocument: { uri: functionsUri } } }));
-      await output.waitFor((message) => message.method === 'phpCompanion/interop/invalidated'
-        && message.params.changedUris.includes(controllerUri));
+      const closeInvalidation = await output.waitFor((message) => output.messages.indexOf(message) >= beforeClose
+        && message.method === 'phpCompanion/interop/invalidated' && message.params.changedUris.includes(controllerUri));
+      expect(output.messages.indexOf(closeInvalidation)).toBeGreaterThanOrEqual(beforeClose);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 681, method: 'phpCompanion/testOnDemandClosedDocuments', params: { uri: controllerUri } }));
       await output.waitFor((message) => message.id === 681);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 682, method: 'phpCompanion/interop/contexts', params: { rootUri: pathToFileURL(root).toString() } }));

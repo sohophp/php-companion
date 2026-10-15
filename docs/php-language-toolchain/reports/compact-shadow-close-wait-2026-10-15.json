@@ -1,0 +1,21 @@
+{
+  "baseCommit": "1ebf054094b54f24af420f3bc15e622b5d4b0b26",
+  "independentLocalAuditPassed": true,
+  "deterministicOldWaitControlFailedAsExpected": true,
+  "oldInvalidationMessageIndex": 9,
+  "minimumPostCloseMessageIndex": 11,
+  "fixedOriginalTestPassed": 1,
+  "relatedTestsPassed": 5,
+  "relatedUnselected": 563,
+  "originalDeadlineMs": 25000,
+  "originalContextResultAssertionRetained": true,
+  "onlyOneExistingTestChanged": true,
+  "lintPassed": true,
+  "typecheckPassed": true,
+  "productionRuntimeEntriesUnchanged": 16,
+  "original225Preserved": true,
+  "preparationWorkingDirectoryFailuresExcluded": true,
+  "newRemoteCiExecuted": false,
+  "releasePublished": false,
+  "fullObjectiveComplete": false
+}
