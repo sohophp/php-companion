@@ -20567,7 +20567,10 @@ export class SemanticWorkspace {
     const traitEntries = allTraitEntries.filter(({ trait, member }) => !declaration.traitAdaptations.some((adaptation) => adaptation.kind === 'precedence'
       && adaptation.method.toLowerCase() === member.name.toLowerCase()
       && adaptation.insteadOf.some((name) => this.resolveSourceType(ownerFile, name, namespace)?.toLowerCase() === trait.toLowerCase())));
-    for (const adaptation of declaration.traitAdaptations.filter((item) => item.kind === 'alias')) {
+    const adaptations = declaration.traitAdaptations.filter((item) => item.kind === 'alias');
+    // Named aliases copy the Trait declaration, before adaptations that only
+    // change the original method's visibility or final modifier.
+    for (const adaptation of [...adaptations.filter(item => item.alias), ...adaptations.filter(item => !item.alias)]) {
       const expectedTrait = adaptation.trait ? this.resolveSourceType(ownerFile, adaptation.trait, namespace)?.toLowerCase() : undefined;
       const matches = allTraitEntries.filter(({ trait, member }) => (!expectedTrait || trait.toLowerCase() === expectedTrait) && member.kind === 'method' && member.name.toLowerCase() === adaptation.method.toLowerCase());
       if (adaptation.alias) {
