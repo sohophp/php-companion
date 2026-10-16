@@ -9239,7 +9239,8 @@ connection.onCodeAction(async (params, token) => {
   const queryVersion = document.version;
   const targetPhpVersion = phpVersionForUri(document.uri);
   const actions: CodeAction[] = [];
-  const localWorkspace = await semanticForUri(document.uri);
+  const localWorkspace = await semanticForUri(document.uri, token);
+  if (!localWorkspace || !currentQueryDocument(document, token, queryVersion)) return [];
   const diagnostic = context.diagnostics.find((item) => item.code === 'php.namespace.psr4');
   const expected = (diagnostic?.data as { expectedNamespace?: unknown } | undefined)?.expectedNamespace;
   const source = document.getText();
