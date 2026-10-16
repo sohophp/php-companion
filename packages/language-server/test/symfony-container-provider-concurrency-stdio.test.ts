@@ -509,3 +509,63 @@ it.each(['experimental', 'progressive', 'onDemand'].flatMap(mode => ['hover', 'd
     } finally { await f.release(); await f.stop(); }
   },
 );
+
+it.each(['7.2', '8.5'])(
+  'returns cancelled container caller while source preparation keeps real provider held at PHP %s', async phpVersion => {
+    const f = await fixture(phpVersion, 'onDemand', true);
+    const uri = pathToFileURL(join(f.root, 'src', 'Consumer.php')).toString();
+    let providerPid: number | undefined;
+    let first: ReturnType<typeof definition> | undefined;
+    let cancelled: ReturnType<typeof definition> | undefined;
+    try {
+      await f.hold();
+      expect(await f.client.request('phpCompanion/testPauseNextQuery', {method:'indexSourceFinalization'})).toBe(true);
+      first = definition(f, uri, 0);
+      await until(async () => (await f.client.request('phpCompanion/testQueryState', {method:'indexSourceFinalization',uri}))?.paused === true);
+      expect(await f.client.request('phpCompanion/testReleaseQuery', {method:'indexSourceFinalization'})).toBe(true);
+      await until(async () => (await f.calls()).length > 0);
+      const provider = (await f.calls()).at(-1)!;
+      expect(provider.held).toBe(true);
+      providerPid = provider.pid as number;
+      cancelled = definition(f, uri, 0);
+      // The synchronous reply follows the second real request on the same transport.
+      expect(await f.client.request('phpCompanion/testSemanticLifecycle', {})).not.toBeNull();
+      let firstFinished = false;
+      void first.result.then(() => { firstFinished = true; }, () => { firstFinished = true; });
+      expect((await f.client.request('phpCompanion/testQueryState', {method:'indexSourceFinalization',uri}))?.paused).toBe(false);
+      const started = performance.now();
+      f.client.send({method:'$/cancelRequest',params:{id:cancelled.id}});
+      console.log(JSON.stringify({case:'container-cancel-held-source-preparation',phpVersion,stage:'cancel-sent',serverPid:f.server.pid,providerPid:provider.pid,originalDeadlineMs:500}));
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      let response: any;
+      try {
+        response = await Promise.race([cancelled.result, new Promise((_, reject) => {
+          timer = setTimeout(() => reject(new Error('Cancelled container caller did not return promptly while real container preparation remained held')), 500);
+        })]);
+      } finally { if (timer) clearTimeout(timer); }
+      const elapsedMs = performance.now() - started;
+      expect(response).toEqual([]);
+      expect(elapsedMs).toBeLessThanOrEqual(500);
+      expect(firstFinished).toBe(false);
+      expect((await f.client.request('phpCompanion/testQueryState', {method:'indexSourceFinalization',uri}))?.paused).toBe(false);
+      process.kill(provider.pid, 0);
+      console.log(JSON.stringify({case:'container-cancel-held-source-preparation',phpVersion,stage:'cancel-returned-original-dependency-still-held',elapsedMs,providerStillAlive:true}));
+      await f.release();
+      const expected = await first.result;
+      expect(expected).toHaveLength(1);
+      expect(await definition(f, uri, 0).result).toEqual(expected);
+    } finally {
+      await f.client.request('phpCompanion/testReleaseQuery', {method:'indexSourceFinalization'}).catch(() => undefined);
+      await f.release();
+      await Promise.allSettled([first?.result, cancelled?.result].filter((value): value is Promise<any> => value !== undefined));
+      await f.stop();
+      const removed = await readFile(join(f.root, 'composer.json'), 'utf8').then(() => false, error => {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') return true;
+        throw error;
+      });
+      expect(removed).toBe(true);
+      console.log(JSON.stringify({case:'container-source-preparation-cleanup',phpVersion,serverPid:f.server.pid,providerPid,
+        exitCode:f.server.exitCode,signal:f.server.signalCode,root:f.root,removed}));
+    }
+  },
+);

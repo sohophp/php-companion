@@ -3144,7 +3144,7 @@ function startIndexWorkspace(reason = 'semantic-query', changedComposerPaths?: r
 let watchedFileChanges: Promise<void> = Promise.resolve();
 let pendingWatchedFileChanges = 0;
 
-async function waitForQueryDependency(pending: Promise<void>, token: CancellationToken): Promise<boolean> {
+async function waitForQueryDependency(pending: Promise<unknown>, token: CancellationToken): Promise<boolean> {
   if (token.isCancellationRequested) return false;
   let cancellationSubscription: { dispose(): void } | undefined;
   const cancelled = new Promise<boolean>(resolveCancelled => {
@@ -5048,7 +5048,8 @@ connection.onRequest('phpCompanion/symfonyServiceDefinition', async (params: {
       if (!candidate && !tree.rootNode.hasError) return [];
     } finally { tree.delete(); }
   }
-  if (!await ensureSymfonyContainerFactsForQuery(root, () => token.isCancellationRequested)) return [];
+  const containerPreparation = ensureSymfonyContainerFactsForQuery(root, () => token.isCancellationRequested);
+  if (!await waitForQueryDependency(containerPreparation, token) || !await containerPreparation) return [];
   const configSource = symfonyServiceConfigPathsByRoot.get(root)?.has(resolve(sourcePath)) === true;
   if (!sourceIsPhp && !configSource) return [];
   if (configSource) {
