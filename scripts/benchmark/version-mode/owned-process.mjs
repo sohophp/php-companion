@@ -12,7 +12,7 @@ async function descendants(pid) {
   if (!windows) return [];
   const command = `$all=@(Get-CimInstance Win32_Process);$ids=@(${pid});$found=@();` +
     'do{$next=@($all|Where-Object {$ids -contains $_.ParentProcessId -and ' +
-    '$found.ProcessId -notcontains $_.ProcessId});$found+=@($next);$ids=@($next.ProcessId)}while($ids.Count);' +
+    '$found.ProcessId -notcontains $_.ProcessId});$found+=@($next);$ids=@($next|ForEach-Object {$_.ProcessId})}while($ids.Count);' +
     '@($found|ForEach-Object {@{pid=$_.ProcessId;created=$_.CreationDate.ToUniversalTime().ToString("o")}})|ConvertTo-Json -Compress';
   const { stdout } = await execute('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', command], { timeout: 30_000 });
   const data = stdout.trim() ? JSON.parse(stdout) : [];
