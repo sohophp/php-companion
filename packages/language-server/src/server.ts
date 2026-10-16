@@ -5957,7 +5957,7 @@ connection.onRequest('phpCompanion/planSafeMove', async (params: { moves?: unkno
   const workspace = await semanticForRoot(root);
   const project = await composerProjectForRoot(root); const mappings = project ? allPsr4Mappings(project) : [];
   projectMappingsByRoot.set(root, mappings);
-  if (!await refreshRefactorDiskSources(workspace, root, () => token.isCancellationRequested, 'safeMoveDiskRefresh')) {
+  if (!await refreshRefactorDiskSources(workspace, root, token, 'safeMoveDiskRefresh')) {
     return { error: 'Safe Move source scan was incomplete or changed; retry the move.' };
   }
   for (const document of documents.all().filter((candidate) => rootForUri(candidate.uri) === root && candidate.languageId === 'php')) {
@@ -8904,9 +8904,19 @@ const verifiedDiskSources = new WeakMap<SemanticWorkspace, Map<string, VerifiedD
 
 // Establish current PHP source coverage for a refactor request without marking
 // framework providers or the global reference index ready.
-async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: string, cancelled: () => boolean, timing = 'renameDiskRefresh', typeNames?: ReadonlySet<string>, captureVerifiedSource?: () => void, retries = 1): Promise<boolean> {
+async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: string, cancellation: CancellationToken | (() => boolean), timing = 'renameDiskRefresh', typeNames?: ReadonlySet<string>, captureVerifiedSource?: () => void, retries = 1): Promise<boolean> {
+  const cancelled = typeof cancellation === 'function' ? cancellation : (): boolean => cancellation.isCancellationRequested;
   await watchedFileChanges;
   await applyPendingFiles();
+  if (typeof cancellation !== 'function') {
+    // Closing editor models still restore shared facts. Drain that existing
+    // work before capturing an epoch, including before the bounded retry.
+    let closing = pendingDocumentClosesByRoot.get(root);
+    while (closing?.size) {
+      if (!await waitForQueryDependency(Promise.allSettled([...closing]), cancellation)) return false;
+      closing = pendingDocumentClosesByRoot.get(root);
+    }
+  }
   const epoch = projectEpochs.get(root) ?? 0;
   const uriForSourcePath = indexedUriResolver(root);
   let openPathsRevision = -1;
@@ -9021,7 +9031,7 @@ async function refreshRefactorDiskSources(workspace: SemanticWorkspace, root: st
     // Refresh once; cancellation, further supersession and budgets fail closed.
     if (superseded && retries > 0 && !cancelled()) {
       recordTestQueryDuration(`${timing}${epochSuperseded ? 'EpochRetry' : 'SourceRetry'}`, refreshStarted);
-      return refreshRefactorDiskSources(workspace, root, cancelled, timing, typeNames, captureVerifiedSource, retries - 1);
+      return refreshRefactorDiskSources(workspace, root, cancellation, timing, typeNames, captureVerifiedSource, retries - 1);
     }
     return false;
   }
