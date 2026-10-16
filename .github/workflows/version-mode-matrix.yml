@@ -1,0 +1,64 @@
+name: Version and mode matrix
+
+on:
+  push:
+    paths:
+      - .github/workflows/version-mode-matrix.yml
+      - scripts/benchmark/version-mode/**
+      - scripts/benchmark-editing.mjs
+  pull_request:
+    paths:
+      - .github/workflows/version-mode-matrix.yml
+      - scripts/benchmark/version-mode/**
+      - scripts/benchmark-editing.mjs
+
+permissions:
+  contents: read
+
+jobs:
+  editing-version-mode:
+    name: Editing (${{ matrix.os }}, ${{ matrix.mode }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        mode: [progressive, onDemand, experimental]
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: win32
+          - os: macos-latest
+            platform: darwin
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:packages
+      - name: Build production Core
+        run: node esbuild.mjs --production
+      - name: Verify owned process lifecycle controls
+        run: node scripts/benchmark/version-mode/audit-owned-process.mjs .vscode-test/matrix-lifecycle-${{ matrix.mode }}.json
+      - name: Nine existing PHP targets with actual builtin version proof
+        run: >-
+          node scripts/benchmark/version-mode/run-matrix.mjs
+          --mode ${{ matrix.mode }}
+          --output .vscode-test/version-mode-matrix-${{ matrix.mode }}
+          --commit ${{ github.sha }}
+          --platform ${{ matrix.platform }}
+          --core-sha 7e744768c5e17fa1c1965ffe17580abd79305146dc1440929200a95da68f0ee1
+      - name: Preserve raw reports and lifecycle receipts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: version-mode-${{ runner.os }}-${{ runner.arch }}-${{ matrix.mode }}
+          if-no-files-found: error
+          path: |
+            .vscode-test/version-mode-matrix-${{ matrix.mode }}/
+            .vscode-test/matrix-lifecycle-${{ matrix.mode }}.json
