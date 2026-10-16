@@ -39,7 +39,7 @@ async function stopped(pid: number): Promise<{ pid: number; gone: boolean; elaps
   return { pid, gone: !alive(pid), elapsedMs: performance.now() - start };
 }
 function clientFor(server: ChildProcessWithoutNullStreams): {
-  send: (message: object) => void; start: (method: string, params: unknown) => { id: number; response: Promise<any> };
+  send: (message: object) => void; start: (method: string, params: unknown, deferSend?: boolean) => { id: number; response: Promise<any> };
   request: (method: string, params: unknown) => Promise<any>; messages: any[]; readonly exiting: boolean;
 } {
   const decoder = new LspMessageDecoder(), messages: any[] = [];
@@ -58,11 +58,13 @@ function clientFor(server: ChildProcessWithoutNullStreams): {
     for (const waiter of pending.values()) { clearTimeout(waiter.timer); waiter.fail(new Error(`Owned LSP exited ${code}/${signal}`)); }
     pending.clear();
   });
-  const start = (method: string, params: unknown): { id: number; response: Promise<any> } => {
+  const start = (method: string, params: unknown, deferSend = false): { id: number; response: Promise<any> } => {
     const id = ++nextId;
     const response = new Promise<any>((done, fail) => {
       const timer = setTimeout(() => { pending.delete(id); fail(new Error(`${method} timed out`)); }, 15_000);
-      pending.set(id, { done, fail, timer }); send({ id, method, params });
+      pending.set(id, { done, fail, timer });
+      if (deferSend) queueMicrotask(() => send({ id, method, params }));
+      else send({ id, method, params });
     });
     void response.catch(() => {});
     return { id, response };
@@ -78,7 +80,7 @@ interface ProviderFixture {
   client: ReturnType<typeof clientFor>; calls: () => Promise<Call[]>;
   providers: (version?: string) => SemanticProviderDescriptor[]; dispose: () => Promise<void>;
 }
-async function fixture(kind: Kind, phpVersion: string, indexingMode = 'experimental', mode = '', pausePolling = false): Promise<ProviderFixture> {
+async function fixture(kind: Kind, phpVersion: string, indexingMode = 'experimental', mode = '', pausePolling = false, traceShutdown = false): Promise<ProviderFixture> {
   const root = await mkdtemp(join(tmpdir(), 'sophp-owned-provider-lifecycle-'));
   await mkdir(join(root, 'src')); await mkdir(join(root, 'config'));
   await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
@@ -127,10 +129,11 @@ process.stdout.write(JSON.stringify({protocolVersion:1,id:request.id,result:fact
   const providers = (version = mode): SemanticProviderDescriptor[] => [...(kind === 'events' ? [containers] : []), descriptor(version)];
   const runtime = resolve('../../dist');
   const monitor = join(root, 'pause-polling.cjs');
-  if (pausePolling) {
+  const monitorParent = pausePolling || traceShutdown;
+  if (monitorParent) {
     // Remove the server's 25ms polling opportunity. Snapshot replacement must
     // cancel obsolete work directly, while the host's force-kill timer stays active.
-    await writeFile(monitor, String.raw`const interval = global.setInterval;
+    const monitorSource = String.raw`const interval = global.setInterval;
 global.setInterval = (callback, ms, ...args) => interval(ms === 25 ? () => {} : callback, ms, ...args);
 if (require('node:path').basename(process.argv[1] || '') === 'language-server.js') {
   // Buffer observations until exit so logging adds no synchronous I/O to cancellation.
@@ -167,10 +170,12 @@ if (require('node:path').basename(process.argv[1] || '') === 'language-server.js
   process.once('exit', () => {
     try { require('node:fs').writeFileSync(require('node:path').join(__dirname, 'parent-lifecycle.json'), JSON.stringify({ events, limit: 128, limitReached: events.length === 128 })); } catch {}
   });
-}`);
+}`;
+    const pollingPatch = 'const interval = global.setInterval;\nglobal.setInterval = (callback, ms, ...args) => interval(ms === 25 ? () => {} : callback, ms, ...args);\n';
+    await writeFile(monitor, pausePolling ? monitorSource : monitorSource.replace(pollingPatch, ''));
   }
   const server = spawn(process.execPath, [join(runtime, 'language-server.js'), '--stdio', '--parser-core-wasm', join(runtime, 'web-tree-sitter.wasm'), '--php-wasm', join(runtime, 'tree-sitter-php.wasm')], {
-    stdio: 'pipe', ...(pausePolling ? { env: { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --require=${monitor}`.trim() } } : {}),
+    stdio: 'pipe', ...(monitorParent ? { env: { ...process.env, NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --require=${monitor}`.trim() } } : {}),
   });
   const exited = once(server, 'exit'), client = clientFor(server); let stderr = '';
   server.stderr.on('data', chunk => { stderr += chunk; });
@@ -193,11 +198,11 @@ if (require('node:path').basename(process.argv[1] || '') === 'language-server.js
         .catch(error => (error as NodeJS.ErrnoException).code === 'ENOENT' ? []
           : { traceError: (error as NodeJS.ErrnoException).code ?? (error as Error).name });
       console.log(JSON.stringify({ case: 'provider-signal-observation', kind, phpVersion, signals }));
-      if (pausePolling) {
+      if (monitorParent) {
         const parentLifecycle = await readFile(join(root, 'parent-lifecycle.json'), 'utf8')
           .then(text => JSON.parse(text))
           .catch(error => ({ traceError: (error as NodeJS.ErrnoException).code ?? (error as Error).name }));
-        console.log(JSON.stringify({ case: 'provider-parent-lifecycle-observation', kind, phpVersion, parentLifecycle }));
+        console.log(JSON.stringify({ case: pausePolling ? 'provider-parent-lifecycle-observation' : 'provider-parent-shutdown-lifecycle-observation', kind, phpVersion, parentLifecycle }));
       }
       await rm(root, { recursive: true, force: true });
     }
@@ -239,26 +244,63 @@ async function newest(f: Awaited<ReturnType<typeof fixture>>, kind: Kind, before
     expect(result).not.toContainEqual({ uri: f.uri, range: { start: position(source.indexOf('slow.event')), end: position(source.indexOf('slow.event') + 10) } });
   }
 }
+async function assertShutdownPhysicalDeadline(kind: Kind, phpVersion: string, stallClientObserver = false): Promise<void> {
+  const f = await fixture(kind, phpVersion, 'experimental', 'hold-initial', false, true);
+  try {
+    await until(async () => (await f.calls()).length === 1); const call = (await f.calls())[0]!, pid = call.pid;
+    let goneAtReply = false;
+    const requestedTimeNs = process.hrtime.bigint().toString();
+    const shutdown = f.client.start('shutdown', null, stallClientObserver).response.then(response => {
+      goneAtReply = !alive(pid); const repliedTimeNs = process.hrtime.bigint().toString();
+      f.client.send({ method: 'exit', params: null });
+      console.log(JSON.stringify({ case: 'shutdown-reply-observation', kind, phpVersion, pid, goneAtReply, requestedTimeNs, repliedTimeNs }));
+      return response;
+    });
+    // The controlled case delays only the client; the LSP and provider keep running.
+    const stall = stallClientObserver
+      ? new Promise<void>(done => { setTimeout(() => { const end = performance.now() + 120; while (performance.now() < end) { /* Keep only this test client busy. */ } done(); }, 0); })
+      : undefined;
+    const observed = await stopped(pid); await stall; console.log(JSON.stringify({ case: 'shutdown-immediate-exit', kind, phpVersion, ...observed,
+      requestedTimeNs, providerReadyTimeNs: call.readyTimeNs }));
+    expect(observed.gone).toBe(true);
+    expect((await shutdown).error).toBeUndefined(); expect(goneAtReply).toBe(true);
+    await f.exited;
+    const parentLifecycle = JSON.parse(await readFile(join(f.root, 'parent-lifecycle.json'), 'utf8'));
+    expect(parentLifecycle.limit).toBe(128); expect(parentLifecycle.limitReached).toBe(false);
+    expect(parentLifecycle.events.length).toBeLessThanOrEqual(128);
+    const childEvents = parentLifecycle.events.filter((event: any) => event.pid === pid);
+    const spawned = childEvents.filter((event: any) => event.event === 'spawn');
+    const exits = childEvents.filter((event: any) => event.event === 'exit');
+    const closes = childEvents.filter((event: any) => event.event === 'close');
+    const terms = childEvents.filter((event: any) => event.event === 'kill' && event.signal === 'SIGTERM');
+    const forced = childEvents.filter((event: any) => event.event === 'kill' && event.signal === 'SIGKILL');
+    expect(spawned).toHaveLength(1); expect(exits).toHaveLength(1); expect(closes).toHaveLength(1);
+    expect(terms).toHaveLength(1); expect(forced.length).toBeLessThanOrEqual(1);
+    if (process.platform !== 'win32') { expect(forced).toHaveLength(1); expect(exits[0].signal).toBe('SIGKILL'); }
+    expect(BigInt(spawned[0].timeNs) <= BigInt(terms[0].timeNs)).toBe(true);
+    expect(BigInt(terms[0].timeNs) <= BigInt(exits[0].timeNs)).toBe(true);
+    expect(BigInt(exits[0].timeNs) <= BigInt(closes[0].timeNs)).toBe(true);
+    if (forced.length) {
+      expect(BigInt(terms[0].timeNs) <= BigInt(forced[0].timeNs)).toBe(true);
+      expect(BigInt(forced[0].timeNs) <= BigInt(exits[0].timeNs)).toBe(true);
+    }
+    const elapsedMs = Number(BigInt(exits[0].timeNs) - BigInt(requestedTimeNs)) / 1_000_000;
+    console.log(JSON.stringify({ case: 'shutdown-parent-exit-budget', kind, phpVersion, pid, requestedTimeNs,
+      parentExitTimeNs: exits[0].timeNs, parentCloseTimeNs: closes[0].timeNs, parentTermTimeNs: terms[0].timeNs,
+      parentKillTimeNs: forced[0]?.timeNs, elapsedMs, observerElapsedMs: observed.elapsedMs,
+      gone: observed.gone, goneAtReply, clientObserverStallMs: stall ? 120 : 0 }));
+    expect(elapsedMs).toBeGreaterThanOrEqual(0); expect(elapsedMs).toBeLessThanOrEqual(100);
+    if (stallClientObserver) expect(observed.elapsedMs).toBeGreaterThan(100);
+  } finally { await f.dispose(); }
+}
 it.each((['container', ...kinds] as Kind[]).flatMap(kind => ['7.2', '8.5'].map(phpVersion => ({ kind, phpVersion }))))(
-  'reaps $kind before shutdown replies to an immediate exit client at PHP $phpVersion', async ({ kind, phpVersion }) => {
-    const f = await fixture(kind, phpVersion, 'experimental', 'hold-initial');
-    try {
-      await until(async () => (await f.calls()).length === 1); const call = (await f.calls())[0]!, pid = call.pid;
-      let goneAtReply = false;
-      const requestedTimeNs = process.hrtime.bigint().toString();
-      const shutdown = f.client.start('shutdown', null).response.then(response => {
-        goneAtReply = !alive(pid); const repliedTimeNs = process.hrtime.bigint().toString();
-        f.client.send({ method: 'exit', params: null });
-        console.log(JSON.stringify({ case: 'shutdown-reply-observation', kind, phpVersion, pid, goneAtReply, requestedTimeNs, repliedTimeNs }));
-        return response;
-      });
-      const observed = await stopped(pid); console.log(JSON.stringify({ case: 'shutdown-immediate-exit', kind, phpVersion, ...observed,
-        requestedTimeNs, providerReadyTimeNs: call.readyTimeNs }));
-      expect(observed.gone).toBe(true); expect(observed.elapsedMs).toBeLessThanOrEqual(100);
-      expect((await shutdown).error).toBeUndefined(); expect(goneAtReply).toBe(true);
-    } finally { await f.dispose(); }
-  },
+  'reaps $kind before shutdown replies to an immediate exit client at PHP $phpVersion',
+  async ({ kind, phpVersion }) => { await assertShutdownPhysicalDeadline(kind, phpVersion); },
 );
+
+it('keeps the physical provider exit deadline when the client observer is delayed', async () => {
+  await assertShutdownPhysicalDeadline('generic', '7.2', true);
+});
 it.each(configurations)('physically cancels superseded $kind snapshots and retains newest facts at PHP $phpVersion', async ({ kind, phpVersion }) => {
   const f = await fixture(kind, phpVersion);
   try {

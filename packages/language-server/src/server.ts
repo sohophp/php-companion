@@ -8858,6 +8858,7 @@ connection.onSignatureHelp(async ({ textDocument, position }, token) => {
 connection.onPrepareRename(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri); const root = rootForUri(textDocument.uri);
   if (!document || !root || token.isCancellationRequested) return null;
+  const queryVersion = document.version;
   if (/\.php$/i.test(document.uri)) {
     const service = await symfonyServiceRenamePlan({ textDocument: { uri: document.uri, version: document.version },
       position, source: document.getText() }, () => token.isCancellationRequested);
@@ -8869,7 +8870,8 @@ connection.onPrepareRename(async ({ textDocument, position }, token) => {
       position, source: document.getText() }, () => token.isCancellationRequested);
     if (route) return { range: route.range, placeholder: route.routeName };
   }
-  const workspace = await semanticForUri(document.uri);
+  const workspace = await semanticForUri(document.uri, token);
+  if (!workspace || !currentQueryDocument(document, token, queryVersion)) return null;
   const offset = document.offsetAt(position);
   const localTarget = workspace.localVariableRename(document.uri, offset);
   if (localTarget) return { range: { start: document.positionAt(localTarget.start), end: document.positionAt(localTarget.end) }, placeholder: localTarget.name };
@@ -9047,6 +9049,7 @@ connection.onRenameRequest(async (params, token) => {
   const includePhpDoc = requested.phpCompanion?.includePhpDoc !== false;
   const document = documents.get(textDocument.uri); const root = rootForUri(textDocument.uri);
   if (!document || !root || token.isCancellationRequested) return null;
+  const queryVersion = document.version;
   if (/\.php$/i.test(document.uri)) {
     const service = await symfonyServiceRenamePlan({ textDocument: { uri: document.uri, version: document.version },
       position, source: document.getText(), newName }, () => token.isCancellationRequested);
@@ -9059,7 +9062,8 @@ connection.onRenameRequest(async (params, token) => {
     if (route) return { changes: route.changes, phpCompanion: { sourceHashes: route.sourceHashes } };
   }
   if (!isValidPhpIdentifier(newName)) return null;
-  const workspace = await semanticForUri(document.uri); if (token.isCancellationRequested) return null;
+  const workspace = await semanticForUri(document.uri, token);
+  if (!workspace || !currentQueryDocument(document, token, queryVersion)) return null;
   const offset = document.offsetAt(position);
   let scopedTarget: ReturnType<SemanticWorkspace['localVariableRename']> | ReturnType<SemanticWorkspace['closedPromotedPropertyRename']>
     = workspace.localVariableRename(document.uri, offset, newName);
