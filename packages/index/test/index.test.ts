@@ -5,6 +5,7 @@ import { join, sep } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { DocumentKeyIndex, createSourceCandidateSummary, indexComposerSources, sourceCandidateSummaryDecision } from '../src/index.js';
 import { loadComposerProject } from '@php-companion/project';
+import { beginOwnedInventory, type OwnedInventory } from './helpers/owned-inventory.js';
 
 describe('incremental document-key inverted index', () => {
   it('replaces and removes document postings without disturbing shared keys', () => {
@@ -74,7 +75,13 @@ describe('bounded source candidate summaries', () => {
 
 describe('bounded project source index', () => {
   let root: string | undefined;
-  afterEach(async () => { if (root) await rm(root, { recursive: true, force: true }); });
+  let disposeInventoryCase: (() => Promise<void>) | undefined;
+  afterEach(async () => {
+    const ownedRoot = root; root = undefined;
+    const dispose = disposeInventoryCase; disposeInventoryCase = undefined;
+    try { await dispose?.(); }
+    finally { if (ownedRoot) await rm(ownedRoot, { recursive: true, force: true }); }
+  });
   it('emits source snapshots without depending on a semantic consumer', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-index-')); await mkdir(join(root, 'src'));
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
@@ -140,26 +147,54 @@ describe('bounded project source index', () => {
     expect(selected).toEqual([join(root, 'src', 'Target.php')]);
   });
   it('uses a batch inspector for large inventories and rejects missing metadata', async () => {
-    root = await mkdtemp(join(tmpdir(), 'php-companion-candidate-inspector-')); await mkdir(join(root, 'src'));
-    await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
-    // Keep the full inventory without opening a thousand writable handles at once.
-    for (let start = 0; start < 1_000; start += 32) {
-      await Promise.all(Array.from({ length: Math.min(32, 1_000 - start) }, (_, offset) =>
-        writeFile(join(root!, 'src', `Noise${start + offset}.php`), '<?php class Noise {}')));
-    }
-    const inspected: string[] = [];
-    const result = await indexComposerSources(root, { readConcurrency: 128, skipSourceOutsideBudget: true,
-      skipSource: () => true,
-      inspectSource: async (path) => {
-        inspected.push(path);
-        if (path.endsWith('Noise999.php')) throw new Error('metadata unavailable');
-        const info = await stat(path);
-        return { size: info.size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs };
-      },
-      onSource: () => undefined,
-    });
-    expect(inspected).toHaveLength(1_000);
-    expect(result).toMatchObject({ files: 999, complete: false, projectComplete: false });
+    let cancelled = false;
+    let inventory: OwnedInventory | undefined;
+    const trace = { phase: 'creating-root', startedAtMs: performance.now() };
+    const rootPromise = mkdtemp(join(tmpdir(), 'php-companion-candidate-inspector-'));
+    const checkActive = (): void => { if (cancelled) throw new Error('Owned inventory case cancelled'); };
+    // Register ownership before yielding to the first filesystem operation.
+    disposeInventoryCase = async (): Promise<void> => {
+      const phaseAtCleanup = trace.phase, beforeDispose = inventory?.snapshot();
+      cancelled = true;
+      let cleanupFinished = false;
+      try {
+        await inventory?.dispose();
+        await work?.catch(() => undefined);
+        const directory = await rootPromise.catch(() => undefined);
+        if (directory) await rm(directory, { recursive: true, force: true });
+        cleanupFinished = true;
+      } finally {
+        process.stdout.write(JSON.stringify({ case: 'index-inventory-lifecycle', phaseAtCleanup,
+          beforeDispose, afterDispose: inventory?.snapshot(), elapsedMs: performance.now() - trace.startedAtMs,
+          cleanupFinished }) + '\n');
+      }
+    };
+    const work = (async (): Promise<void> => {
+      const inventoryRoot = await rootPromise; checkActive();
+      await mkdir(join(inventoryRoot, 'src')); checkActive();
+      await writeFile(join(inventoryRoot, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      checkActive(); trace.phase = 'preparing-files';
+      inventory = beginOwnedInventory(inventoryRoot);
+      await inventory.ready; checkActive();
+      trace.phase = 'indexing';
+      const inspected: string[] = [];
+      const result = await indexComposerSources(inventoryRoot, { shouldContinue: () => !cancelled, readConcurrency: 128, skipSourceOutsideBudget: true,
+        skipSource: () => true,
+        inspectSource: async (path) => {
+          inspected.push(path);
+          if (path.endsWith('Noise999.php')) throw new Error('metadata unavailable');
+          const info = await stat(path);
+          return { size: info.size, mtimeMs: info.mtimeMs, ctimeMs: info.ctimeMs };
+        },
+        onSource: () => undefined,
+      });
+      checkActive();
+      trace.phase = 'asserting';
+      expect(inspected).toHaveLength(1_000);
+      expect(result).toMatchObject({ files: 999, complete: false, projectComplete: false });
+      trace.phase = 'complete';
+    })();
+    await work;
   });
   it('reports an incomplete candidate scan when matching sources exceed the read budget', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-candidate-overflow-')); await mkdir(join(root, 'src'));
