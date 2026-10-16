@@ -1817,10 +1817,20 @@ async function semanticForQueryRoot(root: string | undefined): Promise<SemanticW
   return workspace;
 }
 
-async function semanticForUri(uri: string): Promise<SemanticWorkspace> {
+async function semanticForUri(uri: string): Promise<SemanticWorkspace>;
+async function semanticForUri(uri: string, token: CancellationToken | undefined): Promise<SemanticWorkspace | undefined>;
+async function semanticForUri(uri: string, token?: CancellationToken): Promise<SemanticWorkspace | undefined> {
+  if (token?.isCancellationRequested) return undefined;
   const initialRoot = rootForUri(uri);
   const closing = initialRoot ? pendingDocumentClosesByRoot.get(initialRoot) : undefined;
-  if (closing?.size) await Promise.allSettled([...closing]);
+  if (closing?.size) {
+    const pending = Promise.allSettled([...closing]);
+    // The close still restores shared facts for other callers. Cancellation
+    // releases only this query's wait, using the existing listener cleanup.
+    if (token) {
+      if (!await waitForQueryDependency(pending.then(() => undefined), token)) return undefined;
+    } else await pending;
+  }
   if (indexingMode !== 'onDemand') {
     const root = rootForUri(uri);
     return semanticForQueryRoot(root);
@@ -6392,7 +6402,8 @@ async function semanticForOpenQuery(document: TextDocument, token?: Cancellation
   // still sees the old facts. Consume the queued changes before reading them,
   // but let cancellation return without waiting for a held provider.
   if (token && pendingWatchedFileChanges > 0 && !await waitForWatchedFileChanges(token)) return undefined;
-  const projectWorkspace = await semanticForUri(document.uri);
+  const projectWorkspace = await semanticForUri(document.uri, token);
+  if (!projectWorkspace) return undefined;
   const stale = localAliasQueryWorkspaces.get(document.uri);
   const projectRevision = projectWorkspace.revision();
   if (stale && stale.documentVersion === document.version && stale.projectWorkspace === projectWorkspace
