@@ -8451,21 +8451,23 @@ function hierarchyItem(workspace: SemanticWorkspace, type: TypeInfo): TypeHierar
 
 connection.languages.typeHierarchy.onPrepare(async ({ textDocument, position }, token) => {
   const document = documents.get(textDocument.uri); if (!document || token.isCancellationRequested) return null;
-  const workspace = await semanticForUri(document.uri); if (token.isCancellationRequested) return null; const type = workspace.typeAt(document.uri, document.offsetAt(position));
+  const workspace = await semanticForUri(document.uri, token);
+  if (!workspace || token.isCancellationRequested) return null;
+  const type = workspace.typeAt(document.uri, document.offsetAt(position));
   const item = type && hierarchyItem(workspace, type); return item ? [item] : null;
 });
 
 connection.languages.typeHierarchy.onSupertypes(async ({ item }, token) => {
   const fqcn = (item.data as { fqcn?: unknown } | undefined)?.fqcn; if (typeof fqcn !== 'string') return null;
-  const workspace = await semanticForUri(item.uri);
-  if (token.isCancellationRequested) return null;
+  const workspace = await semanticForUri(item.uri, token);
+  if (!workspace || token.isCancellationRequested) return null;
   return workspace.directSupertypes(fqcn).flatMap((type) => hierarchyItem(workspace, type) ?? []);
 });
 
 connection.languages.typeHierarchy.onSubtypes(async ({ item }, token) => {
   const fqcn = (item.data as { fqcn?: unknown } | undefined)?.fqcn; if (typeof fqcn !== 'string') return null;
-  const workspace = await semanticForUri(item.uri);
-  if (token.isCancellationRequested) return null;
+  const workspace = await semanticForUri(item.uri, token);
+  if (!workspace || token.isCancellationRequested) return null;
   return workspace.directSubtypes(fqcn).flatMap((type) => hierarchyItem(workspace, type) ?? []);
 });
 
