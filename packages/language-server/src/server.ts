@@ -6500,6 +6500,7 @@ documents.onDidOpen(({ document }) => trackOpenSourcePublication(document, async
   // A disk-identical first open can add a class that the current on-demand
   // container snapshot has never seen. Refresh before its first References query.
   if (root && previousSource === undefined && update.kind === 'declaration') invalidateContainerFacts();
+  if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   const diskPath = pathForUri(document.uri);
   const diskSource = root && diskPath
     ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
@@ -6512,7 +6513,6 @@ documents.onDidOpen(({ document }) => trackOpenSourcePublication(document, async
       || previousSource !== undefined && previousSource !== document.getText() && !unscannedSource) {
     invalidateCandidates(document.uri, indexingMode === 'progressive' || update.kind !== 'declaration');
   }
-  if (root && phpDocumentMayAffectSymfonyRoutes(root, document.uri, previousSource, document.getText())) invalidateRouteProviderCache(root);
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
   if (root && indexingMode === 'onDemand' && update.kind === 'declaration') scheduleRelatedOpenDiagnostics(root,
     document.uri, [...update.changedTypes, ...update.changedCallables]);
