@@ -4778,10 +4778,9 @@ connection.onInitialized(() => {
   ] }).catch((error) => connection.console.warn(outputMessage(clientDiagnosticLanguage, 'watcherRegistrationFailed', error instanceof Error ? error.message : String(error))));
 });
 
-connection.onRequest('phpCompanion/testCrash', (): boolean => {
-  if (!testMode) return false;
-  setTimeout(() => process.exit(70), 10);
-  return true;
+connection.onRequest('phpCompanion/testCrash', (): boolean => testMode);
+connection.onNotification('phpCompanion/testCrash', (): void => {
+  if (testMode) process.exit(70);
 });
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {

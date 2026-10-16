@@ -498,6 +498,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
   }));
   if (context.extensionMode === vscode.ExtensionMode.Test) context.subscriptions.push(vscode.commands.registerCommand('phpCompanion._testCrashLanguageServer', async (): Promise<void> => {
     if (!await client.sendRequest<boolean>('phpCompanion/testCrash')) throw new Error('Language Server rejected the test crash request.');
+    await client.sendNotification('phpCompanion/testCrash');
     await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 100));
   }));
   if (testLifecycle) context.subscriptions.push(vscode.commands.registerCommand('phpCompanion._testLanguageServerLifecycle', () => ({
