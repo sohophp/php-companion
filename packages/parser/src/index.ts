@@ -715,8 +715,22 @@ export class PhpSyntaxParser {
     const nonPhpRanges: SourceRange[] = [];
     const namespaceDefinitions: Array<{ name: string; start: number; end: number; braced: boolean }> = [];
     const typeReferenceKeys = new Set<string>();
-    const typeDeclarationRanges = tree.rootNode.descendantsOfType([...Object.keys(DECLARATION_TYPES), 'anonymous_class'])
-      .map((node) => ({ start: node.startIndex, end: node.endIndex }));
+    const selectedFactNodes = tree.rootNode.descendantsOfType([
+      ...(declarationsOnly ? DECLARATION_NODE_TYPES : FACT_NODE_TYPES),
+      ...(hasSyntaxErrors ? ['namespace_definition'] : []),
+    ]);
+    const typeDeclarationRanges: SourceRange[] = [];
+    const selectedNamespaceNodes: SyntaxNode[] = [];
+    const factNodes: SyntaxNode[] = [];
+    // All three consumers preserve their native traversal order and actual nodes.
+    for (const node of selectedFactNodes) {
+      const type = node.type;
+      if (DECLARATION_TYPES[type] || type === 'anonymous_class') {
+        typeDeclarationRanges.push({ start: node.startIndex, end: node.endIndex });
+      }
+      if (type === 'namespace_definition') selectedNamespaceNodes.push(node);
+      else factNodes.push(node);
+    }
     const scopeByNodeId = new Map<number, ParsedScope>();
     // Ancestry is immutable within this tree; scope membership is still checked on every visit.
     const scopeAncestors = new Map<number, { parent: SyntaxNode | null; insideType: boolean }>();
@@ -760,7 +774,7 @@ export class PhpSyntaxParser {
     const namespaceNodes: SyntaxNode[] = [];
     // Valid PHP namespaces are top-level. In error trees, find every namespace
     // natively without materializing unrelated nodes in a JS recovery walk.
-    if (hasSyntaxErrors) namespaceNodes.push(...tree.rootNode.descendantsOfType('namespace_definition'));
+    if (hasSyntaxErrors) namespaceNodes.push(...selectedNamespaceNodes);
     else for (const node of tree.rootNode.namedChildren) {
       if (node.type === 'namespace_definition') namespaceNodes.push(node);
     }
@@ -1945,10 +1959,10 @@ export class PhpSyntaxParser {
       }
     };
     if (declarationsOnly) {
-      for (const node of tree.rootNode.descendantsOfType(DECLARATION_NODE_TYPES)) visitNode(node, node.parent ?? undefined);
+      for (const node of factNodes) visitNode(node, node.parent ?? undefined);
     } else {
       // Keep fact order and actual parents while native traversal filters inert nodes.
-      for (const node of tree.rootNode.descendantsOfType(FACT_NODE_TYPES)) {
+      for (const node of factNodes) {
         if (node.isNamed) visitNode(node, node.parent ?? undefined);
       }
       if (hasSyntaxErrors) {
