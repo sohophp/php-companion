@@ -3003,7 +3003,10 @@ function scheduleRelatedOpenDiagnostics(root: string, editedUri: string, changed
     if (/^[a-z_][a-z_0-9]*$/i.test(name)) priorityNames.add(name.toLowerCase());
   }
   const timer = setTimeout(() => {
-    relatedDiagnosticRefreshes.delete(root);
+    const refresh = relatedDiagnosticRefreshes.get(root);
+    if (refresh?.timer !== timer) return;
+    // Priority names belong to pending edits; a running wave keeps its local set.
+    refresh.priorityNames = new Set<string>();
     const related = documents.all().filter((document) => document.languageId === 'php'
       && rootForUri(document.uri) === root && !editedUris.has(document.uri));
     if (priorityNames.size && priorityNames.size <= 64) {
@@ -3013,11 +3016,14 @@ function scheduleRelatedOpenDiagnostics(root: string, editedUri: string, changed
     }
     void (async (): Promise<void> => {
       for (let start = 0; start < related.length; start += 4) {
+        if (shuttingDown || relatedDiagnosticRefreshes.get(root) !== refresh) return;
         await Promise.all(related.slice(start, start + 4).map((document) => publishDocumentDiagnostics(document, 0, true)));
         await yieldToEventLoop();
       }
     })().catch((error: unknown) => {
       connection.console.warn(`Unable to refresh related PHP diagnostics: ${String(error)}`);
+    }).finally(() => {
+      if (relatedDiagnosticRefreshes.get(root) === refresh) relatedDiagnosticRefreshes.delete(root);
     });
   }, relatedDiagnosticRefreshMs);
   relatedDiagnosticRefreshes.set(root, { timer, editedUris, priorityNames });
