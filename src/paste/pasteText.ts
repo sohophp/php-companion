@@ -44,6 +44,7 @@ export function phpPasteTargetsOnlyText(source: string, ranges: readonly { start
   const cover = (start: number, end: number): void => {
     ranges.forEach((range, index) => { if (range.start >= start && range.end <= end) covered.add(index); });
   };
+  const lineCommentEnd = /[\r\n]|\?>/g;
   let php = false;
   for (let i = 0; i < source.length && covered.size < ranges.length;) {
     if (!php) {
@@ -55,9 +56,10 @@ export function phpPasteTargetsOnlyText(source: string, ranges: readonly { start
     }
     if (source.startsWith('?>', i)) { php = false; i += 2; continue; }
     if (source.startsWith('//', i) || source[i] === '#' && source[i + 1] !== '[') {
-      const newline = source.indexOf('\n', i);
-      const close = source.indexOf('?>', i);
-      i = Math.min(newline < 0 ? source.length : newline, close < 0 ? source.length : close);
+      // Stop at the first line boundary or closing tag. Searching separately
+      // for a closing tag scans the remaining file again for every comment.
+      lineCommentEnd.lastIndex = i;
+      i = lineCommentEnd.exec(source)?.index ?? source.length;
       continue;
     }
     if (source.startsWith('/*', i)) {

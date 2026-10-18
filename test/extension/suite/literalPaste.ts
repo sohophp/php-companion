@@ -10,7 +10,7 @@ export async function run(): Promise<void> {
   let caseIndex = 0;
   const symbols = [{ fqcn: 'App\\Service\\UserService', alias: 'UserService' }];
   const rows: object[] = [];
-  for (const marked of ["<?php $a='|';", '<?php $a="|";', "<?php $a='中文|';", "<?php $a=<<<'TXT'\n|\nTXT;"]) {
+  for (const marked of ["<?php $a='|';", '<?php $a="|";', "<?php $a='中文|';", "<?php $a=<<<'TXT'\n|\nTXT;", "<?php // comment\r\n$a='|';"]) {
     const uri = vscode.Uri.joinPath(folder.uri, 'src', `LiteralPaste${caseIndex++}.php`);
     const offset = marked.indexOf('|'); const source = marked.replace('|', '');
     await vscode.workspace.fs.writeFile(uri, Buffer.from(source));

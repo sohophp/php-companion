@@ -1,0 +1,481 @@
+{
+  "baseCommit": "5f4c3e82cd46dbc7ffcecff0a0270990b75ffaad",
+  "benchmark": {
+    "node": "v22.14.0",
+    "nodeExecutable": "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+    "baselineSHA256": "6ccd0b1005c31fd1b85e1dcb7fa87a51ffb5d780dd90b8d9af4c1f1a3f2427ca",
+    "candidateSHA256": "0d9f87cb79bf7e740f6c781e4d416c8ce7d666867e1fb02981c68035bdac69cb",
+    "scope": "Local synchronous lexical preflight only; not editor latency or complex Controller qualification.",
+    "roundsPerSizePerSide": 5,
+    "rows": [
+      {
+        "commentLines": 1000,
+        "utf16Length": 64012,
+        "round": 0,
+        "side": "baseline",
+        "result": true,
+        "ms": 1.5746649999999818
+      },
+      {
+        "commentLines": 1000,
+        "utf16Length": 64012,
+        "round": 0,
+        "side": "candidate",
+        "result": true,
+        "ms": 1.135626000000002
+      },
+      {
+        "commentLines": 1000,
+        "utf16Length": 64012,
+        "round": 1,
+        "side": "candidate",
+        "result": true,
+        "ms": 0.6142700000000332
+      },
+      {
+        "commentLines": 1000,
+        "utf16Length": 64012,
+        "round": 1,
+        "side": "baseline",
+        "result": true,
+        "ms": 1.1088750000000118
+      },
+      {
+        "commentLines": 1000,
+        "utf16Length": 64012,
+        "round": 2,
+        "side": "baseline",
+        "result": true,
+        "ms": 1.208727999999951
+      },
+      {
+        "commentLines": 1000,
+        "utf16Length": 64012,
+        "round": 2,
+        "side": "candidate",
+        "result": true,
+        "ms": 0.8473270000000639
+      },
+      {
+        "commentLines": 1000,
+        "utf16Length": 64012,
+        "round": 3,
+        "side": "candidate",
+        "result": true,
+        "ms": 0.6296509999999671
+      },
+      {
+        "commentLines": 1000,
+        "utf16Length": 64012,
+        "round": 3,
+        "side": "baseline",
+        "result": true,
+        "ms": 1.2194299999999885
+      },
+      {
+        "commentLines": 1000,
+        "utf16Length": 64012,
+        "round": 4,
+        "side": "baseline",
+        "result": true,
+        "ms": 1.25114300000007
+      },
+      {
+        "commentLines": 1000,
+        "utf16Length": 64012,
+        "round": 4,
+        "side": "candidate",
+        "result": true,
+        "ms": 0.7435629999999946
+      },
+      {
+        "commentLines": 4000,
+        "utf16Length": 256012,
+        "round": 0,
+        "side": "baseline",
+        "result": true,
+        "ms": 13.15015399999993
+      },
+      {
+        "commentLines": 4000,
+        "utf16Length": 256012,
+        "round": 0,
+        "side": "candidate",
+        "result": true,
+        "ms": 0.9165610000000015
+      },
+      {
+        "commentLines": 4000,
+        "utf16Length": 256012,
+        "round": 1,
+        "side": "candidate",
+        "result": true,
+        "ms": 4.587752999999907
+      },
+      {
+        "commentLines": 4000,
+        "utf16Length": 256012,
+        "round": 1,
+        "side": "baseline",
+        "result": true,
+        "ms": 10.16116999999997
+      },
+      {
+        "commentLines": 4000,
+        "utf16Length": 256012,
+        "round": 2,
+        "side": "baseline",
+        "result": true,
+        "ms": 10.475303000000054
+      },
+      {
+        "commentLines": 4000,
+        "utf16Length": 256012,
+        "round": 2,
+        "side": "candidate",
+        "result": true,
+        "ms": 0.8054610000000366
+      },
+      {
+        "commentLines": 4000,
+        "utf16Length": 256012,
+        "round": 3,
+        "side": "candidate",
+        "result": true,
+        "ms": 0.755457999999976
+      },
+      {
+        "commentLines": 4000,
+        "utf16Length": 256012,
+        "round": 3,
+        "side": "baseline",
+        "result": true,
+        "ms": 12.922296000000074
+      },
+      {
+        "commentLines": 4000,
+        "utf16Length": 256012,
+        "round": 4,
+        "side": "baseline",
+        "result": true,
+        "ms": 13.371638000000075
+      },
+      {
+        "commentLines": 4000,
+        "utf16Length": 256012,
+        "round": 4,
+        "side": "candidate",
+        "result": true,
+        "ms": 0.7911320000000615
+      },
+      {
+        "commentLines": 16000,
+        "utf16Length": 1024012,
+        "round": 0,
+        "side": "baseline",
+        "result": true,
+        "ms": 293.3271890000001
+      },
+      {
+        "commentLines": 16000,
+        "utf16Length": 1024012,
+        "round": 0,
+        "side": "candidate",
+        "result": true,
+        "ms": 3.685030999999981
+      },
+      {
+        "commentLines": 16000,
+        "utf16Length": 1024012,
+        "round": 1,
+        "side": "candidate",
+        "result": true,
+        "ms": 4.59686099999999
+      },
+      {
+        "commentLines": 16000,
+        "utf16Length": 1024012,
+        "round": 1,
+        "side": "baseline",
+        "result": true,
+        "ms": 309.7075030000001
+      },
+      {
+        "commentLines": 16000,
+        "utf16Length": 1024012,
+        "round": 2,
+        "side": "baseline",
+        "result": true,
+        "ms": 318.18609200000014
+      },
+      {
+        "commentLines": 16000,
+        "utf16Length": 1024012,
+        "round": 2,
+        "side": "candidate",
+        "result": true,
+        "ms": 7.567163999999821
+      },
+      {
+        "commentLines": 16000,
+        "utf16Length": 1024012,
+        "round": 3,
+        "side": "candidate",
+        "result": true,
+        "ms": 9.96422900000016
+      },
+      {
+        "commentLines": 16000,
+        "utf16Length": 1024012,
+        "round": 3,
+        "side": "baseline",
+        "result": true,
+        "ms": 454.4907589999998
+      },
+      {
+        "commentLines": 16000,
+        "utf16Length": 1024012,
+        "round": 4,
+        "side": "baseline",
+        "result": true,
+        "ms": 369.68144600000005
+      },
+      {
+        "commentLines": 16000,
+        "utf16Length": 1024012,
+        "round": 4,
+        "side": "candidate",
+        "result": true,
+        "ms": 3.2056800000000294
+      }
+    ],
+    "summary": [
+      {
+        "commentLines": 1000,
+        "baselineMedianMs": 1.2194299999999885,
+        "candidateMedianMs": 0.7435629999999946
+      },
+      {
+        "commentLines": 4000,
+        "baselineMedianMs": 12.922296000000074,
+        "candidateMedianMs": 0.8054610000000366
+      },
+      {
+        "commentLines": 16000,
+        "baselineMedianMs": 318.18609200000014,
+        "candidateMedianMs": 4.59686099999999
+      }
+    ],
+    "crOnly": {
+      "baseline": false,
+      "candidate": true
+    }
+  },
+  "receipts": {
+    "baselineReproduction": {
+      "chunk": "2c510d",
+      "exitCode": 0,
+      "oneMBms": 288.0669949999999,
+      "crOnly": false,
+      "phpTokenizerConfirmedCrTerminatesComment": true
+    },
+    "benchmark": {
+      "session": 40148,
+      "finalChunk": "1dee38",
+      "exitCode": 0
+    },
+    "unit": {
+      "session": 5635,
+      "finalChunk": "aaf175",
+      "exitCode": 0,
+      "passed": 148,
+      "files": 23
+    },
+    "typecheckAndLint": {
+      "session": 5559,
+      "finalChunk": "cc591e",
+      "exitCode": 0
+    },
+    "buildAndWrongTestConfig": {
+      "session": 16954,
+      "finalChunk": "7df957",
+      "exitCode": 1,
+      "reason": "Build passed; extension test configuration path tsconfig.test.json did not exist."
+    },
+    "correctedTestCompilationAndLint": {
+      "session": 23429,
+      "finalChunk": "16d218",
+      "exitCode": 0
+    },
+    "normalCoreSHA256": "26110ba9a3f7c0fb2c8f3a52808f991397f12d6b560fae232a81a907a20d43a4",
+    "normalFrontendSHA256": "302809cf2bc6fa515f6f46920a866929e469f391ddbcb316006b4f0c2828f455",
+    "originalProtectedPathsVerified": 225,
+    "hostFirstAttempt": {
+      "session": 55461,
+      "chunk": "ff1df2",
+      "exitCode": 1,
+      "reason": "VS Code normalizes lone CR to CRLF; initial-source assertion failed. Kept raw CR coverage in unit tests and PHP tokenizer check; host case now uses CRLF."
+    },
+    "hostLsp": {
+      "session": 51843,
+      "chunk": "65dc62",
+      "exitCode": 0
+    },
+    "hostLegacy": {
+      "session": 9212,
+      "chunk": "77528d",
+      "exitCode": 0
+    },
+    "finalLint": {
+      "session": 17708,
+      "exitCode": 0,
+      "chunk": "917d65"
+    },
+    "cleanup": {
+      "session": 30147,
+      "chunk": "bca156",
+      "exitCode": 0
+    }
+  },
+  "hosts": {
+    "lsp": {
+      "baseline": false,
+      "rows": [
+        {
+          "marked": "<?php $a='|';",
+          "metadata": false,
+          "ms": 2.454751999999644,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a='|';",
+          "metadata": true,
+          "ms": 1.3052420000003622,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a=\"|\";",
+          "metadata": false,
+          "ms": 1.3825559999995676,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a=\"|\";",
+          "metadata": true,
+          "ms": 1.1692149999998946,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a='中文|';",
+          "metadata": false,
+          "ms": 1.3381369999997332,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a='中文|';",
+          "metadata": true,
+          "ms": 1.0070850000001883,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a=<<<'TXT'\n|\nTXT;",
+          "metadata": false,
+          "ms": 1.1083710000002611,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a=<<<'TXT'\n|\nTXT;",
+          "metadata": true,
+          "ms": 1.3698279999998704,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php // comment\r\n$a='|';",
+          "metadata": false,
+          "ms": 0.9311180000004242,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php // comment\r\n$a='|';",
+          "metadata": true,
+          "ms": 0.9919140000001789,
+          "importEdits": 0
+        }
+      ],
+      "codeImportPreserved": true
+    },
+    "legacy": {
+      "baseline": false,
+      "rows": [
+        {
+          "marked": "<?php $a='|';",
+          "metadata": false,
+          "ms": 2.367381000000023,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a='|';",
+          "metadata": true,
+          "ms": 1.241704000000027,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a=\"|\";",
+          "metadata": false,
+          "ms": 0.9619760000000497,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a=\"|\";",
+          "metadata": true,
+          "ms": 0.900731000000178,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a='中文|';",
+          "metadata": false,
+          "ms": 0.7864540000000488,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a='中文|';",
+          "metadata": true,
+          "ms": 0.7612189999999828,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a=<<<'TXT'\n|\nTXT;",
+          "metadata": false,
+          "ms": 1.0645910000002914,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php $a=<<<'TXT'\n|\nTXT;",
+          "metadata": true,
+          "ms": 0.8641219999999521,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php // comment\r\n$a='|';",
+          "metadata": false,
+          "ms": 0.8132229999996525,
+          "importEdits": 0
+        },
+        {
+          "marked": "<?php // comment\r\n$a='|';",
+          "metadata": true,
+          "ms": 0.7859290000001238,
+          "importEdits": 0
+        }
+      ],
+      "codeImportPreserved": true
+    }
+  },
+  "generatedDirectoriesArchivedVerifiedRemoved": 9,
+  "generatedFilesArchivedVerifiedRemoved": 726,
+  "liveOwnedNodeOrCodeProcesses": [],
+  "remoteCiStarted": false,
+  "profileUpdatedForThisFollowup": false,
+  "complexControllerQualified": false,
+  "fullObjectiveComplete": false
+}

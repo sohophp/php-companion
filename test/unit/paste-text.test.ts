@@ -67,6 +67,8 @@ describe('literal paste target preflight', () => {
     "<?php $a='|';", '<?php $a="|";', "<?php $a='中文|😀';",
     String.raw`<?php $a='it\'s |text';`,
     '<?php /* " */ $a="|";', '<?php // "\n$a="|";', '<?php #[Label] $a="|";',
+    '<?php // comment\r$a="|";', '<?php # comment\r$a="|";',
+    '<?php // comment\r\n$a="|";', '<?php // comment ?>html |text',
     "<?php $a='unterminated|", '<?php $a=<<<TXT\n|hello\nTXT;',
     "<?php $a=<<<'TXT'\n|$value\nTXT;", '<?php $a=<<<TXT\n|hello\n  TXT;',
     '<?php $a="?>"; ?>html |text',
@@ -84,5 +86,10 @@ describe('literal paste target preflight', () => {
     expect(phpPasteTargetsOnlyText(source, [{ start: 11, end: 17 }])).toBe(false);
     expect(phpPasteTargetsOnlyText(source, [{ start: 11, end: 11 }, { start: 17, end: 17 }])).toBe(false);
     expect(phpPasteTargetsOnlyText(source, [])).toBe(false);
+  });
+  it('recognizes a literal after many comment lines', () => {
+    const source = `<?php\n${'// comment without a closing tag\n'.repeat(16_000)}$a='';`;
+    const start = source.length - 2;
+    expect(phpPasteTargetsOnlyText(source, [{ start, end: start }])).toBe(true);
   });
 });
