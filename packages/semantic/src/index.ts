@@ -1765,6 +1765,10 @@ function activeForeachValueAssignment(file: SemanticFile, scope: ParsedScope, va
 // Loading implementation facts or changing workspace inputs invalidates it.
 const argumentSignatureCaches = new WeakMap<object, { generation: number; entries: Map<string, SignatureInfo[]> }>();
 
+// Restore borrows declaration arrays from its caller. Their records can be
+// replaced without changing the array identity, including in a query fork.
+const borrowedFunctionDeclarationArrays = new WeakSet<readonly ParsedCallableDeclaration[]>();
+
 export class SemanticWorkspace {
   private targetPhpVersion?: string;
   private readonly files = new Map<string, SemanticFile>();
@@ -2924,6 +2928,7 @@ export class SemanticWorkspace {
     // Restored facts replace the source that owned any retained syntax tree.
     // Never let lazy implementation loading save and reattach a deleted tree.
     __argumentTreeDelete(this.trees.get(restoredFile.uri)); this.trees.delete(restoredFile.uri);
+    borrowedFunctionDeclarationArrays.add(restoredFile.callables);
     this.deferredImplementations.delete(restoredFile.uri); this.files.set(restoredFile.uri, restoredFile);
     this.referenceResultCache.clear();
     this.controlFlowAssignments.set(restoredFile.uri, new Set(implementationFacts.controlFlowAssignments));
@@ -3003,6 +3008,7 @@ export class SemanticWorkspace {
     this.clearSourceImplementation(uri);
     this.clearLocalProofCaches();
     __argumentTreeDelete(this.trees.get(uri)); this.trees.delete(uri);
+    borrowedFunctionDeclarationArrays.add(file.callables);
     this.deferredImplementations.delete(uri); this.files.set(uri, this.deferredSemanticFile(file, implementationSnapshotValue));
     this.referenceResultCache.clear();
     this.controlFlowAssignments.delete(uri);
@@ -13819,8 +13825,13 @@ export class SemanticWorkspace {
   }
 
   private fileFunctionDeclarations(file: SemanticFile, fqcn: string): ParsedCallableDeclaration[] {
-    // Declaration arrays are replaced on edits and restore. Index only those
-    // syntax facts; context-dependent argument and return inference stays live.
+    if (borrowedFunctionDeclarationArrays.has(file.callables)) {
+      this.functionDeclarationsByArray.delete(file.callables);
+      const name = fqcn.toLowerCase();
+      return file.callables.filter((item) => item.kind === 'function' && item.fqcn.toLowerCase() === name);
+    }
+    // Ordinary updates create a new callable array. Context-dependent argument
+    // and return inference stays live; externally owned restore arrays scan.
     let declarations = this.functionDeclarationsByArray.get(file.callables);
     if (!declarations) {
       declarations = new Map();

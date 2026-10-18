@@ -1,5 +1,7 @@
 # Changelog
 
+- Keep function signatures and missing-argument diagnostics current when callers replace records in restored declaration arrays, including deferred snapshots and local query forks; retain indexed lookup for ordinary parsed declarations.
+
 - Preserve supported PHPDoc contracts beside unknown tag extensions; advance complete snapshots to schema 88 and source declarations to schema 6. Expose bounded named-function dependencies of member receivers without treating them as value proofs.
 
 - Complete project types after the union separator in a PHP multi-catch clause, including qualified namespace aliases, without treating intersections or ordinary expressions as type positions.
