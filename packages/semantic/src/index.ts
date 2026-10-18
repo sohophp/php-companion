@@ -1768,6 +1768,8 @@ const argumentSignatureCaches = new WeakMap<object, { generation: number; entrie
 // Restore borrows declaration arrays from its caller. Their records can be
 // replaced without changing the array identity, including in a query fork.
 const borrowedFunctionDeclarationArrays = new WeakSet<readonly ParsedCallableDeclaration[]>();
+// Prepared inputs also retain their externally owned type declaration arrays.
+const borrowedTypeDeclarationArrays = new WeakSet<readonly ParsedDeclaration[]>();
 
 export class SemanticWorkspace {
   private targetPhpVersion?: string;
@@ -2510,6 +2512,7 @@ export class SemanticWorkspace {
       }
       const scopes = parsed.scopes.map((scope) => ({ ...scope, parameters: parametersByCallable.get(scope.id)
         ?? scope.parameters.map(parameter => ({ ...parameter, type: nativeParameterType(parameter, uri) ?? parameter.type })) }));
+      if (prepared) borrowedTypeDeclarationArrays.add(parsed.declarations);
       const nextFile: SemanticFile = { uri, source, namespace: parsed.namespace, declarations: parsed.declarations, callables, scopes, variableReferences: parsed.variableReferences, returns: parsed.returns, narrowings: parsed.narrowings, properties, constants: parsed.constants, imports: parsed.imports, typeReferences: parsed.typeReferences, assignments: parsed.assignments, rawNames: parsed.rawNames, memberAccesses: parsed.memberAccesses, calls: parsed.calls, templates, genericParents, mixins, magicMembers, syntaxErrors: parsed.errors, commentRanges: parsed.commentRanges, stringRanges: parsed.stringRanges };
       // A newly seen file has no previous surface to compare. The ordinary
       // serialized comparison is needed for edits, but only its keys matter
@@ -2929,6 +2932,7 @@ export class SemanticWorkspace {
     // Never let lazy implementation loading save and reattach a deleted tree.
     __argumentTreeDelete(this.trees.get(restoredFile.uri)); this.trees.delete(restoredFile.uri);
     borrowedFunctionDeclarationArrays.add(restoredFile.callables);
+    borrowedTypeDeclarationArrays.add(restoredFile.declarations);
     this.deferredImplementations.delete(restoredFile.uri); this.files.set(restoredFile.uri, restoredFile);
     this.referenceResultCache.clear();
     this.controlFlowAssignments.set(restoredFile.uri, new Set(implementationFacts.controlFlowAssignments));
@@ -3009,6 +3013,7 @@ export class SemanticWorkspace {
     this.clearLocalProofCaches();
     __argumentTreeDelete(this.trees.get(uri)); this.trees.delete(uri);
     borrowedFunctionDeclarationArrays.add(file.callables);
+    borrowedTypeDeclarationArrays.add(file.declarations);
     this.deferredImplementations.delete(uri); this.files.set(uri, this.deferredSemanticFile(file, implementationSnapshotValue));
     this.referenceResultCache.clear();
     this.controlFlowAssignments.delete(uri);
@@ -7681,11 +7686,15 @@ export class SemanticWorkspace {
     const declarations = new Map<string, { declaration: ParsedDeclaration; owner: SemanticFile; namespace: string }>();
     const declarationCounts = new Map<string, number>();
     for (const owner of this.files.values()) {
-      let prepared = this.typeCompletionFileEntries.get(owner);
+      // Restored/prepared arrays are externally owned; their records can be
+      // replaced in place. Only internally parsed arrays can reuse entries.
+      const borrowed = borrowedTypeDeclarationArrays.has(owner.declarations);
+      if (borrowed) this.typeCompletionFileEntries.delete(owner);
+      let prepared = borrowed ? undefined : this.typeCompletionFileEntries.get(owner);
       if (!prepared || prepared.declarations !== owner.declarations) {
         prepared = { declarations: owner.declarations, entries: owner.declarations.filter((declaration) => !declaration.anonymous)
           .map((declaration) => ({ declaration, owner, namespace: declaration.fqcn.split('\\').slice(0, -1).join('\\') })) };
-        this.typeCompletionFileEntries.set(owner, prepared);
+        if (!borrowed) this.typeCompletionFileEntries.set(owner, prepared);
       }
       for (const entry of prepared.entries) {
         const key = entry.declaration.fqcn.toLowerCase();

@@ -1,5 +1,7 @@
 # Changelog
 
+- Refresh type completions when callers replace records in restored or off-thread prepared declaration arrays, including abstract-class construction filtering and local query forks; retain cached entries for ordinary parsed declarations.
+
 - Keep function signatures and missing-argument diagnostics current when callers replace records in restored declaration arrays, including deferred snapshots and local query forks; retain indexed lookup for ordinary parsed declarations.
 
 - Preserve supported PHPDoc contracts beside unknown tag extensions; advance complete snapshots to schema 88 and source declarations to schema 6. Expose bounded named-function dependencies of member receivers without treating them as value proofs.
