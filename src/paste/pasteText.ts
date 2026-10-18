@@ -33,3 +33,68 @@ export async function resolvePasteAliasConflicts<
   }
   return plan && await sourceUnchanged() ? plan : undefined;
 }
+
+/** Local lexical preflight: literal text needs no project index or disk snapshot.
+ * Ambiguous interpolated expressions keep the normal import path.
+ * Offsets are UTF-16, matching TextDocument.offsetAt.
+ */
+export function phpPasteTargetsOnlyText(source: string, ranges: readonly { start: number; end: number }[]): boolean {
+  if (!ranges.length || ranges.some(range => range.start < 0 || range.end < range.start || range.end > source.length)) return false;
+  const covered = new Set<number>();
+  const cover = (start: number, end: number): void => {
+    ranges.forEach((range, index) => { if (range.start >= start && range.end <= end) covered.add(index); });
+  };
+  let php = false;
+  for (let i = 0; i < source.length && covered.size < ranges.length;) {
+    if (!php) {
+      const open = source.indexOf('<?', i);
+      cover(i, open < 0 ? source.length : open);
+      if (open < 0) break;
+      if (source.startsWith('<?xml', open)) { i = open + 2; continue; }
+      php = true; i = open + 2; continue;
+    }
+    if (source.startsWith('?>', i)) { php = false; i += 2; continue; }
+    if (source.startsWith('//', i) || source[i] === '#' && source[i + 1] !== '[') {
+      const newline = source.indexOf('\n', i);
+      const close = source.indexOf('?>', i);
+      i = Math.min(newline < 0 ? source.length : newline, close < 0 ? source.length : close);
+      continue;
+    }
+    if (source.startsWith('/*', i)) {
+      const end = source.indexOf('*/', i + 2); i = end < 0 ? source.length : end + 2; continue;
+    }
+    if (source.startsWith('<<<', i)) {
+      const header = /^<<<[ \t]*(['"]?)([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\1\r?\n/.exec(source.slice(i));
+      if (header) {
+        const start = i + header[0].length;
+        const closing = new RegExp(`^[ \t]*${header[2]}(?![A-Za-z0-9_\\x80-\\xff])`, 'gm');
+        closing.lastIndex = start;
+        const match = closing.exec(source); const end = match?.index ?? source.length;
+        if (header[1] === "'" || !/\{\$|\$\{/.test(source.slice(start, end))) cover(start, end);
+        i = match ? end + match[0].length : end; continue;
+      }
+    }
+    const quote = source[i];
+    if (quote === "'" || quote === '"' || quote === '`') {
+      const start = ++i;
+      let interpolation = false;
+      let interpolationDepth = 0;
+      while (i < source.length && source[i] !== quote) {
+        if (source[i] === '\\') { i += 2; continue; }
+        if (quote !== "'" && (source.startsWith('{$', i) || source.startsWith('$' + '{', i))) {
+          interpolation = true; interpolationDepth++;
+          i += 2; continue;
+        }
+        if (interpolationDepth && source[i] === '{') interpolationDepth++;
+        if (interpolationDepth && source[i] === '}') interpolationDepth--;
+        i++;
+      }
+      if (interpolationDepth) return false;
+      if (!interpolation) cover(start, Math.min(i, source.length));
+      if (i < source.length) i++;
+      continue;
+    }
+    i++;
+  }
+  return covered.size === ranges.length;
+}

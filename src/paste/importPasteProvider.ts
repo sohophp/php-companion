@@ -4,7 +4,7 @@ import { t } from '../extension/localize.js';
 import { configuredPasteImportMode } from '../extension/legacySettings.js';
 import { importInsertionOffset, rankedImportCandidates } from '../imports/importWorkflows.js';
 import type { Psr4Mapping } from '../composer/project.js';
-import { potentialPhpTypeNames } from './pasteText.js';
+import { phpPasteTargetsOnlyText, potentialPhpTypeNames } from './pasteText.js';
 
 export const PHP_IMPORT_METADATA_MIME = 'application/vnd.php-companion.symbols+json';
 export const PHP_IMPORT_PASTE_KIND = vscode.DocumentDropOrPasteEditKind.TextUpdateImports.append('php');
@@ -79,10 +79,12 @@ export class PhpImportPasteProvider implements vscode.DocumentPasteEditProvider 
     if (copied.size) dataTransfer.set(PHP_IMPORT_METADATA_MIME, new vscode.DataTransferItem([...copied.values()]));
   }
 
-  async provideDocumentPasteEdits(document: vscode.TextDocument, _ranges: readonly vscode.Range[], dataTransfer: vscode.DataTransfer): Promise<vscode.DocumentPasteEdit[] | undefined> {
+  async provideDocumentPasteEdits(document: vscode.TextDocument, ranges: readonly vscode.Range[], dataTransfer: vscode.DataTransfer): Promise<vscode.DocumentPasteEdit[] | undefined> {
     const configured = configuredPasteImportMode(vscode.workspace.getConfiguration('phpCompanion', document.uri));
     const mode: 'auto' | 'preview' | 'off' = configured === 'prompt' ? 'preview' : configured;
-    if (mode === 'off') return undefined;
+    if (mode === 'off' || phpPasteTargetsOnlyText(document.getText(), ranges.map(range => ({
+      start: document.offsetAt(range.start), end: document.offsetAt(range.end),
+    })))) return undefined;
     const plain = dataTransfer.get('text/plain');
     if (!plain) return undefined;
     const symbols = dataTransfer.get(PHP_IMPORT_METADATA_MIME)?.value as CopiedSymbol[] | undefined;

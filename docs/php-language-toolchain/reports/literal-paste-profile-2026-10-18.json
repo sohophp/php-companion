@@ -1,0 +1,295 @@
+{
+  "date": "2026-10-18",
+  "baseCommit": "f153cc2e2a68bbc84fe1fea3bd01c75ad25b60e5",
+  "baselineFrontendSha256": "c95ac6544f07b65b9b6ac51348818cb83595c83d03fe08bf47142bf81a633898",
+  "fixedFrontendSha256": "aed7f3fbeae383567481c0b7bf609e5c9201f1891d43b433d7aa766fdcf153a0",
+  "unchangedServerSha256": "26110ba9a3f7c0fb2c8f3a52808f991397f12d6b560fae232a81a907a20d43a4",
+  "baseline": {
+    "baseline": true,
+    "rows": [
+      {
+        "marked": "<?php $a='|';",
+        "metadata": false,
+        "ms": 1908.7933089999997,
+        "importEdits": 1
+      },
+      {
+        "marked": "<?php $a='|';",
+        "metadata": true,
+        "ms": 19.969436000000314,
+        "importEdits": 1
+      },
+      {
+        "marked": "<?php $a=\"|\";",
+        "metadata": false,
+        "ms": 763.3224550000004,
+        "importEdits": 1
+      },
+      {
+        "marked": "<?php $a=\"|\";",
+        "metadata": true,
+        "ms": 18.611719999999877,
+        "importEdits": 1
+      },
+      {
+        "marked": "<?php $a='中文|';",
+        "metadata": false,
+        "ms": 714.9249450000007,
+        "importEdits": 1
+      },
+      {
+        "marked": "<?php $a='中文|';",
+        "metadata": true,
+        "ms": 19.909342000000834,
+        "importEdits": 1
+      },
+      {
+        "marked": "<?php $a=<<<'TXT'\n|\nTXT;",
+        "metadata": false,
+        "ms": 740.3361590000004,
+        "importEdits": 1
+      },
+      {
+        "marked": "<?php $a=<<<'TXT'\n|\nTXT;",
+        "metadata": true,
+        "ms": 19.536700000000565,
+        "importEdits": 1
+      }
+    ],
+    "codeImportPreserved": true
+  },
+  "fixedLsp": {
+    "baseline": false,
+    "rows": [
+      {
+        "marked": "<?php $a='|';",
+        "metadata": false,
+        "ms": 2.7957270000006247,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a='|';",
+        "metadata": true,
+        "ms": 1.3500409999996918,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a=\"|\";",
+        "metadata": false,
+        "ms": 0.9537269999991622,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a=\"|\";",
+        "metadata": true,
+        "ms": 1.0857660000001488,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a='中文|';",
+        "metadata": false,
+        "ms": 1.7794370000001436,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a='中文|';",
+        "metadata": true,
+        "ms": 1.4094340000001466,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a=<<<'TXT'\n|\nTXT;",
+        "metadata": false,
+        "ms": 1.036696999999549,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a=<<<'TXT'\n|\nTXT;",
+        "metadata": true,
+        "ms": 0.884581999999682,
+        "importEdits": 0
+      }
+    ],
+    "codeImportPreserved": true
+  },
+  "fixedLegacy": {
+    "baseline": false,
+    "rows": [
+      {
+        "marked": "<?php $a='|';",
+        "metadata": false,
+        "ms": 2.736775999999736,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a='|';",
+        "metadata": true,
+        "ms": 1.0433849999999438,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a=\"|\";",
+        "metadata": false,
+        "ms": 1.2371469999998226,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a=\"|\";",
+        "metadata": true,
+        "ms": 2.3291980000003605,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a='中文|';",
+        "metadata": false,
+        "ms": 0.8790690000000723,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a='中文|';",
+        "metadata": true,
+        "ms": 0.8271899999999732,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a=<<<'TXT'\n|\nTXT;",
+        "metadata": false,
+        "ms": 1.1650289999997767,
+        "importEdits": 0
+      },
+      {
+        "marked": "<?php $a=<<<'TXT'\n|\nTXT;",
+        "metadata": true,
+        "ms": 0.8403819999998632,
+        "importEdits": 0
+      }
+    ],
+    "codeImportPreserved": true
+  },
+  "profile": {
+    "profile": "PHP Companion Alpha",
+    "profileId": "5db630d7",
+    "coreVersion": "0.4.13",
+    "localRepairBuild": true,
+    "vsixSha256": "17d666e48ef52f82f38ebb5033f044949c0e532263b4a74a0a40d45afb0e479d",
+    "installedFiles": [
+      {
+        "path": "package.nls.zh-cn.json",
+        "sha256": "a4dd65e00773872a215ff7ebd2d0ea90913f64577f37bcf5ffbab085cb70ba18"
+      },
+      {
+        "path": "package.nls.json",
+        "sha256": "181ecf16c6add529cc9ef3cc9d5b05425370703cbf4040e02b7ecbabbb26b11e"
+      },
+      {
+        "path": "package.json",
+        "sha256": "8fd6d90533d146f3f18ad1c33c3d58ef4b991b87299623cf8aedc48f0ce4a181"
+      },
+      {
+        "path": "THIRD_PARTY_NOTICES.md",
+        "sha256": "eeb805602ae1364792802b4e6cd269197c43a02c0463853ec96c0e3f7ab090d9"
+      },
+      {
+        "path": "SECURITY.md",
+        "sha256": "b5e80b9a909c4c9c87504ef4b96c9754ad6ac954f78d22a72eeab5468ab45cc5"
+      },
+      {
+        "path": "readme.md",
+        "sha256": "76c023627c0d9094459141ba82daa1c23cddefe0f4ba318e41246605edef67a7"
+      },
+      {
+        "path": "LICENSE-phpstorm-stubs.txt",
+        "sha256": "0b6bf6984e35b44f04c68ec5e18950cc10fea56b04576fab95fde116d0290408"
+      },
+      {
+        "path": "LICENSE.txt",
+        "sha256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff"
+      },
+      {
+        "path": "changelog.md",
+        "sha256": "5269958f4bf7cdc4ff7bf8ff46ad8c6d45e65d390abf811a68f90bc8009a114d"
+      },
+      {
+        "path": "resources/icon.png",
+        "sha256": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a"
+      },
+      {
+        "path": "dist/web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+      },
+      {
+        "path": "dist/tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      {
+        "path": "dist/sourceStatWorker.js",
+        "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+      },
+      {
+        "path": "dist/portableCandidateSearchWorker.js",
+        "sha256": "25488cd3ba4751e3e7a3e727aee8940b4fbc83ee2977880dac51f6c874fb0de6"
+      },
+      {
+        "path": "dist/language-server.js",
+        "sha256": "26110ba9a3f7c0fb2c8f3a52808f991397f12d6b560fae232a81a907a20d43a4"
+      },
+      {
+        "path": "dist/extension.js",
+        "sha256": "aed7f3fbeae383567481c0b7bf609e5c9201f1891d43b433d7aa766fdcf153a0"
+      },
+      {
+        "path": "dist/candidateWorker.js",
+        "sha256": "e798bc0b8d939ada28463a7512ebe71416ef92f45679347b0bd1216ebac922fc"
+      },
+      {
+        "path": "dist/builtinSnapshotWorker.js",
+        "sha256": "f7acddfd3c4f1ac04b3ad72daf34f883a6223a616166b3d07559fc049a8cda7c"
+      }
+    ],
+    "unrelatedExtensionsPreserved": 14,
+    "totalExtensions": 15,
+    "unrelatedNormalizationOnly": [
+      "redhat.vscode-yaml identifier uuid and URI serialization normalized by VS Code; id/version/path/metadata unchanged"
+    ],
+    "reloadPerformed": false,
+    "realWslAcceptance": false,
+    "cliProfileFlagSupported": false,
+    "verification": "Remote CLI ignored profile flag; existing Alpha entry resolves to updated shared extension directory. All packaged files verified there."
+  },
+  "tests": {
+    "unitFilesPassed": 23,
+    "unitTestsPassed": 143,
+    "literalUnitTestsPassed": 29,
+    "typecheck": "passed",
+    "affectedLint": "passed",
+    "packageBuild": "passed",
+    "lspHost": "passed",
+    "legacyHost": "passed",
+    "clipboardPasteAndUndoCases": 8,
+    "codeImportCases": 2,
+    "remoteCi": "not run",
+    "realWslUi": "not run"
+  },
+  "preservedOriginalPaths": 225,
+  "cleanup": {
+    "archivedAndRemovedDirectories": 12,
+    "verifiedFiles": 1023,
+    "archiveSha256": "27e17da47ed0883d1c805dbff4e77ade51030da06f3926b00adab9ac2779c10f"
+  },
+  "logs": {
+    "lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fixed-unique-host.log": "09e96deb0275936bf5a76a383d18a452675b3f506037b129434018037c68b6a3",
+    "baseline-isolated-corrected-host.log": "8e3360139a6795f27a05ee2845cb84327279a994a8d3a1926d2e0c7e472b3f8f",
+    "profile-install.log": "0f9ea0bc38a9978587fd7b22de7e9029dd93d6d7ccacbe34fd222e832c6c7b34",
+    "package.log": "fc0acc2da9efad695bf14970d38862540f47d15b489532ca330c175a292ac3ec",
+    "typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fixed-host.log": "7820cc9d38179476bc698222f0338647dcca73bff085c755b672fce8186d7acc",
+    "baseline-host-corrected.log": "f1cb022d0321a5ea008a0dea8f9b191c11206c7ccc5999c4016be9e23a62052c",
+    "baseline-host.log": "e2608a40439fd4261823578c356364ef21b8afacc82157a46448c8bbc50a1a78",
+    "baseline-unique-host.log": "f208fc282b56f828615d1691483ac5de99fd950f18206f88308a7ae5b50c4429",
+    "baseline-isolated-host.log": "b74f5378a9b9af00518e2fa1081d890c3f2026b2bc06b4157f49ed0d390e69cb",
+    "unit.log": "5a0e086eded25d9ccbce8e49172c674af06507a52a465f7356a63d5de9843ad6",
+    "host-lint-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "fixed-legacy-host.log": "dfab5c1f8938536f0276ac0aed18d4ae44f1e0e4f083388a66732a10b3ad4e04"
+  }
+}

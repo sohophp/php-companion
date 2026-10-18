@@ -254,7 +254,8 @@ async function main(): Promise<void> {
           ...(twigPlusDevelopmentPath ? [resolve(twigPlusDevelopmentPath)] : []),
           ...(docblockerOnly || c1OpenSourceProfile || c2OpenSourceProfile || c3OpenSourceProfile
             ? [resolve(__dirname, '..', 'packages', 'php-companion-extension-pack')] : [])]),
-      extensionTestsPath: resolve(__dirname, 'suite', process.env.PHP_COMPANION_TEST_EXTRACT_INTERFACE_ONLY === '1' ? 'extractStaticInterface'
+      extensionTestsPath: resolve(__dirname, 'suite', process.env.PHP_COMPANION_TEST_LITERAL_PASTE_ONLY === '1' ? 'literalPaste'
+        : process.env.PHP_COMPANION_TEST_EXTRACT_INTERFACE_ONLY === '1' ? 'extractStaticInterface'
         : legacyRenameOnly ? 'legacyConstructorRename' : routeStatusOnly ? 'routeStatus' : c1Only ? 'c1' : c2Only ? 'c2' : c3Only ? 'c3' : docblockerOnly ? 'docblocker' : 'index'),
       launchArgs: [workspaceFile ?? fixture, ...(withIntelephense || docblockerOnly || c1OpenSourceProfile || c2OpenSourceProfile
         || c3OpenSourceProfile || c3PhpunitPairProfile ? [] : ['--disable-extensions']),

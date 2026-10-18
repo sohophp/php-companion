@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mayNeedPhpImportResolution, potentialPhpTypeNames, resolvePasteAliasConflicts } from '../../src/paste/pasteText.js';
+import { phpPasteTargetsOnlyText, mayNeedPhpImportResolution, potentialPhpTypeNames, resolvePasteAliasConflicts } from '../../src/paste/pasteText.js';
 
 describe('PHP import paste text preflight', () => {
   it('skips version numbers and ordinary scalar values', () => {
@@ -54,5 +54,35 @@ describe('paste alias conflict resolution', () => {
     expect(await resolvePasteAliasConflicts(symbols, async () => ({ conflict: { fqcn: 'Vendor\\First', sourceAlias: 'First' } }),
       async () => { asked++; return 'Occupied'; }, true, async () => true)).toBeUndefined();
     expect(asked).toBe(1);
+  });
+});
+
+
+describe('literal paste target preflight', () => {
+  const target = (marked: string): boolean => {
+    const start = marked.indexOf('|'); const source = marked.replace('|', '');
+    return phpPasteTargetsOnlyText(source, [{ start, end: start }]);
+  };
+  it.each([
+    "<?php $a='|';", '<?php $a="|";', "<?php $a='中文|😀';",
+    String.raw`<?php $a='it\'s |text';`,
+    '<?php /* " */ $a="|";', '<?php // "\n$a="|";', '<?php #[Label] $a="|";',
+    "<?php $a='unterminated|", '<?php $a=<<<TXT\n|hello\nTXT;',
+    "<?php $a=<<<'TXT'\n|$value\nTXT;", '<?php $a=<<<TXT\n|hello\n  TXT;',
+    '<?php $a="?>"; ?>html |text',
+    '<?php $a="{$obj->value}"; $b="|";',
+  ])('recognizes text in %s', marked => expect(target(marked)).toBe(true));
+  it.each([
+    "<?php $a=''|;", "<?php $a=|'';", "<?php // ' |comment", "<?php /* ' |comment */",
+    '<?php $a="{$obj->call("arg")}"; new |Service();',
+    '<?php $a=<<<TXT\ntext\nTXT; new |Service();', '<?php $a=|new Service();',
+    '<?php $a="{$|obj}";',
+  ])('keeps code or ambiguous contexts in %s', marked => expect(target(marked)).toBe(false));
+  it('requires every selection to stay inside text', () => {
+    const source = "<?php $a='hello'; $b='world';";
+    expect(phpPasteTargetsOnlyText(source, [{ start: 11, end: 14 }, { start: 22, end: 24 }])).toBe(true);
+    expect(phpPasteTargetsOnlyText(source, [{ start: 11, end: 17 }])).toBe(false);
+    expect(phpPasteTargetsOnlyText(source, [{ start: 11, end: 11 }, { start: 17, end: 17 }])).toBe(false);
+    expect(phpPasteTargetsOnlyText(source, [])).toBe(false);
   });
 });

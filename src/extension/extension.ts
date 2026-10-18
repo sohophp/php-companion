@@ -11,7 +11,7 @@ import { copyIdentity, CurrentDocumentDiagnostics, NamespaceCodeActions } from '
 import { PhpRenameProvider } from '../refactor/rename.js';
 import { forgetRenamePreviewSnapshots, openRenamePreviewSnapshot, registerRenamePreviewProvider } from '../refactor/renamePreview.js';
 import { PHP_IMPORT_METADATA_MIME, PHP_IMPORT_PASTE_KIND, PhpImportPasteProvider, phpPasteMetadata, resolveDocumentImports } from '../paste/importPasteProvider.js';
-import { mayNeedPhpImportResolution, potentialPhpTypeNames, resolvePasteAliasConflicts } from '../paste/pasteText.js';
+import { phpPasteTargetsOnlyText, mayNeedPhpImportResolution, potentialPhpTypeNames, resolvePasteAliasConflicts } from '../paste/pasteText.js';
 import {
   buildMoveEdits,
   buildMoveReconciliationEdits,
@@ -1577,11 +1577,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
       const configuration = vscode.workspace.getConfiguration('phpCompanion', document.uri);
       const pasteMode = configuredPasteImportMode(configuration);
       if (pasteMode === 'off' || configuration.get<string>('indexing.mode', 'onDemand') === 'off') return undefined;
-      const sourceUnchanged = await captureDocumentSourceGuard(document);
+      const pasteVersion = document.version;
+      if (phpPasteTargetsOnlyText(document.getText(), ranges.map(range => ({
+        start: document.offsetAt(range.start), end: document.offsetAt(range.end),
+      })))) return undefined;
       if (!transfer.get(PHP_IMPORT_METADATA_MIME)) {
         const plain = transfer.get('text/plain');
         if (!plain || !mayNeedPhpImportResolution(await plain.asString())) return undefined;
       }
+      if (document.isClosed || document.version !== pasteVersion) return undefined;
+      const sourceUnchanged = await captureDocumentSourceGuard(document);
       if (!await sourceUnchanged()) return undefined;
       if (selfLanguageServer) {
         const client = await languageServer; const plain = transfer.get('text/plain'); if (!client || !plain) return undefined;
