@@ -5424,8 +5424,13 @@ export class SemanticWorkspace {
     const before = source.slice(0, opening.index).trimEnd();
     // An opening argument/parameter/control parenthesis is not a cast. A
     // nested expression parenthesis, operator or expression keyword is.
-    if (before && !/[=([{,:;!?~+*/%&|^<>-]$/u.test(before)
-      && !/(?:<\?php|\breturn|\becho|\bprint|\bthrow|\byield)\s*$/iu.test(before)) return undefined;
+    const keyword = /(?<![A-Za-z0-9_$\\\u0080-\u{10ffff}])(?:return|echo|print|throw|yield(?:\s+from)?|case|clone|include(?:_once)?|require(?:_once)?|and|or|xor)$/iu.exec(before);
+    // A keyword spelling may be a variable or member name; comments and
+    // whitespace between the member operator and name do not change that.
+    const keywordOperand = keyword && !/(?:->|::|\\)$/u.test(before.slice(0, keyword.index).trimEnd());
+    if (before && !/[=([{,:;!?~+*/%&|^<>.@-]$/u.test(before)
+      && !/<\?php$/iu.test(before)
+      && !keywordOperand) return undefined;
     if (this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
     return { prefix, start, end, names };
   }

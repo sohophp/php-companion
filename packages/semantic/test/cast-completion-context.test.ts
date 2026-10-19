@@ -22,6 +22,18 @@ for (const retained of [false, true]) for (const version of ['7.2', '8.5']) {
     ['$result = (fl§) $value;', 'float'],
     ['$result = (ar§) $value;', 'array'],
     ['$result = (ob§) $value;', 'object'],
+    ["$result = 'text' . (str§) $value;", 'string'],
+    ['$result = @(str§) $value;', 'string'],
+    ['$result = $value and (bo§) $value;', 'bool'],
+    ['$result = $value or (bo§) $value;', 'bool'],
+    ['$result = $value xor (bo§) $value;', 'bool'],
+    ['yield from (ar§) $value;', 'array'],
+    ['include (str§) $value;', 'string'],
+    ['include_once (str§) $value;', 'string'],
+    ['require (str§) $value;', 'string'],
+    ['require_once (str§) $value;', 'string'],
+    ['$result = clone (ob§) $value;', 'object'],
+    ['switch ($value) { case (str§) $value: break; }', 'string'],
   ])('recognizes cast %s PHP ' + version + ' retained=' + retained, (tail, expected) => {
     const w = new SemanticWorkspace(parser), uri = 'file:///CastCompletion.php';
     try {
@@ -47,6 +59,11 @@ for (const retained of [false, true]) for (const version of ['7.2', '8.5']) {
     '$result = "(str§)";', '// (str§)\n', '/* (str§) */',
     '$result = (str§ange());', '$result = (STR§_VALUE);', '$result = (\\str§);',
     '$result = ($str§);', '$result = (str§ + 1);', '$result = (str§, 1);',
+    '$return(str§);', '$yield(str§);', '$object->return(str§);',
+    'TypeName::print(str§);', '$object?->clone(str§);', '\\Vendor\\echo(str§);',
+    '$object-> return(str§);', '$object-> /* note */ return(str§);',
+    'TypeName:: /* note */ print(str§);', '$object?->\n clone(str§);',
+    'αreturn(str§);', '😀return(str§);',
   ])('preserves other contexts %s PHP ' + version + ' retained=' + retained, tail => {
     const w = new SemanticWorkspace(parser), uri = 'file:///NotCastCompletion.php';
     try {

@@ -23,6 +23,7 @@ for (const phpVersion of ['7.2', '8.5']) for (const indexingMode of ['onDemand',
         '$result = (s§) $value;', '$result = (str§) $value;', '$result = (str§ing) $value;',
         '$result = (STRING§) $value;', '$result = (/* note */ str§ ) $value;',
         'return (str§) $value;', 'consume((str§) $value);',
+        "$result = 'text' . (str§) $value;", '$result = @(str§) $value;',
       ]) {
         const text = '<?php function strangeFactory() {} function consume($value) {} '
           + 'function run($value) { ' + marked.replace('§', '') + ' }';
@@ -47,6 +48,18 @@ for (const phpVersion of ['7.2', '8.5']) for (const indexingMode of ['onDemand',
       rpc.notify('textDocument/didOpen', { textDocument: { uri, languageId: 'php', version: 1, text } });
       const ordinary = await rpc.request('textDocument/completion', { textDocument: { uri }, position: { line: 0, character: text.lastIndexOf('strangeF') + 8 } });
       expect((Array.isArray(ordinary) ? ordinary : ordinary.items).map((item: any) => item.label)).toContain('strangeFactory');
+      const variableUri = pathToFileURL(join(root, 'VariableCallable.php')).toString();
+      const variableText = "<?php function strangeFactory() {} $return='strangeFactory'; $return(str);";
+      rpc.notify('textDocument/didOpen', { textDocument: { uri: variableUri, languageId: 'php', version: 1, text: variableText } });
+      const variable = await rpc.request('textDocument/completion', { textDocument: { uri: variableUri },
+        position: { line: 0, character: variableText.lastIndexOf('str)') + 3 } });
+      expect((Array.isArray(variable) ? variable : variable.items).map((item: any) => item.label)).toContain('strangeFactory');
+      const memberUri = pathToFileURL(join(root, 'KeywordMember.php')).toString();
+      const memberText = '<?php function strangeFactory() {} class Handler { static function print($value) {} } Handler:: /* note */ print(str);';
+      rpc.notify('textDocument/didOpen', { textDocument: { uri: memberUri, languageId: 'php', version: 1, text: memberText } });
+      const member = await rpc.request('textDocument/completion', { textDocument: { uri: memberUri },
+        position: { line: 0, character: memberText.lastIndexOf('str)') + 3 } });
+      expect((Array.isArray(member) ? member : member.items).map((item: any) => item.label)).toContain('strangeFactory');
       await rpc.request('shutdown', null);
       const exited = once(server, 'exit'); rpc.notify('exit', null);
       expect((await exited)[0]).toBe(0); server = undefined;
