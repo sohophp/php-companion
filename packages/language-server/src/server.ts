@@ -6502,6 +6502,10 @@ documents.onDidOpen(({ document }) => trackOpenSourcePublication(document, async
   const currentUpdate = workspace.update(document.uri, document.getText(), true);
   const update = queryUpdate ? combineOpenSourceUpdates(queryUpdate.update, currentUpdate) : currentUpdate;
   if (queryUpdate) publication!.queryUpdates.delete(workspace);
+  const sourceInvalidatedBeforeRead = previousSource !== undefined && previousSource !== document.getText();
+  if (sourceInvalidatedBeforeRead) {
+    invalidateCandidates(document.uri, indexingMode === 'progressive' || update.kind !== 'declaration');
+  }
   published();
   // A disk-identical first open can add a class that the current on-demand
   // container snapshot has never seen. Refresh before its first References query.
@@ -6511,12 +6515,9 @@ documents.onDidOpen(({ document }) => trackOpenSourcePublication(document, async
   const diskSource = root && diskPath
     ? await readFile(diskPath, 'utf8').catch(() => undefined) : undefined;
   if (documents.get(document.uri) !== document || document.version !== openedVersion) return;
-  // An open with disk-identical source is safe when that source was already
-  // indexed, or when the active source scan has not reached this file yet.
-  const unscannedSource = Boolean(root && referenceSourcePreparations.has(root)
-    && !scanFilesByRoot.get(root)?.has(document.uri) && previousSource === undefined);
-    if (diskSource !== document.getText()
-      || previousSource !== undefined && previousSource !== document.getText() && !unscannedSource) {
+  // Publish known source changes before the disk read can yield. A later
+  // comparison must not invalidate a refactor that already scanned that change.
+  if (!sourceInvalidatedBeforeRead && diskSource !== document.getText()) {
     invalidateCandidates(document.uri, indexingMode === 'progressive' || update.kind !== 'declaration');
   }
   if (root && update.kind === 'declaration') await refreshDoctrineDocument(root, document.uri, document.getText(), workspace);
