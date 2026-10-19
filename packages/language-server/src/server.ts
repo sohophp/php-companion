@@ -7619,6 +7619,15 @@ function phpCompletionTemplates(document: TextDocument, context: PhpKeywordCompl
   });
 }
 
+function castTypeCompletions(document: TextDocument,
+  cast: { prefix: string; start: number; end: number; names: string[] }): CompletionItem[] {
+  return cast.names.map((name, index) => ({
+    label: name, kind: CompletionItemKind.Keyword, detail: `(${name})`,
+    sortText: `!${String(index).padStart(2, '0')}`, preselect: index === 0,
+    textEdit: { range: { start: document.positionAt(cast.start), end: document.positionAt(cast.end) }, newText: name },
+  }));
+}
+
 connection.onCompletion(async ({ textDocument, position }, token) => {
   const timingStarted = testMode ? performance.now() : 0;
   try {
@@ -7641,6 +7650,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
   if (document.languageId === 'php' && phpVersionForUri(document.uri).startsWith('7.')
     && workspace.isLegacyHashCommentAt(document.uri, offset)) return [];
   if (document.languageId === 'php' && !workspace.isPhpCodeContext(document.uri, offset)) return [];
+  if (initialContext.kind === 'cast') return castTypeCompletions(document, initialContext.cast);
   const routeParameterCall = await provenSymfonyRouteParameterCall(document, offset, workspace);
   if (!currentQueryDocument(document, token, queryVersion)) return [];
   if (routeParameterCall) {
@@ -7732,6 +7742,7 @@ connection.onCompletion(async ({ textDocument, position }, token) => {
     if (!currentQueryDocument(document, token, queryVersion)) return [];
     completionContext = workspace.completionContext(document.uri, offset, supportsPhp80);
   }
+  if (completionContext.kind === 'cast') return castTypeCompletions(document, completionContext.cast);
   const initializer = workspace.initializerCompletionContext(document.uri, offset);
   const constantInitializer = initializer === 'static-local' && isSyntaxAvailable(phpVersionForUri(document.uri), '8.3')
     ? undefined : initializer;

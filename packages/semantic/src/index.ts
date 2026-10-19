@@ -280,6 +280,7 @@ export interface PhpDeclarationNameCompletionContext {
   inheritedFinalMethods?: Array<{ name: string; visibility: ParsedCallableDeclaration['visibility'] }>;
 }
 export type SemanticCompletionContext =
+  | { kind: 'cast'; cast: { prefix: string; start: number; end: number; names: string[] } }
   | { kind: 'declaration-name'; declaration: PhpDeclarationNameCompletionContext }
   | { kind: 'array-access-key'; arrayKeys: NonNullable<ReturnType<SemanticWorkspace['completeArrayAccessKeys']>> }
   | { kind: 'shape-key'; shapeKeys: NonNullable<ReturnType<SemanticWorkspace['completeArrayShapeKeys']>> }
@@ -5377,6 +5378,8 @@ export class SemanticWorkspace {
   }
 
   completionContext(uri: string, offset: number, supportsNamedArguments = true): SemanticCompletionContext {
+    const cast = this.castCompletionContext(uri, offset);
+    if (cast) return { kind: 'cast', cast };
     const declaration = this.phpDeclarationNameCompletionContext(uri, offset);
     if (declaration) return { kind: 'declaration-name', declaration };
     const arrayKeys = this.completeArrayAccessKeys(uri, offset);
@@ -5397,6 +5400,34 @@ export class SemanticWorkspace {
       bareVariables: this.completeBareExpressionVariables(uri, offset),
       typeContext: this.typeCompletionContext(uri, offset),
       keywordContext: this.phpKeywordCompletionContext(uri, offset) };
+  }
+
+  private castCompletionContext(uri: string, offset: number):
+    { prefix: string; start: number; end: number; names: string[] } | undefined {
+    const file = this.files.get(uri);
+    if (!file) return undefined;
+    const prefix = completionIdentifierPrefix(file.source, offset);
+    if (!prefix) return undefined;
+    const canonical = ['int', 'bool', 'float', 'string', 'array', 'object'];
+    const aliases = ['integer', 'boolean', 'double', 'binary',
+      ...(/^7\./u.test(this.targetPhpVersion ?? '') ? ['real', 'unset'] : [])];
+    const names = [...canonical, ...aliases].filter(name => name.startsWith(prefix.toLowerCase()));
+    if (!names.length) return undefined;
+    const start = offset - prefix.length;
+    const suffix = /^[A-Za-z0-9_\x80-\xff]*/u.exec(file.source.slice(offset))![0];
+    const end = offset + suffix.length;
+    // Do not turn a middle cursor in an unrelated constant or call into a cast.
+    if (!names.some(name => name.startsWith((prefix + suffix).toLowerCase()))) return undefined;
+    const source = this.completionTriviaSource(file);
+    const opening = /\(\s*$/u.exec(source.slice(0, start));
+    if (!opening || !/^\s*(?:\)|[;}]|$)/u.test(source.slice(end))) return undefined;
+    const before = source.slice(0, opening.index).trimEnd();
+    // An opening argument/parameter/control parenthesis is not a cast. A
+    // nested expression parenthesis, operator or expression keyword is.
+    if (before && !/[=([{,:;!?~+*/%&|^<>-]$/u.test(before)
+      && !/(?:<\?php|\breturn|\becho|\bprint|\bthrow|\byield)\s*$/iu.test(before)) return undefined;
+    if (this.isNonCodeExpressionPosition(uri, file, offset)) return undefined;
+    return { prefix, start, end, names };
   }
 
   phpDeclarationNameCompletionContext(uri: string, offset: number): PhpDeclarationNameCompletionContext | undefined {
