@@ -1,10 +1,12 @@
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { chmod, cp, mkdtemp, mkdir, readFile, readdir, realpath, rm, stat, writeFile } from 'node:fs/promises';
+import { chmod, cp, mkdtemp, mkdir, readFile, readdir, realpath, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { createServer } from 'node:net';
+import { createHash } from 'node:crypto';
 import { downloadAndUnzipVSCode, runTests, runVSCodeCommand } from '@vscode/test-electron';
+import { inspectInstalledProfile } from './support/installedProfile';
 
 async function availableDebugPort(): Promise<number> {
   const server = createServer();
@@ -53,6 +55,12 @@ async function main(): Promise<void> {
   const repository = resolve(__dirname, '..');
   const releaseVersion = (JSON.parse(await readFile(join(repository, 'package.json'), 'utf8')) as { version: string }).version;
   const sourceProfile = process.env.PHP_COMPANION_TEST_PROFILE_SOURCE === '1';
+  const installedProfile = process.env.PHP_COMPANION_TEST_INSTALLED_PROFILE === '1';
+  if (installedProfile && (sourceProfile || process.platform !== 'linux'))
+    throw new Error('Installed production Profile currently requires Linux and must not select the source Profile.');
+  if (installedProfile && Object.entries(process.env).some(([key, value]) => value
+    && /^PHP_COMPANION_TEST_(?:C[123]_|CORE_ONLY|SYMFONY_CONTEXT_ONLY|FORMATTER_|LOCALE|LEGACY_PROFILE|HOVER_ISOLATION)/u.test(key)))
+    throw new Error('Installed production Profile requires the original complete entry.');
   const formatterCandidate = process.env.PHP_COMPANION_TEST_FORMATTER_CANDIDATE === '1';
   if (formatterCandidate && !sourceProfile) throw new Error('Formatter candidate requires an isolated source Profile.');
   const formatterOnly = process.env.PHP_COMPANION_TEST_FORMATTER_ONLY === '1';
@@ -69,7 +77,7 @@ async function main(): Promise<void> {
   const hoverIsolation = process.env.PHP_COMPANION_TEST_HOVER_ISOLATION === '1';
   const realVendorNoise = Number(process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_NOISE ?? 9100);
   const realVendorRounds = Number(process.env.PHP_COMPANION_TEST_PROFILE_REAL_VENDOR_ROUNDS ?? 50);
-  if (realVendorProfile && !sourceProfile) throw new Error('Real vendor Pack gate requires the source Profile.');
+  if (realVendorProfile && !sourceProfile && !installedProfile) throw new Error('Real vendor Pack gate requires a complete Profile.');
   if (hoverIsolation && (!sourceProfile || !realVendorProfile)) throw new Error('Hover isolation requires the real vendor source Profile.');
   if (realVendorProfile && (!Number.isSafeInteger(realVendorNoise) || realVendorNoise < 0 || realVendorNoise > 20_000
     || !Number.isSafeInteger(realVendorRounds) || realVendorRounds < 1 || realVendorRounds > 500)) {
@@ -83,7 +91,7 @@ async function main(): Promise<void> {
     ? resolve(process.env.PHP_COMPANION_TEST_OPEN_SOURCE_PACK_VSIX)
     : join(repository, 'packages', 'php-companion-extension-pack', `php-companion-open-source-pack-${releaseVersion}.vsix`);
   const twigVsix = process.env.PHP_COMPANION_TWIG_VSIX ? resolve(process.env.PHP_COMPANION_TWIG_VSIX) : undefined;
-  if (!sourceProfile) {
+  if (!sourceProfile && !installedProfile) {
     await stat(vsix);
     await stat(symfonyVsix);
   }
@@ -101,6 +109,12 @@ async function main(): Promise<void> {
   const formatterCandidatePath = formatterCandidate ? join(temporary, 'formatter-candidate') : undefined;
   const formatterProbePath = formatterNavigation ? join(temporary, 'formatter-navigation-probe') : undefined;
   const externalExtensions = process.env.PHP_COMPANION_TEST_EXTENSIONS_DIR;
+  const installedCandidate = process.env.PHP_COMPANION_TEST_INSTALLED_CANDIDATE;
+  const installedVersions = process.env.PHP_COMPANION_TEST_INSTALLED_MANIFEST;
+  const installedProof = process.env.PHP_COMPANION_TEST_INSTALLED_PROOF;
+  const installedInputPath = join(profile, 'installed-input.json');
+  const installedBootstrapPath = join(profile, 'installed-bootstrap.json');
+  const installedCarrier = join(profile, 'test-carrier');
   if (sourceProfile && !externalExtensions) throw new Error('Source Profile needs PHP_COMPANION_TEST_EXTENSIONS_DIR.');
   if (c3OpenSourceProfile && !externalExtensions) throw new Error('Packaged C3 Profile needs PHP_COMPANION_TEST_EXTENSIONS_DIR.');
   const extensionsDirectory = externalExtensions ?? join(profile, 'extensions');
@@ -126,8 +140,15 @@ exit($status);
     phpunitExecutable = proxy;
   }
   if (externalExtensions) await stat(externalExtensions);
-  if (externalExtensions && !sourceProfile) await stat(packVsix);
+  if (externalExtensions && !sourceProfile && !installedProfile) await stat(packVsix);
   try {
+    if (installedProfile && (!externalExtensions || !installedCandidate || !installedVersions || !installedProof
+      || !realVendorProfile || realVendorRounds !== 50 || realVendorNoise !== 9100
+      || process.env.PHP_COMPANION_TEST_PROFILE_REAL_DEBUG !== '1' || twigVsix))
+      throw new Error('Installed Profile requires an isolated installed directory, candidate, explicit version manifest, proof path, original 50/30-round workload and real debugger.');
+    const installed = installedProfile ? await inspectInstalledProfile(repository, installedCandidate!, externalExtensions!, installedVersions!) : undefined;
+    const installedTwig = installed?.extensions.find(item => item.id.toLowerCase() === 'sohophp.twig-plus');
+    const installedDebug = installed?.extensions.find(item => item.id.toLowerCase() === 'xdebug.php-debug');
     if (formatterCandidatePath) {
       if (!formatterExecutable) throw new Error('Formatter candidate requires an explicit formatter executable.');
       const versionOutput = execFileSync(formatterExecutable, ['--version'], { encoding: 'utf8', timeout: 30_000 });
@@ -227,13 +248,13 @@ abstract class AbstractController { public function generateUrl(string $route, a
 `);
     }
     await writeFile(settingsPath, JSON.stringify(settings, null, 2));
-    if (!sourceProfile) {
+    if (!sourceProfile && !installedProfile) {
       await mkdir(extracted, { recursive: true });
       await mkdir(symfonyExtracted, { recursive: true });
       if (externalExtensions) await mkdir(packExtracted, { recursive: true });
     }
     if (twigVsix) await mkdir(twigExtracted, { recursive: true });
-    if (!sourceProfile) {
+    if (!sourceProfile && !installedProfile) {
       execFileSync('unzip', ['-q', vsix, '-d', extracted], { stdio: 'inherit' });
       execFileSync('unzip', ['-q', symfonyVsix, '-d', symfonyExtracted], { stdio: 'inherit' });
       if (externalExtensions) execFileSync('unzip', ['-q', packVsix, '-d', packExtracted], { stdio: 'inherit' });
@@ -271,16 +292,27 @@ abstract class AbstractController { public function generateUrl(string $route, a
       launchWorkspace = join(temporary, 'formatter.code-workspace');
       await writeFile(launchWorkspace, JSON.stringify({ folders: [{ path: fixture }, { path: secondFolder }] }));
     }
+    if (installed) {
+      await mkdir(installedCarrier, { recursive: true });
+      await writeFile(join(installedCarrier, 'package.json'), JSON.stringify({ name: 'installed-profile-test-carrier',
+        publisher: 'local-test', version: '0.0.0', engines: { vscode: '^1.100.0' } }));
+      await writeFile(installedInputPath, JSON.stringify(installed));
+      const composer = join(fixture, 'composer.json'), hidden = join(fixture, '.composer-before-transport-hook.json');
+      const bytes = await readFile(composer);
+      await rename(composer, hidden);
+      await writeFile(installedBootstrapPath, JSON.stringify({ composer, hidden,
+        sha256: createHash('sha256').update(bytes).digest('hex') }));
+    }
     await runTests({
       vscodeExecutablePath: process.env.PHP_COMPANION_TEST_VSCODE_EXECUTABLE
         ? resolve(process.env.PHP_COMPANION_TEST_VSCODE_EXECUTABLE) : await testExecutablePath(),
-      extensionDevelopmentPath: [sourceProfile ? repository : join(extracted, 'extension'),
+      extensionDevelopmentPath: installed ? installedCarrier : [sourceProfile ? repository : join(extracted, 'extension'),
         sourceProfile ? join(repository, 'packages', 'php-companion-symfony') : join(symfonyExtracted, 'extension'),
         ...(externalExtensions ? [sourceProfile ? join(repository, 'packages', 'php-companion-extension-pack') : join(packExtracted, 'extension')] : []),
         ...(twigPlusDevelopmentPath ? [resolve(twigPlusDevelopmentPath)] : []),
         ...(twigVsix ? [join(twigExtracted, 'extension')] : []),
         ...(formatterCandidatePath ? [formatterProbePath ?? formatterCandidatePath] : [])],
-      extensionTestsPath: resolve(__dirname, 'suite', formatterNavigation ? 'formatterNavigationRace' : formatterOnly ? 'formatterCandidateAcceptance' : c1Only ? 'c1' : c3OpenSourceProfile ? 'c3' : 'index'),
+      extensionTestsPath: resolve(__dirname, 'suite', installed ? 'installedProfile' : formatterNavigation ? 'formatterNavigationRace' : formatterOnly ? 'formatterCandidateAcceptance' : c1Only ? 'c1' : c3OpenSourceProfile ? 'c3' : 'index'),
       launchArgs: [
         ...(process.env.PHP_COMPANION_TEST_LOCALE ? ['--locale', process.env.PHP_COMPANION_TEST_LOCALE] : []),
         launchWorkspace,
@@ -306,8 +338,12 @@ abstract class AbstractController { public function generateUrl(string $route, a
         PHP_COMPANION_OPEN_SOURCE_PROFILE: externalExtensions ? '1' : undefined,
         PHP_COMPANION_TEST_C3_OPEN_SOURCE_PROFILE: c3OpenSourceProfile ? '1' : undefined,
         PHP_COMPANION_TEST_TWIG_PLUS_PATH: twigPlusDevelopmentPath,
-        PHP_COMPANION_TEST_TWIG_PLUS_PACKAGED_PATH: twigVsix ? join(twigExtracted, 'extension') : undefined,
-        PHP_COMPANION_TEST_TWIG_PLUS_PACKAGED_VERSION: twigPackage?.version,
+        PHP_COMPANION_TEST_TWIG_PLUS_PACKAGED_PATH: installedTwig?.path ?? (twigVsix ? join(twigExtracted, 'extension') : undefined),
+        PHP_COMPANION_TEST_TWIG_PLUS_PACKAGED_VERSION: installedTwig?.version ?? twigPackage?.version,
+        PHP_COMPANION_TEST_EXPECTED_DEBUG_VERSION: installedDebug?.version,
+        PHP_COMPANION_TEST_INSTALLED_INPUT: installed ? installedInputPath : undefined,
+        PHP_COMPANION_TEST_INSTALLED_BOOTSTRAP: installed ? installedBootstrapPath : undefined,
+        PHP_COMPANION_TEST_INSTALLED_PROOF: installed ? resolve(installedProof!) : undefined,
         PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS: process.env.PHP_COMPANION_TEST_PROFILE_SYMFONY_CONTEXTS,
         PHP_COMPANION_TEST_PROFILE_REAL_VENDOR: realVendorProfile ? '1' : undefined,
         PHP_COMPANION_TEST_HOVER_ISOLATION: hoverIsolation ? '1' : undefined,
@@ -329,6 +365,7 @@ abstract class AbstractController { public function generateUrl(string $route, a
         ? `Verified Simplified Chinese manifest text in packaged SoPHP VSIX: ${vsix}`
         : formatterNavigation ? 'Verified controlled formatter navigation diagnostic; ordinary candidate qualification is separate'
           : hoverIsolation ? 'Verified isolated SoPHP real vendor Hover probe'
+          : installed ? `Verified installed production SoPHP Profile: ${installed.candidateCommit}`
           : sourceProfile ? 'Verified source SoPHP extensions in the isolated Open Source Profile'
           : `Verified packaged SoPHP VSIX in ${externalExtensions ? 'the Open Source Profile' : 'an isolated profile'}: ${vsix}`);
   } finally {

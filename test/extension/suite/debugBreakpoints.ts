@@ -9,7 +9,7 @@ export async function run(): Promise<void> {
   const port = Number(process.env.SOPHP_DEBUG_PORT); assert.ok(port > 0 && port < 65536);
   const core = vscode.extensions.getExtension('sohophp.php-companion'); assert.ok(core); await core.activate();
   const extension = vscode.extensions.getExtension('xdebug.php-debug'); assert.ok(extension); await extension.activate();
-  assert.equal(extension.packageJSON.version, '1.40.1');
+  assert.equal(extension.packageJSON.version, process.env.PHP_COMPANION_TEST_EXPECTED_DEBUG_VERSION ?? '1.40.1');
   const name = 'SoPHP actual Xdebug breakpoint';
   const program = vscode.Uri.joinPath(folder.uri, 'debug with spaces.php');
   const marker = vscode.Uri.joinPath(folder.uri, 'debug-result.json');
