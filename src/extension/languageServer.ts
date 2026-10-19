@@ -7,6 +7,7 @@ import type { IntegrationRegistry } from './integrationRegistry.js';
 import { t } from './localize.js';
 import { phpRuntimePayload, type PhpExtensionRuntimePayload } from './phpRuntimePayload.js';
 import { WorkspaceRestartQueue } from './workspaceRestartQueue.js';
+import { currentDocumentQuery } from './documentQuery.js';
 
 interface PhpExtensionAvailabilityEntry {
   uri: string;
@@ -180,9 +181,10 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
         }
       },
       provideHover: async (document, position, token, next) => {
-        if (process.env.PHP_COMPANION_TEST_HOVER_TIMING !== '1') return next(document, position, token);
+        if (process.env.PHP_COMPANION_TEST_HOVER_TIMING !== '1')
+          return currentDocumentQuery(document, token, () => next(document, position, token));
         const started = performance.now();
-        try { return await next(document, position, token); }
+        try { return await currentDocumentQuery(document, token, () => next(document, position, token)); }
         finally {
           console.log(`SoPHP client Hover timing: ${JSON.stringify({
             uri: document.uri.toString(), line: position.line, character: position.character,
