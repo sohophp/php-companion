@@ -1,6 +1,7 @@
 name: Version and mode matrix
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - .github/workflows/version-mode-matrix.yml
