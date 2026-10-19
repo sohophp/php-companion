@@ -53,7 +53,7 @@ jobs:
           --output .vscode-test/version-mode-matrix-${{ matrix.mode }}
           --commit ${{ github.sha }}
           --platform ${{ matrix.platform }}
-          --core-sha 6f5e3dcc729f50487a696f5143cdd10ffcbd7bf24c859a7ac258ac01b1b5a489
+          --core-sha 078d8ae7786e09ddc8c7650fe11b38e478c4fa2083004edb68b4a035b8aadf04
       - name: Preserve raw reports and lifecycle receipts
         if: always()
         uses: actions/upload-artifact@v7
