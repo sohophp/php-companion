@@ -73,7 +73,8 @@ it.each(cases)('publishes changed opened sources before delayed disk comparisons
 const {isMainThread}=require('node:worker_threads');const original=fsp.readFile,seen=new Set,paths=${JSON.stringify(paths)};
 if(isMainThread){fsp.readFile=async function(file,...args){const path=String(file),i=paths.indexOf(path);
  if(i>=0&&!seen.has(path)&&fs.existsSync(${JSON.stringify(join(root, 'arm'))})){
-  seen.add(path);fs.writeFileSync(${JSON.stringify(join(root, 'held-'))}+i+'.json',JSON.stringify({path,stack:new Error('held open disk comparison').stack}));
+  seen.add(path);const held=${JSON.stringify(join(root, 'held-'))}+i+'.json';
+  fs.writeFileSync(held+'.tmp',JSON.stringify({path,stack:new Error('held open disk comparison').stack}));fs.renameSync(held+'.tmp',held);
   while(!fs.existsSync(${JSON.stringify(join(root, 'release-'))}+i))await new Promise(done=>setTimeout(done,5));
   const result=await original.call(this,file,...args);fs.writeFileSync(${JSON.stringify(join(root, 'completed-'))}+i,'done');return result;
  }
