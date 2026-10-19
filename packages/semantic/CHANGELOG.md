@@ -1,5 +1,7 @@
 # Changelog
 
+- Keep type references current when callers replace Trait adaptation records in prepared or restored declarations, including local query forks; retain the adaptation cache for ordinary parsed declarations.
+
 - Refresh type completions when callers replace records in restored or off-thread prepared declaration arrays, including abstract-class construction filtering and local query forks; retain cached entries for ordinary parsed declarations.
 
 - Keep function signatures and missing-argument diagnostics current when callers replace records in restored declaration arrays, including deferred snapshots and local query forks; retain indexed lookup for ordinary parsed declarations.

@@ -1819,6 +1819,7 @@ export class SemanticWorkspace {
   private readonly completionTriviaSourceCache = new WeakMap<SemanticFile, string>();
   private readonly completionNonPhpRangesCache = new WeakMap<SemanticFile, Array<SourceRange & { endTag: boolean }>>();
   private readonly typeRawTraitAdaptationsCache = new WeakMap<SemanticFile, { declarations: ParsedDeclaration[]; adaptations: ParsedTraitAdaptation[] }>();
+  private readonly borrowedTraitAdaptationStates = new WeakMap<SemanticFile, string>();
   private readonly readOnlyParseUrlInProgress = new Set<string>();
   constructor(private readonly parser: PhpSyntaxParser) {}
 
@@ -12347,6 +12348,16 @@ export class SemanticWorkspace {
   }
 
   references(uri: string, offset: number, includeDeclaration = true): SemanticLocation[] {
+    // Restored and prepared declarations remain caller-owned. Their Trait
+    // adaptations can change without a workspace update or array replacement.
+    for (const file of this.files.values()) {
+      if (!borrowedTypeDeclarationArrays.has(file.declarations)) continue;
+      const state = JSON.stringify(file.declarations.flatMap(declaration => declaration.traitAdaptations));
+      if (this.borrowedTraitAdaptationStates.get(file) !== state) {
+        this.referenceResultCache.clear();
+        this.borrowedTraitAdaptationStates.set(file, state);
+      }
+    }
     const key = JSON.stringify([uri, offset, includeDeclaration]);
     const cached = this.referenceResultCache.get(key);
     if (cached) {
@@ -12726,10 +12737,12 @@ export class SemanticWorkspace {
 
   private isSemanticTypeRawName(file: SemanticFile, raw: RawName): boolean {
     if (raw.context === 'code') {
-      let cached = this.typeRawTraitAdaptationsCache.get(file);
+      const borrowed = borrowedTypeDeclarationArrays.has(file.declarations);
+      let cached = borrowed ? undefined : this.typeRawTraitAdaptationsCache.get(file);
       if (cached?.declarations !== file.declarations) {
         cached = { declarations: file.declarations, adaptations: file.declarations.flatMap(declaration => declaration.traitAdaptations) };
-        this.typeRawTraitAdaptationsCache.set(file, cached);
+        // Prepared and restored arrays can change without replacing the array.
+        if (!borrowed) this.typeRawTraitAdaptationsCache.set(file, cached);
       }
       const adaptation = cached.adaptations.find(item => raw.start >= item.start && raw.end <= item.end);
       // Trait source method names and aliases are declarations/references to
