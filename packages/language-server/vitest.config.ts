@@ -10,8 +10,19 @@ export default defineConfig({ test: {
       test: {
         name: 'lsp',
         include: ['test/**/*.test.ts'],
-        exclude: ['test/magic-modifier-stdio.test.ts'],
+        exclude: ['test/magic-modifier-stdio.test.ts', 'test/cache-candidate-restoration-stdio.test.ts'],
         sequence: { groupOrder: 1 },
+      },
+    },
+    {
+      extends: true,
+      test: {
+        name: 'cache-recovery',
+        include: ['test/cache-candidate-restoration-stdio.test.ts'],
+        // Five real cold starts share the original 20s fixture timeout.
+        // Avoid competing with parallel builtin snapshot initialization.
+        fileParallelism: false,
+        sequence: { groupOrder: 2 },
       },
     },
     {
@@ -21,7 +32,7 @@ export default defineConfig({ test: {
         include: ['test/magic-modifier-stdio.test.ts'],
         // Keep the existing hot-query gates after all other LSP workers finish.
         fileParallelism: false,
-        sequence: { groupOrder: 2 },
+        sequence: { groupOrder: 3 },
       },
     },
   ],
