@@ -1,0 +1,31 @@
+{
+  "yamlParsed": true,
+  "originalJobsAndPermissionsUnchanged": true,
+  "oldRuntimeUsedOnlyAfterBuild": true,
+  "nativeWorkflowStepResults": [
+    {
+      "version": "20.0.0",
+      "exitCode": 0,
+      "passed": 5,
+      "tapSha256": "57ec04304e9dd7e76320b819ac56ad197340137ce7887b8984b5fd1dec699a15"
+    },
+    {
+      "version": "20.11.1",
+      "exitCode": 0,
+      "passed": 5,
+      "tapSha256": "5b4105ca687e9c76f930f2456fb36ebeaa768d7cf1d22d3dbb3a1f57fe582366"
+    }
+  ],
+  "wrongRuntimeRejected": true,
+  "wrongRuntimeExitCode": 1,
+  "remoteCiExecuted": false,
+  "fullObjectiveComplete": false,
+  "buildRuntimeAlwaysRestored": true,
+  "workflowSha256": "7c429e3e77bb0df73e5beef467e9e9f400bcfba22356cebac3a5e365804251c1",
+  "finalLspSessionId": 18958,
+  "finalLspRunning": false,
+  "finalLspFrozenInputs": 1012,
+  "finalLspPassed": 1652,
+  "finalLspSkipped": 1,
+  "finalLspQualified": true
+}

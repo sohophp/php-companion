@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promis
 import { cpus, platform, arch, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import process from 'node:process';
 import { clearTimeout, setTimeout } from 'node:timers';
 import { promisify } from 'node:util';
@@ -22,8 +22,14 @@ if (Boolean(parserCoreWasm) !== Boolean(phpWasm) || arguments_.length > 5) {
 const completionNoiseFunctions = Number(process.env.SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS ?? 0);
 const indexingMode = process.env.SOPHP_BENCHMARK_INDEXING_MODE ?? 'experimental';
 const fixtureLayout = process.env.SOPHP_BENCHMARK_FIXTURE_LAYOUT ?? 'legacy';
-if (!['onDemand', 'experimental'].includes(indexingMode)) {
-  throw new Error('SOPHP_BENCHMARK_INDEXING_MODE must be onDemand or experimental.');
+const phpVersion = process.env.SOPHP_BENCHMARK_PHP_VERSION ?? '8.5';
+if (!['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5'].includes(phpVersion)) {
+  throw new Error('SOPHP_BENCHMARK_PHP_VERSION must select a supported PHP version from 7.2 to 8.5.');
+}
+const argumentLabelPrefix = phpVersion.startsWith('7.') ? ' ' : 'value: ';
+const bareArgumentPrefix = `takeName(${argumentLabelPrefix}`;
+if (!['onDemand', 'progressive', 'experimental'].includes(indexingMode)) {
+  throw new Error('SOPHP_BENCHMARK_INDEXING_MODE must be onDemand, progressive or experimental.');
 }
 if (!['legacy', 'psr4'].includes(fixtureLayout)) {
   throw new Error('SOPHP_BENCHMARK_FIXTURE_LAYOUT must be legacy or psr4.');
@@ -83,12 +89,13 @@ function startLanguageServer() {
     }
   });
   child.stderr.on('data', (chunk) => { stderr = `${stderr}${chunk}`.slice(-16_384); });
-  child.once('exit', (code, signal) => {
+  const exited = new Promise((resolveExit) => child.once('exit', (code, signal) => {
     for (const waiter of [...waiters]) {
       clearTimeout(waiter.timer); waiter.reject(new Error(`Language server exited before the expected response (code=${code}, signal=${signal}). ${stderr}`));
     }
     waiters.length = 0;
-  });
+    resolveExit();
+  }));
   return {
     child, messages,
     send(...messages) { child.stdin.write(Buffer.concat(messages.map(encodeLspMessage))); },
@@ -104,11 +111,19 @@ function startLanguageServer() {
       });
     },
     async stop(id) {
-      if (child.exitCode !== null) return;
+      if (child.exitCode !== null || child.signalCode !== null) { await exited; return; }
       this.send({ jsonrpc: '2.0', id, method: 'shutdown', params: null });
       await this.waitFor((message) => message.id === id);
       this.send({ jsonrpc: '2.0', method: 'exit', params: null });
-      await new Promise((resolveExit) => child.once('exit', resolveExit));
+      await exited;
+    },
+    async terminate() {
+      if (child.exitCode !== null || child.signalCode !== null) { await exited; return; }
+      child.kill();
+      const timer = setTimeout(() => {
+        if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+      }, 1_000);
+      try { await exited; } finally { clearTimeout(timer); }
     },
   };
 }
@@ -116,7 +131,7 @@ function startLanguageServer() {
 async function initialize(server, rootUri, cacheDirectory, id) {
   server.send({ jsonrpc: '2.0', id, method: 'initialize', params: {
     processId: null, rootUri, capabilities: { textDocument: { publishDiagnostics: { versionSupport: true } } },
-    initializationOptions: { phpVersion: '8.5', indexingMode, cacheDirectory },
+    initializationOptions: { phpVersion, indexingMode, cacheDirectory },
   } });
   const response = await server.waitFor((message) => message.id === id);
   if (response.error) throw new Error(`Language server initialization failed: ${JSON.stringify(response.error)}.`);
@@ -126,12 +141,22 @@ async function initialize(server, rootUri, cacheDirectory, id) {
   // workspace index or emit its completion message during initialization.
   if (indexingMode === 'experimental') await server.waitFor((message) => message.method === 'window/logMessage'
     && message.params?.message?.includes('complete=true'), { after, timeoutMs: 30_000 });
+  if (indexingMode === 'progressive') {
+    const root = fileURLToPath(rootUri);
+    await server.waitFor((message) => message.method === 'window/logMessage'
+      && message.params?.message === `Reference source facts ready in ${root}.`, { after, timeoutMs: 30_000 });
+    // The source-only scan reports complete=false even after its cache commit.
+    // Wait for that scan's terminal report as well as external fact readiness.
+    await server.waitFor((message) => message.method === 'window/logMessage'
+      && message.params?.message?.startsWith('Indexed ')
+      && message.params.message.includes(` from ${root}; complete=`), { after, timeoutMs: 30_000 });
+  }
 }
 
 function memberFor(type) { return type === 'Beta' ? 'betaOnly' : 'alphaOnly'; }
 
 function sourceFor(type, sequence) {
-  return `<?php\ndeclare(strict_types=1);\nnamespace Editing;\nfunction takeName(string $value): void {}\nfunction edit(${type} $item, string $name, int $count): void { $item->${memberFor(type)}(); $item->; takeName($); takeName(value: ); takeName($item->make); takeName(value: hel); } // ${String(sequence).padStart(6, '0')}\n`;
+  return `<?php\ndeclare(strict_types=1);\nnamespace Editing;\nfunction takeName(string $value): void {}\nfunction edit(${type} $item, string $name, int $count): void { $item->${memberFor(type)}(); $item->; takeName($); takeName(${argumentLabelPrefix}); takeName($item->make); takeName(${argumentLabelPrefix}hel); } // ${String(sequence).padStart(6, '0')}\n`;
 }
 
 const root = await mkdtemp(join(tmpdir(), 'php-companion-editing-'));
@@ -182,7 +207,7 @@ try {
     if (index === 0 && completionNoiseFunctions) {
       const prefixedId = requestId++;
       server.send({ jsonrpc: '2.0', id: prefixedId, method: 'textDocument/completion', params: {
-        textDocument: { uri }, position: positionAt(source, source.indexOf('takeName(value: hel)') + 'takeName(value: hel'.length),
+        textDocument: { uri }, position: positionAt(source, source.indexOf(`${bareArgumentPrefix}hel)`) + `${bareArgumentPrefix}hel`.length),
       } });
       const prefixed = labels((await server.waitFor((message) => message.id === prefixedId)).result);
       if (!prefixed.includes('helper0')) throw new Error('The function-noise fixture was not loaded for prefixed completion.');
@@ -199,7 +224,7 @@ try {
     }
     const bareId = requestId++; const bareStarted = performance.now();
     server.send({ jsonrpc: '2.0', id: bareId, method: 'textDocument/completion', params: {
-      textDocument: { uri }, position: positionAt(source, source.indexOf('takeName(value: )') + 'takeName(value: '.length),
+      textDocument: { uri }, position: positionAt(source, source.indexOf(`${bareArgumentPrefix})`) + bareArgumentPrefix.length),
     } });
     const bareResponse = await server.waitFor((message) => message.id === bareId);
     const bareDuration = performance.now() - bareStarted;
@@ -256,7 +281,7 @@ try {
   };
   // Direct PSR-4 completion can succeed without writing any persistent index.
   // Exercise normal references to populate the lazy candidate cache explicitly.
-  if (indexingMode === 'onDemand') await verifyCurrentReferences(server);
+  if (indexingMode !== 'experimental') await verifyCurrentReferences(server);
   const cancellationProbes = [];
   // Preserve the original global query and also prove a known fixture query.
   // An empty-query result is capped, so it need not contain a specific class.
@@ -339,7 +364,7 @@ try {
     || recoveredDefinition.result[0].range?.start?.character !== expectedRecoveredStart.character) {
     throw new Error('Definition did not recover after cache rebuild and process restart.');
   }
-  if (indexingMode === 'onDemand') await verifyCurrentReferences(restarted);
+  if (indexingMode !== 'experimental') await verifyCurrentReferences(restarted);
   const corruptionWarningObserved = restarted.messages.some(corruptionWarning);
   await restarted.stop(requestId++); server = undefined;
   // The on-demand candidate index rebuilds lazily and does not publish the
@@ -378,7 +403,7 @@ try {
   const sampledPeakRssMb = Math.max(...rssSamples); const rssEndMinusBaselineMb = finalRssMb - baselineRssMb;
   const report = {
     schema: 2, iterations, warmupIterations, completionNoiseFunctions, fixtureLayout, runtime: process.version,
-    phpVersion: '8.5', indexingMode, diagnosticsVersionMatched: true,
+    phpVersion, indexingMode, diagnosticsVersionMatched: true,
     platform: platform(), architecture: arch(), cpu: cpus()[0]?.model,
     updateToDiagnosticsMs: summarizeDurations(updates), hotCompletionMs: summarizeDurations(completions),
     hotTypedArgumentCompletionMs: summarizeDurations(typedArgumentCompletions),
@@ -390,7 +415,7 @@ try {
       samples: rssSamples.length, sampledEveryIterations: 10, metric: 'external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap' },
     persistentCache: { files: cacheFiles.length, rebuiltSchema: rebuiltCache.schema, verifiedRebuiltPayloads, corruptedFile: corruptedCacheFile, corruptCacheRecovered: true,
       rebuiltCacheValidated: true, corruptionWarningObserved,
-      referencesRecoveredAfterRestart: indexingMode === 'onDemand' ? true : null,
+      referencesRecoveredAfterRestart: indexingMode !== 'experimental' ? true : null,
       completionRecoveredAfterRestart: true, hoverRecoveredAfterRestart: true, definitionRecoveredAfterRestart: true,
       unsavedReplayDiffersFromDisk },
     staleCompletionFailures: 0, staleHoverFailures: 0, staleDefinitionFailures: 0,
@@ -413,5 +438,5 @@ try {
   }
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
 } finally {
-  server?.child.kill(); await rm(root, { recursive: true, force: true });
+  await server?.terminate(); await rm(root, { recursive: true, force: true });
 }

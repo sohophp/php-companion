@@ -1,0 +1,380 @@
+{
+  "date": "2026-10-20",
+  "independentAuditPassed": true,
+  "actualDriverExitCode": 0,
+  "durationSeconds": 93.5855470149545,
+  "frozenInputsVerified": 7391,
+  "symlinksVerified": 25,
+  "inventory": [
+    {
+      "id": "sohophp.php-companion",
+      "version": "0.4.13",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions/sohophp.php-companion-0.4.13",
+      "active": true
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "version": "0.4.13",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions/sohophp.php-companion-symfony-0.4.13",
+      "active": true
+    },
+    {
+      "id": "sohophp.php-companion-open-source-pack",
+      "version": "0.4.13",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions/sohophp.php-companion-open-source-pack-0.4.13",
+      "active": false
+    },
+    {
+      "id": "sohophp.twig-plus",
+      "version": "1.3.8",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions/sohophp.twig-plus-1.3.8",
+      "active": true
+    },
+    {
+      "id": "editorconfig.editorconfig",
+      "version": "0.18.2",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions/editorconfig.editorconfig-0.18.2",
+      "active": true
+    },
+    {
+      "id": "eiminsasete.apacheconf-snippets",
+      "version": "1.4.0",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions/eiminsasete.apacheconf-snippets-1.4.0",
+      "active": false
+    },
+    {
+      "id": "junstyle.php-cs-fixer",
+      "version": "0.3.21",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions/junstyle.php-cs-fixer-0.3.21",
+      "active": true
+    },
+    {
+      "id": "mrmlnc.vscode-apache",
+      "version": "1.2.0",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions/mrmlnc.vscode-apache-1.2.0",
+      "active": false
+    },
+    {
+      "id": "neilbrayfield.php-docblocker",
+      "version": "2.7.0",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions/neilbrayfield.php-docblocker-2.7.0",
+      "active": true
+    },
+    {
+      "id": "redhat.vscode-xml",
+      "version": "0.29.3",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions/redhat.vscode-xml-0.29.3",
+      "active": true
+    },
+    {
+      "id": "redhat.vscode-yaml",
+      "version": "2.0.0",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions/redhat.vscode-yaml-2.0.0",
+      "active": true
+    },
+    {
+      "id": "xdebug.php-debug",
+      "version": "1.40.2",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions/xdebug.php-debug-1.40.2",
+      "active": true
+    }
+  ],
+  "realDebug": {
+    "platform": "linux",
+    "debuggerVersion": "1.40.2",
+    "breakpointLine": 3,
+    "stepLine": 4,
+    "before": "40",
+    "after": "42",
+    "scopeVariable": true,
+    "programResult": 42,
+    "workingDirectoryMatches": true,
+    "sessionTerminated": true,
+    "scope": "Actual Xdebug breakpoint, step over, scopes and watch evaluation in an isolated editor host"
+  },
+  "phpunitTasks": {
+    "results": [
+      {
+        "scenario": "pass",
+        "exitCode": 0,
+        "processId": 2586378
+      },
+      {
+        "scenario": "assertion-failure",
+        "exitCode": 1,
+        "processId": 2586387
+      },
+      {
+        "scenario": "recovery",
+        "exitCode": 0,
+        "processId": 2586440
+      }
+    ],
+    "witnesses": [
+      {
+        "value": 42,
+        "cwd": "/tmp/php-companion-packaged-vnfPzT/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 2586380
+      },
+      {
+        "value": 41,
+        "cwd": "/tmp/php-companion-packaged-vnfPzT/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 2586389
+      },
+      {
+        "value": 42,
+        "cwd": "/tmp/php-companion-packaged-vnfPzT/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 2586442
+      }
+    ],
+    "argumentPathWithSpaces": true,
+    "realProcessExecution": true,
+    "expectedAssertionFailureExitCode": 1,
+    "recoveryPassed": true,
+    "workingDirectoryAndRuntimeMatched": true,
+    "taskAndProcessEndObserved": true,
+    "noActiveOwnedTasks": true
+  },
+  "feedbackMetrics": {
+    "scalar": {
+      "noiseFiles": 9100,
+      "rounds": 50,
+      "presentExternalMembers": [
+        "sohophp.twig-plus",
+        "redhat.vscode-yaml",
+        "redhat.vscode-xml",
+        "xdebug.php-debug",
+        "junstyle.php-cs-fixer",
+        "EditorConfig.EditorConfig",
+        "eiminsasete.apacheconf-snippets",
+        "neilbrayfield.php-docblocker"
+      ],
+      "p50Ms": 69,
+      "p95Ms": 92,
+      "maxMs": 198,
+      "declarationUnsaved": true,
+      "consumerVersion": 1,
+      "definitionWaitMs": [
+        16,
+        6,
+        6,
+        5,
+        6,
+        6
+      ],
+      "slowRounds": [],
+      "firstCompositeHoverCallMs": 48,
+      "firstRoundServerTimings": {},
+      "nestedPhp72Verified": true
+    },
+    "union-shape": {
+      "rounds": 30,
+      "p50Ms": 79,
+      "p95Ms": 101,
+      "maxMs": 704,
+      "declarationUnsaved": true,
+      "consumerVersion": 3,
+      "hostRssMiB": [
+        223,
+        223,
+        223,
+        223,
+        223,
+        223,
+        223
+      ],
+      "watcherBufferPriority": true,
+      "watcherChanges": 3,
+      "pausedHoverEditWatcher": true
+    }
+  },
+  "ownedProcessesGone": [
+    2583366,
+    2583368,
+    2583372,
+    2584604,
+    2585406,
+    2586378,
+    2586387,
+    2586440,
+    2586380,
+    2586389,
+    2586442
+  ],
+  "isolatedFixtureRemoved": true,
+  "ownedDisplayRemoved": true,
+  "sourceCommit": "a7e9166ae2cbfabb1516e480d19d98a5a490a8aa",
+  "coreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+  "identityAssertionChange": {
+    "file": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/workspace/dist-test/suite/debugBreakpoints.js",
+    "beforeSHA256": "ee931064707b364078022e429aa8206d464cc49072bf078ce62ab8e4e75d905c",
+    "afterSHA256": "6f3f011a336d9ca2ddd9f5a3a2ae533f0a21599dee085876d15fb4d090adc1b7",
+    "expectedVersionBefore": "1.40.1",
+    "expectedVersionAfter": "1.40.2",
+    "functionalAssertionsChanged": false
+  },
+  "linuxCurrentExternalCombinationQualified": true,
+  "loadedFromUnpackedVsixPayload": false,
+  "formalInstalledProfileAcceptance": true,
+  "productionChanged": false,
+  "dailyProfileChanged": false,
+  "realWslAcceptance": false,
+  "complexControllerPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "productionServerTestMode": false,
+  "externalRealResponseGate": true,
+  "originalCompleteSuiteRetained": true,
+  "originalSemanticResponsesUnmodified": true,
+  "productionTestControlsIntentionallyRejected": true,
+  "lifecycleEvidence": {
+    "source": "actual-stdio-and-process-observation",
+    "actualCoreLaunches": 1,
+    "activeCoreProcesses": 1,
+    "backendExitBeforeDisposal": null,
+    "testMode": false,
+    "internalTestLifecycleCommandRegistered": false
+  },
+  "transportEvidence": {
+    "serverPid": 2584604,
+    "initializations": [
+      {
+        "id": 0,
+        "testMode": false
+      }
+    ],
+    "armed": false,
+    "reserved": null,
+    "held": null,
+    "versions": {
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/ProfileCore.php": 1,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/ProfileNamedArguments.php": 3,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/ProfileReturn.php": 2,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/ProfileReturnConsumer.php": 2,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/ProfileScalar.php": 11,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/ProfileScalarConsumer.php": 1,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/ProfileFormat.php": 8,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/ProfileAutoSave.php": 5,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/ProfileFailedSave.php": 4,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/EditorConfigProbe.php": 1,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/debug%20with%20spaces.php": 1,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/ProfileUnionShapeSource.php": 3,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/ProfileUnionShapeConsumer.php": 10,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/Controller/NamedRenderController.php": 6,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/Controller/AttributeOnlyController.php": 4,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/Controller/ShadowedCompactController.php": 1,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/Controller/CrossFileCompactController.php": 1,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/Controller/functions.php": 3,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/src/Controller/LaterCompactController.php": 1,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/real-vendor/src/ProfileFeedbackService.php": 51,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/real-vendor/src/ProfileFeedbackConsumer.php": 1,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/real-vendor/src/VersionProbe.php": 1,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/real-vendor/src/ProfileLargeShapeSource.php": 34,
+      "file:///tmp/php-companion-packaged-vnfPzT/workspace/real-vendor/src/ProfileLargeShapeConsumer.php": 2
+    },
+    "events": [
+      {
+        "kind": "production-initialize",
+        "atMs": 2566.460862,
+        "id": 0
+      },
+      {
+        "kind": "backend-test-hook-rejected",
+        "atMs": 80677.93032,
+        "id": 691,
+        "actualResult": false
+      },
+      {
+        "kind": "reserve-hover",
+        "atMs": 80680.074514,
+        "id": 693,
+        "uri": "file:///tmp/php-companion-packaged-vnfPzT/workspace/real-vendor/src/ProfileLargeShapeConsumer.php"
+      },
+      {
+        "kind": "hold-real-response",
+        "atMs": 80689.873304,
+        "id": 693,
+        "sha256": "c0d9dd3c6a6b1619380276e44f9c95e2c5155c5895c0b3c036df5f98f0903ab5",
+        "bodySHA256": "a9735b175709d66d96ce9928ef826c0d814b161d89d582b74c4f87001592e314"
+      },
+      {
+        "kind": "backend-version-confirmed",
+        "atMs": 80768.541268,
+        "uri": "file:///tmp/php-companion-packaged-vnfPzT/workspace/real-vendor/src/ProfileLargeShapeConsumer.php",
+        "version": 2
+      },
+      {
+        "kind": "release-real-response",
+        "atMs": 80862.439249,
+        "id": 693,
+        "sha256": "c0d9dd3c6a6b1619380276e44f9c95e2c5155c5895c0b3c036df5f98f0903ab5"
+      }
+    ],
+    "backendGuardRejections": 1,
+    "semanticFramesForwarded": 1460,
+    "controlledRequests": 8,
+    "backendExit": null,
+    "transportErrors": [],
+    "inputBufferedBytes": 0,
+    "outputBufferedBytes": 0
+  },
+  "archivedEvidenceSHA256": {
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/evidence/owned-fixture.json": "8880f18d78b6a3c27dbe8fdf4b2b398606da26ad9fa743e9947211c147f0cfbb",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/evidence/phpunit-task-test.php": "8b45b20e7f2347667a72ef11faaccc1d47cb43aa726040bdfdb01b5692c636c8",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/evidence/real-debug-result.json": "9111426861568cfcde88608c4ed96a0b4c1f02e2d6a5223c29a0334e7ef8275a",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/evidence/isolated-user-settings.json": "f35e75c5709f6c8f6309115d0bb309a9b7bc8c9aeaca06f1c66e5d3a75746010",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/evidence/real-debug-program.php": "9f2d17127c3292ad9516c76572eddfabb98a405a52a2f18384b9c6975f39c0d0",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/evidence/acceptance-proof.json": "65f058976a12d015024d93012b712fa813746616816b86177b23c8bda3ee0915",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/evidence/archive-missing.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/evidence/runtime-proof.json": "eedadb629b63a4260262d46286da281b30945ebf558ee52924994a3aec23fadd",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/evidence/phpunit-task-runtime.jsonl": "a62ac565a41d002e27118226b9b332ec1a699175a3423270cf1f300afd7f4943",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/evidence/server-gate-proof.json": "cf07ab4bc963ac156062f4e2956096336108a5648b2e6092b0f5aa05a05eb7f1",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/evidence/final-workspace-settings.json": "7d3921f372b6fb7458f558e589ece6058b21b00b4cda8eca0f934772d6b5e5b4",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/evidence/suite-selection.json": "95c162b778374be27e31aed44c7c87e4a4d35c264cda7fa426eb0a0d4fd99fb7",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/owned-display/display-run.json": "e92dec1965bd823192cc776c0b0c18f7634b5faacb7679596f738680e474e16e",
+    "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/owned-display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+  },
+  "formalProductCliInstallationsPassed": 3,
+  "externalLocalPayloadCliInstallationsPassed": 9,
+  "installedProductFilesCompared": 39,
+  "packageJsonDifferencesLimitedToVSCodeInstallationMetadata": true,
+  "neutralTestCarrierOnly": true,
+  "productDevelopmentPathUsed": false,
+  "liveEditorLaunchWitness": [
+    {
+      "pid": 2583387,
+      "startTicks": "36875838",
+      "executable": "/var/www/node/php-companion-rename-fix-20261015/.vscode-test/vscode-linux-x64-1.142.0/code",
+      "selectedArguments": [
+        "--user-data-dir=/tmp/php-companion-packaged-vnfPzT/profile/user-data",
+        "--extensions-dir=/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/installed-extensions",
+        "--extensionTestsPath=/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/observed-full-profile.cjs",
+        "--extensionDevelopmentPath=/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/test-carrier"
+      ]
+    }
+  ],
+  "externalMembersSource": "Nine locally repacked prior frozen payloads installed via VS Code CLI; not downloaded Marketplace artifacts",
+  "finalRootUnitTests": {
+    "passed": 155,
+    "failed": 0,
+    "skipped": 0,
+    "actualCommandExitCode": 0,
+    "report": "/var/www/node/php-companion/.vscode-test/hover-response-production-2026-10-20/final-root-tests.json"
+  },
+  "finalSourceInputsVerified": 3710,
+  "sourceTreeClean": true,
+  "sourceCommitPublished": false,
+  "installedDailyAlphaUpdated": false,
+  "candidateDirectory": "/var/www/node/php-companion-hover-guard-20261020/artifacts/php-companion-alpha-0.4.13-a7e9166a",
+  "unchangedSymAndPackArtifactsReused": true,
+  "serverRuntimeAssetsByteIdentical": 7,
+  "sourceRepairScope": "Current originating document version, closure and cancellation guards for Hover responses"
+}

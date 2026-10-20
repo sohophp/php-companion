@@ -1,0 +1,431 @@
+{
+  "delivery": {
+    "assembledAtUtc": "2026-10-19T22:34:43.881550+00:00",
+    "channel": "alpha",
+    "sourceCommit": "82549657cc019ec9fbb39811999ef674a940b4bf",
+    "productBuildSourceCommit": "a7e9166ae2cbfabb1516e480d19d98a5a490a8aa",
+    "testHarnessCommit": "b2ccc332c7f0b4ead09b768e00d2da3f65e5338f",
+    "documentationCommit": "82549657cc019ec9fbb39811999ef674a940b4bf",
+    "productInputsEquivalentToBuild": true,
+    "sourceArchiveFile": "php-companion-source-82549657.tar",
+    "sourceArchiveSHA256": "76f295d428b01825730d1288bc689a029d7cd0a430245277fc32aa16fad325f7",
+    "sourceArchiveBytes": 57292800,
+    "sourceArchiveFiles": 3717,
+    "allGitBlobContentsVerified": true,
+    "artifacts": [
+      {
+        "role": "core",
+        "id": "sohophp.php-companion",
+        "version": "0.4.13",
+        "file": "php-companion-0.4.13.vsix",
+        "bytes": 1560056,
+        "sha256": "38292610ad32b4807f15a6134c6c4bfe6c0a2ed67b1ddc42fb7e9523bd77ba77"
+      },
+      {
+        "role": "symfony",
+        "id": "sohophp.php-companion-symfony",
+        "version": "0.4.13",
+        "file": "php-companion-symfony-0.4.13.vsix",
+        "bytes": 647792,
+        "sha256": "5846ec17589f7aa731e5aa35db67f921c06b324d6964711b89c1cd45e0374f2a"
+      },
+      {
+        "role": "open-source-pack",
+        "id": "sohophp.php-companion-open-source-pack",
+        "version": "0.4.13",
+        "file": "php-companion-open-source-pack-0.4.13.vsix",
+        "bytes": 69945,
+        "sha256": "6c893fd74676222f4f39fec121b03685dbdf31656941e59b3b156dd509309bf4"
+      }
+    ],
+    "extensionBundleSHA256": "01396e453cffa4420fcd1a0c10761efdffdd26ddd0d446808a2fa6d048b07bdb",
+    "productFilesAccountedFor": 39,
+    "productPackageRebuildPerformed": false,
+    "previousQualifiedVSIXBytesRetained": true,
+    "installationAndNativeCompleteProfileQualifiedForIdenticalProductBytes": true,
+    "formalProfileFeedbackP95Ms": [
+      84,
+      108
+    ],
+    "rootTestsPassedAtTestCommit": 156,
+    "currentSourceRemoteCIQualified": false,
+    "currentCoreTwoHourStatus": "passed",
+    "realWslAcceptance": false,
+    "complexControllerBudgetQualified": false,
+    "dailyProfileUpdated": false,
+    "pushed": false,
+    "published": false,
+    "fullObjectiveComplete": false,
+    "attachedEvidence": [
+      "production-test-harness-2026-10-20.json",
+      "hover-response-production-2026-10-20.json",
+      "runtime-file-content-guard-editor-2026-10-20.json",
+      "cache-contract-audit-2026-10-20.json",
+      "stable-long-session-2026-10-20.json",
+      "unchanged-call-cost-2026-10-20.json"
+    ],
+    "evidenceRefreshedAtUtc": "2026-10-20T00:31:40.703612+00:00",
+    "currentCoreTwoHourQualified": true,
+    "currentCoreTwoHourActualElapsedMs": 7200432.795479001,
+    "currentCoreTwoHourCheckedResults": 117890,
+    "currentCoreTwoHourStaleResults": 0,
+    "currentCoreTwoHourEvidence": "evidence/stable-long-session-2026-10-20.json",
+    "currentCoreTwoHourQualificationScope": "Linux/Node22.14/PHP8.5/onDemand/1k synthetic LSP; excludes complex Controller, cancellation, UI, real-project usage, Remote and other modes/platforms",
+    "unchangedCallCostObservedMedianMsPerEdit": 784.8125610000116,
+    "crossEditCacheSafetyProven": false,
+    "attachedEvidenceSHA256": {
+      "production-test-harness-2026-10-20.json": "a45548955718a6aac17ca0f22a08d067e53ddfa4b66cfd3a3e9fe6715ede4b5c",
+      "hover-response-production-2026-10-20.json": "feb00ecbb8f4a2cb4397c54800a5edcbf2063fa2a242698967217d0f836d07b6",
+      "runtime-file-content-guard-editor-2026-10-20.json": "058e6883041105c06592f5e5767043c27e880342bad93855cd22a0f1e6251a2e",
+      "cache-contract-audit-2026-10-20.json": "991f37121456172ace4d1b07ba035720904f0868b93e082c7606e2bcadbe4ba5",
+      "stable-long-session-2026-10-20.json": "7be82f3cc958b25b56de8ca9dcd8652aeb259e717e170cb19454709c6889b049",
+      "unchanged-call-cost-2026-10-20.json": "f8f2431d276431eadd5ab6f4c2163c8f799e3f9afbcb2d4a8114779347f77073"
+    }
+  },
+  "sourceArchiveProof": {
+    "sourceCommit": "82549657cc019ec9fbb39811999ef674a940b4bf",
+    "gitTree": "732268fc58a273f17f0391d38b810b7169fc95fa",
+    "archive": "/var/www/node/php-companion-contract-docs-20261020/artifacts/php-companion-alpha-0.4.13-82549657/php-companion-source-82549657.tar",
+    "bytes": 57292800,
+    "sha256": "76f295d428b01825730d1288bc689a029d7cd0a430245277fc32aa16fad325f7",
+    "trackedFilesVerified": 3717,
+    "allTrackedFilesPresent": true,
+    "untrackedWorkIncluded": false,
+    "allGitBlobContentsVerified": 3717
+  },
+  "productContentProof": {
+    "sourceCommit": "82549657cc019ec9fbb39811999ef674a940b4bf",
+    "productBuildSourceCommit": "a7e9166ae2cbfabb1516e480d19d98a5a490a8aa",
+    "unchangedSymfonyBuildSourceCommit": "71c7b40f16ca148a2d6e52787847054307a246cf",
+    "productInputsByteIdentical": true,
+    "copies": [
+      {
+        "role": "core",
+        "source": "/var/www/node/php-companion-hover-guard-20261020/artifacts/php-companion-alpha-0.4.13-a7e9166a/php-companion-0.4.13.vsix",
+        "target": "/var/www/node/php-companion-contract-docs-20261020/php-companion-0.4.13.vsix",
+        "sha256": "38292610ad32b4807f15a6134c6c4bfe6c0a2ed67b1ddc42fb7e9523bd77ba77",
+        "entriesChecked": 18,
+        "files": [
+          {
+            "entry": "extension/package.nls.zh-cn.json",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/package.nls.zh-cn.json",
+            "archiveSHA256": "a4dd65e00773872a215ff7ebd2d0ea90913f64577f37bcf5ffbab085cb70ba18",
+            "sourceSHA256": "a4dd65e00773872a215ff7ebd2d0ea90913f64577f37bcf5ffbab085cb70ba18",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/package.nls.json",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/package.nls.json",
+            "archiveSHA256": "181ecf16c6add529cc9ef3cc9d5b05425370703cbf4040e02b7ecbabbb26b11e",
+            "sourceSHA256": "181ecf16c6add529cc9ef3cc9d5b05425370703cbf4040e02b7ecbabbb26b11e",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/package.json",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/package.json",
+            "archiveSHA256": "3be78a90284f588ea0d321a2f6d7d31cc5e4723419e3a44ccfdf57c4507db1f9",
+            "sourceSHA256": "3be78a90284f588ea0d321a2f6d7d31cc5e4723419e3a44ccfdf57c4507db1f9",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/THIRD_PARTY_NOTICES.md",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/THIRD_PARTY_NOTICES.md",
+            "archiveSHA256": "eeb805602ae1364792802b4e6cd269197c43a02c0463853ec96c0e3f7ab090d9",
+            "sourceSHA256": "eeb805602ae1364792802b4e6cd269197c43a02c0463853ec96c0e3f7ab090d9",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/SECURITY.md",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/SECURITY.md",
+            "archiveSHA256": "b5e80b9a909c4c9c87504ef4b96c9754ad6ac954f78d22a72eeab5468ab45cc5",
+            "sourceSHA256": "b5e80b9a909c4c9c87504ef4b96c9754ad6ac954f78d22a72eeab5468ab45cc5",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/readme.md",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/README.md",
+            "archiveSHA256": "76c023627c0d9094459141ba82daa1c23cddefe0f4ba318e41246605edef67a7",
+            "sourceSHA256": "6458c87d0608becb20c5c900f5fc69789b046ff71a7425103f208cc151d3979b",
+            "comparison": "unchanged-original-Markdown-input-with-frozen-VSCE-transformed-output"
+          },
+          {
+            "entry": "extension/LICENSE-phpstorm-stubs.txt",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/LICENSE-phpstorm-stubs.txt",
+            "archiveSHA256": "0b6bf6984e35b44f04c68ec5e18950cc10fea56b04576fab95fde116d0290408",
+            "sourceSHA256": "0b6bf6984e35b44f04c68ec5e18950cc10fea56b04576fab95fde116d0290408",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/LICENSE.txt",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/LICENSE",
+            "archiveSHA256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+            "sourceSHA256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/changelog.md",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/CHANGELOG.md",
+            "archiveSHA256": "5269958f4bf7cdc4ff7bf8ff46ad8c6d45e65d390abf811a68f90bc8009a114d",
+            "sourceSHA256": "5269958f4bf7cdc4ff7bf8ff46ad8c6d45e65d390abf811a68f90bc8009a114d",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/resources/icon.png",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/resources/icon.png",
+            "archiveSHA256": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a",
+            "sourceSHA256": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/web-tree-sitter.wasm",
+            "comparedSource": "/var/www/node/php-companion-hover-guard-20261020/dist/web-tree-sitter.wasm",
+            "archiveSHA256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+            "sourceSHA256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/tree-sitter-php.wasm",
+            "comparedSource": "/var/www/node/php-companion-hover-guard-20261020/dist/tree-sitter-php.wasm",
+            "archiveSHA256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+            "sourceSHA256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/sourceStatWorker.js",
+            "comparedSource": "/var/www/node/php-companion-hover-guard-20261020/dist/sourceStatWorker.js",
+            "archiveSHA256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+            "sourceSHA256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/portableCandidateSearchWorker.js",
+            "comparedSource": "/var/www/node/php-companion-hover-guard-20261020/dist/portableCandidateSearchWorker.js",
+            "archiveSHA256": "25488cd3ba4751e3e7a3e727aee8940b4fbc83ee2977880dac51f6c874fb0de6",
+            "sourceSHA256": "25488cd3ba4751e3e7a3e727aee8940b4fbc83ee2977880dac51f6c874fb0de6",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/language-server.js",
+            "comparedSource": "/var/www/node/php-companion-hover-guard-20261020/dist/language-server.js",
+            "archiveSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+            "sourceSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/extension.js",
+            "comparedSource": "/var/www/node/php-companion-hover-guard-20261020/dist/extension.js",
+            "archiveSHA256": "01396e453cffa4420fcd1a0c10761efdffdd26ddd0d446808a2fa6d048b07bdb",
+            "sourceSHA256": "01396e453cffa4420fcd1a0c10761efdffdd26ddd0d446808a2fa6d048b07bdb",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/candidateWorker.js",
+            "comparedSource": "/var/www/node/php-companion-hover-guard-20261020/dist/candidateWorker.js",
+            "archiveSHA256": "e798bc0b8d939ada28463a7512ebe71416ef92f45679347b0bd1216ebac922fc",
+            "sourceSHA256": "e798bc0b8d939ada28463a7512ebe71416ef92f45679347b0bd1216ebac922fc",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/builtinSnapshotWorker.js",
+            "comparedSource": "/var/www/node/php-companion-hover-guard-20261020/dist/builtinSnapshotWorker.js",
+            "archiveSHA256": "f7acddfd3c4f1ac04b3ad72daf34f883a6223a616166b3d07559fc049a8cda7c",
+            "sourceSHA256": "f7acddfd3c4f1ac04b3ad72daf34f883a6223a616166b3d07559fc049a8cda7c",
+            "comparison": "exact-source-or-runtime-bytes"
+          }
+        ]
+      },
+      {
+        "role": "symfony",
+        "source": "/var/www/node/php-companion-hover-guard-20261020/artifacts/php-companion-alpha-0.4.13-a7e9166a/php-companion-symfony-0.4.13.vsix",
+        "target": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-symfony/php-companion-symfony-0.4.13.vsix",
+        "sha256": "5846ec17589f7aa731e5aa35db67f921c06b324d6964711b89c1cd45e0374f2a",
+        "entriesChecked": 15,
+        "files": [
+          {
+            "entry": "extension/package.nls.zh-cn.json",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-symfony/package.nls.zh-cn.json",
+            "archiveSHA256": "5738b82c60c8b4801234cd7e63c101b34b0aa8e025ae921f3eadedd552fed5ee",
+            "sourceSHA256": "5738b82c60c8b4801234cd7e63c101b34b0aa8e025ae921f3eadedd552fed5ee",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/package.nls.json",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-symfony/package.nls.json",
+            "archiveSHA256": "b6648edd097b155db8d92b9cc49508ef87d9f70903e7a4bdffa9cc514d88f318",
+            "sourceSHA256": "b6648edd097b155db8d92b9cc49508ef87d9f70903e7a4bdffa9cc514d88f318",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/package.json",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-symfony/package.json",
+            "archiveSHA256": "45ed607d5679066d93429d8a74c1cdcf864c790f6335268716937c54d5158cbd",
+            "sourceSHA256": "45ed607d5679066d93429d8a74c1cdcf864c790f6335268716937c54d5158cbd",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/readme.md",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-symfony/README.md",
+            "archiveSHA256": "a0c7e01db895caee773f5567ebceec6e910e34da4651520ffca5bcdb259132d1",
+            "sourceSHA256": "49c89f475688811da16d7d495abfee176e792edd9b1ff4b707c5fec3724920b3",
+            "comparison": "unchanged-original-Markdown-input-with-frozen-VSCE-transformed-output"
+          },
+          {
+            "entry": "extension/LICENSE.txt",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-symfony/LICENSE",
+            "archiveSHA256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+            "sourceSHA256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/changelog.md",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-symfony/CHANGELOG.md",
+            "archiveSHA256": "2d1da1f21494c0152cc4704734225541a352272a14bdd5fc6f30c435c742f70d",
+            "sourceSHA256": "2d1da1f21494c0152cc4704734225541a352272a14bdd5fc6f30c435c742f70d",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/resources/icon.png",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-symfony/resources/icon.png",
+            "archiveSHA256": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a",
+            "sourceSHA256": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/winstar-route-provider.js",
+            "comparedSource": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/dist/winstar-route-provider.js",
+            "archiveSHA256": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+            "sourceSHA256": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/web-tree-sitter.wasm",
+            "comparedSource": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/dist/web-tree-sitter.wasm",
+            "archiveSHA256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+            "sourceSHA256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/tree-sitter-php.wasm",
+            "comparedSource": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/dist/tree-sitter-php.wasm",
+            "archiveSHA256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+            "sourceSHA256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/static-route-provider.js",
+            "comparedSource": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/dist/static-route-provider.js",
+            "archiveSHA256": "5c5db0f536d8529f0b5108faa5628eba74965bff4e39051411b0e8c9502c69eb",
+            "sourceSHA256": "5c5db0f536d8529f0b5108faa5628eba74965bff4e39051411b0e8c9502c69eb",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/service-provider.js",
+            "comparedSource": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/dist/service-provider.js",
+            "archiveSHA256": "85980c84a91960889fe974c13534b26c17baebb8f2ab6bb091f3c5ee26919529",
+            "sourceSHA256": "85980c84a91960889fe974c13534b26c17baebb8f2ab6bb091f3c5ee26919529",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/extension.js",
+            "comparedSource": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/dist/extension.js",
+            "archiveSHA256": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+            "sourceSHA256": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/event-provider.js",
+            "comparedSource": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/dist/event-provider.js",
+            "archiveSHA256": "f25156ef871067f05f93c913c3a6cb21c2577d4db45a11527269496cb1e4458d",
+            "sourceSHA256": "f25156ef871067f05f93c913c3a6cb21c2577d4db45a11527269496cb1e4458d",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/dist/controller-context-provider.js",
+            "comparedSource": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/dist/controller-context-provider.js",
+            "archiveSHA256": "eebf9eea8401d71e9c3daa710705571fd2859ccc187a801a6a2de6e6fa360f57",
+            "sourceSHA256": "eebf9eea8401d71e9c3daa710705571fd2859ccc187a801a6a2de6e6fa360f57",
+            "comparison": "exact-source-or-runtime-bytes"
+          }
+        ]
+      },
+      {
+        "role": "open-source-pack",
+        "source": "/var/www/node/php-companion-hover-guard-20261020/artifacts/php-companion-alpha-0.4.13-a7e9166a/php-companion-open-source-pack-0.4.13.vsix",
+        "target": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.13.vsix",
+        "sha256": "6c893fd74676222f4f39fec121b03685dbdf31656941e59b3b156dd509309bf4",
+        "entriesChecked": 6,
+        "files": [
+          {
+            "entry": "extension/package.nls.zh-cn.json",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-extension-pack/package.nls.zh-cn.json",
+            "archiveSHA256": "de55024ff6d8a09bf9201f46f9fcf0415466923de6517063dcf16ad5f8db25ee",
+            "sourceSHA256": "de55024ff6d8a09bf9201f46f9fcf0415466923de6517063dcf16ad5f8db25ee",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/package.nls.json",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-extension-pack/package.nls.json",
+            "archiveSHA256": "edca6f266fd4c46c8e6e96156597fcb1ee3b00e7dd6914c7fccf3377b2e2677d",
+            "sourceSHA256": "edca6f266fd4c46c8e6e96156597fcb1ee3b00e7dd6914c7fccf3377b2e2677d",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/package.json",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-extension-pack/package.json",
+            "archiveSHA256": "eb700a1442c8135dd055f9adef6490c20d7f1ed36362bb79fbdd355d401de18e",
+            "sourceSHA256": "eb700a1442c8135dd055f9adef6490c20d7f1ed36362bb79fbdd355d401de18e",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/readme.md",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-extension-pack/README.md",
+            "archiveSHA256": "0941c7281db54d2b8ce6faf6cdeac0542ce7ead9569c66ce7d9d6270f2b10892",
+            "sourceSHA256": "0941c7281db54d2b8ce6faf6cdeac0542ce7ead9569c66ce7d9d6270f2b10892",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/LICENSE.txt",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-extension-pack/LICENSE",
+            "archiveSHA256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+            "sourceSHA256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+            "comparison": "exact-source-or-runtime-bytes"
+          },
+          {
+            "entry": "extension/resources/icon.png",
+            "comparedSource": "/var/www/node/php-companion-contract-docs-20261020/packages/php-companion-extension-pack/resources/icon.png",
+            "archiveSHA256": "0b259596819f6268fde2f952ae9f1ec5702df87384de5b4a325e0b41d4da6a69",
+            "sourceSHA256": "0b259596819f6268fde2f952ae9f1ec5702df87384de5b4a325e0b41d4da6a69",
+            "comparison": "exact-source-or-runtime-bytes"
+          }
+        ]
+      }
+    ],
+    "markdownPackagingTransformExplicit": true,
+    "fullObjectiveComplete": false
+  },
+  "localOnly": true,
+  "fullObjectiveComplete": false,
+  "twoHourEvidenceRefresh": {
+    "verifiedAtUtc": "2026-10-20T00:31:40.703612+00:00",
+    "deliveryDirectory": "/var/www/node/php-companion-contract-docs-20261020/artifacts/php-companion-alpha-0.4.13-82549657",
+    "channel": "alpha",
+    "threeVSIXAndSourceArchiveBytesUnchanged": {
+      "php-companion-0.4.13.vsix": "38292610ad32b4807f15a6134c6c4bfe6c0a2ed67b1ddc42fb7e9523bd77ba77",
+      "php-companion-symfony-0.4.13.vsix": "5846ec17589f7aa731e5aa35db67f921c06b324d6964711b89c1cd45e0374f2a",
+      "php-companion-open-source-pack-0.4.13.vsix": "6c893fd74676222f4f39fec121b03685dbdf31656941e59b3b156dd509309bf4",
+      "php-companion-source-82549657.tar": "76f295d428b01825730d1288bc689a029d7cd0a430245277fc32aa16fad325f7"
+    },
+    "sourceCommitUnchanged": "82549657cc019ec9fbb39811999ef674a940b4bf",
+    "productFilesAccountedFor": 39,
+    "attachedMachineEvidenceFiles": 6,
+    "currentCoreTwoHourQualified": true,
+    "crossEditCacheSafetyProven": false,
+    "complexControllerBudgetQualified": false,
+    "currentSourceRemoteCIQualified": false,
+    "realWslAcceptance": false,
+    "fullObjectiveComplete": false,
+    "checksumEntriesVerified": 17,
+    "deliveryChecksumFileSHA256": "a939ae7b4e28a144b7fec1e35dad87ba4e7ac0e1e03c7b2a7ed87fdd026735d6",
+    "beforeRefreshManifestSHA256": "383d9c40fcbaf4a7bbfee17b97a882b38075b25b24e73d5f39ca93641c5a1a21"
+  }
+}

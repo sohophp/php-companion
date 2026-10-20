@@ -1,0 +1,1150 @@
+{
+  "recordedAtUtc": "2026-10-12T15:28:03.443224+00:00",
+  "decision": "Adopted point-only localization change; this local qualification passed; original performance budgets remain unpassed",
+  "probe": {
+    "status": "exited",
+    "pid": 90176,
+    "startedAtUtc": "2026-10-12T14:32:33.736697+00:00",
+    "stages": [
+      {
+        "variant": "control",
+        "status": "exited",
+        "pid": 90266,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "4506941926dd157b2786e03b343f1cf49ec67ad4190001fd4f4572cc5eada366",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 800.430733000001,
+            "maxMs": 830.7179780000006
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 2068.1040490000014,
+            "maxMs": 2570.3135360000006
+          },
+          "diskUnchanged": true,
+          "scope": "Unprofiled normal stdio in a frozen real-project copy; includes debounce; not real editor or final performance qualification."
+        }
+      },
+      {
+        "variant": "candidate",
+        "status": "exited",
+        "pid": 90655,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "59f1345df8a1bc341ca8add20ec6aa84ef7b4afd95f84b942dec65572c22cc1f",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 754.3114839999998,
+            "maxMs": 810.4000880000003
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1963.180464000001,
+            "maxMs": 2538.6619580000006
+          },
+          "diskUnchanged": true,
+          "scope": "Unprofiled normal stdio in a frozen real-project copy; includes debounce; not real editor or final performance qualification."
+        }
+      }
+    ],
+    "productInputs": 2085,
+    "projectInputs": 66079,
+    "qualified": true,
+    "fullObjectiveComplete": false,
+    "resultEquality": true,
+    "comparison": {
+      "control": {
+        "completionMs": {
+          "p95Ms": 800.430733000001,
+          "medianMs": 116.32554499999969,
+          "maxMs": 830.7179780000006,
+          "count": 25
+        },
+        "diagnosticMs": {
+          "p95Ms": 2068.1040490000014,
+          "medianMs": 1885.999370999998,
+          "maxMs": 2570.3135360000006,
+          "count": 25
+        }
+      },
+      "candidate": {
+        "completionMs": {
+          "p95Ms": 754.3114839999998,
+          "medianMs": 122.33700999999928,
+          "maxMs": 810.4000880000003,
+          "count": 25
+        },
+        "diagnosticMs": {
+          "p95Ms": 1963.180464000001,
+          "medianMs": 1691.1797310000002,
+          "maxMs": 2538.6619580000006,
+          "count": 25
+        }
+      }
+    },
+    "changedProductInputs": [],
+    "changedProjectInputs": [],
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T14:35:14.384216+00:00"
+  },
+  "paired": {
+    "completionMs": {
+      "improvedSamples": 12,
+      "pairedMedianImprovementPercent": -0.39374520763137966,
+      "phases": {
+        "0": -3.3808229423339053,
+        "1": 3.608651066663732
+      }
+    },
+    "diagnosticMs": {
+      "improvedSamples": 22,
+      "pairedMedianImprovementPercent": 7.662518756195935,
+      "phases": {
+        "0": 7.662518756195935,
+        "1": 7.814591991862246
+      }
+    }
+  },
+  "boundaryVerification": {
+    "passed": true,
+    "fixtures": 36,
+    "queries": 10584,
+    "predicateVisits": 4162568,
+    "controlMs": 4536.63694000004,
+    "candidateMs": 1915.706462000006,
+    "details": [
+      {
+        "name": "empty",
+        "queries": 12,
+        "rootEnd": 0,
+        "materializations": 1
+      },
+      {
+        "name": "tag",
+        "queries": 48,
+        "rootEnd": 5,
+        "materializations": 2
+      },
+      {
+        "name": "adjacent",
+        "queries": 128,
+        "rootEnd": 25,
+        "materializations": 22
+      },
+      {
+        "name": "named-args",
+        "queries": 492,
+        "rootEnd": 71,
+        "materializations": 42
+      },
+      {
+        "name": "unicode",
+        "queries": 448,
+        "rootEnd": 59,
+        "materializations": 35
+      },
+      {
+        "name": "mixed",
+        "queries": 260,
+        "rootEnd": 58,
+        "materializations": 15
+      },
+      {
+        "name": "recovery",
+        "queries": 272,
+        "rootEnd": 51,
+        "materializations": 22
+      },
+      {
+        "name": "nested",
+        "queries": 960,
+        "rootEnd": 87,
+        "materializations": 115
+      },
+      {
+        "name": "attributes",
+        "queries": 492,
+        "rootEnd": 80,
+        "materializations": 49
+      },
+      {
+        "name": "closures",
+        "queries": 524,
+        "rootEnd": 70,
+        "materializations": 58
+      },
+      {
+        "name": "missing",
+        "queries": 296,
+        "rootEnd": 48,
+        "materializations": 17
+      },
+      {
+        "name": "truncated-6",
+        "queries": 52,
+        "rootEnd": 6,
+        "materializations": 2
+      },
+      {
+        "name": "truncated-13",
+        "queries": 80,
+        "rootEnd": 13,
+        "materializations": 4
+      },
+      {
+        "name": "truncated-20",
+        "queries": 108,
+        "rootEnd": 20,
+        "materializations": 5
+      },
+      {
+        "name": "truncated-27",
+        "queries": 196,
+        "rootEnd": 27,
+        "materializations": 14
+      },
+      {
+        "name": "truncated-34",
+        "queries": 224,
+        "rootEnd": 34,
+        "materializations": 15
+      },
+      {
+        "name": "truncated-41",
+        "queries": 252,
+        "rootEnd": 41,
+        "materializations": 17
+      },
+      {
+        "name": "truncated-48",
+        "queries": 280,
+        "rootEnd": 48,
+        "materializations": 19
+      },
+      {
+        "name": "truncated-55",
+        "queries": 308,
+        "rootEnd": 55,
+        "materializations": 20
+      },
+      {
+        "name": "truncated-62",
+        "queries": 336,
+        "rootEnd": 62,
+        "materializations": 21
+      },
+      {
+        "name": "truncated-69",
+        "queries": 364,
+        "rootEnd": 69,
+        "materializations": 28
+      },
+      {
+        "name": "truncated-76",
+        "queries": 392,
+        "rootEnd": 76,
+        "materializations": 30
+      },
+      {
+        "name": "truncated-83",
+        "queries": 600,
+        "rootEnd": 83,
+        "materializations": 47
+      },
+      {
+        "name": "truncated-90",
+        "queries": 628,
+        "rootEnd": 90,
+        "materializations": 46
+      },
+      {
+        "name": "truncated-97",
+        "queries": 656,
+        "rootEnd": 97,
+        "materializations": 46
+      },
+      {
+        "name": "depth-180",
+        "queries": 128,
+        "rootEnd": 388,
+        "materializations": 563
+      },
+      {
+        "name": "depth-255",
+        "queries": 128,
+        "rootEnd": 538,
+        "materializations": 775
+      },
+      {
+        "name": "depth-256",
+        "queries": 128,
+        "rootEnd": 540,
+        "materializations": 775
+      },
+      {
+        "name": "depth-257",
+        "queries": 128,
+        "rootEnd": 542,
+        "materializations": 775
+      },
+      {
+        "name": "depth-300",
+        "queries": 128,
+        "rootEnd": 628,
+        "materializations": 775
+      },
+      {
+        "name": "width-99995",
+        "queries": 32,
+        "rootEnd": 199996,
+        "materializations": 100001
+      },
+      {
+        "name": "width-99996",
+        "queries": 32,
+        "rootEnd": 199998,
+        "materializations": 100001
+      },
+      {
+        "name": "width-99997",
+        "queries": 32,
+        "rootEnd": 200000,
+        "materializations": 100001
+      },
+      {
+        "name": "width-99998",
+        "queries": 32,
+        "rootEnd": 200002,
+        "materializations": 100001
+      },
+      {
+        "name": "width-100000",
+        "queries": 32,
+        "rootEnd": 200006,
+        "materializations": 100000
+      },
+      {
+        "name": "controller",
+        "queries": 1376,
+        "rootEnd": 45588,
+        "materializations": 7902
+      }
+    ],
+    "scope": "Private differential helpers on actual native PHP trees; exact selected node and predicate order, same depth and node budgets. Not whole-product performance qualification."
+  },
+  "sourceAdoption": {
+    "beforeSha256": "3333df4dfa316e8dba4cdab36b0fc0fd1545e3ad0d2db086548f9bc535ace840",
+    "afterSha256": "a37de8d2b270ccb9d7ed06f27d5c1ccd4253f57409aa048e2cb5685a71d7fcd6",
+    "adoptedFunctionOnly": true,
+    "baselineProductMutation": false,
+    "diagnosticImprovedSamples": 22,
+    "pairedMedianImprovementPercent": 7.662518756195935,
+    "boundaries": {
+      "passed": true,
+      "fixtures": 36,
+      "queries": 10584,
+      "predicateVisits": 4162568,
+      "controlMs": 4536.63694000004,
+      "candidateMs": 1915.706462000006,
+      "details": [
+        {
+          "name": "empty",
+          "queries": 12,
+          "rootEnd": 0,
+          "materializations": 1
+        },
+        {
+          "name": "tag",
+          "queries": 48,
+          "rootEnd": 5,
+          "materializations": 2
+        },
+        {
+          "name": "adjacent",
+          "queries": 128,
+          "rootEnd": 25,
+          "materializations": 22
+        },
+        {
+          "name": "named-args",
+          "queries": 492,
+          "rootEnd": 71,
+          "materializations": 42
+        },
+        {
+          "name": "unicode",
+          "queries": 448,
+          "rootEnd": 59,
+          "materializations": 35
+        },
+        {
+          "name": "mixed",
+          "queries": 260,
+          "rootEnd": 58,
+          "materializations": 15
+        },
+        {
+          "name": "recovery",
+          "queries": 272,
+          "rootEnd": 51,
+          "materializations": 22
+        },
+        {
+          "name": "nested",
+          "queries": 960,
+          "rootEnd": 87,
+          "materializations": 115
+        },
+        {
+          "name": "attributes",
+          "queries": 492,
+          "rootEnd": 80,
+          "materializations": 49
+        },
+        {
+          "name": "closures",
+          "queries": 524,
+          "rootEnd": 70,
+          "materializations": 58
+        },
+        {
+          "name": "missing",
+          "queries": 296,
+          "rootEnd": 48,
+          "materializations": 17
+        },
+        {
+          "name": "truncated-6",
+          "queries": 52,
+          "rootEnd": 6,
+          "materializations": 2
+        },
+        {
+          "name": "truncated-13",
+          "queries": 80,
+          "rootEnd": 13,
+          "materializations": 4
+        },
+        {
+          "name": "truncated-20",
+          "queries": 108,
+          "rootEnd": 20,
+          "materializations": 5
+        },
+        {
+          "name": "truncated-27",
+          "queries": 196,
+          "rootEnd": 27,
+          "materializations": 14
+        },
+        {
+          "name": "truncated-34",
+          "queries": 224,
+          "rootEnd": 34,
+          "materializations": 15
+        },
+        {
+          "name": "truncated-41",
+          "queries": 252,
+          "rootEnd": 41,
+          "materializations": 17
+        },
+        {
+          "name": "truncated-48",
+          "queries": 280,
+          "rootEnd": 48,
+          "materializations": 19
+        },
+        {
+          "name": "truncated-55",
+          "queries": 308,
+          "rootEnd": 55,
+          "materializations": 20
+        },
+        {
+          "name": "truncated-62",
+          "queries": 336,
+          "rootEnd": 62,
+          "materializations": 21
+        },
+        {
+          "name": "truncated-69",
+          "queries": 364,
+          "rootEnd": 69,
+          "materializations": 28
+        },
+        {
+          "name": "truncated-76",
+          "queries": 392,
+          "rootEnd": 76,
+          "materializations": 30
+        },
+        {
+          "name": "truncated-83",
+          "queries": 600,
+          "rootEnd": 83,
+          "materializations": 47
+        },
+        {
+          "name": "truncated-90",
+          "queries": 628,
+          "rootEnd": 90,
+          "materializations": 46
+        },
+        {
+          "name": "truncated-97",
+          "queries": 656,
+          "rootEnd": 97,
+          "materializations": 46
+        },
+        {
+          "name": "depth-180",
+          "queries": 128,
+          "rootEnd": 388,
+          "materializations": 563
+        },
+        {
+          "name": "depth-255",
+          "queries": 128,
+          "rootEnd": 538,
+          "materializations": 775
+        },
+        {
+          "name": "depth-256",
+          "queries": 128,
+          "rootEnd": 540,
+          "materializations": 775
+        },
+        {
+          "name": "depth-257",
+          "queries": 128,
+          "rootEnd": 542,
+          "materializations": 775
+        },
+        {
+          "name": "depth-300",
+          "queries": 128,
+          "rootEnd": 628,
+          "materializations": 775
+        },
+        {
+          "name": "width-99995",
+          "queries": 32,
+          "rootEnd": 199996,
+          "materializations": 100001
+        },
+        {
+          "name": "width-99996",
+          "queries": 32,
+          "rootEnd": 199998,
+          "materializations": 100001
+        },
+        {
+          "name": "width-99997",
+          "queries": 32,
+          "rootEnd": 200000,
+          "materializations": 100001
+        },
+        {
+          "name": "width-99998",
+          "queries": 32,
+          "rootEnd": 200002,
+          "materializations": 100001
+        },
+        {
+          "name": "width-100000",
+          "queries": 32,
+          "rootEnd": 200006,
+          "materializations": 100000
+        },
+        {
+          "name": "controller",
+          "queries": 1376,
+          "rootEnd": 45588,
+          "materializations": 7902
+        }
+      ],
+      "scope": "Private differential helpers on actual native PHP trees; exact selected node and predicate order, same depth and node budgets. Not whole-product performance qualification."
+    },
+    "status": "requires normal build and full regression",
+    "fullObjectiveComplete": false
+  },
+  "qualification": {
+    "status": "exited",
+    "pid": 92054,
+    "stages": [
+      {
+        "name": "semantic-build",
+        "status": "exited",
+        "exitCode": 0,
+        "previousTaskExitVerified": true,
+        "logSha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+      },
+      {
+        "name": "language-server-build",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/language-server",
+          "build"
+        ],
+        "status": "exited",
+        "pid": 92108,
+        "startTicks": "46452866",
+        "exitCode": 0,
+        "seconds": 9.350785364978947,
+        "logSha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+      },
+      {
+        "name": "production-build",
+        "command": [
+          "node",
+          "esbuild.mjs",
+          "--production"
+        ],
+        "status": "exited",
+        "pid": 92188,
+        "startTicks": "46453802",
+        "exitCode": 0,
+        "seconds": 0.6366191140259616,
+        "logSha256": "c09a92956ca3c725989af30852f6d553a0380c8257d78d39a27f3f12fbf6a418"
+      },
+      {
+        "name": "semantic-full",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/semantic",
+          "test"
+        ],
+        "status": "exited",
+        "pid": 92222,
+        "startTicks": "46453873",
+        "exitCode": 0,
+        "seconds": 68.23114632500801,
+        "logSha256": "644dfc61e9838162011bcf3c49092c23ad6d6ac5588adc9c65ceb535e6a2366e"
+      },
+      {
+        "name": "root-tests",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run"
+        ],
+        "status": "exited",
+        "pid": 94817,
+        "startTicks": "46460697",
+        "exitCode": 0,
+        "seconds": 7.6371695170528255,
+        "logSha256": "2400e61459cba95a211d7c312953d9fbe946801dc8d796f0c796394e455ac68f"
+      },
+      {
+        "name": "index-full",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/index",
+          "test"
+        ],
+        "status": "exited",
+        "pid": 95145,
+        "startTicks": "46461460",
+        "exitCode": 0,
+        "seconds": 4.219376956985798,
+        "logSha256": "fe7533bed6727d79c4f0a6a6110d3df6493a18592889109f39d02986a0c09783"
+      },
+      {
+        "name": "root-typecheck",
+        "command": [
+          "pnpm",
+          "exec",
+          "tsc",
+          "--noEmit"
+        ],
+        "status": "exited",
+        "pid": 95282,
+        "startTicks": "46461883",
+        "exitCode": 0,
+        "seconds": 5.418411647027824,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "scoped-lint",
+        "command": [
+          "pnpm",
+          "exec",
+          "eslint",
+          "packages/semantic/src/index.ts",
+          "packages/language-server/src/server.ts",
+          "packages/language-server/test/stdio.test.ts",
+          "packages/language-server/test/symfony-container-provider-concurrency-stdio.test.ts",
+          "packages/index/test/index.test.ts"
+        ],
+        "status": "exited",
+        "pid": 95333,
+        "startTicks": "46462425",
+        "exitCode": 0,
+        "seconds": 16.478743778017815,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "public-contracts",
+        "command": [
+          "pnpm",
+          "check:public-contracts"
+        ],
+        "status": "exited",
+        "pid": 95453,
+        "startTicks": "46464073",
+        "exitCode": 0,
+        "seconds": 2.352847184985876,
+        "logSha256": "96d5257ecf7cb0a9b38d9d2e32388b62d812e3cb76f1353ace084d1feec976d3"
+      },
+      {
+        "name": "component-boundaries",
+        "command": [
+          "pnpm",
+          "check:component-boundaries"
+        ],
+        "status": "exited",
+        "pid": 95493,
+        "startTicks": "46464308",
+        "exitCode": 0,
+        "seconds": 3.708399676019326,
+        "logSha256": "0319798450e2f1e97e65ed8a6af638b1a08c3e8d6c50649dbe2db3eae3c6f01d"
+      },
+      {
+        "name": "full-lsp",
+        "command": [
+          "python3",
+          "/var/www/node/php-companion/.vscode-test/performance-point-syntax-2026-10-12/run-full-lsp.py"
+        ],
+        "status": "exited",
+        "pid": 95521,
+        "startTicks": "46464679",
+        "exitCode": 0,
+        "seconds": 2028.841472873988,
+        "logSha256": "1deb3d0d140aa3e29d4860bb3b03cedf141bba6a573682b72027766dd8655053"
+      },
+      {
+        "name": "editor-compile",
+        "command": [
+          "pnpm",
+          "exec",
+          "tsc",
+          "-p",
+          "test/extension/tsconfig.json"
+        ],
+        "status": "exited",
+        "pid": 40548,
+        "startTicks": "46667566",
+        "exitCode": 0,
+        "seconds": 13.69869003695203,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "editor-c1-onDemand",
+        "command": [
+          "python3",
+          "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/performance-point-syntax-2026-10-12/editor-c1-onDemand-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "status": "exited",
+        "pid": 40629,
+        "startTicks": "46668942",
+        "exitCode": 0,
+        "seconds": 97.70909592998214,
+        "logSha256": "6804e0c474cb692327af963ddb7e473f6f595ea3838681ac84f0112404981438",
+        "inputDrift": [],
+        "editorSha256": "281399f7f9079213ec3fa9c46de38360cf1c749d4d9330584673ed0dae72ee31",
+        "displayCleaned": true,
+        "generationBoundaryCases": null
+      },
+      {
+        "name": "editor-c2-onDemand",
+        "command": [
+          "python3",
+          "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/performance-point-syntax-2026-10-12/editor-c2-onDemand-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "status": "exited",
+        "pid": 43495,
+        "startTicks": "46678913",
+        "exitCode": 0,
+        "seconds": 136.33162676304346,
+        "logSha256": "377d524bd5c38f3c6eb5878e0552bcb36257defa1db15ff316f199bfbb1c8651",
+        "inputDrift": [],
+        "editorSha256": "281399f7f9079213ec3fa9c46de38360cf1c749d4d9330584673ed0dae72ee31",
+        "displayCleaned": true,
+        "generationBoundaryCases": null
+      },
+      {
+        "name": "editor-c3-onDemand",
+        "command": [
+          "python3",
+          "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/performance-point-syntax-2026-10-12/editor-c3-onDemand-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "status": "exited",
+        "pid": 45336,
+        "startTicks": "46692669",
+        "exitCode": 0,
+        "seconds": 280.76056665100623,
+        "logSha256": "2bcbf70ae2142eda26c895b5a3bbf5ad2fadfa0e6cfa7d2a480ac6378983e527",
+        "inputDrift": [],
+        "editorSha256": "281399f7f9079213ec3fa9c46de38360cf1c749d4d9330584673ed0dae72ee31",
+        "displayCleaned": true,
+        "generationBoundaryCases": 40
+      },
+      {
+        "name": "editor-c3-progressive",
+        "command": [
+          "python3",
+          "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/performance-point-syntax-2026-10-12/editor-c3-progressive-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "status": "exited",
+        "pid": 53368,
+        "startTicks": "46720859",
+        "exitCode": 0,
+        "seconds": 249.9100514559541,
+        "logSha256": "f24707b21854188c68497bb90a0bc45628d1d945f694f043b02f53054d2b14dd",
+        "inputDrift": [],
+        "editorSha256": "281399f7f9079213ec3fa9c46de38360cf1c749d4d9330584673ed0dae72ee31",
+        "displayCleaned": true,
+        "generationBoundaryCases": 40
+      },
+      {
+        "name": "native-windows-service-refresh",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-point-syntax-8eovbb51\\verify.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-point-syntax-8eovbb51\\runtime",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-point-syntax-8eovbb51\\service-provider.js",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-point-syntax-8eovbb51\\evidence"
+        ],
+        "status": "exited",
+        "pid": 60895,
+        "startTicks": "46746009",
+        "exitCode": 0,
+        "seconds": 10.550515230977908,
+        "logSha256": "e64422c86082d4c9e31f389fe2091a1884a686bc1daf17859926cc6918a4b7bd"
+      }
+    ],
+    "startedAtUtc": "2026-10-12T14:38:17.771048+00:00",
+    "qualified": true,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "sourceSha256": "a37de8d2b270ccb9d7ed06f27d5c1ccd4253f57409aa048e2cb5685a71d7fcd6",
+    "measuredPrivateBundleSha256": "59f1345df8a1bc341ca8add20ec6aa84ef7b4afd95f84b942dec65572c22cc1f",
+    "stableBundleSha256": "59f1345df8a1bc341ca8add20ec6aa84ef7b4afd95f84b942dec65572c22cc1f",
+    "normalRuntimeFilesMatchMeasuredPrototype": 8,
+    "stableRegression": {
+      "status": "exited",
+      "wrapperPid": 95521,
+      "command": [
+        "pnpm",
+        "--filter",
+        "@php-companion/language-server",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile.json=/var/www/node/php-companion/.vscode-test/performance-point-syntax-2026-10-12/full-lsp-results.json"
+      ],
+      "baseCommit": "a919d53f997ac462d2758a1968a3e4bc9c0ce959",
+      "bundleSha256": "59f1345df8a1bc341ca8add20ec6aa84ef7b4afd95f84b942dec65572c22cc1f",
+      "inputs": 2085,
+      "startedAtUtc": "2026-10-12T14:40:16.410281+00:00",
+      "fullObjectiveComplete": false,
+      "childPid": 95524,
+      "processGroup": 95524,
+      "exitCode": 0,
+      "changedInputs": [],
+      "finishedAtUtc": "2026-10-12T15:14:05.477661+00:00",
+      "testFiles": 141,
+      "total": 1647,
+      "passed": 1646,
+      "failed": 0,
+      "pending": 1,
+      "success": true,
+      "qualified": true
+    },
+    "nativeWindows": [
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "onDemand",
+        "serverPid": 31692,
+        "bundleSha256": "59f1345df8a1bc341ca8add20ec6aa84ef7b4afd95f84b942dec65572c22cc1f",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "cancellationMs": 3.7694000000001324,
+        "correct": true,
+        "providerCalls": [
+          {
+            "pid": 50068,
+            "held": false
+          },
+          {
+            "pid": 14904,
+            "held": true
+          }
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      },
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "progressive",
+        "serverPid": 53032,
+        "bundleSha256": "59f1345df8a1bc341ca8add20ec6aa84ef7b4afd95f84b942dec65572c22cc1f",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "cancellationMs": 2.7735000000011496,
+        "correct": true,
+        "providerCalls": [
+          {
+            "pid": 52056,
+            "held": false
+          },
+          {
+            "pid": 31900,
+            "held": true
+          }
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      }
+    ],
+    "nativeTemporaryDirectoryRemoved": true,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T15:27:20.499758+00:00"
+  },
+  "functionalExpansion": false,
+  "performanceBudgetsPassed": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "committed": false,
+  "pushed": false,
+  "fullLsp": {
+    "status": "exited",
+    "wrapperPid": 95521,
+    "command": [
+      "pnpm",
+      "--filter",
+      "@php-companion/language-server",
+      "exec",
+      "vitest",
+      "run",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=/var/www/node/php-companion/.vscode-test/performance-point-syntax-2026-10-12/full-lsp-results.json"
+    ],
+    "baseCommit": "a919d53f997ac462d2758a1968a3e4bc9c0ce959",
+    "bundleSha256": "59f1345df8a1bc341ca8add20ec6aa84ef7b4afd95f84b942dec65572c22cc1f",
+    "inputs": 2085,
+    "startedAtUtc": "2026-10-12T14:40:16.410281+00:00",
+    "fullObjectiveComplete": false,
+    "childPid": 95524,
+    "processGroup": 95524,
+    "exitCode": 0,
+    "changedInputs": [],
+    "finishedAtUtc": "2026-10-12T15:14:05.477661+00:00",
+    "testFiles": 141,
+    "total": 1647,
+    "passed": 1646,
+    "failed": 0,
+    "pending": 1,
+    "success": true,
+    "qualified": true
+  },
+  "currentAudit": {
+    "recordedAtUtc": "2026-10-12T14:42:27.733299+00:00",
+    "status": "verified live full-lsp",
+    "liveProcesses": [
+      {
+        "pid": 92054,
+        "state": "S",
+        "startTicks": "46452840"
+      },
+      {
+        "pid": 95521,
+        "state": "S",
+        "startTicks": "46464679"
+      },
+      {
+        "pid": 95524,
+        "state": "S",
+        "startTicks": "46464731"
+      }
+    ],
+    "frozenInputs": 2085,
+    "changedInputs": [],
+    "productionChanges": [
+      "packages/language-server/src/server.ts",
+      "packages/semantic/src/index.ts"
+    ],
+    "bundleSha256": "59f1345df8a1bc341ca8add20ec6aa84ef7b4afd95f84b942dec65572c22cc1f",
+    "taskSession": 98704,
+    "fullObjectiveComplete": false
+  },
+  "fullLspTerminalAudit": {
+    "recordedAtUtc": "2026-10-12T15:16:38.517715+00:00",
+    "testFiles": 141,
+    "total": 1647,
+    "passed": 1646,
+    "failed": 0,
+    "skipped": [
+      "language server stdio restores proven references across processes and rejects changed query inputs"
+    ],
+    "sameCaseNamesCountsAndStatusesAsStableBaseline": true,
+    "frozenInputs": 2085,
+    "changedInputs": [],
+    "processGroupEmpty": true,
+    "bundleSha256": "59f1345df8a1bc341ca8add20ec6aa84ef7b4afd95f84b942dec65572c22cc1f",
+    "fullObjectiveComplete": false
+  },
+  "finalAudit": {
+    "recordedAtUtc": "2026-10-12T15:28:03.443224+00:00",
+    "qualifiedThisBatch": true,
+    "bundleSha256": "59f1345df8a1bc341ca8add20ec6aa84ef7b4afd95f84b942dec65572c22cc1f",
+    "frozenInputs": 2085,
+    "changedInputs": [],
+    "lspProcessGroupEmpty": true,
+    "editor": [
+      {
+        "name": "editor-c1-onDemand",
+        "seconds": 97.70909592998214,
+        "generationBoundaryCases": null,
+        "inputDrift": [],
+        "displayCleaned": true
+      },
+      {
+        "name": "editor-c2-onDemand",
+        "seconds": 136.33162676304346,
+        "generationBoundaryCases": null,
+        "inputDrift": [],
+        "displayCleaned": true
+      },
+      {
+        "name": "editor-c3-onDemand",
+        "seconds": 280.76056665100623,
+        "generationBoundaryCases": 40,
+        "inputDrift": [],
+        "displayCleaned": true
+      },
+      {
+        "name": "editor-c3-progressive",
+        "seconds": 249.9100514559541,
+        "generationBoundaryCases": 40,
+        "inputDrift": [],
+        "displayCleaned": true
+      }
+    ],
+    "nativeWindows": [
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "onDemand",
+        "serverPid": 31692,
+        "bundleSha256": "59f1345df8a1bc341ca8add20ec6aa84ef7b4afd95f84b942dec65572c22cc1f",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "cancellationMs": 3.7694000000001324,
+        "correct": true,
+        "providerCalls": [
+          {
+            "pid": 50068,
+            "held": false
+          },
+          {
+            "pid": 14904,
+            "held": true
+          }
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      },
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "progressive",
+        "serverPid": 53032,
+        "bundleSha256": "59f1345df8a1bc341ca8add20ec6aa84ef7b4afd95f84b942dec65572c22cc1f",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "cancellationMs": 2.7735000000011496,
+        "correct": true,
+        "providerCalls": [
+          {
+            "pid": 52056,
+            "held": false
+          },
+          {
+            "pid": 31900,
+            "held": true
+          }
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      }
+    ],
+    "nativeTemporaryDirectoryRemoved": true,
+    "fullObjectiveComplete": false,
+    "performanceBudgetsPassed": false
+  }
+}

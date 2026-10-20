@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-20",
+  "scope": "source-array exact signature location filter only",
+  "fourEditMs": [
+    45.68508899999324,
+    47.095542999993995,
+    41.90052399999695,
+    41.064136999992115
+  ],
+  "medianMs": 43.792806499995095,
+  "minimumAdmissionMs": 50,
+  "admitted": false,
+  "prototypeImplemented": false,
+  "completeFourStateResultsEqual": true,
+  "productInputsVerified": 3316,
+  "projectInputsVerified": 66079,
+  "ownedServersGone": true,
+  "cachesRemoved": true,
+  "currentCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "productionChanged": false,
+  "fullObjectiveComplete": false
+}

@@ -1,0 +1,86 @@
+{
+  "qualified": true,
+  "currentNormalProductionServerScaleQualified": true,
+  "engineSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+  "originalWorkloadByteIdentical": true,
+  "scales": [
+    1000,
+    10000,
+    50000
+  ],
+  "roundsPerScale": 5,
+  "actualServers": 30,
+  "originalBudgetsPreserved": true,
+  "frozenInputsRechecked": 2097,
+  "frozenLinksRechecked": 49,
+  "ownedProcessesAndGroupsGone": true,
+  "fixturesRemoved": true,
+  "statistics": {
+    "1000": {
+      "cold": {
+        "indexP95Ms": 2122,
+        "maximumRssMiB": 356.8671875,
+        "maximumCacheBytes": 2694931,
+        "firstExactCompletionP95Ms": 2879.930859,
+        "maximumHotQueryP95Ms": 3.3368710000004285
+      },
+      "warm": {
+        "indexP95Ms": 1804,
+        "maximumRssMiB": 334.50390625,
+        "maximumCacheBytes": 2694931,
+        "firstExactCompletionP95Ms": 2979.0004990000007,
+        "maximumHotQueryP95Ms": 3.870628000000579
+      }
+    },
+    "10000": {
+      "cold": {
+        "indexP95Ms": 15862,
+        "maximumRssMiB": 588,
+        "maximumCacheBytes": 27010441,
+        "firstExactCompletionP95Ms": 2904.108599,
+        "maximumHotQueryP95Ms": 3.5375349999994796
+      },
+      "warm": {
+        "indexP95Ms": 11827,
+        "maximumRssMiB": 512.7734375,
+        "maximumCacheBytes": 27010441,
+        "firstExactCompletionP95Ms": 2863.2686360000007,
+        "maximumHotQueryP95Ms": 3.3829790000017965
+      }
+    },
+    "50000": {
+      "cold": {
+        "indexP95Ms": 74870,
+        "maximumRssMiB": 1107,
+        "maximumCacheBytes": 135295647,
+        "firstExactCompletionP95Ms": 3004.773142,
+        "maximumHotQueryP95Ms": 3.6986439999891445
+      },
+      "warm": {
+        "indexP95Ms": 55656,
+        "maximumRssMiB": 1111.31640625,
+        "maximumCacheBytes": 135295647,
+        "firstExactCompletionP95Ms": 2913.446081000002,
+        "maximumHotQueryP95Ms": 3.56090100001893
+      }
+    }
+  },
+  "scope": "Linux PHP8.5 progressive actual production server, explicit maxFiles per scale, cold/warm project indexing, cache bytes, first and hot queries. wait4 covers server threads through shutdown; driver memory and editor UI are outside scope. Progressive excludes vendor indexing.",
+  "fullPerformanceQualified": false,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "date": "2026-10-13",
+  "artifactDigests": {
+    "state.json": "b557768c7f5a835c120dfb9c7b543c109302b68d9e2f6ce57e60d40079104edd",
+    "inputs.json": "bfc5848a433f6b8ad4b32a1c3f23ed82f57716ba0c65d11830c5b1a6c899d57e",
+    "final-audit.json": "ef937dad3e9c8f85c90ab3ed58ada7579bb426af110ef2fb2ccd689fcbd0e136",
+    "archive/manifest.json": "185ee0db2d1a60b5411cb3466081d9895ea2255b3a239974b945692898a784e2"
+  },
+  "archiveFiles": 201,
+  "hotQueries": 9000,
+  "productSourceChanged": false,
+  "remoteCIExecuted": false,
+  "newFullDefaultTestExecuted": false,
+  "firstExactCompletionMaximumMs": 3004.773142
+}

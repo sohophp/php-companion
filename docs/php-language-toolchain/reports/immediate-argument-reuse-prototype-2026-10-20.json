@@ -1,0 +1,179 @@
+{
+  "independentAuditPassed": true,
+  "validationActualExitCodes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "performanceActualExitCodes": [
+    0,
+    0
+  ],
+  "groups": {
+    "semantic": {
+      "passedEachSide": 24491,
+      "notSelectedEachSide": 0,
+      "caseIdentitiesAndStatesEqual": true
+    },
+    "protocol": {
+      "passedEachSide": 75,
+      "notSelectedEachSide": 0,
+      "caseIdentitiesAndStatesEqual": true
+    },
+    "version": {
+      "passedEachSide": 36,
+      "notSelectedEachSide": 532,
+      "caseIdentitiesAndStatesEqual": true
+    }
+  },
+  "differentialStates": 960,
+  "typecheckPassed": true,
+  "singleArgumentSourceAndRuntimeVerified": true,
+  "boundaryChecks": 47,
+  "allEightRecursiveGuardsExercised": true,
+  "realPartialAndFullLazyMaterializationExercised": true,
+  "frozenExecutionInputsVerified": 70702,
+  "observationalStatusTransition": {
+    "observedOriginalSHA256": "88ea1d16fc3f3d57cf436fd63c5b77220252b97e166a777492aa2411d7424e7f",
+    "capturedByteSHA256": "88ea1d16fc3f3d57cf436fd63c5b77220252b97e166a777492aa2411d7424e7f",
+    "afterSHA256": "29c00259f0319fa4a3d7e2b158b1bb7df5e93cb4c62e20bd2849e2584542275f",
+    "declaredBeforeMeasurement": true,
+    "ruleSHA256": "b9fc347dfd7cb8445894975c2314414b6a0aa37975c68626199348253dca6df3",
+    "originalAuditorActualExitCode": 1,
+    "originalAuditorFailureRetained": true,
+    "onlyExpectedOrchestratorTransitionAfterPerformanceExit": true,
+    "allOriginalDigestsCheckedWhileMeasurementWasFinishing": true,
+    "runtimeOrResultNormalization": false,
+    "measurementRerun": false
+  },
+  "postRunIndependentAuditorCorrected": true,
+  "complete25StateResultsEqual": true,
+  "comparison": {
+    "control": {
+      "diagnosticMs": {
+        "p95Ms": 1475.316644999999,
+        "medianMs": 1277.963127000001,
+        "maxMs": 1864.9976400000005
+      },
+      "completionMs": {
+        "p95Ms": 689.8008769999997,
+        "medianMs": 562.6712109999935,
+        "maxMs": 715.0084739999984
+      }
+    },
+    "prototype": {
+      "diagnosticMs": {
+        "p95Ms": 1394.7520609999992,
+        "medianMs": 1125.6262820000047,
+        "maxMs": 1950.0910480000002
+      },
+      "completionMs": {
+        "p95Ms": 658.7844530000002,
+        "medianMs": 559.0029560000039,
+        "maxMs": 674.8342399999965
+      }
+    }
+  },
+  "paired": {
+    "diagnosticMs": {
+      "improvedSamples": 23,
+      "medianImprovementPercent": 11.700252619641006
+    },
+    "completionMs": {
+      "improvedSamples": 13,
+      "medianImprovementPercent": 1.1599995834965275
+    }
+  },
+  "admissionChecks": {
+    "diagnosticImprovedSamples": true,
+    "diagnosticPairedMedianImprovement": true,
+    "diagnosticP95Improved": true,
+    "queryP95RegressionBound": true,
+    "queryMedianRegressionBound": true,
+    "completeResultsAndInputsUnchanged": true
+  },
+  "admitted": true,
+  "originalDiagnosticBudgetPassed": false,
+  "originalQueryBudgetPassed": false,
+  "ownedRuntimeProcessesGone": true,
+  "cachesRemoved": true,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "auditedAtUtc": "2026-10-20T04:25:57.884880+00:00",
+  "independentAuditorActualExitCode": 0,
+  "originalPipelineActualExitCode": 1,
+  "originalPostRunAuditorActualExitCode": 1,
+  "originalPipelineFailureWasTelemetryOnly": true,
+  "publicDeclarationProof": {
+    "qualified": true,
+    "declarationFilesCompared": 9,
+    "allPublicDeclarationsByteEqual": true,
+    "noEmitToProduction": true,
+    "privateTypeScriptSourceLoaded": true,
+    "performanceWasNotRunning": true,
+    "files": {
+      "completionIdentifier.d.ts": {
+        "sha256": "534af16ee4d3907bd1b957a9fd11b60cb00fd0e67be9d865d1908d5ccb0c51d0",
+        "bytes": 206
+      },
+      "completionMatching.d.ts": {
+        "sha256": "5b805e5915de7591c8631cd11e1a9ad2d9a869e972317e5837638649674c9977",
+        "bytes": 179
+      },
+      "completionTrivia.d.ts": {
+        "sha256": "79f1b38e01112a0ae38b215f856a8a5bd3a17147d1102086678b0a92201d0274",
+        "bytes": 403
+      },
+      "completionTypeTail.d.ts": {
+        "sha256": "c9acee9683c0199ca6ec4bd7bffe23d8c820e44bb52b64c11ed678931fa62cff",
+        "bytes": 205
+      },
+      "nativeScalarInput.d.ts": {
+        "sha256": "a59a3e156317acb518d0a1d566ee2e98805ce6418b45faf305992f48e11dc353",
+        "bytes": 427
+      },
+      "phpDocNameBinding.d.ts": {
+        "sha256": "dc8d143a13df7b65fab1a114ff8101229e31d565ad62ffc2c5995fd1b77e8bfb",
+        "bytes": 342
+      },
+      "refactorParameterInput.d.ts": {
+        "sha256": "a81500778b6f19b88d3f7d69d6a2082d443aaead7f8a2305cb1adb0b3a68457a",
+        "bytes": 188
+      },
+      "quotedCompletion.d.ts": {
+        "sha256": "d374de9c0ee48e3024488ce063ea83cb878ff3553eb070c0fe54ca5d0f2c0078",
+        "bytes": 777
+      },
+      "index.d.ts": {
+        "sha256": "fdc7b30286c104e144637e3734734b9e05832b5167338bddc2ed48f6a42b5014",
+        "bytes": 59718
+      }
+    },
+    "productionChanged": false,
+    "fullObjectiveComplete": false
+  },
+  "controlCoreSHA256": "8439eea8cbdec5fe8f0008b56fcd411c4517c433a018b8586b07bc6ccc6f3edc",
+  "prototypeCoreSHA256": "f0f5f73b352736a338c412fd7f7a0ae90ffc0c0fc50752f6ce0b8988b860dd66",
+  "compiledAndTypeScriptTransformProof": {
+    "qualified": true,
+    "compiledSourceSHA256": "9d8f60ec1918aa6e6b6318390dd164d3d65943cecdc0490f72a7f7e14442ea4f",
+    "candidateCompiledSourceSHA256": "0576e4d749b90729b1682ff9a9b28cb911b7a29a7887491e53cebdb0ec48ad48",
+    "sourceTSHash": "d613563e2f0d490a9523df3200716c9c6a857f84a77aad633f56a66b6376be31",
+    "candidateTSHash": "c9a83c6650c47f056a5c20dd30a8a2de6a9ab0aaaa662c635913852d385b29a3",
+    "bothTransformationsByteReversible": true,
+    "scope": "one argument capture/consume plus optional proveType callback in scalarArgumentFact",
+    "productionChanged": false
+  },
+  "frozenPrototypePatchSHA256": "b4c638702f0ae81e4000d6525355225d1326363e561f34b2d04638f7ca1baa9f",
+  "normalProductionSourceCommit": "3b0b97245fcb23591c0183eacbd1a60a5162bc89",
+  "normalIntegrationCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+  "adoptedIntoProduction": false,
+  "nextPerformanceWorkMayUsePrivatePrototypeAsBase": true,
+  "finalBudgetsStillFailed": true
+}

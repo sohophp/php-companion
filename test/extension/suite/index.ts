@@ -5830,6 +5830,8 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   for (const relativePath of [['Contract', 'Runner.php'], ['Support', 'LogsActivity.php']] as const) {
     const uri = vscode.Uri.joinPath(workspace.uri, 'src', ...relativePath);
     const document = await vscode.workspace.openTextDocument(uri);
+    // F2 runs on a visible editor; retain its model while the provider awaits the server.
+    await vscode.window.showTextDocument(document);
     const typeName = relativePath[1].replace('.php', '');
     const offset = document.getText().indexOf(typeName);
     const prepared = await vscode.commands.executeCommand<{ placeholder?: string; text?: string }>(

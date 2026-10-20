@@ -4,7 +4,7 @@
 
 内存中的 ParsedPhpDocument 可以持有 Tree-sitter tree。持久化使用独立的 SemanticSnapshot、SemanticSourceDeclarationSnapshot 与项目事实封装；不要直接把 CST 对象图当成磁盘格式。修改字段或语义约定时，核对所属 schema、命名空间及恢复校验，不把所有版本号机械改成同一个数值。
 
-当前 SemanticSnapshot 为93，SourceDeclaration 为10，ProjectPhpFileFacts 为7，CachedProjectPhpFile 为13，压缩封装为1。entry-store 写入schema2并兼容读取schema1/2；引用结果记录为1；callable事实封装和文件为1，命名空间为 callable-facts-v1。通常项目语义索引命名空间为 semantic-v80-php-<目标版本>。这些数值由[机器基线](../reports/public-contract-baseline-mixed-html-2026-10-10.json)绑定源码，而非新建另一套常量。
+当前 SemanticSnapshot 为93，SourceDeclaration 为10，ProjectPhpFileFacts 为7，CachedProjectPhpFile 为13，压缩封装为1。entry-store 写入schema2并兼容读取schema1/2；引用结果记录为1；callable事实封装和文件为1，命名空间为 callable-facts-v1。当前项目语义索引命名空间为 `semantic-v83-php-<目标版本>`，由 `semanticIndexCacheVersion` 选择。字段定义仍由[格式基线](../reports/public-contract-baseline-mixed-html-2026-10-10.json)绑定；该历史文件中的v80命名空间证据保留其2026-10-10日期，当前命名空间及迁移行为见[2026-10-20核对](../reports/cache-contract-audit-2026-10-20.md)。格式schema与语义命名空间分别版本化。
 
 引用结果另外绑定 buildId、Node运行时、服务器/候选worker/builtin worker与两WASM的实际内容、路径和角色。缺失资产、重复角色或无有效buildId不能形成可复用身份。这一执行引擎守卫属于引用结果缓存；普通语义缓存使用自己的命名空间、schema、源码哈希和负载校验，不能将前者的证明外推给后者。
 
@@ -13,3 +13,14 @@
 源码：[snapshot生产与恢复](../../../packages/semantic/src/index.ts)、[项目封装](../../../packages/language-server/src/projectFacts.ts)、[entry-store](../../../packages/index/src/entry-store.ts)、[引用引擎身份](../../../packages/language-server/src/referenceEngineIdentity.ts)、[缓存命名空间](../../../packages/language-server/src/cacheVersion.ts)。
 
 2026-10-10核对保留原35个公开类型身份，补充六个PHPDoc与两个项目缓存模型，共43项、19个来源。原13项设置/激活策略单元在当前113项根测试中保持；[旧快照](../reports/public-contract-baseline-2026-10-09.json)独立保留。上一构建的1,480项完整LSP只绑定其原始构建。混合PHP/HTML边界修复将实现事实升至93，声明快照10保持；[原92/10快照](../reports/public-contract-baseline-2026-10-10.json)继续保留，[新构建完整1,488项协议](../reports/mixed-html-symbol-boundaries-2026-10-10.md)已独立通过；全部迁移资格继续单独验证。
+
+
+## 当前命名空间、升级与回滚边界（2026-10-20）
+
+服务器按项目的目标PHP版本调用`semanticIndexCacheVersion`；本次对九个目标实际执行该函数，均得到v83。此项函数执行不等于九个PHP CLI或九目标全部迁移流程通过。
+
+缓存清单路径取决于项目root与可选cache key；命名空间存于清单`version`字段，并不自动对应独立目录。`EntryStore.load`核对root、version和schema，不匹配时返回空的旧记录集合，由源码重建。只有成功发布时才写入当前version、schema2和完整不可变代际；重建后的当前缓存可继续暖恢复。不得只改清单version来复用未经审查的旧事实。
+
+升级或回滚到不同命名空间的候选时，目标引擎按自己的版本规则判断缓存；不需要把旧blob改写成新格式。恢复负载还须通过SemanticSnapshot、SourceDeclaration和项目封装各自的schema、来源、URI及校验和检查。引用结果的引擎身份检查与普通语义缓存分开，不能互相代替。
+
+基线CI的原缓存源码与本地候选逐字一致：三系统的PHP7.2/8.5原用例均执行冷写入、改成v80后的拒绝重建、当前格式暖恢复，并检查精确References和源码不变。所选八文件在Linux/macOS各47项通过，Windows46项通过/1项条件跳过；跳过的是目录清理中的符号链接案例。此证据不关闭其余版本、配置迁移、真实Profile升级/回滚及真人验收。

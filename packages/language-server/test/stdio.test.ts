@@ -8896,6 +8896,21 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
 
   it('refreshes Symfony XML service facts through the authoritative provider', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-symfony-hot-'));
+    let hot: ReturnType<typeof messagesFrom> | undefined;
+    let closed: Promise<unknown> | undefined;
+    const stop = async (id: number): Promise<void> => {
+      const child = server;
+      if (!child || child.exitCode !== null || child.signalCode !== null) { await closed; return; }
+      try {
+        child.stdin.write(encode({ jsonrpc: '2.0', id, method: 'shutdown', params: null }));
+        await hot!.waitFor(message => message.id === id);
+        child.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
+        await closed;
+      } finally {
+        if (child.exitCode === null && child.signalCode === null) child.kill();
+        await closed;
+      }
+    };
     try {
       const sourceDirectory = join(root, 'src');
       const configDirectory = join(root, 'config'); const containerDirectory = join(root, 'var', 'cache', 'dev');
@@ -8936,7 +8951,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
       const rootUri = pathToFileURL(root).toString();
       const start = async (id: number): Promise<ReturnType<typeof messagesFrom>> => {
         server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
-        const output = messagesFrom(server);
+        const output = messagesFrom(server); hot = output; closed = once(server, 'close');
         server.stdin.write(encode({ jsonrpc: '2.0', id, method: 'initialize', params: {
           processId: null, capabilities: {}, rootUri, initializationOptions: {
             bundledSemanticProviders: [symfonyServiceProviderDescriptor],
@@ -8948,14 +8963,7 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
           && message.params?.message?.includes('committed authoritative container generation'), 10_000);
         return output;
       };
-      const stop = async (output: ReturnType<typeof messagesFrom>, id: number): Promise<void> => {
-        server!.stdin.write(encode({ jsonrpc: '2.0', id, method: 'shutdown', params: null }));
-        await output.waitFor((message) => message.id === id);
-        server!.stdin.write(encode({ jsonrpc: '2.0', method: 'exit', params: null }));
-        await new Promise<void>((resolveExit) => server!.once('exit', () => resolveExit()));
-      };
-
-      const hot = await start(222);
+      hot = await start(222);
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'textDocument/didOpen', params: {
         textDocument: { uri: sourceUri, languageId: 'php', version: 1, text: source },
       } }));
@@ -8980,16 +8988,21 @@ namespace App { use Symfony\\Component\\Routing\\RouterInterface; function run(R
         use Symfony\\Component\\DependencyInjection\\Loader\\Configurator\\ContainerConfigurator;
         return static function (ContainerConfigurator $container): void {};
       `);
+      const refreshStart = hot.messages.length;
       server.stdin.write(encode({ jsonrpc: '2.0', method: 'workspace/didChangeWatchedFiles', params: {
         changes: [{ uri: importedUri, type: 2 }],
       } }));
-      await new Promise<void>((resolvePromise) => setTimeout(resolvePromise, 500));
+      await hot.waitFor(message => hot!.messages.indexOf(message) >= refreshStart
+        && message.method === 'window/logMessage'
+        && message.params?.message?.includes('committed authoritative container generation'), 10_000);
       server.stdin.write(encode({ jsonrpc: '2.0', id: 226, method: 'textDocument/completion', params: {
         textDocument: { uri: sourceUri }, position: lspPosition(source, offset),
       } }));
       expect(completionItems((await hot.waitFor((message) => message.id === 226)).result) ?? []).not.toContainEqual(expect.objectContaining({ label: 'send' }));
-      await stop(hot, 224);
-    } finally { await rm(root, { recursive: true, force: true }); }
+    } finally {
+      await stop(224);
+      await rm(root, { recursive: true, force: true });
+    }
   });
 
   it('restores validated transitive callable factory facts on a hot language-server start', async () => {

@@ -1,0 +1,207 @@
+{
+  "date": "2026-10-13",
+  "scope": "One exact priorReferenceMutations declaration scan; four normal edits with a private shadow observer; no new optimization prototype or P95 claim",
+  "observation": {
+    "status": "exited",
+    "wrapperPid": 27051,
+    "startedAtUtc": "2026-10-12T23:44:04.292659+00:00",
+    "products": 2087,
+    "projectInputs": 66079,
+    "stages": [
+      {
+        "name": "build-control",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/reference-declaration-scan-cost-2026-10-13/build-private.mjs",
+          "--production",
+          "control"
+        ],
+        "status": "exited",
+        "pid": 27134,
+        "startTicks": "49727386",
+        "exitCode": 0,
+        "logSha256": "275c1f4fb676cc026672169b0f806925fd0f26702d670ea73cae8983363de0ce"
+      },
+      {
+        "name": "build-instrumented",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/reference-declaration-scan-cost-2026-10-13/build-private.mjs",
+          "--production",
+          "instrumented"
+        ],
+        "status": "exited",
+        "pid": 27171,
+        "startTicks": "49727535",
+        "exitCode": 0,
+        "logSha256": "223b1183a72ea34fa04dc4eeba2df41187159ee4a85003e47374dc30e37e2f4d"
+      },
+      {
+        "name": "probe-control",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/reference-declaration-scan-cost-2026-10-13/probe.mjs",
+          "/var/www/node/php-companion/.vscode-test/reference-declaration-scan-cost-2026-10-13/control-probe",
+          "/var/www/node/php-companion/.vscode-test/reference-declaration-scan-cost-2026-10-13/control-runtime/language-server.js",
+          "4"
+        ],
+        "status": "exited",
+        "pid": 27221,
+        "startTicks": "49727735",
+        "exitCode": 0,
+        "logSha256": "d2a150c8ee643eee218f9c75a44848cc0f3e1985abd2f85422a0d34c81f70c8d"
+      },
+      {
+        "name": "probe-instrumented",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/reference-declaration-scan-cost-2026-10-13/probe.mjs",
+          "/var/www/node/php-companion/.vscode-test/reference-declaration-scan-cost-2026-10-13/instrumented-probe",
+          "/var/www/node/php-companion/.vscode-test/reference-declaration-scan-cost-2026-10-13/instrumented-runtime/language-server.js",
+          "4"
+        ],
+        "status": "exited",
+        "pid": 27328,
+        "startTicks": "49729476",
+        "exitCode": 0,
+        "logSha256": "f2812c2f845dd9d065bfbd234c82b3a524bf09279f96c3b4b13eb05b1407e2f9"
+      }
+    ],
+    "qualifiedObservation": true,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "protocolResults": {
+      "control": {
+        "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+        "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "serverSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+        "rounds": 4,
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "normalProtocol": true,
+        "profiled": false,
+        "instrumentedCounts": false,
+        "cacheDirectory": "/tmp/sophp-controller-profile-pCHqRa",
+        "cacheDirectoryRemoved": true,
+        "serverPid": 27232,
+        "exitCode": 0,
+        "signal": null,
+        "correctnessPassed": true,
+        "rows": 4,
+        "completion": {
+          "count": 4,
+          "p95Ms": 679.5189449999998,
+          "maxMs": 679.5189449999998
+        },
+        "diagnostics": {
+          "count": 4,
+          "p95Ms": 2135.21806,
+          "maxMs": 2135.21806
+        },
+        "diskUnchanged": true,
+        "scope": "Private reference mutation declaration scan shadow comparison; four edits not performance qualification."
+      },
+      "instrumented": {
+        "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+        "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "serverSha256": "0b2799891964320bc723386da53399230b04661120793f0b32b0bcd15c5ac65e",
+        "rounds": 4,
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "normalProtocol": true,
+        "profiled": false,
+        "instrumentedCounts": true,
+        "cacheDirectory": "/tmp/sophp-controller-profile-hYRXV1",
+        "cacheDirectoryRemoved": true,
+        "serverPid": 27339,
+        "exitCode": 0,
+        "signal": null,
+        "correctnessPassed": true,
+        "rows": 4,
+        "completion": {
+          "count": 4,
+          "p95Ms": 666.8610410000001,
+          "maxMs": 666.8610410000001
+        },
+        "diagnostics": {
+          "count": 4,
+          "p95Ms": 2222.3760249999996,
+          "maxMs": 2222.3760249999996
+        },
+        "diskUnchanged": true,
+        "scope": "Private reference mutation declaration scan shadow comparison; four edits not performance qualification."
+      }
+    },
+    "completeVisibleResultEquality": true,
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "counterEvidence": [
+      "/var/www/node/php-companion/.vscode-test/reference-declaration-scan-cost-2026-10-13/reference-scans.27339.0.json"
+    ],
+    "mainThreadCounterPid": 27339,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T23:44:49.782697+00:00"
+  },
+  "analysis": {
+    "totalCallsIncludingStartup": 48,
+    "editCalls": 32,
+    "callsPerEdit": [
+      8,
+      8,
+      8,
+      8
+    ],
+    "kindCountsIncludingStartup": {
+      "method": 24,
+      "function": 24
+    },
+    "workspaceFilesRange": [
+      5,
+      5
+    ],
+    "callableCountRange": [
+      5498,
+      5500
+    ],
+    "uniquePredicateEqual": true,
+    "editOriginalScanMs": [
+      8.544037999999091,
+      8.753253999999288,
+      6.420805999996446,
+      8.212496999996802
+    ],
+    "editIndexedMs": [
+      1.0647579999986192,
+      1.737170000000333,
+      0.9449469999999565,
+      0.9483019999988755
+    ],
+    "medianOriginalScanMs": 8.378267499997946,
+    "medianIndexedMs": 1.0065299999987474,
+    "scope": "All observed priorReferenceMutations declaration lookups per edit; includes observer overhead; alternate runs after original; not mode attribution or performance qualification",
+    "decision": "Closed without a prototype: measured total cost is too small to prioritize for the complex Controller budget"
+  },
+  "audit": {
+    "auditedAtUtc": "2026-10-12T23:47:30.639145+00:00",
+    "qualifiedObservation": true,
+    "productionChanged": false,
+    "newPrototypeImplemented": false,
+    "decision": "closed-small-cost-not-prioritized",
+    "normalCoreSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "unchangedProductInputs": 2087,
+    "unchangedProjectInputs": 66079,
+    "allRecordedProcessesExited": true,
+    "independentCachesRemoved": true,
+    "performanceQualification": false,
+    "fullObjectiveComplete": false
+  },
+  "artifactDigests": {
+    "preparation.json": "a129a1d8454ce056ea1373d25521226a35bc6accdea5d15e5fc8421c2e219ebd",
+    "instrument.mjs": "8660946e45a39595f83ef109464dd666e51cd53f64cdd359edb0932665bafb78",
+    "analysis.json": "de36caedbee2b42dded9afdaf0efc3c0b6bcd843e1a5ee33a6c35833b6fbb65f",
+    "observation-state.json": "8213682306c7e6e39f1c5b870b9b7947435dcaddf2e7c182d9c30c7e0fad9c88",
+    "final-audit.json": "628c0352ed38e74b849fa7e71ce1a485ed409ed7bdba62f371a4bfc47bf90038"
+  }
+}

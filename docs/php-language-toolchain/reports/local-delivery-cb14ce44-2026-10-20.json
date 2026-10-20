@@ -1,0 +1,16 @@
+{
+  "directory": "/var/www/node/php-companion-chain-signature-20261020/artifacts/php-companion-delivery-cb14ce44",
+  "independentDeliveryAuditPassed": true,
+  "sourceCommit": "cb14ce44287f2d8092ef57240a670d38293dfcfc",
+  "filesHashed": 447,
+  "sourceGitBlobsVerified": 3728,
+  "matrixRawFilesVerified": 405,
+  "ciAndLocalPackageEntriesByteIdentical": 45,
+  "fullCIJobsPassed": 20,
+  "sha256sumsSHA256": "7b4c853139728aed1aa0bd00d7d5230813329e3e923ed318089958e34272d5fb",
+  "channel": "alpha",
+  "stableQualified": false,
+  "complexControllerBudgetPassed": false,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false
+}

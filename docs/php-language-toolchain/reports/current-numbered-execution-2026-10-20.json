@@ -1,0 +1,288 @@
+{
+  "date": "2026-10-20",
+  "currentCommit": "3b0b97245fcb23591c0183eacbd1a60a5162bc89",
+  "currentCoreSHA256": "8439eea8cbdec5fe8f0008b56fcd411c4517c433a018b8586b07bc6ccc6f3edc",
+  "independentBindingAuditPassed": true,
+  "testRerunPerformed": false,
+  "evidenceKind": "Exact passed assertion identities from already executed control/prototype full semantic JSON; bound to identical current TypeScript transformation, package inputs and test/fixture bytes",
+  "semanticSourceTransformationVerified": true,
+  "compiledSemanticOneGuardRemovalVerified": true,
+  "normalSevenRuntimeAssetsStillByteEqualToMeasuredPrototype": true,
+  "compiledPatchFormattingCheck": "Initial literal comparison with private inline JavaScript guard failed because normal tsc renders if and return on separate lines; checked exact two-line removal instead, with measured seven runtime assets still byte-equal.",
+  "packageInputsRechecked": 1619,
+  "derivedSemanticFilesSeparated": [
+    "packages/semantic/dist/index.js (two-line normal compiler guard removed bytewise to baseline)",
+    "packages/semantic/dist/index.js.map",
+    "packages/semantic/dist/index.d.ts.map"
+  ],
+  "initialBindingAuditorMismatch": "First auditor incorrectly required unchanged generated semantic source map bytes despite the intentional guard; source and compiled JS now checked against the exact measured transformation, map metadata separated. Original test results unchanged.",
+  "packageInputManifestSHA256": "304607d996610f426bb6575bc8ec2ab880918aa72a644aacb1df6729650dae61",
+  "fullSemanticPassedEachSide": 24473,
+  "uniqueNumberedIdsBound": 13,
+  "passedAssertionRecords": 14,
+  "ids": [
+    "F04-REF-01",
+    "F04-REF-02",
+    "F04-REF-03",
+    "F04-REF-04",
+    "F08-EI-01",
+    "F08-EI-02",
+    "F08-EI-03",
+    "F08-EM-01",
+    "F08-EM-02",
+    "F08-EM-03",
+    "F08-RP-01",
+    "F08-RP-02",
+    "F08-RP-03"
+  ],
+  "entries": [
+    {
+      "id": "F04-REF-01",
+      "testFullName": "F04 method and function References acceptance fixtures F04-REF-01 returns only real calls and preserves declaration options",
+      "testFile": "packages/semantic/test/acceptance-f04-references.test.ts",
+      "testFileSHA256": "9c55a5264c72db536b4c7324f7344a05ffa4285c245c567958d524136ca9ccfc",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 56.55321500000002,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f04-references-valid.php",
+          "sha256": "4ea160d19a4d95bd49ce2b48d04e551e97a5738d7b3ddde4aeca64fcd6512573"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F04-REF-02",
+      "testFullName": "F04 method and function References acceptance fixtures F04-REF-02 returns only real calls and preserves declaration options",
+      "testFile": "packages/semantic/test/acceptance-f04-references.test.ts",
+      "testFileSHA256": "9c55a5264c72db536b4c7324f7344a05ffa4285c245c567958d524136ca9ccfc",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 7.706725000000006,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f04-references-counterexample.php",
+          "sha256": "2a95079039d878057be957942468b401a68fe123c0c1371f652c05199e3a6a89"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F04-REF-03",
+      "testFullName": "F04 method and function References acceptance fixtures F04-REF-03 returns only real calls and preserves declaration options",
+      "testFile": "packages/semantic/test/acceptance-f04-references.test.ts",
+      "testFileSHA256": "9c55a5264c72db536b4c7324f7344a05ffa4285c245c567958d524136ca9ccfc",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 12.08048599999995,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f04-references-incomplete.php",
+          "sha256": "b2bbef6e11fcbbc529141153a48aaf55faf367215bdae7d7bd3b1a82e1e68d8e"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F04-REF-04",
+      "testFullName": "F04 method and function References acceptance fixtures F04-REF-04 keeps top-level assignments separate from later and nested receivers",
+      "testFile": "packages/semantic/test/acceptance-f04-references.test.ts",
+      "testFileSHA256": "9c55a5264c72db536b4c7324f7344a05ffa4285c245c567958d524136ca9ccfc",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 37.27109400000006,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f04-references-global.php",
+          "sha256": "093d0666b9d14d65d8a51250e7ea7d3eae340501c572598fdb7690b6efcf0f45"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F08-EI-01",
+      "testFullName": "F08 Extract Interface acceptance fixtures F08-EI-01 extracts a public abstract and concrete method without changing visibility",
+      "testFile": "packages/semantic/test/acceptance-f08-extract-interface.test.ts",
+      "testFileSHA256": "afee59ebc75bbe96364b9787a59e775e3ffbf1074b46b5554d22053efce43ab4",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 38.06901800000003,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f08-extract-interface-valid.php",
+          "sha256": "8a86ddce8286db7da79070087992e71a7bfd210a26cc19c0a535f0d5654a7394"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F08-EI-02",
+      "testFullName": "F08 Extract Interface acceptance fixtures F08-EI-02 refuses a legal source whose import alias would shadow the new interface",
+      "testFile": "packages/semantic/test/acceptance-f08-extract-interface.test.ts",
+      "testFileSHA256": "afee59ebc75bbe96364b9787a59e775e3ffbf1074b46b5554d22053efce43ab4",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 6.2580279999999675,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f08-extract-interface-alias-conflict.php",
+          "sha256": "5fb6d42e12292bb2417fed85851ee70f0d45c830427967185ab54b7b67c174c6"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F08-EI-03",
+      "testFullName": "F08 Extract Interface acceptance fixtures F08-EI-03 refuses an unfinished method declaration",
+      "testFile": "packages/semantic/test/acceptance-f08-extract-interface.test.ts",
+      "testFileSHA256": "afee59ebc75bbe96364b9787a59e775e3ffbf1074b46b5554d22053efce43ab4",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 5.048257000000035,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f08-extract-interface-incomplete.php",
+          "sha256": "3c0470bd9472e4391e221cb1e919ecaed439f4268c0f4ea8a9382238b8aebb2f"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-01",
+      "testFullName": "F08 Extract Method acceptance fixtures F08-EM-01 extracts a complete branch output and preserves its type",
+      "testFile": "packages/semantic/test/acceptance-f08-extract-method.test.ts",
+      "testFileSHA256": "3fc70d0333d801d17d697999cdaa1b1a89efdcdc26c22125e06298d0f053cf0b",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 70.943265,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f08-extract-method-valid.php",
+          "sha256": "62340ac1d6ad4b7e7abf8eb1383daa76755ca96b9ef34b554dedf2f950ab184c"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-01",
+      "testFullName": "F08 Extract Method acceptance fixtures F08-EM-01 preserves CRLF selection offsets, generated syntax and output type",
+      "testFile": "packages/semantic/test/acceptance-f08-extract-method.test.ts",
+      "testFileSHA256": "3fc70d0333d801d17d697999cdaa1b1a89efdcdc26c22125e06298d0f053cf0b",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 31.582829999999944,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f08-extract-method-valid.php",
+          "sha256": "62340ac1d6ad4b7e7abf8eb1383daa76755ca96b9ef34b554dedf2f950ab184c"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-02",
+      "testFullName": "F08 Extract Method acceptance fixtures F08-EM-02 refuses a legal partial branch output with no initial value",
+      "testFile": "packages/semantic/test/acceptance-f08-extract-method.test.ts",
+      "testFileSHA256": "3fc70d0333d801d17d697999cdaa1b1a89efdcdc26c22125e06298d0f053cf0b",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 4.813407999999981,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f08-extract-method-counterexample.php",
+          "sha256": "c1b460befb76c03aea937b382a3a35c636891cddc6003fae9f47a75db7ce23fb"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-03",
+      "testFullName": "F08 Extract Method acceptance fixtures F08-EM-03 refuses an unfinished branch assignment",
+      "testFile": "packages/semantic/test/acceptance-f08-extract-method.test.ts",
+      "testFileSHA256": "3fc70d0333d801d17d697999cdaa1b1a89efdcdc26c22125e06298d0f053cf0b",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 7.706542000000013,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f08-extract-method-incomplete.php",
+          "sha256": "3bd775c0275e43733a91aa2595e080675c23968393755817eb6f37d1447d6849"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-01",
+      "testFullName": "F08 private parameter removal acceptance fixtures F08-RP-01 removes declaration, PHPDoc and positional/named literal arguments",
+      "testFile": "packages/semantic/test/acceptance-f08-remove-parameter.test.ts",
+      "testFileSHA256": "c8c3b318d8d2bf55e2527bca502f1850e22e93cacc2f0fb5b7f99d7ca8b611fa",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 53.746308,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f08-remove-parameter-valid.php",
+          "sha256": "c377efb7702596c1a529c108c97e9a144e7966093be7aa9ea7a85396f98c75db"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-02",
+      "testFullName": "F08 private parameter removal acceptance fixtures F08-RP-02 refuses a legal indirect callable that retains its arguments",
+      "testFile": "packages/semantic/test/acceptance-f08-remove-parameter.test.ts",
+      "testFileSHA256": "c8c3b318d8d2bf55e2527bca502f1850e22e93cacc2f0fb5b7f99d7ca8b611fa",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 18.742974000000004,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f08-remove-parameter-indirect.php",
+          "sha256": "a68da78d5ec35fdadbdb59b4ccbe2a4a45e4288a914f54e3b57d8c0a6720dfec"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-03",
+      "testFullName": "F08 private parameter removal acceptance fixtures F08-RP-03 refuses an unfinished call in the same file",
+      "testFile": "packages/semantic/test/acceptance-f08-remove-parameter.test.ts",
+      "testFileSHA256": "c8c3b318d8d2bf55e2527bca502f1850e22e93cacc2f0fb5b7f99d7ca8b611fa",
+      "prototypeStatus": "passed",
+      "controlStatus": "passed",
+      "durationMs": 7.798119999999926,
+      "fixtureReferences": [
+        {
+          "path": "packages/semantic/test/fixtures/acceptance/f08-remove-parameter-incomplete.php",
+          "sha256": "cd7097900e1d54427acb0f5b04dc3feace8c2ac13c9bc87bdb761b7be2ba743d"
+        }
+      ],
+      "scope": "Executed semantic assertion; not whole workflow or editor qualification",
+      "fullNumberedScenarioQualified": false
+    }
+  ],
+  "resultArtifacts": {
+    "control-semantic-results.json": "0c8d77adff8c65c4a1bf45af5b4a0565a6a3f9d06f793d07e2bf90f23567e332",
+    "prototype-semantic-results.json": "2f3103a1eadebae27dc105125aed233cb318bc0ab747116854c7331b2cd0c084",
+    "validation-state.json": "92c390f12e29f33a074f13ddad146a5dce9ae917e27b0dad229255f96089df9d",
+    "semantic-prototype-load-witness.json": "a351c83f86294c7286f3cb81cfb390780814bb45f4ae3cafe13ae3c994c628f8",
+    "audit.json": "c837a0fdce12b8b335fd313b27f2ac4db18606f368ad849ccbf263bc07d0ced3"
+  },
+  "fullF01ToF14Qualified": false,
+  "originalScopeOrCheckboxesChanged": false,
+  "fullObjectiveComplete": false
+}

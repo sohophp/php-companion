@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-13",
+  "qualifiedNativeDirectoryScope": true,
+  "node20Version": "v20.0.0",
+  "modernVersion": "v24.16.0",
+  "passedPerRuntime": 5,
+  "failed": 0,
+  "officialArchiveVerified": true,
+  "copiedInputsUnchanged": true,
+  "remainingNativeProcesses": [],
+  "nativeDirectoryRemoved": true,
+  "firstFormatAuditFailed": true,
+  "firstTestsActuallyPassed": 10,
+  "correctedExplicitTapPassed": 10,
+  "finalLspStillRunning": true,
+  "frozenLspInputsUnchanged": 1012,
+  "fullObjectiveComplete": false
+}

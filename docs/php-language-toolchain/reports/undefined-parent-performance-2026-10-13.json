@@ -1,0 +1,430 @@
+{
+  "recordedAtUtc": "2026-10-12T20:03:08.491655+00:00",
+  "decision": "Admit bounded parent cache to local candidate: stable paired diagnosis benefit and complete visible result equality",
+  "privateComparison": {
+    "status": "exited",
+    "pid": 65337,
+    "startedAtUtc": "2026-10-12T19:37:45.562157+00:00",
+    "stages": [
+      {
+        "variant": "control",
+        "status": "exited",
+        "pid": 65629,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "serverPid": 65640,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 723.0286429999996,
+            "maxMs": 862.0809270000009
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 2267.1752510000006,
+            "maxMs": 2746.234549999999
+          },
+          "diskUnchanged": true,
+          "scope": "Unprofiled bounded parent cache prototype on fixed real-project copy; not final performance qualification."
+        }
+      },
+      {
+        "variant": "candidate",
+        "status": "exited",
+        "pid": 66414,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "858b320622c7c601bf6be781436d90f3e45f9a2b5d6e21905f7ed535ee31afac",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "serverPid": 66425,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 146.0509660000007,
+            "maxMs": 581.8213310000001
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1900.9503289999993,
+            "maxMs": 2400.9479140000003
+          },
+          "diskUnchanged": true,
+          "scope": "Unprofiled bounded parent cache prototype on fixed real-project copy; not final performance qualification."
+        }
+      }
+    ],
+    "productInputs": 2087,
+    "projectInputs": 66079,
+    "qualified": true,
+    "fullObjectiveComplete": false,
+    "resultEquality": true,
+    "comparison": {
+      "control": {
+        "completionMs": {
+          "p95Ms": 723.0286429999996,
+          "medianMs": 117.06222899999557,
+          "maxMs": 862.0809270000009,
+          "count": 25
+        },
+        "diagnosticMs": {
+          "p95Ms": 2267.1752510000006,
+          "medianMs": 1795.8099719999955,
+          "maxMs": 2746.234549999999,
+          "count": 25
+        }
+      },
+      "candidate": {
+        "completionMs": {
+          "p95Ms": 146.0509660000007,
+          "medianMs": 121.81602000000021,
+          "maxMs": 581.8213310000001,
+          "count": 25
+        },
+        "diagnosticMs": {
+          "p95Ms": 1900.9503289999993,
+          "medianMs": 1668.4846419999958,
+          "maxMs": 2400.9479140000003,
+          "count": 25
+        }
+      }
+    },
+    "changedProductInputs": [],
+    "changedProjectInputs": [],
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T19:40:26.484229+00:00"
+  },
+  "paired": {
+    "diagnosticMs": {
+      "improvedSamples": 24,
+      "pairedMedianImprovementPercent": 9.172634441746524
+    },
+    "completionMs": {
+      "improvedSamples": 11,
+      "pairedMedianImprovementPercent": -1.7115499721623655
+    }
+  },
+  "cacheLimit": 4096,
+  "sourceAndScopePredicatesUnchanged": true,
+  "normalBuildMatchesMeasuredCandidate": true,
+  "normalBundleSha256": "858b320622c7c601bf6be781436d90f3e45f9a2b5d6e21905f7ed535ee31afac",
+  "semanticPassed": 24145,
+  "oldSemanticCasesRetained": 24143,
+  "newCacheBoundAndEditCases": 2,
+  "focusedValidation": {
+    "semanticPassed": 24145,
+    "status": "exited",
+    "wrapperPid": 85527,
+    "startedAtUtc": "2026-10-12T19:55:07.690765+00:00",
+    "normalBundleSha256": "858b320622c7c601bf6be781436d90f3e45f9a2b5d6e21905f7ed535ee31afac",
+    "frozenInputCount": 2087,
+    "stages": [
+      {
+        "name": "lsp-boundary",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/language-server",
+          "exec",
+          "vitest",
+          "run",
+          "test/undefined-variable-scope-boundary-stdio.test.ts",
+          "test/declaration-variable-boundaries-stdio.test.ts",
+          "test/variable-value-hover-stdio.test.ts",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile.json=/var/www/node/php-companion/.vscode-test/performance-undefined-parent-2026-10-13/lsp-boundary.json"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T19:55:07.707766+00:00",
+        "pid": 85643,
+        "exitCode": 0,
+        "seconds": 14.87709156400524,
+        "logSha256": "d2309f21493eceb9d2c7fb9d26f046069278f06c369998206d2aaba533245e0d",
+        "testFiles": 3,
+        "total": 11,
+        "passed": 11,
+        "failed": 0,
+        "pending": 0
+      },
+      {
+        "name": "lsp-existing",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/language-server",
+          "exec",
+          "vitest",
+          "run",
+          "test/stdio.test.ts",
+          "-t",
+          "reports unbound|keeps independent top-level|refreshes variable completion after unsaved unset|returns references for a local variable|serves native closure and arrow variable invocation",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile.json=/var/www/node/php-companion/.vscode-test/performance-undefined-parent-2026-10-13/lsp-existing.json"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T19:55:22.586369+00:00",
+        "pid": 85964,
+        "exitCode": 0,
+        "seconds": 19.59948707302101,
+        "logSha256": "20b3fa35354870dab3ea4314523376b5b114b7ff2c6574bff17d68368994a774",
+        "testFiles": 1,
+        "total": 568,
+        "passed": 5,
+        "failed": 0,
+        "pending": 563
+      },
+      {
+        "name": "root-typecheck",
+        "command": [
+          "pnpm",
+          "exec",
+          "tsc",
+          "--noEmit"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T19:55:42.190181+00:00",
+        "pid": 86223,
+        "exitCode": 0,
+        "seconds": 5.600354522000998,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "scoped-lint",
+        "command": [
+          "pnpm",
+          "exec",
+          "eslint",
+          "packages/semantic/src/index.ts",
+          "packages/semantic/vitest.config.ts",
+          "packages/semantic/test/undefined-variable-scope-boundary.test.ts",
+          "packages/language-server/test/undefined-variable-scope-boundary-stdio.test.ts"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T19:55:47.792919+00:00",
+        "pid": 86295,
+        "exitCode": 0,
+        "seconds": 9.886504882015288,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "public-contracts",
+        "command": [
+          "pnpm",
+          "check:public-contracts"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T19:55:57.684056+00:00",
+        "pid": 86375,
+        "exitCode": 0,
+        "seconds": 2.4732586320023984,
+        "logSha256": "96d5257ecf7cb0a9b38d9d2e32388b62d812e3cb76f1353ace084d1feec976d3"
+      },
+      {
+        "name": "component-boundaries",
+        "command": [
+          "pnpm",
+          "check:component-boundaries"
+        ],
+        "status": "exited",
+        "startedAtUtc": "2026-10-12T19:56:00.159773+00:00",
+        "pid": 86421,
+        "exitCode": 0,
+        "seconds": 4.2820344509673305,
+        "logSha256": "0319798450e2f1e97e65ed8a6af638b1a08c3e8d6c50649dbe2db3eae3c6f01d"
+      }
+    ],
+    "qualifiedAffectedScope": true,
+    "fullObjectiveComplete": false,
+    "scope": "New scope boundary regression plus complete Semantic and related LSP/quality checks; not full LSP/editor/platform qualification",
+    "changedInputs": [],
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T19:56:04.844665+00:00"
+  },
+  "candidateQualificationState": ".vscode-test/performance-undefined-parent-2026-10-13/candidate-qualification-resumed-state.json",
+  "originalDiagnosticBudgetPassed": false,
+  "originalQueryBudgetPassedInThis25EditProbe": true,
+  "completePerformanceMatrixPassed": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "previousQualificationOrchestrationFailure": "Existing focused root-typecheck.log prevented open(x); original record kept; new stage logs have qualification prefix; passed root113 reused only after frozen input/hash verification",
+  "fullLspCurrentSnapshotAudit": {
+    "atUtc": "2026-10-12T20:46:16.700154+00:00",
+    "qualifiedFullLsp": true,
+    "bundleSha256": "858b320622c7c601bf6be781436d90f3e45f9a2b5d6e21905f7ed535ee31afac",
+    "testFiles": 142,
+    "passed": 1652,
+    "oldConditionalSkipped": 1,
+    "oldCaseIdentitiesCountsAndStatusesRetained": true,
+    "frozenInputs": 2087,
+    "changedInputs": [],
+    "processGroup": 95964,
+    "processGroupEmpty": true,
+    "recompiledEditorArtifactsUnchanged": 105,
+    "remainingEditorAndWindowsStages": true,
+    "fullObjectiveComplete": false
+  },
+  "completeStageQualification": true,
+  "candidateQualificationFinalAudit": {
+    "recordedAtUtc": "2026-10-12T21:01:05.046204+00:00",
+    "qualifiedThisBatch": true,
+    "bundleSha256": "858b320622c7c601bf6be781436d90f3e45f9a2b5d6e21905f7ed535ee31afac",
+    "semanticPassed": 24145,
+    "semanticOriginalCaseIdentitiesCountsAndStatusesRetained": true,
+    "semanticAddedCases": 2,
+    "semanticDefaultCommand": true,
+    "semanticMaxWorkers": 8,
+    "semanticOriginalTestTimeoutMs": 5000,
+    "rootPassed": 113,
+    "fullLsp": {
+      "testFiles": 142,
+      "passed": 1652,
+      "oldConditionalSkipped": 1,
+      "oldCaseIdentitiesCountsAndStatusesRetained": true,
+      "processGroupEmpty": true
+    },
+    "editors": [
+      {
+        "name": "editor-c1-onDemand",
+        "seconds": 127.44129246199736,
+        "generationBoundaryCases": null,
+        "displayCleaned": true
+      },
+      {
+        "name": "editor-c2-onDemand",
+        "seconds": 150.67458240297856,
+        "generationBoundaryCases": null,
+        "displayCleaned": true
+      },
+      {
+        "name": "editor-c3-onDemand",
+        "seconds": 297.817614227999,
+        "generationBoundaryCases": 40,
+        "displayCleaned": true
+      },
+      {
+        "name": "editor-c3-progressive",
+        "seconds": 286.9519832190126,
+        "generationBoundaryCases": 40,
+        "displayCleaned": true
+      }
+    ],
+    "editorCompiledArtifactsUnchanged": 105,
+    "nativeWindows": [
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "onDemand",
+        "serverPid": 43712,
+        "bundleSha256": "858b320622c7c601bf6be781436d90f3e45f9a2b5d6e21905f7ed535ee31afac",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "cancellationMs": 4.054800000000796,
+        "correct": true,
+        "providerCalls": [
+          {
+            "pid": 21784,
+            "held": false
+          },
+          {
+            "pid": 25896,
+            "held": true
+          }
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      },
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "progressive",
+        "serverPid": 32952,
+        "bundleSha256": "858b320622c7c601bf6be781436d90f3e45f9a2b5d6e21905f7ed535ee31afac",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "cancellationMs": 2.1986999999990076,
+        "correct": true,
+        "providerCalls": [
+          {
+            "pid": 48548,
+            "held": false
+          },
+          {
+            "pid": 31468,
+            "held": true
+          }
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      },
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "progressive",
+        "serverPid": 2600,
+        "bundleSha256": "858b320622c7c601bf6be781436d90f3e45f9a2b5d6e21905f7ed535ee31afac",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "foregroundHeld": true,
+        "cancelPendingBeforeRequest": true,
+        "cancelReturnedWithin100ms": true,
+        "cancellationMs": 2.2989000000002306,
+        "foregroundStillHeld": true,
+        "survivingQueryRecovered": true,
+        "finalCancellationMs": 403.6749,
+        "providerCalls": [
+          {
+            "pid": 42580,
+            "held": false
+          },
+          {
+            "providerVersion": "replacement",
+            "pid": 12860,
+            "held": true
+          }
+        ],
+        "correct": true,
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      }
+    ],
+    "frozenInputs": 2087,
+    "changedInputs": [],
+    "allStagesExited": true,
+    "allDisplaysCleaned": true,
+    "nativeTemporaryDirectoryRemoved": true,
+    "manifestAndPluginApiUnchanged": true,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "independentAuditPassed": true,
+  "checks": 8,
+  "priorFrozenPackageInputsUnchanged": 2026,
+  "priorInputManifest": "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/validation-inputs.json",
+  "priorInputManifestSHA256": "495e8c2188b5d0124a6e09a0c3ecba4ad0ae54a0a76c5494fa146cbe831ee01e",
+  "proofSHA256": "7559996a64bda8f3d3abed4ecd055bf86713995c091d7e9a3c2cc9d8b0fcf11b",
+  "scriptSHA256": "635e3726fa25ba824dda1d9adf6bbd5c7a063f19089ccbfa0aa30105cc733d6c",
+  "engineSHA256": "07ec87a08b648d0e93d3e00d7a0fdc95fb2a9dab269d51bff944d39cdc3220ca",
+  "proofFileIsNewNotPretendedAsPriorFrozenInput": true,
+  "initialRawSnapshotAssumptionFailurePreserved": true,
+  "productionChanged": false,
+  "performanceQualified": false,
+  "fullObjectiveComplete": false
+}

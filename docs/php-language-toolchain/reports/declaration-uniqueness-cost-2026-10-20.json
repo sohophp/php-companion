@@ -1,0 +1,320 @@
+{
+  "independentAuditPassed": true,
+  "completeFourStateResultsEqual": true,
+  "frozenInputsVerified": 70652,
+  "buildExitCodes": [
+    0,
+    0
+  ],
+  "commandExitCodes": [
+    0,
+    0
+  ],
+  "controlMatchesFrozenPrivatePrototypeEightAssets": true,
+  "controlCoreSHA256": "f0f5f73b352736a338c412fd7f7a0ae90ffc0c0fc50752f6ce0b8988b860dd66",
+  "originalFourEditCosts": [
+    {
+      "round": 0,
+      "parts": [
+        {
+          "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "localOnly": true,
+          "nested": false,
+          "sourceSHA256": "04907b16832d05a2209e03897d34ff37a4acd29c85cb9bf9c101e23ff9dfce21",
+          "costs": {
+            "hasUniqueCallableDeclaration": {
+              "calls": 51,
+              "inclusiveMs": 9.907547999999224,
+              "exclusiveMs": 9.907547999999224,
+              "throws": 0
+            },
+            "functionDeclarations": {
+              "calls": 119,
+              "inclusiveMs": 1.5912909999942713,
+              "exclusiveMs": 1.5912909999942713,
+              "throws": 0
+            }
+          },
+          "elapsedMs": 332.0405069999997
+        },
+        {
+          "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "localOnly": false,
+          "nested": false,
+          "sourceSHA256": "04907b16832d05a2209e03897d34ff37a4acd29c85cb9bf9c101e23ff9dfce21",
+          "costs": {
+            "hasUniqueCallableDeclaration": {
+              "calls": 51,
+              "inclusiveMs": 12.783887000004142,
+              "exclusiveMs": 12.783887000004142,
+              "throws": 0
+            },
+            "functionDeclarations": {
+              "calls": 101,
+              "inclusiveMs": 1.3561050000025716,
+              "exclusiveMs": 1.3561050000025716,
+              "throws": 0
+            }
+          },
+          "elapsedMs": 271.01438899999994
+        }
+      ],
+      "exclusiveTargetMs": 25.63883100000021
+    },
+    {
+      "round": 1,
+      "parts": [
+        {
+          "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "localOnly": true,
+          "nested": false,
+          "sourceSHA256": "764c2a73f4607a342bab468bea22004ac0df97801f6a12d197a795ce58c6c9aa",
+          "costs": {
+            "hasUniqueCallableDeclaration": {
+              "calls": 51,
+              "inclusiveMs": 9.697478999994928,
+              "exclusiveMs": 9.697478999994928,
+              "throws": 0
+            },
+            "functionDeclarations": {
+              "calls": 119,
+              "inclusiveMs": 1.4423569999944448,
+              "exclusiveMs": 1.4423569999944448,
+              "throws": 0
+            }
+          },
+          "elapsedMs": 280.69944699999905
+        },
+        {
+          "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "localOnly": false,
+          "nested": false,
+          "sourceSHA256": "764c2a73f4607a342bab468bea22004ac0df97801f6a12d197a795ce58c6c9aa",
+          "costs": {
+            "hasUniqueCallableDeclaration": {
+              "calls": 51,
+              "inclusiveMs": 8.098643000001175,
+              "exclusiveMs": 8.098643000001175,
+              "throws": 0
+            },
+            "functionDeclarations": {
+              "calls": 101,
+              "inclusiveMs": 1.5171170000012353,
+              "exclusiveMs": 1.5171170000012353,
+              "throws": 0
+            }
+          },
+          "elapsedMs": 227.40310300000056
+        }
+      ],
+      "exclusiveTargetMs": 20.755595999991783
+    },
+    {
+      "round": 2,
+      "parts": [
+        {
+          "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "localOnly": true,
+          "nested": false,
+          "sourceSHA256": "04907b16832d05a2209e03897d34ff37a4acd29c85cb9bf9c101e23ff9dfce21",
+          "costs": {
+            "hasUniqueCallableDeclaration": {
+              "calls": 51,
+              "inclusiveMs": 10.043380999995861,
+              "exclusiveMs": 10.043380999995861,
+              "throws": 0
+            },
+            "functionDeclarations": {
+              "calls": 119,
+              "inclusiveMs": 1.7120839999934105,
+              "exclusiveMs": 1.7120839999934105,
+              "throws": 0
+            }
+          },
+          "elapsedMs": 263.0862820000002
+        },
+        {
+          "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "localOnly": false,
+          "nested": false,
+          "sourceSHA256": "04907b16832d05a2209e03897d34ff37a4acd29c85cb9bf9c101e23ff9dfce21",
+          "costs": {
+            "hasUniqueCallableDeclaration": {
+              "calls": 51,
+              "inclusiveMs": 10.877559999997175,
+              "exclusiveMs": 10.877559999997175,
+              "throws": 0
+            },
+            "functionDeclarations": {
+              "calls": 101,
+              "inclusiveMs": 1.3767279999992752,
+              "exclusiveMs": 1.3767279999992752,
+              "throws": 0
+            }
+          },
+          "elapsedMs": 287.90308300000106
+        }
+      ],
+      "exclusiveTargetMs": 24.00975299998572
+    },
+    {
+      "round": 3,
+      "parts": [
+        {
+          "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "localOnly": true,
+          "nested": false,
+          "sourceSHA256": "764c2a73f4607a342bab468bea22004ac0df97801f6a12d197a795ce58c6c9aa",
+          "costs": {
+            "hasUniqueCallableDeclaration": {
+              "calls": 51,
+              "inclusiveMs": 9.984582000006412,
+              "exclusiveMs": 9.984582000006412,
+              "throws": 0
+            },
+            "functionDeclarations": {
+              "calls": 119,
+              "inclusiveMs": 1.394114000011541,
+              "exclusiveMs": 1.394114000011541,
+              "throws": 0
+            }
+          },
+          "elapsedMs": 263.5538629999992
+        },
+        {
+          "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "localOnly": false,
+          "nested": false,
+          "sourceSHA256": "764c2a73f4607a342bab468bea22004ac0df97801f6a12d197a795ce58c6c9aa",
+          "costs": {
+            "hasUniqueCallableDeclaration": {
+              "calls": 51,
+              "inclusiveMs": 9.45232599999872,
+              "exclusiveMs": 9.45232599999872,
+              "throws": 0
+            },
+            "functionDeclarations": {
+              "calls": 101,
+              "inclusiveMs": 1.1774450000029901,
+              "exclusiveMs": 1.1774450000029901,
+              "throws": 0
+            }
+          },
+          "elapsedMs": 239.67880499999956
+        }
+      ],
+      "exclusiveTargetMs": 22.008467000019664
+    }
+  ],
+  "medianExclusiveTargetMsPerEdit": 23.009110000002693,
+  "minimumInvestigationMs": 50,
+  "admitted": false,
+  "outsideAndStartupCostsNotUsedForAdmission": {
+    "outside": {
+      "hasUniqueCallableDeclaration": {
+        "calls": 486,
+        "inclusiveMs": 87.24167800001078,
+        "exclusiveMs": 87.24167800001078,
+        "throws": 0
+      },
+      "functionDeclarations": {
+        "calls": 25,
+        "inclusiveMs": 0.6657010000012633,
+        "exclusiveMs": 0.6657010000012633,
+        "throws": 0
+      }
+    },
+    "startup": [
+      {
+        "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "localOnly": true,
+        "nested": false,
+        "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "costs": {
+          "hasUniqueCallableDeclaration": {
+            "calls": 49,
+            "inclusiveMs": 12.175621000001684,
+            "exclusiveMs": 12.175621000001684,
+            "throws": 0
+          },
+          "functionDeclarations": {
+            "calls": 119,
+            "inclusiveMs": 1.5821080000050642,
+            "exclusiveMs": 1.5821080000050642,
+            "throws": 0
+          }
+        },
+        "elapsedMs": 335.0432030000002
+      },
+      {
+        "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "localOnly": false,
+        "nested": false,
+        "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "costs": {
+          "hasUniqueCallableDeclaration": {
+            "calls": 49,
+            "inclusiveMs": 8.35871699999916,
+            "exclusiveMs": 8.35871699999916,
+            "throws": 0
+          },
+          "functionDeclarations": {
+            "calls": 101,
+            "inclusiveMs": 0.9340920000058759,
+            "exclusiveMs": 0.9340920000058759,
+            "throws": 0
+          }
+        },
+        "elapsedMs": 249.29848000000038
+      },
+      {
+        "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "localOnly": true,
+        "nested": false,
+        "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "costs": {
+          "hasUniqueCallableDeclaration": {
+            "calls": 49,
+            "inclusiveMs": 8.935813000002781,
+            "exclusiveMs": 8.935813000002781,
+            "throws": 0
+          },
+          "functionDeclarations": {
+            "calls": 101,
+            "inclusiveMs": 1.0834579999973357,
+            "exclusiveMs": 1.0834579999973357,
+            "throws": 0
+          }
+        },
+        "elapsedMs": 270.4382569999998
+      },
+      {
+        "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "localOnly": false,
+        "nested": false,
+        "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "costs": {
+          "hasUniqueCallableDeclaration": {
+            "calls": 49,
+            "inclusiveMs": 8.305460999999923,
+            "exclusiveMs": 8.305460999999923,
+            "throws": 0
+          },
+          "functionDeclarations": {
+            "calls": 101,
+            "inclusiveMs": 1.088819000003241,
+            "exclusiveMs": 1.088819000003241,
+            "throws": 0
+          }
+        },
+        "elapsedMs": 243.88393799999994
+      }
+    ]
+  },
+  "noNestedDoubleCounting": true,
+  "noCache": true,
+  "prototypeImplemented": false,
+  "productionChanged": false,
+  "performanceQualified": false,
+  "fullObjectiveComplete": false
+}

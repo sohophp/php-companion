@@ -1,0 +1,83 @@
+{
+  "qualified": true,
+  "currentNormalProductionServerScaleQualified": true,
+  "engineSha256": "b403e33a2c93c6959507fd8248703c148886849b91b1d05f0a9ffbb23f4d5951",
+  "originalWorkloadByteIdentical": true,
+  "scales": [
+    1000,
+    10000,
+    50000
+  ],
+  "roundsPerScale": 5,
+  "actualServers": 30,
+  "originalBudgetsPreserved": true,
+  "frozenInputsRechecked": 3329,
+  "frozenLinksRechecked": 49,
+  "ownedProcessesAndGroupsGone": true,
+  "fixturesRemoved": true,
+  "statistics": {
+    "1000": {
+      "cold": {
+        "indexP95Ms": 2249,
+        "maximumRssMiB": 349.9140625,
+        "maximumCacheBytes": 2696463,
+        "firstExactCompletionP95Ms": 3155.936843,
+        "maximumHotQueryP95Ms": 3.6062929999998232
+      },
+      "warm": {
+        "indexP95Ms": 1756,
+        "maximumRssMiB": 342.109375,
+        "maximumCacheBytes": 2696463,
+        "firstExactCompletionP95Ms": 2801.3758669999997,
+        "maximumHotQueryP95Ms": 3.116113000000041
+      }
+    },
+    "10000": {
+      "cold": {
+        "indexP95Ms": 15904,
+        "maximumRssMiB": 579.953125,
+        "maximumCacheBytes": 27010229,
+        "firstExactCompletionP95Ms": 2841.611138,
+        "maximumHotQueryP95Ms": 4.088843999998062
+      },
+      "warm": {
+        "indexP95Ms": 12080,
+        "maximumRssMiB": 522.14453125,
+        "maximumCacheBytes": 27010229,
+        "firstExactCompletionP95Ms": 2984.4505739999986,
+        "maximumHotQueryP95Ms": 3.417356000005384
+      }
+    },
+    "50000": {
+      "cold": {
+        "indexP95Ms": 74524,
+        "maximumRssMiB": 1128.359375,
+        "maximumCacheBytes": 135254537,
+        "firstExactCompletionP95Ms": 3041.737942999999,
+        "maximumHotQueryP95Ms": 3.4581820000021253
+      },
+      "warm": {
+        "indexP95Ms": 56143,
+        "maximumRssMiB": 1118.12109375,
+        "maximumCacheBytes": 135254537,
+        "firstExactCompletionP95Ms": 2867.561486000006,
+        "maximumHotQueryP95Ms": 3.3798210000095423
+      }
+    }
+  },
+  "scope": "Linux PHP8.5 progressive actual production server, explicit maxFiles per scale, cold/warm project indexing, cache bytes, first and hot queries. wait4 covers server threads through shutdown; driver memory and editor UI are outside scope. Progressive excludes vendor indexing.",
+  "fullPerformanceQualified": false,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "actualOriginalCommandExitCode": 0,
+  "actualIndependentAuditorExitCode": 0,
+  "privateInputsVerified": 8,
+  "mainArchiveFiles": 215,
+  "supervisionArchiveFiles": 3,
+  "archivesOriginalAndCopyHashesVerified": true,
+  "finalAuditSHA256": "4e1e622f498bc638e6729a5613ff45e9c59714dcf5c3d2ac1d6e920203f95be3",
+  "supervisionAuditSHA256": "793a8765b436763c60f930f76bdaadfd9346669785c09e3e76978ada4db437ca",
+  "mainArchiveManifestSHA256": "d7b8b82b776c46646d4ea6e363784ce5ab5cacda0ad19aeea9f52b781ed3637f",
+  "supervisionArchiveManifestSHA256": "9b11ec55481ad45c19a0d09d3f2eab599882d673559d9acef46bdd0290f06ed3"
+}

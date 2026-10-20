@@ -1,0 +1,138 @@
+{
+  "date": "2026-10-20",
+  "auditedAtUtc": "2026-10-19T21:06:23.980710+00:00",
+  "independentAuditPassed": true,
+  "originalFullC3ModesPassed": 2,
+  "originalFullC3GenerationBoundaryCases": 80,
+  "runtimeReplacementRejections": 20,
+  "runtimeRestoreWorkflowKinds": 10,
+  "extraRuntimeCasesPassed": 4,
+  "actualCaseProofs": [
+    {
+      "name": "full-c3-onDemand",
+      "kind": "full",
+      "mode": "onDemand",
+      "actualStreamedContentChecks": 0,
+      "normalPhpServerPid": 2445598,
+      "runtimeWrapperDirectories": []
+    },
+    {
+      "name": "runtime-c3-onDemand",
+      "kind": "runtime",
+      "mode": "onDemand",
+      "actualStreamedContentChecks": 22,
+      "normalPhpServerPid": 2466863,
+      "runtimeWrapperDirectories": [
+        "/tmp/sophp-preview-runtime-Ca3PIH"
+      ]
+    },
+    {
+      "name": "preview-c3-onDemand",
+      "kind": "preview",
+      "mode": "onDemand",
+      "actualStreamedContentChecks": 54,
+      "normalPhpServerPid": 2469481,
+      "runtimeWrapperDirectories": [
+        "/tmp/sophp-preview-runtime-LgaAaA"
+      ]
+    },
+    {
+      "name": "full-c3-progressive",
+      "kind": "full",
+      "mode": "progressive",
+      "actualStreamedContentChecks": 0,
+      "normalPhpServerPid": 2471295,
+      "runtimeWrapperDirectories": []
+    },
+    {
+      "name": "runtime-c3-progressive",
+      "kind": "runtime",
+      "mode": "progressive",
+      "actualStreamedContentChecks": 22,
+      "normalPhpServerPid": 2486909,
+      "runtimeWrapperDirectories": [
+        "/tmp/sophp-preview-runtime-LZj1Ti"
+      ]
+    },
+    {
+      "name": "preview-c3-progressive",
+      "kind": "preview",
+      "mode": "progressive",
+      "actualStreamedContentChecks": 54,
+      "normalPhpServerPid": 2488514,
+      "runtimeWrapperDirectories": [
+        "/tmp/sophp-preview-runtime-ETmhGS"
+      ]
+    }
+  ],
+  "sourceFilesVerified": 3706,
+  "assetsVerified": 16,
+  "compiledFilesVerified": 99,
+  "allOwnedProjectsAndWrappersRemoved": true,
+  "allOwnedServersAndDisplaysGone": true,
+  "remainingOwnedJavaScriptProcesses": [],
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "artifactSHA256": {
+    "preparation.json": "c88c43d3b7162bab2aa53899f8442d12c3247963396f63ebc77733d0b7486cf4",
+    "observer.cjs": "cee679568ae826731e896869d121ba736e16e2c038e2820f14166592bc57d25e",
+    "preview-c3-progressive.log": "df6d966018c7819e39b6fe66719544bcf3a0714c71e65f85f9b8df477c647915",
+    "preview-c3-onDemand.log": "a15a86d75d9ac81486db508ea54be64f85156c5b7c870c442edf0064e506b4e7",
+    "runtime-inputs.json": "a637d1c40bbb37d4e9ee1df8196011d78235d1c690a38aa7eb2768cfd3f058cc",
+    "runtime-c3-onDemand.log": "17dc9f87271d210954a4703584cb753c3fd06c0ea393431cb3299b788d0cfef5",
+    "symfony-build.log": "1e380aeb8313c2c2feb5689661285a43ae623b52730190aa9d043254f39b8e36",
+    "harness-inputs.json": "87d1c6649cfd180b184f767cbd27ae8cdfc57a6dfbf8ea18fe877b9bd785c71f",
+    "audit.py": "fd9e9e26f66739a843effd73e7be8c362b5fa38d493e785025279d21db272244",
+    "run.py": "806ef608a3de5182ee97a389aa082d79daa080f34d1e05e71414b10274f5a746",
+    "runtime-c3-progressive.log": "1137a97567e58e80a86e730a8d78c46ca5984790de32f6b20a4f12167dc188dc",
+    "full-c3-onDemand.log": "652cb3148eff4bc3375527d577dbd2a7442a1fdf3f03009682b031f7c003be01",
+    "full-c3-progressive.log": "9a0d005e44ddf7f39e64219b728d20724b848d72b77c2760e77fb3130d1206c4",
+    "state.json": "c4606563ed3309101858c1e9d90bf9b3f1d3ab4cdeb35c8c1495081154c6035c",
+    "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "preload.cjs": "4a71b9f7526bbd4ceb63659ad1c90326bfea6670aed538537666bf48c782f3fe",
+    "runtime-c3-progressive/fixture-removals.jsonl": "b48b242090bca70ee508a5a0ab25dc55620d3eeae425cbf73ede4f4600975ccb",
+    "runtime-c3-progressive/selection.json": "7c8400359a91cc13fcb24c12f4a830050627c4d845c87f2278ccd2418c3219eb",
+    "runtime-c3-progressive/partial-proof.json": "bb72400c72fec6c20de9835826a05e414a8719725d0ebb2dcfb6e028e4e07842",
+    "runtime-c3-progressive/proof.json": "2585dc7af22418148fac22ba3bcd6537cdcb7108bd18c435b3cdfbdc91ea41c6",
+    "runtime-c3-progressive/config.json": "63dd51d452d61d530544740f88f78e1ce9e88462e8745e5bb67a8b24e9279eb5",
+    "runtime-c3-progressive/display/display-run.json": "7134da41e6247174535ac251ddca6716a81a206b4f9f48c8dbfaa6e99cd9c632",
+    "runtime-c3-progressive/display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6",
+    "runtime-c3-onDemand/fixture-removals.jsonl": "93c9171170545bc45ad551e3fb93a01461c7e6dde1fd27f2b75d6dc16ed110cf",
+    "runtime-c3-onDemand/selection.json": "fe1782ba252278b4fcebd68fc38f06a560bb618d61e22185ed39f59dbd893115",
+    "runtime-c3-onDemand/partial-proof.json": "f828cd37457c6d8b598e74209ca4aa45f7e667573a95bb29c59d499547946b7d",
+    "runtime-c3-onDemand/proof.json": "31a302217bc3a589b083adb931bce37c1765d33b3fb643f085358bfb99485def",
+    "runtime-c3-onDemand/config.json": "fa789d47e15fcf34bbae3ec908ce4f313532cd8f5cb30eac031237c80923646f",
+    "runtime-c3-onDemand/display/display-run.json": "acef7cbd01567c7bde2f83c8d444541c483a4bf4c750a1ddbfe752291a510787",
+    "runtime-c3-onDemand/display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6",
+    "full-c3-progressive/fixture-removals.jsonl": "9d1f2362261caf2cd873ad97a7c034ab4bd584a2d186c5a91618553930a8d3d9",
+    "full-c3-progressive/selection.json": "43e02e345b1788fad517c2ebc4704077e0d3df15719ee213851f64e287fffdfb",
+    "full-c3-progressive/partial-proof.json": "d295edefa93aa1c6f435376f3c4b250593ca5cdca1bb4fd234070ff097c149de",
+    "full-c3-progressive/proof.json": "a724abc1d6c38410690a85a8d357c3e33e07a1aa5e37193e91d1a267e9e8643f",
+    "full-c3-progressive/config.json": "517d43684c82db6645bbc157b82f9a9f15bee86de0c79a36ab8cc04b611d2f67",
+    "full-c3-progressive/display/display-run.json": "fd6030bbd839dbfa8eda3d304934f5a8c4f3ee8f29fb65d49ed33af09f325d97",
+    "full-c3-progressive/display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6",
+    "preview-c3-onDemand/fixture-removals.jsonl": "fc5884d6fb7f28990af59e228456b877446d66947f96975b6015825b75af78f3",
+    "preview-c3-onDemand/selection.json": "b6f8e3021be0906916406b33dde326aaa7e9b1a6e71a750d2992520ef4b44133",
+    "preview-c3-onDemand/partial-proof.json": "a380ca7bf4628bd8713adb4ef604461a21becaa5746201b7d9efffe18d3c6265",
+    "preview-c3-onDemand/proof.json": "0ac001c9becb78e3c73b6fcd980445a2c1cb592f2fb6a89852d8965067b7b7a6",
+    "preview-c3-onDemand/config.json": "d7749635f1bc90c7b55f5cd80f86791caf96fb0700717cee88c2df2495499fca",
+    "preview-c3-onDemand/display/display-run.json": "6a00baf3a49ea8b8b7bdbc9d85ae0f40333f81ed979282fc0eafe396d4730a62",
+    "preview-c3-onDemand/display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6",
+    "full-c3-onDemand/fixture-removals.jsonl": "8d46422528c9ad9ffa9bebff77ec24e8fa2fd630f0a9ae0836068abe274f2b05",
+    "full-c3-onDemand/selection.json": "bb45ba01e23a0e5e29b1dc098628b912808a99b73cb5c3e8525bfa80a6e3cff1",
+    "full-c3-onDemand/partial-proof.json": "d295edefa93aa1c6f435376f3c4b250593ca5cdca1bb4fd234070ff097c149de",
+    "full-c3-onDemand/proof.json": "e1d25e26d9c49c8cb0ee4cb53705519c898f82f2ef72753953d6a6e2793575e6",
+    "full-c3-onDemand/config.json": "781588975bca46f5368b8591b9087aa0bab8e8956002d8c065036555a7182ddb",
+    "full-c3-onDemand/display/display-run.json": "e0875592879d1569237137bdae545da766e8e413e3ed0196e5ce06c986dc75aa",
+    "full-c3-onDemand/display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6",
+    "preview-c3-progressive/fixture-removals.jsonl": "e9a562b625b6e650280c4f0b538376de43f7ca6cd83ce64fa10b0454481dbbda",
+    "preview-c3-progressive/selection.json": "18b00f983e92a8679b0d1472aecb9e86453db330955c93995f537a689bdb1060",
+    "preview-c3-progressive/partial-proof.json": "2256eb27d285b75741f42b7ed949d9e9fed6de5ba2b4a633a49efa2122c1f09c",
+    "preview-c3-progressive/proof.json": "890102be7e7bfe7665bdebf8e4ffb5a1378b0edc9ed9b5eb479259e8cc0abc9b",
+    "preview-c3-progressive/config.json": "29f5abcebfd518e133bc15341d775b3e0c3878f47b115afa2155841e059cb95f",
+    "preview-c3-progressive/display/display-run.json": "fddd22d024eb5f42346e2ddcab9d40c36dd02f713e3a53c3300769d78cd21d54",
+    "preview-c3-progressive/display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+  },
+  "sourceCommit": "71c7b40f16ca148a2d6e52787847054307a246cf",
+  "sourceSnapshotMatchesCommit": true
+}

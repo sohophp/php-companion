@@ -1,0 +1,267 @@
+{
+  "sourceCommit": "a7e9166ae2cbfabb1516e480d19d98a5a490a8aa",
+  "workflowRun": 39354347663,
+  "artifactName": "php-companion-vsix",
+  "baselineLocalDeliverySourceCommit": "82549657cc019ec9fbb39811999ef674a940b4bf",
+  "baselineLocalProductBuildCommit": "a7e9166ae2cbfabb1516e480d19d98a5a490a8aa",
+  "ciZipArchiveBytesNotRequiredEqualBecausePackagingMetadata": true,
+  "productPayloadFilesChecked": 39,
+  "allProductPayloadBytesEqual": true,
+  "files": [
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/LICENSE-phpstorm-stubs.txt",
+      "sha256": "0b6bf6984e35b44f04c68ec5e18950cc10fea56b04576fab95fde116d0290408",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/LICENSE.txt",
+      "sha256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/SECURITY.md",
+      "sha256": "b5e80b9a909c4c9c87504ef4b96c9754ad6ac954f78d22a72eeab5468ab45cc5",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/THIRD_PARTY_NOTICES.md",
+      "sha256": "eeb805602ae1364792802b4e6cd269197c43a02c0463853ec96c0e3f7ab090d9",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/changelog.md",
+      "sha256": "5269958f4bf7cdc4ff7bf8ff46ad8c6d45e65d390abf811a68f90bc8009a114d",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/dist/builtinSnapshotWorker.js",
+      "sha256": "f7acddfd3c4f1ac04b3ad72daf34f883a6223a616166b3d07559fc049a8cda7c",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/dist/candidateWorker.js",
+      "sha256": "e798bc0b8d939ada28463a7512ebe71416ef92f45679347b0bd1216ebac922fc",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/dist/extension.js",
+      "sha256": "01396e453cffa4420fcd1a0c10761efdffdd26ddd0d446808a2fa6d048b07bdb",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/dist/language-server.js",
+      "sha256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/dist/portableCandidateSearchWorker.js",
+      "sha256": "25488cd3ba4751e3e7a3e727aee8940b4fbc83ee2977880dac51f6c874fb0de6",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/dist/sourceStatWorker.js",
+      "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/package.json",
+      "sha256": "3be78a90284f588ea0d321a2f6d7d31cc5e4723419e3a44ccfdf57c4507db1f9",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/package.nls.json",
+      "sha256": "181ecf16c6add529cc9ef3cc9d5b05425370703cbf4040e02b7ecbabbb26b11e",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/package.nls.zh-cn.json",
+      "sha256": "a4dd65e00773872a215ff7ebd2d0ea90913f64577f37bcf5ffbab085cb70ba18",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/readme.md",
+      "sha256": "76c023627c0d9094459141ba82daa1c23cddefe0f4ba318e41246605edef67a7",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-0.4.13.vsix",
+      "entry": "extension/resources/icon.png",
+      "sha256": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/LICENSE.txt",
+      "sha256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/changelog.md",
+      "sha256": "2d1da1f21494c0152cc4704734225541a352272a14bdd5fc6f30c435c742f70d",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/dist/controller-context-provider.js",
+      "sha256": "eebf9eea8401d71e9c3daa710705571fd2859ccc187a801a6a2de6e6fa360f57",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/dist/event-provider.js",
+      "sha256": "f25156ef871067f05f93c913c3a6cb21c2577d4db45a11527269496cb1e4458d",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/dist/extension.js",
+      "sha256": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/dist/service-provider.js",
+      "sha256": "85980c84a91960889fe974c13534b26c17baebb8f2ab6bb091f3c5ee26919529",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/dist/static-route-provider.js",
+      "sha256": "5c5db0f536d8529f0b5108faa5628eba74965bff4e39051411b0e8c9502c69eb",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/dist/tree-sitter-php.wasm",
+      "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/dist/web-tree-sitter.wasm",
+      "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/dist/winstar-route-provider.js",
+      "sha256": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/package.json",
+      "sha256": "45ed607d5679066d93429d8a74c1cdcf864c790f6335268716937c54d5158cbd",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/package.nls.json",
+      "sha256": "b6648edd097b155db8d92b9cc49508ef87d9f70903e7a4bdffa9cc514d88f318",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/package.nls.zh-cn.json",
+      "sha256": "5738b82c60c8b4801234cd7e63c101b34b0aa8e025ae921f3eadedd552fed5ee",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/readme.md",
+      "sha256": "a0c7e01db895caee773f5567ebceec6e910e34da4651520ffca5bcdb259132d1",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-symfony-0.4.13.vsix",
+      "entry": "extension/resources/icon.png",
+      "sha256": "2e4c4a4fbcc920722c0daf83eba68c743f600de5dc72d2749b4654c4a6f6129a",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-open-source-pack-0.4.13.vsix",
+      "entry": "extension/LICENSE.txt",
+      "sha256": "bf5b84304b5adbc9131ca0c1546705128cc25180e7a2c5995a3661b9ba812aff",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-open-source-pack-0.4.13.vsix",
+      "entry": "extension/package.json",
+      "sha256": "eb700a1442c8135dd055f9adef6490c20d7f1ed36362bb79fbdd355d401de18e",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-open-source-pack-0.4.13.vsix",
+      "entry": "extension/package.nls.json",
+      "sha256": "edca6f266fd4c46c8e6e96156597fcb1ee3b00e7dd6914c7fccf3377b2e2677d",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-open-source-pack-0.4.13.vsix",
+      "entry": "extension/package.nls.zh-cn.json",
+      "sha256": "de55024ff6d8a09bf9201f46f9fcf0415466923de6517063dcf16ad5f8db25ee",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-open-source-pack-0.4.13.vsix",
+      "entry": "extension/readme.md",
+      "sha256": "0941c7281db54d2b8ce6faf6cdeac0542ce7ead9569c66ce7d9d6270f2b10892",
+      "localCandidateBytesEqual": true
+    },
+    {
+      "package": "php-companion-open-source-pack-0.4.13.vsix",
+      "entry": "extension/resources/icon.png",
+      "sha256": "0b259596819f6268fde2f952ae9f1ec5702df87384de5b4a325e0b41d4da6a69",
+      "localCandidateBytesEqual": true
+    }
+  ],
+  "ciArchives": [
+    {
+      "file": "ci-vsix/php-companion-0.4.13.vsix",
+      "sha256": "eedf436018e382b1eb715ee29088f64558420ef7f2c3f0f82ffa81b34d871940",
+      "bytes": 1560056
+    },
+    {
+      "file": "ci-vsix/packages/php-companion-symfony/php-companion-symfony-0.4.13.vsix",
+      "sha256": "3ffff6212ed2437781c48cf0dd324ae7ae8b550ed3b075ef38fda8e08474e2a8",
+      "bytes": 647792
+    },
+    {
+      "file": "ci-vsix/packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.13.vsix",
+      "sha256": "9b74921ee7e662449e3bb3900e046c2a542fee7b29b02dcc5ba1af6c73e01c3b",
+      "bytes": 69945
+    }
+  ],
+  "differences": [],
+  "wholeWorkflowQualified": false,
+  "current8439RuntimeQualified": false,
+  "fullObjectiveComplete": false
+}

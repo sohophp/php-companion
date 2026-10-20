@@ -1,0 +1,353 @@
+{
+  "date": "2026-10-20",
+  "independentAuditPassed": true,
+  "actualDriverExitCode": 0,
+  "durationSeconds": 97.14178515097592,
+  "frozenInputsVerified": 7337,
+  "symlinksVerified": 25,
+  "inventory": [
+    {
+      "id": "sohophp.php-companion",
+      "version": "0.4.13",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/workspace",
+      "active": true
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "version": "0.4.13",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/workspace/packages/php-companion-symfony",
+      "active": true
+    },
+    {
+      "id": "sohophp.php-companion-open-source-pack",
+      "version": "0.4.13",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/workspace/packages/php-companion-extension-pack",
+      "active": false
+    },
+    {
+      "id": "sohophp.twig-plus",
+      "version": "1.3.8",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/twig-plus",
+      "active": true
+    },
+    {
+      "id": "editorconfig.editorconfig",
+      "version": "0.18.2",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/extensions/editorconfig.editorconfig-0.18.2",
+      "active": true
+    },
+    {
+      "id": "eiminsasete.apacheconf-snippets",
+      "version": "1.4.0",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/extensions/eiminsasete.apacheconf-snippets-1.4.0",
+      "active": false
+    },
+    {
+      "id": "junstyle.php-cs-fixer",
+      "version": "0.3.21",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/extensions/junstyle.php-cs-fixer-0.3.21",
+      "active": true
+    },
+    {
+      "id": "mrmlnc.vscode-apache",
+      "version": "1.2.0",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/extensions/mrmlnc.vscode-apache-1.2.0",
+      "active": false
+    },
+    {
+      "id": "neilbrayfield.php-docblocker",
+      "version": "2.7.0",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/extensions/neilbrayfield.php-docblocker-2.7.0",
+      "active": true
+    },
+    {
+      "id": "redhat.vscode-xml",
+      "version": "0.29.3",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/extensions/redhat.vscode-xml-0.29.3-linux-x64",
+      "active": true
+    },
+    {
+      "id": "redhat.vscode-yaml",
+      "version": "2.0.0",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/extensions/redhat.vscode-yaml-2.0.0",
+      "active": true
+    },
+    {
+      "id": "xdebug.php-debug",
+      "version": "1.40.2",
+      "extensionPath": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/extensions/xdebug.php-debug-1.40.2",
+      "active": true
+    }
+  ],
+  "realDebug": {
+    "platform": "linux",
+    "debuggerVersion": "1.40.2",
+    "breakpointLine": 3,
+    "stepLine": 4,
+    "before": "40",
+    "after": "42",
+    "scopeVariable": true,
+    "programResult": 42,
+    "workingDirectoryMatches": true,
+    "sessionTerminated": true,
+    "scope": "Actual Xdebug breakpoint, step over, scopes and watch evaluation in an isolated editor host"
+  },
+  "phpunitTasks": {
+    "results": [
+      {
+        "scenario": "pass",
+        "exitCode": 0,
+        "processId": 2518272
+      },
+      {
+        "scenario": "assertion-failure",
+        "exitCode": 1,
+        "processId": 2518297
+      },
+      {
+        "scenario": "recovery",
+        "exitCode": 0,
+        "processId": 2518358
+      }
+    ],
+    "witnesses": [
+      {
+        "value": 42,
+        "cwd": "/tmp/php-companion-packaged-r1fFA4/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 2518274
+      },
+      {
+        "value": 41,
+        "cwd": "/tmp/php-companion-packaged-r1fFA4/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 2518305
+      },
+      {
+        "value": 42,
+        "cwd": "/tmp/php-companion-packaged-r1fFA4/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 2518366
+      }
+    ],
+    "argumentPathWithSpaces": true,
+    "realProcessExecution": true,
+    "expectedAssertionFailureExitCode": 1,
+    "recoveryPassed": true,
+    "workingDirectoryAndRuntimeMatched": true,
+    "taskAndProcessEndObserved": true,
+    "noActiveOwnedTasks": true
+  },
+  "feedbackMetrics": {
+    "scalar": {
+      "noiseFiles": 9100,
+      "rounds": 50,
+      "presentExternalMembers": [
+        "sohophp.twig-plus",
+        "redhat.vscode-yaml",
+        "redhat.vscode-xml",
+        "xdebug.php-debug",
+        "junstyle.php-cs-fixer",
+        "EditorConfig.EditorConfig",
+        "eiminsasete.apacheconf-snippets",
+        "neilbrayfield.php-docblocker"
+      ],
+      "p50Ms": 71,
+      "p95Ms": 99,
+      "maxMs": 1466,
+      "declarationUnsaved": true,
+      "consumerVersion": 1,
+      "definitionWaitMs": [
+        13,
+        7,
+        6,
+        13,
+        6,
+        9
+      ],
+      "slowRounds": [
+        {
+          "round": 2,
+          "elapsedMs": 1466,
+          "applyEditMs": 3,
+          "diagnosticReadyMs": 1237,
+          "hoverReadyMs": 1466
+        }
+      ],
+      "firstCompositeHoverCallMs": 55,
+      "firstRoundServerTimings": {
+        "candidateInvalidatedOpen": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "generationDiskRefresh": {
+          "count": 2,
+          "maxMs": 114,
+          "firstMs": [
+            31,
+            114
+          ]
+        },
+        "generationDiskRefreshEpochRetry": {
+          "count": 1,
+          "maxMs": 31,
+          "firstMs": [
+            31
+          ]
+        },
+        "diagnostics": {
+          "count": 2,
+          "maxMs": 30,
+          "firstMs": [
+            4,
+            30
+          ]
+        },
+        "documentChangeDiagnostics": {
+          "count": 1,
+          "maxMs": 31,
+          "firstMs": [
+            31
+          ]
+        },
+        "hoverWorkspace": {
+          "count": 1,
+          "maxMs": 1,
+          "firstMs": [
+            1
+          ]
+        },
+        "hoverFrameworkContext": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "hoverMemberLookup": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "hover": {
+          "count": 1,
+          "maxMs": 3,
+          "firstMs": [
+            3
+          ]
+        }
+      },
+      "nestedPhp72Verified": true
+    },
+    "union-shape": {
+      "rounds": 30,
+      "p50Ms": 79,
+      "p95Ms": 112,
+      "maxMs": 528,
+      "declarationUnsaved": true,
+      "consumerVersion": 3,
+      "hostRssMiB": [
+        222,
+        222,
+        222,
+        222,
+        222,
+        223,
+        223
+      ],
+      "watcherBufferPriority": true,
+      "watcherChanges": 3,
+      "pausedHoverEditWatcher": true
+    }
+  },
+  "ownedProcessesGone": [
+    2515346,
+    2515348,
+    2515352,
+    2516368,
+    2517404,
+    2518272,
+    2518297,
+    2518358,
+    2518274,
+    2518305,
+    2518366
+  ],
+  "isolatedFixtureRemoved": true,
+  "ownedDisplayRemoved": true,
+  "sourceCommit": "71c7b40f16ca148a2d6e52787847054307a246cf",
+  "coreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+  "identityAssertionChange": {
+    "file": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/workspace/dist-test/suite/debugBreakpoints.js",
+    "beforeSHA256": "ee931064707b364078022e429aa8206d464cc49072bf078ce62ab8e4e75d905c",
+    "afterSHA256": "6f3f011a336d9ca2ddd9f5a3a2ae533f0a21599dee085876d15fb4d090adc1b7",
+    "expectedVersionBefore": "1.40.1",
+    "expectedVersionAfter": "1.40.2",
+    "functionalAssertionsChanged": false
+  },
+  "linuxCurrentExternalCombinationQualified": true,
+  "loadedFromUnpackedVsixPayload": true,
+  "formalInstalledProfileAcceptance": false,
+  "productionChanged": false,
+  "dailyProfileChanged": false,
+  "realWslAcceptance": false,
+  "complexControllerPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "archivedEvidenceSHA256": {
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/owned-fixture.json": "f1e3f5197d190af13e985777d0fcfceeab22d87ec01dd69d8720c3773c2a3d18",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/phpunit-task-test.php": "8b45b20e7f2347667a72ef11faaccc1d47cb43aa726040bdfdb01b5692c636c8",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/real-debug-result.json": "4bc88c0f566fc0a5b0c9430818ec78ad9ef5794b14f4bade4adbf721c6a0f233",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/isolated-user-settings.json": "f35e75c5709f6c8f6309115d0bb309a9b7bc8c9aeaca06f1c66e5d3a75746010",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/real-debug-program.php": "9f2d17127c3292ad9516c76572eddfabb98a405a52a2f18384b9c6975f39c0d0",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/acceptance-proof.json": "0ce02f8742f0259ee8957c80876a64e55ca3b988da5076813a4e7546fee53c03",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/archive-missing.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/runtime-proof.json": "a919f34008e491a6aec8bc28df653f43ecc322e188942cbbce5e6f31557bc328",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/phpunit-task-runtime.jsonl": "bfd6258ef17b7ca759429df074217c43dea214d86ef3c9bc501f0be8fc2a13a5",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/final-workspace-settings.json": "428acb2df8189cf65bd34296bb1d761a72d0f16cf9d73b4516642f304c2b4d3c",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/suite-selection.json": "df046c7ce52d3f48f8aae47d563a8e78c88a5a84820577c07c97052f5aa1599f",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/sharedprocess.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/network-shared.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/agenthost.log": "a35bf23755d2b80caf5e96ef613d1ae08a36635483d05deffa62f559e65d40db",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/telemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/userDataSync.log": "ed87438ab49300735a13258c138138aa7fd9ef51571252c679eef9e1155961b7",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/terminal.log": "b9842abc9c6d8eec09d2a4dd42ce82760571a81cebd071ec1989bac2b64fc4c2",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/main.log": "07cd0c81aaf28e3904a1a2dd68c72b59a22bdfad2bfab77610046655e796278c",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/editSessions.log": "d4c18ad0887e623ec4f00d86bdfccb7c65eeb265755bf1c817bc2eb7379a0e42",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/agentHostTelemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/remoteTunnelService.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/ptyhost.log": "631b463fdc9a0462264e5facfdf6aa9f839bce645907bdc03a228191315afd60",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/mcpGateway.log": "68d0ee2c0fabcb1aa0c12ac60d3fdad241b2c56021a3f721fe83c1b01185c5aa",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/notebook.rendering.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/views.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/textModelChanges.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/renderer.log": "e5059304b5aa7939ad661373590f59e0a7204ebb67b1f7310befbfbf838eb292",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/network.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/exthost/extHostTelemetry.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/exthost/exthost.log": "8e6d0dd447e3a1e5ff4e5ff2817482573c0f7afa1ccff527210d2074403ed5bf",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/exthost/output_logging_20261020T052518/4-XML Support.log": "8a1cb6c22ed0f27a3ff7c8e62385f1e15a30ef49079591f96543af1b8f1981a5",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/exthost/output_logging_20261020T052518/3-TwigPlus.log": "27c534e8b323b6333c6819473cd663a5430789c76ec425975f120eedbd9ab066",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/exthost/output_logging_20261020T052518/1-EditorConfig.log": "d6ec802c0e6331ff6ded8e89bacfeac9fdabfd71d338d91bbee527c4a7022851",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/exthost/output_logging_20261020T052518/2-php-cs-fixer.log": "36a1665bc0bda371f72f29f0c307192d21efd7195dfb07c1de26dfef45e5678f",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/exthost/vscode.github-authentication/GitHub Authentication.log": "0d2454c9b5b7a4c29fc5f65e98dbd49d9073e7561e6e477294f2bb15ab04ff44",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/exthost/vscode.git/Git.log": "1c9cb5b11cd0be4cea06d9c39049a3f26fba01b9c3ed08efab9fd0926a4b96db",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/exthost/vscode.github/GitHub.log": "fd871c28e32f5e651f884b24802ed23d5e00eca40c8cd80f341272002dd05397",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/exthost/sohophp.php-companion/SoPHP.log": "c9e6e140f5d7efea4c1599f27bd2713eb1620ac94f0783a16629bd896b3a9883",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/exthost/redhat.vscode-yaml/YAML Support.log": "d144e84f8a53e73035e5388dcfbe4d26dc6c8857f5f368fb4d88786677ff0ff4",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/exthost/vscode.json-language-features/JSON Language Server.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/output_20261020T052518/agentSessionsOutput.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/evidence/host-logs/20261020T052514/window1/output_20261020T052518/tasks.log": "9a1ef259f25e9d08369af89a55185da14e18c8dfe0609817abddf81a0537ed24",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/owned-display/display-run.json": "b3997d63ddf72bc36fb99450d3006f291650df5c719762e0a551d1135f28f9f1",
+    "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/owned-display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+  }
+}

@@ -1,0 +1,502 @@
+{
+  "status": "passed",
+  "preparation": {
+    "sourceProductCommit": "a7e9166ae2cbfabb1516e480d19d98a5a490a8aa",
+    "sourceTestCommit": "b2ccc332c7f0b4ead09b768e00d2da3f65e5338f",
+    "runtimeDirectory": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/runtime",
+    "runnerWorkspace": "/var/www/node/php-companion-production-tests-20261020",
+    "coreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+    "runnerSHA256": "f16a24a67e32c070436f15b78f827e157c715f0081b9dc43fd0b91f250dd6aee",
+    "frozenProductInputs": 13,
+    "previousQualificationEngine": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+    "currentEngineLongSessionNotPreviouslyQualified": true,
+    "defaultAndProfileGate": "/var/www/node/php-companion/.vscode-test/production-test-harness-2026-10-20/audit-final.json",
+    "baselineCIWorkflow": 39277517219,
+    "supervisionLauncherByteIdenticalToPreviousQualified": true,
+    "budgetsChanged": false,
+    "fullObjectiveComplete": false
+  },
+  "latestVerifiedReceipt": {
+    "observedAtUtc": "2026-10-20T00:25:58.845601+00:00",
+    "status": "passed",
+    "originalProcessIdentitiesRecordedAndGone": true,
+    "serverPidsGone": [
+      2640774,
+      2696343,
+      2750398
+    ],
+    "originalNodeActualExitCode": 0,
+    "originalAuditorActualExitCode": 0,
+    "frozenInputsStillMatch": true,
+    "frozenProductInputs": 13,
+    "frozenPrivateInputs": 8,
+    "seconds": 7200,
+    "intervalMs": 250,
+    "actualElapsedMs": 7200432.795479001,
+    "coreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+    "lastSavedCycles": 23578,
+    "lastSavedCheckedResults": 117890,
+    "lastSavedStaleResults": 0,
+    "faultsCompleted": 2,
+    "latestResourceSample": {
+      "elapsedMs": 7200243.891499001,
+      "cycle": 23578,
+      "pid": 2750398,
+      "rssMiB": 278.07421875,
+      "highWaterMiB": 311.55859375,
+      "cacheMiB": 3.7585134506225586,
+      "cacheFiles": 1001
+    },
+    "ownedFixtureRemoved": true,
+    "ownedTemporaryParentRemoved": true,
+    "ownedProcessGroupEmpty": true,
+    "originalArchiveFilesVerified": 15,
+    "supplementArchiveFilesVerified": 8,
+    "rebuiltManifestLiveBytesRetainedAndMatched": true,
+    "twoHourQualified": true,
+    "fullObjectiveComplete": false
+  },
+  "qualified": true,
+  "fullObjectiveComplete": false,
+  "firstForcedExitRecovery": {
+    "observedAtUtc": "2026-10-19T23:05:09.642041+00:00",
+    "firstRecoveryWitness": {
+      "kind": "forced-process-exit",
+      "previousPid": 2640774,
+      "replacementPid": 2696343,
+      "recoveryMs": 4397.076314999722,
+      "unsavedBufferReopenedExactly": true,
+      "firstQueryCorrect": true,
+      "diskUnchanged": true
+    },
+    "oldServerActuallyGone": true,
+    "replacementServerLive": true,
+    "replacementServerStartTicks": "37305769",
+    "replacementRuntimeCommandVerified": true,
+    "allOriginalActorsStillLive": true,
+    "frozenProductsAndPrivateInputsMatch": true,
+    "cycles": 8000,
+    "checkedResults": 40000,
+    "staleResults": 0,
+    "twoHourQualified": false,
+    "fullObjectiveComplete": false
+  },
+  "oneHourRunningCheckpoint": {
+    "observedAtUtc": "2026-10-19T23:24:52.729541+00:00",
+    "status": "running",
+    "actors": [
+      {
+        "pid": 2640745,
+        "startTicks": "37065228",
+        "identityVerified": true
+      },
+      {
+        "pid": 2640757,
+        "startTicks": "37065295",
+        "identityVerified": true
+      },
+      {
+        "pid": 2642676,
+        "startTicks": "37077811",
+        "identityVerified": true
+      },
+      {
+        "pid": 2681578,
+        "startTicks": "37223127",
+        "identityVerified": true
+      },
+      {
+        "pid": 2696343,
+        "startTicks": "37305769",
+        "identityVerified": true
+      }
+    ],
+    "verifiedFrozenInputs": 21,
+    "frozenQueueInputsUnchanged": true,
+    "elapsedMinutes": 60.56666211983333,
+    "cycles": 11900,
+    "checkedResults": 59500,
+    "staleResults": 0,
+    "windows": 118,
+    "highestWindowP95Ms": {
+      "change": 32.30463499999314,
+      "betaCompletion": 4.7744200001470745,
+      "betaHover": 4.192763999999443,
+      "betaDefinition": 4.696926000062376,
+      "alphaCompletion": 10.967536999844015,
+      "alphaDefinition": 15.421322000212967
+    },
+    "peakHighWaterMiB": 308.78125,
+    "peakCacheMiB": 3.764777183532715,
+    "latestResourceSample": {
+      "elapsedMs": 3633999.72719,
+      "cycle": 11900,
+      "pid": 2696343,
+      "rssMiB": 270.73828125,
+      "highWaterMiB": 308.78125,
+      "cacheMiB": 3.7583980560302734,
+      "cacheFiles": 1000
+    },
+    "firstForcedExitRecovery": {
+      "kind": "forced-process-exit",
+      "previousPid": 2640774,
+      "replacementPid": 2696343,
+      "recoveryMs": 4397.076314999722,
+      "unsavedBufferReopenedExactly": true,
+      "firstQueryCorrect": true,
+      "diskUnchanged": true
+    },
+    "cacheCorruptionRecoveryPending": true,
+    "terminalAuditPending": true,
+    "queuedMeasurementLaunched": false,
+    "twoHourQualified": false,
+    "fullObjectiveComplete": false
+  },
+  "secondCacheCorruptionRecoveryLiveEvidence": {
+    "verifiedAtUtc": "2026-10-19T23:45:22.094348+00:00",
+    "independentLiveByteVerificationPassed": true,
+    "actors": [
+      {
+        "pid": 2640745,
+        "startTicks": "37065228",
+        "identityVerified": true
+      },
+      {
+        "pid": 2640757,
+        "startTicks": "37065295",
+        "identityVerified": true
+      },
+      {
+        "pid": 2642676,
+        "startTicks": "37077811",
+        "identityVerified": true
+      },
+      {
+        "pid": 2681578,
+        "startTicks": "37223127",
+        "identityVerified": true
+      },
+      {
+        "pid": 2750398,
+        "startTicks": "37545784",
+        "identityVerified": true
+      }
+    ],
+    "originalInputsAndQueueInputsUnchanged": true,
+    "oldServersActuallyGone": [
+      2640774,
+      2696343
+    ],
+    "currentServerPid": 2750398,
+    "currentServerStartTicks": "37545784",
+    "liveManifestSHA256": "369b5dc5741eeb672433b0d1b27e15a5d38ce6c40974e54aacbf4b60ace5d5c6",
+    "liveManifestBytes": 320745,
+    "matchesOriginalRunnerWitness": true,
+    "sourceManifestSchema": 2,
+    "entryCount": 999,
+    "consumerEntryPresent": true,
+    "capturedRunSnapshotSHA256": "d36a842e1588d8b6a9546b85472e33b8f0f574a248b758e2c7ea24953c7ba4f5",
+    "recoveryMs": 4828.612332000397,
+    "checkedResults": 79500,
+    "cycles": 15900,
+    "staleResults": 0,
+    "windows": 158,
+    "highestWindowP95Ms": {
+      "change": 32.30463499999314,
+      "betaCompletion": 4.895204999484122,
+      "betaHover": 4.353647000156343,
+      "betaDefinition": 4.696926000062376,
+      "alphaCompletion": 10.967536999844015,
+      "alphaDefinition": 15.421322000212967
+    },
+    "latestResourceSample": {
+      "elapsedMs": 4857964.783242,
+      "cycle": 15900,
+      "pid": 2750398,
+      "rssMiB": 293.16796875,
+      "highWaterMiB": 311.55859375,
+      "cacheMiB": 3.7585134506225586,
+      "cacheFiles": 1001
+    },
+    "twoHourQualified": false,
+    "terminalAuditPending": true,
+    "performanceQualified": false,
+    "fullObjectiveComplete": false
+  },
+  "rebuiltManifestLiveByteCapture": {
+    "capturedAtUtc": "2026-10-19T23:44:41.496190+00:00",
+    "sourceManifest": "/tmp/sophp-final-long-x2r9zvfm/sophp-long-session-TYuE10/.cache/a4c464c55390b6e17725620a26a0a941b167694139836f20f9fd092b31ab6712.json",
+    "archive": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/cache-after-corruption-live.json",
+    "bytes": 320745,
+    "sha256": "369b5dc5741eeb672433b0d1b27e15a5d38ce6c40974e54aacbf4b60ace5d5c6",
+    "runnerRebuiltSHA256": "369b5dc5741eeb672433b0d1b27e15a5d38ce6c40974e54aacbf4b60ace5d5c6",
+    "capturedBytesMatchRunnerRebuiltWitness": true,
+    "manifestSchema": 2,
+    "manifestGeneration": "232bda8d-bfff-41d3-a926-9d15024964fd",
+    "entryCount": 999,
+    "consumerEntryPresent": true,
+    "preCorruptionBytesMatchRunnerWitness": true,
+    "runSnapshot": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/cache-recovery-run-live.json",
+    "runSnapshotSHA256": "d36a842e1588d8b6a9546b85472e33b8f0f574a248b758e2c7ea24953c7ba4f5",
+    "oldServersActuallyGone": [
+      2640774,
+      2696343
+    ],
+    "replacementServerPid": 2750398,
+    "replacementServerStartTicks": "37545784",
+    "replacementRuntimeCommandVerified": true,
+    "recoveryWitness": {
+      "kind": "cache-manifest-corruption",
+      "path": "/tmp/sophp-final-long-x2r9zvfm/sophp-long-session-TYuE10/.cache/a4c464c55390b6e17725620a26a0a941b167694139836f20f9fd092b31ab6712.json",
+      "originalSha256": "ad601e0b2c9d4b4a5a2df68062e41dc04f65c80ac5800da174f5f207e9771e39",
+      "corruptedSha256": "be302461cda285db3ed2d45fb767b23e08ca8808b35a638009937df22b332d73",
+      "recoveryProbe": {
+        "uri": "file:///tmp/sophp-final-long-x2r9zvfm/sophp-long-session-TYuE10/src/Noise997.php",
+        "method": "textDocument/references",
+        "declarationReturned": true
+      },
+      "rebuiltSha256": "369b5dc5741eeb672433b0d1b27e15a5d38ce6c40974e54aacbf4b60ace5d5c6",
+      "replacementPid": 2750398,
+      "recoveryMs": 4828.612332000397,
+      "unsavedBufferReopenedExactly": true,
+      "firstQueryCorrect": true,
+      "diskUnchanged": true
+    },
+    "checkedResults": 79000,
+    "staleResults": 0,
+    "twoHourQualified": false,
+    "fullObjectiveComplete": false
+  },
+  "postSecondRecoveryRunningCheckpoint": {
+    "observedAtUtc": "2026-10-19T23:54:58.915038+00:00",
+    "status": "running",
+    "elapsedMinutes": 90.67346527363334,
+    "cycles": 17800,
+    "checkedResults": 89000,
+    "staleResults": 0,
+    "windows": 177,
+    "highestWindowP95Ms": {
+      "change": 32.30463499999314,
+      "betaCompletion": 4.895204999484122,
+      "betaHover": 4.353647000156343,
+      "betaDefinition": 4.696926000062376,
+      "alphaCompletion": 10.967536999844015,
+      "alphaDefinition": 15.421322000212967
+    },
+    "latestResourceSample": {
+      "elapsedMs": 5440407.916418,
+      "cycle": 17800,
+      "pid": 2750398,
+      "rssMiB": 277.3046875,
+      "highWaterMiB": 311.55859375,
+      "cacheMiB": 3.7585134506225586,
+      "cacheFiles": 1001
+    },
+    "originalInputsAndFrozenQueueInputsMatch": true,
+    "capturedRebuiltManifestAndRunSnapshotUnchanged": true,
+    "bothFaultsCompleted": true,
+    "twoHourQualified": false,
+    "fullObjectiveComplete": false
+  },
+  "terminalAudit": {
+    "verified": true,
+    "qualified": true,
+    "mode": "two-hour",
+    "scope": "Linux normal bundled LSP, 1k synthetic continuous unsaved edits/close recovery, actual process exit/cache manifest corruption; excludes editor UI, real project, cancellation, Remote and other modes/platforms",
+    "multiHourQualified": true,
+    "actualElapsedMs": 7200432.795479001,
+    "cycles": 23578,
+    "checkedResults": 117890,
+    "staleResults": 0,
+    "windows": 235,
+    "allTimings": {
+      "change": {
+        "samples": 23568,
+        "p50": 29.110591999720782,
+        "p95": 31.01844700006768,
+        "maximum": 45.16589800082147
+      },
+      "betaCompletion": {
+        "samples": 23568,
+        "p50": 2.089999000541866,
+        "p95": 3.6094809998758137,
+        "maximum": 13.866342999972403
+      },
+      "betaHover": {
+        "samples": 23568,
+        "p50": 1.7261129999533296,
+        "p95": 2.962715999688953,
+        "maximum": 21.467490999999427
+      },
+      "betaDefinition": {
+        "samples": 23568,
+        "p50": 1.7496799994260073,
+        "p95": 3.030403000302613,
+        "maximum": 28.740457999520004
+      },
+      "alphaCompletion": {
+        "samples": 23568,
+        "p50": 1.9172900000121444,
+        "p95": 3.284428999759257,
+        "maximum": 22.344243000028655
+      },
+      "alphaDefinition": {
+        "samples": 23568,
+        "p50": 3.6227700002491474,
+        "p95": 6.246422000229359,
+        "maximum": 28.935879999771714
+      }
+    },
+    "peakHighWaterMiB": 311.55859375,
+    "peakCacheMiB": 3.764777183532715,
+    "recoveryWitnesses": [
+      {
+        "kind": "forced-process-exit",
+        "previousPid": 2640774,
+        "replacementPid": 2696343,
+        "recoveryMs": 4397.076314999722,
+        "unsavedBufferReopenedExactly": true,
+        "firstQueryCorrect": true,
+        "diskUnchanged": true
+      },
+      {
+        "kind": "cache-manifest-corruption",
+        "path": "/tmp/sophp-final-long-x2r9zvfm/sophp-long-session-TYuE10/.cache/a4c464c55390b6e17725620a26a0a941b167694139836f20f9fd092b31ab6712.json",
+        "originalSha256": "ad601e0b2c9d4b4a5a2df68062e41dc04f65c80ac5800da174f5f207e9771e39",
+        "corruptedSha256": "be302461cda285db3ed2d45fb767b23e08ca8808b35a638009937df22b332d73",
+        "recoveryProbe": {
+          "uri": "file:///tmp/sophp-final-long-x2r9zvfm/sophp-long-session-TYuE10/src/Noise997.php",
+          "method": "textDocument/references",
+          "declarationReturned": true
+        },
+        "rebuiltSha256": "369b5dc5741eeb672433b0d1b27e15a5d38ce6c40974e54aacbf4b60ace5d5c6",
+        "replacementPid": 2750398,
+        "recoveryMs": 4828.612332000397,
+        "unsavedBufferReopenedExactly": true,
+        "firstQueryCorrect": true,
+        "diskUnchanged": true
+      }
+    ],
+    "recoveryMsHasNoSeparateHardBudget": true,
+    "rebuiltManifestBytesNotRetained": true,
+    "rebuiltManifestHashFromActualRunnerRead": true,
+    "driverAndRunnerAndServersGone": true,
+    "privateInputsUnchanged": 8,
+    "ownedFixtureRemoved": true,
+    "ownedTemporaryParentRemoved": true,
+    "ownedProcessGroupEmpty": true,
+    "frozenSnapshotInputsUnchanged": 13,
+    "normalAssetsUnchanged": 8,
+    "runnerSha256": "f16a24a67e32c070436f15b78f827e157c715f0081b9dc43fd0b91f250dd6aee",
+    "engineSha256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+    "reportSha256": "c144926ce8118455ed335ce66f0fbc2c37df1bc1028318ffb3c9e8ac5eb1a3b4",
+    "auditorSha256": "94f1a7101d45925f8980d2e4291ebf9f9d9f9a10d73a52e9e4eebfd9126926f6",
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "openMajorItems": 26,
+    "auditedAtUtc": "2026-10-20T00:24:06.142905+00:00"
+  },
+  "terminalSupervisor": {
+    "status": "exited",
+    "pid": 2642676,
+    "originalDriverPid": 2640745,
+    "originalDriverStartTicks": "37065228",
+    "qualified": true,
+    "fullObjectiveComplete": false,
+    "lastVerifiedAtUtc": "2026-10-20T00:24:00.431610+00:00",
+    "originalProcessState": "S",
+    "originalRunnerExitCode": 0,
+    "actualAuditorExitCode": 0,
+    "finishedAtUtc": "2026-10-20T00:24:06.169537+00:00"
+  },
+  "supplementArchive": {
+    "verifiedAtUtc": "2026-10-20T00:28:26.937913+00:00",
+    "archiveFiles": [
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/cache-after-corruption-live.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/two-hour-live-cache-supplement/01-cache-after-corruption-live.json",
+        "sha256": "369b5dc5741eeb672433b0d1b27e15a5d38ce6c40974e54aacbf4b60ace5d5c6"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/cache-after-corruption-live-proof.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/two-hour-live-cache-supplement/02-cache-after-corruption-live-proof.json",
+        "sha256": "e1179f3c09c48e7cf3e68814a22e598c5358a2e805cd1d4e00f5a7e6a48ac5d3"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/cache-recovery-run-live.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/two-hour-live-cache-supplement/03-cache-recovery-run-live.json",
+        "sha256": "d36a842e1588d8b6a9546b85472e33b8f0f574a248b758e2c7ea24953c7ba4f5"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/second-recovery-live-verification.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/two-hour-live-cache-supplement/04-second-recovery-live-verification.json",
+        "sha256": "d57f98d5966fa1ff65454e0926364ea2643d3d56665b2eddb0cb9e352559b054"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/combined-terminal-receipt.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/two-hour-live-cache-supplement/05-combined-terminal-receipt.json",
+        "sha256": "9e9aadf91725e0048f0b2b9720138063b06984fb3992b0ae32231e25dd3ee154"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/two-hour-terminal-audit.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/two-hour-live-cache-supplement/06-two-hour-terminal-audit.json",
+        "sha256": "fde389659375143767e27c5b32239cbbfde3e2097bd0853ade9d2ffb0aeff6e8"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/audit-watch-state.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/two-hour-live-cache-supplement/07-audit-watch-state.json",
+        "sha256": "581fff4e67dcb911af7e0ba9725beb4de4879e203fd61432685afc68d9d81a31"
+      },
+      {
+        "source": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/evidence/cache-before-corruption.json",
+        "archive": "/var/www/node/php-companion/.vscode-test/stable-long-session-2026-10-20/two-hour-live-cache-supplement/08-cache-before-corruption.json",
+        "sha256": "ad601e0b2c9d4b4a5a2df68062e41dc04f65c80ac5800da174f5f207e9771e39"
+      }
+    ],
+    "separateFromFrozenOriginalAuditor": true,
+    "originalAuditorAndCriteriaUnchanged": true,
+    "actualRebuiltBytesRetained": true,
+    "rebuiltSHA256": "369b5dc5741eeb672433b0d1b27e15a5d38ce6c40974e54aacbf4b60ace5d5c6",
+    "matchesFinalOriginalRunnerWitness": true,
+    "originalTerminalAuditQualified": true,
+    "fullObjectiveComplete": false
+  },
+  "combinedTerminalReceipt": {
+    "verifiedAtUtc": "2026-10-20T00:25:58.845601+00:00",
+    "originalNodeActualExitCode": 0,
+    "originalAuditorActualExitCode": 0,
+    "originalArchiveFilesVerified": 15,
+    "supplementalLiveRebuiltManifestRetainedAndMatchesFinalWitness": true,
+    "originalAndQueueInputsUnchanged": true,
+    "allRecordedOwnedPidsGone": [
+      2640622,
+      2640745,
+      2640757,
+      2640774,
+      2642676,
+      2681578,
+      2696343,
+      2750398,
+      2804042,
+      2804403,
+      2804887,
+      2804899,
+      2805355,
+      2805378,
+      2805961
+    ],
+    "twoHourQualified": true,
+    "costObservationQualified": true,
+    "costObservationActualExitCodes": [
+      0,
+      0
+    ],
+    "costIndependentAuditorActualExitCode": 0,
+    "medianStableScopeMsPerEdit": 784.8125610000116,
+    "costInvestigationAdmitted": true,
+    "productionChanged": false,
+    "performanceQualified": false,
+    "fullObjectiveComplete": false
+  },
+  "scope": "Linux/Node22.14/PHP8.5/onDemand/1k synthetic LSP session; excludes complex Controller, cancellation, editor UI, real-project usage, Remote, other modes and platforms"
+}

@@ -1,0 +1,90 @@
+{
+  "qualifiedComparison": true,
+  "admitted": false,
+  "comparison": {
+    "control": {
+      "completionMs": {
+        "p95Ms": 646.2508340000004,
+        "medianMs": 120.8407090000037,
+        "maxMs": 665.7396279999994
+      },
+      "diagnosticMs": {
+        "p95Ms": 1651.806337,
+        "medianMs": 1429.220140999998,
+        "maxMs": 2216.7520320000012
+      }
+    },
+    "prototype": {
+      "completionMs": {
+        "p95Ms": 618.6149410000007,
+        "medianMs": 125.13575599999967,
+        "maxMs": 622.0045099999988
+      },
+      "diagnosticMs": {
+        "p95Ms": 1691.5179479999988,
+        "medianMs": 1452.1129149999979,
+        "maxMs": 2077.308986
+      }
+    }
+  },
+  "paired": {
+    "completionMs": {
+      "improvedSamples": 12,
+      "medianImprovementPercent": -3.2413646004038386
+    },
+    "diagnosticMs": {
+      "improvedSamples": 11,
+      "medianImprovementPercent": -1.4004187177024956
+    }
+  },
+  "admissionChecks": {
+    "diagnosticImprovedSamples": false,
+    "diagnosticPairedMedianImprovement": false,
+    "diagnosticP95Improved": false,
+    "queryP95RegressionBound": true,
+    "queryMedianRegressionBound": true,
+    "completeResultsAndInputsUnchanged": true
+  },
+  "correctness": {
+    "semantic": {
+      "passedEachSide": 24145,
+      "notSelectedEachSide": 0,
+      "sameCaseIdentitiesCountsAndStatuses": true
+    },
+    "protocol": {
+      "passedEachSide": 58,
+      "notSelectedEachSide": 0,
+      "sameCaseIdentitiesCountsAndStatuses": true
+    },
+    "version": {
+      "passedEachSide": 36,
+      "notSelectedEachSide": 532,
+      "sameCaseIdentitiesCountsAndStatuses": true
+    }
+  },
+  "differentialStates": 480,
+  "emittedCandidateDifferentialStates": 480,
+  "boundaryChecks": 9,
+  "nativeAndSemanticSourceAndBundleWitnessesVerified": true,
+  "frozenInputs": {
+    "inputs.json": 3316,
+    "project-inputs.json": 66079,
+    "private-inputs.json": 74
+  },
+  "ownedActorsGroupsAndPerformanceCachesGone": true,
+  "originalDiagnosticBudgetPassed": false,
+  "originalQueryBudgetPassed": false,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "failedInitialBoundaryTestAssumptionsPreserved": 2,
+  "failedAuxiliaryTransformationAssumptionPreserved": 1,
+  "recordedAtUtc": "2026-10-14T05:03:36.331882+00:00",
+  "archiveFiles": 101,
+  "normalCoreSHA256": "b403e33a2c93c6959507fd8248703c148886849b91b1d05f0a9ffbb23f4d5951",
+  "decision": "reject_without_equivalent_retry",
+  "productionAdopted": false,
+  "correctnessActualCommandExitCode": 0,
+  "performanceActualCommandExitCode": 0,
+  "independentAuditActualCommandExitCode": 0,
+  "newFeaturesAdded": false
+}

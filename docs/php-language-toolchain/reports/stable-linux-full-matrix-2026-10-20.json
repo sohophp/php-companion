@@ -1,0 +1,272 @@
+{
+  "date": "2026-10-20",
+  "commit": "193cda547dc8f7a1b7a365719e8d6635b84eeb71",
+  "coreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+  "platform": "linux",
+  "runtime": "v22.14.0",
+  "independentAuditPassed": true,
+  "cohorts": [
+    {
+      "mode": "onDemand",
+      "cases": [
+        {
+          "phpVersion": "7.2",
+          "mode": "onDemand",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.517084999999497,
+          "maxHotQueryP95Ms": 6.128082999999606,
+          "cancellationMs": 19.66095199999836
+        },
+        {
+          "phpVersion": "7.3",
+          "mode": "onDemand",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.706516000000192,
+          "maxHotQueryP95Ms": 6.646928999998636,
+          "cancellationMs": 5.2245140000013635
+        },
+        {
+          "phpVersion": "7.4",
+          "mode": "onDemand",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.668188999999984,
+          "maxHotQueryP95Ms": 6.496924000002764,
+          "cancellationMs": 5.654262000000017
+        },
+        {
+          "phpVersion": "8.0",
+          "mode": "onDemand",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.843721000001096,
+          "maxHotQueryP95Ms": 6.201021999997465,
+          "cancellationMs": 5.815948999999819
+        },
+        {
+          "phpVersion": "8.1",
+          "mode": "onDemand",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.87007799999992,
+          "maxHotQueryP95Ms": 5.9378059999999095,
+          "cancellationMs": 5.108415999999124
+        },
+        {
+          "phpVersion": "8.2",
+          "mode": "onDemand",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.76820299999963,
+          "maxHotQueryP95Ms": 6.43836999999985,
+          "cancellationMs": 31.918526000001293
+        },
+        {
+          "phpVersion": "8.3",
+          "mode": "onDemand",
+          "platform": "linux",
+          "diagnosticP95Ms": 31.049308000001474,
+          "maxHotQueryP95Ms": 6.42973400000119,
+          "cancellationMs": 13.296672000000399
+        },
+        {
+          "phpVersion": "8.4",
+          "mode": "onDemand",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.84515900000042,
+          "maxHotQueryP95Ms": 6.943052999999054,
+          "cancellationMs": 4.970094000000245
+        },
+        {
+          "phpVersion": "8.5",
+          "mode": "onDemand",
+          "platform": "linux",
+          "diagnosticP95Ms": 31.01238999999987,
+          "maxHotQueryP95Ms": 6.82013999999981,
+          "cancellationMs": 5.695418999999674
+        }
+      ],
+      "formalEdits": 4500,
+      "warmupEdits": 450,
+      "loadedTargetProofs": 9,
+      "maxDiagnosticP95Ms": 31.049308000001474,
+      "maxQueryP95Ms": 6.943052999999054,
+      "maxCancellationMs": 31.918526000001293,
+      "actualRunnerExitCode": 0,
+      "independentAuditPassed": true
+    },
+    {
+      "mode": "progressive",
+      "cases": [
+        {
+          "phpVersion": "7.2",
+          "mode": "progressive",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.27519200000097,
+          "maxHotQueryP95Ms": 6.115879000000859,
+          "cancellationMs": 0.9056089999976393
+        },
+        {
+          "phpVersion": "7.3",
+          "mode": "progressive",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.438491000000795,
+          "maxHotQueryP95Ms": 6.146068999998533,
+          "cancellationMs": 1.3493449999987206
+        },
+        {
+          "phpVersion": "7.4",
+          "mode": "progressive",
+          "platform": "linux",
+          "diagnosticP95Ms": 29.99731199999951,
+          "maxHotQueryP95Ms": 5.986417000000074,
+          "cancellationMs": 1.4856570000010834
+        },
+        {
+          "phpVersion": "8.0",
+          "mode": "progressive",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.639156000001094,
+          "maxHotQueryP95Ms": 6.428031000001283,
+          "cancellationMs": 2.187483000001521
+        },
+        {
+          "phpVersion": "8.1",
+          "mode": "progressive",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.89459100000022,
+          "maxHotQueryP95Ms": 6.375015999998141,
+          "cancellationMs": 1.0501819999990403
+        },
+        {
+          "phpVersion": "8.2",
+          "mode": "progressive",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.54289400000016,
+          "maxHotQueryP95Ms": 6.271915000001172,
+          "cancellationMs": 1.0800450000024284
+        },
+        {
+          "phpVersion": "8.3",
+          "mode": "progressive",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.606990000000224,
+          "maxHotQueryP95Ms": 5.487199999999575,
+          "cancellationMs": 1.3121119999996154
+        },
+        {
+          "phpVersion": "8.4",
+          "mode": "progressive",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.86654499999986,
+          "maxHotQueryP95Ms": 6.4527930000003835,
+          "cancellationMs": 1.3037919999987935
+        },
+        {
+          "phpVersion": "8.5",
+          "mode": "progressive",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.79669499999909,
+          "maxHotQueryP95Ms": 6.71309299999848,
+          "cancellationMs": 1.20707499999844
+        }
+      ],
+      "formalEdits": 4500,
+      "warmupEdits": 450,
+      "loadedTargetProofs": 9,
+      "maxDiagnosticP95Ms": 30.89459100000022,
+      "maxQueryP95Ms": 6.71309299999848,
+      "maxCancellationMs": 2.187483000001521,
+      "actualRunnerExitCode": 0,
+      "independentAuditPassed": true
+    },
+    {
+      "mode": "experimental",
+      "cases": [
+        {
+          "phpVersion": "7.2",
+          "mode": "experimental",
+          "platform": "linux",
+          "diagnosticP95Ms": 29.92822999999953,
+          "maxHotQueryP95Ms": 5.480744999998933,
+          "cancellationMs": 0.6897720000015397
+        },
+        {
+          "phpVersion": "7.3",
+          "mode": "experimental",
+          "platform": "linux",
+          "diagnosticP95Ms": 29.41522299999997,
+          "maxHotQueryP95Ms": 5.064947000000757,
+          "cancellationMs": 1.0622440000006463
+        },
+        {
+          "phpVersion": "7.4",
+          "mode": "experimental",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.499598000000333,
+          "maxHotQueryP95Ms": 6.364594999999099,
+          "cancellationMs": 0.9360169999999925
+        },
+        {
+          "phpVersion": "8.0",
+          "mode": "experimental",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.62353400000211,
+          "maxHotQueryP95Ms": 6.314809999999852,
+          "cancellationMs": 0.7587710000007064
+        },
+        {
+          "phpVersion": "8.1",
+          "mode": "experimental",
+          "platform": "linux",
+          "diagnosticP95Ms": 31.758207999999286,
+          "maxHotQueryP95Ms": 6.478729000000385,
+          "cancellationMs": 1.104256999999052
+        },
+        {
+          "phpVersion": "8.2",
+          "mode": "experimental",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.89510800000062,
+          "maxHotQueryP95Ms": 5.049642999998468,
+          "cancellationMs": 0.7701620000007097
+        },
+        {
+          "phpVersion": "8.3",
+          "mode": "experimental",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.66921999999977,
+          "maxHotQueryP95Ms": 5.197570000000269,
+          "cancellationMs": 0.634688999998616
+        },
+        {
+          "phpVersion": "8.4",
+          "mode": "experimental",
+          "platform": "linux",
+          "diagnosticP95Ms": 30.84900000000016,
+          "maxHotQueryP95Ms": 6.034043999999994,
+          "cancellationMs": 0.6983350000009523
+        },
+        {
+          "phpVersion": "8.5",
+          "mode": "experimental",
+          "platform": "linux",
+          "diagnosticP95Ms": 31.191116999998485,
+          "maxHotQueryP95Ms": 6.2767450000010285,
+          "cancellationMs": 0.7080439999990631
+        }
+      ],
+      "formalEdits": 4500,
+      "warmupEdits": 450,
+      "loadedTargetProofs": 9,
+      "maxDiagnosticP95Ms": 31.758207999999286,
+      "maxQueryP95Ms": 6.478729000000385,
+      "maxCancellationMs": 1.104256999999052,
+      "actualRunnerExitCode": 0,
+      "independentAuditPassed": true
+    }
+  ],
+  "formalEdits": 13500,
+  "warmupEdits": 1350,
+  "loadedTargetProofs": 27,
+  "rawFilesVerified": 135,
+  "wholeLinuxOrdinaryMatrixQualified": true,
+  "wholePlatformMatrixQualified": false,
+  "fullObjectiveComplete": false
+}

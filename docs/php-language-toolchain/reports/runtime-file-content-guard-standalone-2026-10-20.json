@@ -1,0 +1,41 @@
+{
+  "qualifiedCompleteStandalonePackagedFlow": true,
+  "actualCommandExitCode": 0,
+  "durationSeconds": 396.9301589030074,
+  "engineBuildId": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+  "frozenInputsChecked": 3830,
+  "compiledJavaScriptCount": 99,
+  "packageSha256": [
+    "3a0ee87d9c8c1a26bbce8db05faefee51664762bbb2e9cefa490ab1dac9b3b54",
+    "5846ec17589f7aa731e5aa35db67f921c06b324d6964711b89c1cd45e0374f2a"
+  ],
+  "packagedRuntimeEntriesVerified": 16,
+  "originalCompleteEntryRetained": true,
+  "originalAssertionsAndTimeoutsPreserved": true,
+  "originalInjectedCrashAndRecoveryRetained": true,
+  "lifecycle": {
+    "unexpectedCloses": 1,
+    "restartFailures": 0,
+    "pendingVersionRefreshes": 0,
+    "restarting": false,
+    "scheduled": false
+  },
+  "checkedProcessIds": [
+    2498264,
+    2498410,
+    2498412,
+    2498416,
+    2499211,
+    2501991
+  ],
+  "ownedProcessesGroupsFixtureAndDisplayGone": true,
+  "realWslAcceptance": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "recordedAtUtc": "2026-10-19T21:21:25.025144+00:00",
+  "sourceCommit": "71c7b40f16ca148a2d6e52787847054307a246cf",
+  "loadedFromUnpackedVsixPayload": true,
+  "formalInstalledProfileAcceptance": false,
+  "environmentValuesPublished": false
+}

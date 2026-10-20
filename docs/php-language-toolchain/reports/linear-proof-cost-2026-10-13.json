@@ -1,0 +1,361 @@
+{
+  "date": "2026-10-13",
+  "productionCoreSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+  "scope": "Private linearLocalValueType local helper observation; not performance qualification",
+  "status": "closed-no-production-change",
+  "observationState": {
+    "status": "exited",
+    "wrapperPid": 1233,
+    "startedAtUtc": "2026-10-12T23:08:28.501900+00:00",
+    "products": 2087,
+    "projectInputs": 66079,
+    "stages": [
+      {
+        "name": "build-control",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/linear-proof-cost-2026-10-13/build-private.mjs",
+          "--production",
+          "control"
+        ],
+        "status": "exited",
+        "pid": 1296,
+        "startTicks": "49513891",
+        "exitCode": 0,
+        "logSha256": "3493adef885caf30d9487c120b731594894b19448480222a8b1a3143fb1f0dd8"
+      },
+      {
+        "name": "build-instrumented",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/linear-proof-cost-2026-10-13/build-private.mjs",
+          "--production",
+          "instrumented"
+        ],
+        "status": "exited",
+        "pid": 1338,
+        "startTicks": "49514024",
+        "exitCode": 0,
+        "logSha256": "c0c232cc5115583bda143f36e14c1f3e38118752f2688044ca40819d6e951b52"
+      },
+      {
+        "name": "probe-control",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/linear-proof-cost-2026-10-13/probe.mjs",
+          "/var/www/node/php-companion/.vscode-test/linear-proof-cost-2026-10-13/control-probe",
+          "/var/www/node/php-companion/.vscode-test/linear-proof-cost-2026-10-13/control-runtime/language-server.js",
+          "4"
+        ],
+        "status": "exited",
+        "pid": 1692,
+        "startTicks": "49514226",
+        "exitCode": 0,
+        "logSha256": "26e22233f8cb3a7e0c77d99f9b57138b9fdc88ca51f5fb9aeabfbcefa2f8a5fe"
+      },
+      {
+        "name": "probe-instrumented",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/linear-proof-cost-2026-10-13/probe.mjs",
+          "/var/www/node/php-companion/.vscode-test/linear-proof-cost-2026-10-13/instrumented-probe",
+          "/var/www/node/php-companion/.vscode-test/linear-proof-cost-2026-10-13/instrumented-runtime/language-server.js",
+          "4"
+        ],
+        "status": "exited",
+        "pid": 1787,
+        "startTicks": "49515908",
+        "exitCode": 0,
+        "logSha256": "ef6ba0352d1f1e36b2816f2b7f350ea8294efd0a40df7cf955e76a4dbace3789"
+      }
+    ],
+    "qualifiedObservation": true,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "protocolResults": {
+      "control": {
+        "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+        "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "serverSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+        "rounds": 4,
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "normalProtocol": true,
+        "profiled": false,
+        "instrumentedCounts": false,
+        "cacheDirectory": "/tmp/sophp-controller-profile-wSIZNR",
+        "cacheDirectoryRemoved": true,
+        "serverPid": 1703,
+        "exitCode": 0,
+        "signal": null,
+        "correctnessPassed": true,
+        "rows": 4,
+        "completion": {
+          "count": 4,
+          "p95Ms": 700.6967530000002,
+          "maxMs": 700.6967530000002
+        },
+        "diagnostics": {
+          "count": 4,
+          "p95Ms": 2196.777803,
+          "maxMs": 2196.777803
+        },
+        "diskUnchanged": true,
+        "scope": "Private linear proof local helper cost observer; four edits not performance qualification."
+      },
+      "instrumented": {
+        "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+        "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+        "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+        "serverSha256": "2c0dd6632784b1c3b9a48edb9a94ef8eb421bf4c9a8538ce4b7c1d3f7cde1982",
+        "rounds": 4,
+        "indexingMode": "onDemand",
+        "phpVersion": "8.5",
+        "normalProtocol": true,
+        "profiled": false,
+        "instrumentedCounts": true,
+        "cacheDirectory": "/tmp/sophp-controller-profile-8MHf6S",
+        "cacheDirectoryRemoved": true,
+        "serverPid": 1798,
+        "exitCode": 0,
+        "signal": null,
+        "correctnessPassed": true,
+        "rows": 4,
+        "completion": {
+          "count": 4,
+          "p95Ms": 651.7458979999992,
+          "maxMs": 651.7458979999992
+        },
+        "diagnostics": {
+          "count": 4,
+          "p95Ms": 2352.713537999999,
+          "maxMs": 2352.713537999999
+        },
+        "diskUnchanged": true,
+        "scope": "Private linear proof local helper cost observer; four edits not performance qualification."
+      }
+    },
+    "completeVisibleResultEquality": true,
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "counterEvidence": [
+      "/var/www/node/php-companion/.vscode-test/linear-proof-cost-2026-10-13/linear-proof.1798.0.json"
+    ],
+    "mainThreadCounterPid": 1798,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T23:09:13.203442+00:00"
+  },
+  "analysis": {
+    "scope": "Four edit segments, all controller invocations; includes query and diagnostics; no local/full attribution; observer overhead; not P95 qualification",
+    "controllerEditRuns": 4612,
+    "editRunCounts": [
+      1153,
+      1153,
+      1153,
+      1153
+    ],
+    "helpers": [
+      {
+        "name": "hasSharedLocalSyntaxBefore",
+        "edits": [
+          {
+            "calls": 40,
+            "inclusiveMs": 5.032646999998178,
+            "exclusiveMs": 5.032646999998178
+          },
+          {
+            "calls": 40,
+            "inclusiveMs": 3.86986899999647,
+            "exclusiveMs": 3.86986899999647
+          },
+          {
+            "calls": 40,
+            "inclusiveMs": 3.48457199999757,
+            "exclusiveMs": 3.48457199999757
+          },
+          {
+            "calls": 40,
+            "inclusiveMs": 3.634448999999222,
+            "exclusiveMs": 3.634448999999222
+          }
+        ],
+        "medianInclusiveMs": 3.752158999997846,
+        "medianExclusiveMs": 3.752158999997846
+      },
+      {
+        "name": "unescapedLocalBefore",
+        "edits": [
+          {
+            "calls": 40,
+            "inclusiveMs": 11.751904999995531,
+            "exclusiveMs": 6.719257999997353
+          },
+          {
+            "calls": 40,
+            "inclusiveMs": 10.574862000001303,
+            "exclusiveMs": 6.7049930000048334
+          },
+          {
+            "calls": 40,
+            "inclusiveMs": 9.754253999995854,
+            "exclusiveMs": 6.269681999998284
+          },
+          {
+            "calls": 40,
+            "inclusiveMs": 9.390057999997225,
+            "exclusiveMs": 5.755608999998003
+          }
+        ],
+        "medianInclusiveMs": 10.164557999998578,
+        "medianExclusiveMs": 6.4873375000015585
+      },
+      {
+        "name": "valueArgumentSafe",
+        "edits": [
+          {
+            "calls": 348,
+            "inclusiveMs": 1.396579000004749,
+            "exclusiveMs": 1.307504000006702
+          },
+          {
+            "calls": 348,
+            "inclusiveMs": 1.353142999976626,
+            "exclusiveMs": 1.2615859999878012
+          },
+          {
+            "calls": 348,
+            "inclusiveMs": 1.2992900000081136,
+            "exclusiveMs": 1.2033060000030673
+          },
+          {
+            "calls": 348,
+            "inclusiveMs": 1.2606459999915387,
+            "exclusiveMs": 1.18251599998257
+          }
+        ],
+        "medianInclusiveMs": 1.3262164999923698,
+        "medianExclusiveMs": 1.2324459999954342
+      },
+      {
+        "name": "harmless",
+        "edits": [
+          {
+            "calls": 516,
+            "inclusiveMs": 37.52805799999169,
+            "exclusiveMs": 24.468648999989455
+          },
+          {
+            "calls": 516,
+            "inclusiveMs": 37.38449899999068,
+            "exclusiveMs": 25.54805100000158
+          },
+          {
+            "calls": 516,
+            "inclusiveMs": 35.04233999999997,
+            "exclusiveMs": 24.084780000001047
+          },
+          {
+            "calls": 516,
+            "inclusiveMs": 33.802420999994865,
+            "exclusiveMs": 23.22984700001507
+          }
+        ],
+        "medianInclusiveMs": 36.213419499995325,
+        "medianExclusiveMs": 24.27671449999525
+      },
+      {
+        "name": "outputValue",
+        "edits": [
+          {
+            "calls": 667,
+            "inclusiveMs": 8.525639000014053,
+            "exclusiveMs": 8.525639000014053
+          },
+          {
+            "calls": 667,
+            "inclusiveMs": 8.928995999998733,
+            "exclusiveMs": 8.928995999998733
+          },
+          {
+            "calls": 667,
+            "inclusiveMs": 8.58220300001085,
+            "exclusiveMs": 8.58220300001085
+          },
+          {
+            "calls": 667,
+            "inclusiveMs": 8.415995000023031,
+            "exclusiveMs": 8.415995000023031
+          }
+        ],
+        "medianInclusiveMs": 8.553921000012451,
+        "medianExclusiveMs": 8.553921000012451
+      },
+      {
+        "name": "provenNodeType",
+        "edits": [
+          {
+            "calls": 0,
+            "inclusiveMs": 0,
+            "exclusiveMs": 0
+          },
+          {
+            "calls": 0,
+            "inclusiveMs": 0,
+            "exclusiveMs": 0
+          },
+          {
+            "calls": 0,
+            "inclusiveMs": 0,
+            "exclusiveMs": 0
+          },
+          {
+            "calls": 0,
+            "inclusiveMs": 0,
+            "exclusiveMs": 0
+          }
+        ],
+        "medianInclusiveMs": 0.0,
+        "medianExclusiveMs": 0.0
+      },
+      {
+        "name": "applyUpdates",
+        "edits": [
+          {
+            "calls": 0,
+            "inclusiveMs": 0,
+            "exclusiveMs": 0
+          },
+          {
+            "calls": 0,
+            "inclusiveMs": 0,
+            "exclusiveMs": 0
+          },
+          {
+            "calls": 0,
+            "inclusiveMs": 0,
+            "exclusiveMs": 0
+          },
+          {
+            "calls": 0,
+            "inclusiveMs": 0,
+            "exclusiveMs": 0
+          }
+        ],
+        "medianInclusiveMs": 0.0,
+        "medianExclusiveMs": 0.0
+      }
+    ],
+    "wholeMethodMedianSummedMs": 444.81239850000384,
+    "unattributedMedianSummedMs": 399.8433795000037,
+    "unattributedCaveat": "Not exclusive root cost: untracked helper and nested linearLocalValueType calls can overlap. Source hashing and observer overhead also affect execution."
+  },
+  "decision": {
+    "productionChanged": false,
+    "newCache": false,
+    "newPrototype": false,
+    "fullObjectiveComplete": false,
+    "originalPerformanceBudgetsRemainOpen": true,
+    "nextAdmission": "Independent stability reproduction or concrete cost with a provably equivalent algorithm; no further instrumentation merely due unattributed time"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "assembledAtUtc": "2026-10-20T03:40:42.871744+00:00",
+  "channel": "alpha",
+  "sourceCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+  "sourceArchive": {
+    "sourceCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+    "gitTree": "3b223a3b98f7390e7f6bd7e9c8c100ae366c0bab",
+    "archiveFile": "php-companion-source-44dbe64f.tar",
+    "bytes": 57333760,
+    "sha256": "7ed0c1ca55215c51ebd78e3004b10ed4f024e3e82fe5cb51ce2e30f40260f3bd",
+    "trackedFilesVerified": 3725,
+    "allGitBlobContentsVerified": true,
+    "untrackedWorkIncluded": false
+  },
+  "packageBuildCommit": "3b0b97245fcb23591c0183eacbd1a60a5162bc89",
+  "freshProductBuildPerformed": false,
+  "productFilesAccountedFor": 39,
+  "ordinaryRemoteMatrixQualified": true,
+  "ordinaryRemoteMatrixRun": 39363787111,
+  "ordinaryRemoteMatrixRawFiles": 405,
+  "sourceRemoteCIQualified": false,
+  "sourceRemoteCIRun": 39363787201,
+  "currentCoreTwoHourQualified": false,
+  "complexControllerP95Ms": [
+    1461.588917,
+    667.289823
+  ],
+  "complexControllerBudgetPassed": false,
+  "realWslAcceptance": false,
+  "dailyProfileUpdated": false,
+  "pushedSourceBranch": true,
+  "published": false,
+  "fullObjectiveComplete": false,
+  "directory": "/var/www/node/php-companion-cold-cache-recovery-20261020/artifacts/php-companion-alpha-0.4.13-44dbe64f",
+  "deliveryFilesVerified": 441,
+  "deliveryChecksumSHA256": "a8a5883d4fb5ed2cd37247b2db927d73b0005403b1ac7e54035d667d2c862721",
+  "independentContainedMatrixAuditActualExitCode": 0,
+  "allDeliveryChecksumsPassed": true,
+  "all3725GitBlobContentsVerified": true,
+  "completedAtUtc": "2026-10-20T03:42:17.870980+00:00"
+}

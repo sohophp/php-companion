@@ -1,0 +1,4726 @@
+{
+  "date": "2026-10-14",
+  "scope": "Linux x64 Node22.14.0 ordinary protocol editing and recovery, nine existing target PHP versions by three modes; no PHP CLI/full syntax or real complex project qualification",
+  "state": {
+    "status": "exited",
+    "pid": 94188,
+    "startTicks": "59766647",
+    "coreSha256": "b403e33a2c93c6959507fd8248703c148886849b91b1d05f0a9ffbb23f4d5951",
+    "startedAtUtc": "2026-10-14T03:38:24.568135+00:00",
+    "productInputCount": 3316,
+    "plannedVerifierChange": {
+      "path": "/var/www/node/php-companion/scripts/benchmark-editing.mjs",
+      "beforeSha256": "e1ff8f7c8ba7e7c2217b28ef0faf1eb2d2fdbaacafea567f6fc91173161c40dd",
+      "afterSha256": "e1ff8f7c8ba7e7c2217b28ef0faf1eb2d2fdbaacafea567f6fc91173161c40dd"
+    },
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "qualifiedThisBatch": true,
+    "stages": [
+      {
+        "name": "php-7.2-progressive",
+        "mode": "progressive",
+        "phpVersion": "7.2",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "7.2",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:38:25.857220+00:00",
+        "pid": 94196,
+        "processGroup": 94196,
+        "startTicks": "59766922",
+        "observedProcesses": [
+          {
+            "pid": 94196,
+            "startTicks": "59766922",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 94209,
+            "startTicks": "59766931",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 94399,
+            "startTicks": "59769483",
+            "state": "D",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-wVlPS6"
+        ],
+        "lastObservedUtc": "2026-10-14T03:38:52.998672+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:38:54.009276+00:00",
+        "stdoutSha256": "ad79df6d48d3c2b007d5840ba437760a6a7b0c081729db7dd47d49427d170fa8",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.291887999999744,
+            "p95": 30.328850000001694,
+            "maximum": 31.47304299999996
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.5583559999977297,
+            "p95": 2.8515100000004168,
+            "maximum": 3.8661050000000614
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.259568000001309,
+            "p95": 5.821327999998175,
+            "maximum": 8.596661999999924
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6313909999989846,
+            "p95": 4.487489999999525,
+            "maximum": 7.1394600000003265
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.077780999999959,
+            "p95": 3.2517420000003767,
+            "maximum": 4.85646799999995
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.20385399999941,
+            "p95": 1.854935999999725,
+            "maximum": 2.8837100000000646
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2689220000029309,
+            "p95": 1.957777999999962,
+            "maximum": 2.8060959999984334
+          },
+          "cancellationMs": 0.6374460000006366,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.6374460000006366,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.5608619999984512,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 236.51953125,
+            "sampledPeak": 263.14453125,
+            "final": 263.14453125,
+            "endMinusBaseline": 26.625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "d164324a6f38e1f69d30d46925de043a10cb55fc8ab275e18cef2c9305d766aa.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-7.2-onDemand",
+        "mode": "onDemand",
+        "phpVersion": "7.2",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "7.2",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:38:56.531455+00:00",
+        "pid": 94448,
+        "processGroup": 94448,
+        "startTicks": "59769989",
+        "observedProcesses": [
+          {
+            "pid": 94448,
+            "startTicks": "59769989",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 94459,
+            "startTicks": "59769997",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 94599,
+            "startTicks": "59772649",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-Y0IgVK"
+        ],
+        "lastObservedUtc": "2026-10-14T03:39:25.450564+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:39:26.465824+00:00",
+        "stdoutSha256": "33195cb26c79866cdc9005401ec038873a8b26f5fb7f24f7e8ac21186147352f",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 29.222944000000098,
+            "p95": 30.915884000000005,
+            "maximum": 32.68931599999996
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.7154159999990952,
+            "p95": 3.051948000000266,
+            "maximum": 3.974643000001379
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.440280000000712,
+            "p95": 6.354174000000057,
+            "maximum": 8.475701999999728
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.7647870000000694,
+            "p95": 4.921871000000465,
+            "maximum": 6.515898999998171
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1850720000002184,
+            "p95": 3.7118509999982052,
+            "maximum": 4.956244999999399
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2826339999992342,
+            "p95": 2.0825310000000172,
+            "maximum": 4.115583000000697
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.362676000000647,
+            "p95": 2.205364000001282,
+            "maximum": 3.5697499999987485
+          },
+          "cancellationMs": 6.1094560000019555,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 6.1094560000019555,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 2.7091460000010557,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 232.671875,
+            "sampledPeak": 302.99609375,
+            "final": 302.99609375,
+            "endMinusBaseline": 70.32421875,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "d47cab467ad9ae32342e4011069e9eaebb34d476f76bc492c5fd08cec5483101.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-7.2-experimental",
+        "mode": "experimental",
+        "phpVersion": "7.2",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "7.2"
+        },
+        "startedAtUtc": "2026-10-14T03:39:29.356540+00:00",
+        "pid": 94647,
+        "processGroup": 94647,
+        "startTicks": "59773221",
+        "observedProcesses": [
+          {
+            "pid": 94647,
+            "startTicks": "59773221",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 94658,
+            "startTicks": "59773230",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 94828,
+            "startTicks": "59775791",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-XI8do8"
+        ],
+        "lastObservedUtc": "2026-10-14T03:39:55.691001+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:39:56.710779+00:00",
+        "stdoutSha256": "a363f7624815eb27a85a1b500d3e34dbcce76af9db9ad7e37c8c9ab1d03f0097",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v22.14.0",
+          "phpVersion": "7.2",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.50782700000127,
+            "p95": 30.84742499999993,
+            "maximum": 31.858165999998164
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.5542739999982587,
+            "p95": 2.6535639999965497,
+            "maximum": 4.044760000000679
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.254355000000942,
+            "p95": 6.053531000001385,
+            "maximum": 9.552985999999692
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.5823319999981322,
+            "p95": 4.554998000003252,
+            "maximum": 6.643761000000268
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.0609819999990577,
+            "p95": 3.530243999997765,
+            "maximum": 5.137596999999914
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1839079999990645,
+            "p95": 1.9263609999998152,
+            "maximum": 3.783876000001328
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2580770000022312,
+            "p95": 2.197497999999541,
+            "maximum": 2.9999259999995047
+          },
+          "cancellationMs": 1.187142999999196,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.187142999999196,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.5705209999978251,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 228.78125,
+            "sampledPeak": 254.23828125,
+            "final": 246.3125,
+            "endMinusBaseline": 17.53125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "20b2bdbd76a3955eb0f2cf8734015cb240799c98a332aaae04a5957f59f20e1f.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-7.3-progressive",
+        "mode": "progressive",
+        "phpVersion": "7.3",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "7.3",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:39:59.405299+00:00",
+        "pid": 94859,
+        "processGroup": 94859,
+        "startTicks": "59776323",
+        "observedProcesses": [
+          {
+            "pid": 94859,
+            "startTicks": "59776323",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 94870,
+            "startTicks": "59776333",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 95010,
+            "startTicks": "59778895",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-srslzY"
+        ],
+        "lastObservedUtc": "2026-10-14T03:40:26.646537+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:40:27.661973+00:00",
+        "stdoutSha256": "63860629e62247e18133ba61db0f6c94467dbb63b8167d751427a740bcb6844b",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "7.3",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.38157499999943,
+            "p95": 30.071092000000135,
+            "maximum": 32.10676899999817
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.5834500000019034,
+            "p95": 2.862323000001197,
+            "maximum": 4.7063839999991615
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.277431999998953,
+            "p95": 5.884907999999996,
+            "maximum": 7.073711999999432
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.591129999997065,
+            "p95": 4.714244000002509,
+            "maximum": 6.424187999999958
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.0830390000010084,
+            "p95": 3.6034290000025067,
+            "maximum": 5.7026709999991
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.210786999999982,
+            "p95": 1.9144929999984015,
+            "maximum": 2.8815470000008645
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2817360000008193,
+            "p95": 2.1515199999994365,
+            "maximum": 3.052364999999554
+          },
+          "cancellationMs": 1.126895000001241,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.126895000001241,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.6162710000025982,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 255.99609375,
+            "sampledPeak": 282.83984375,
+            "final": 282.83984375,
+            "endMinusBaseline": 26.84375,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "631f32e40ed14c0fc9d4611fe7b729676b582cd52c964a80c649bf5b6a74df1f.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-7.3-onDemand",
+        "mode": "onDemand",
+        "phpVersion": "7.3",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "7.3",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:40:30.331650+00:00",
+        "pid": 95058,
+        "processGroup": 95058,
+        "startTicks": "59779427",
+        "observedProcesses": [
+          {
+            "pid": 95058,
+            "startTicks": "59779427",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 95069,
+            "startTicks": "59779434",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 95254,
+            "startTicks": "59781975",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-SQJhFi"
+        ],
+        "lastObservedUtc": "2026-10-14T03:40:57.506222+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:40:58.532128+00:00",
+        "stdoutSha256": "08875eb5b10a787c56c920ea4a5a86924871c930743353aff1c096a18228b845",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "7.3",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.308336000000054,
+            "p95": 30.017698000001474,
+            "maximum": 31.5142139999989
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.5619189999997616,
+            "p95": 2.6605390000004263,
+            "maximum": 4.092099000000417
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.1365499999992608,
+            "p95": 5.082427999999709,
+            "maximum": 8.939291000000594
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.5575389999994513,
+            "p95": 3.637189999999464,
+            "maximum": 5.964288000000124
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.0638509999989765,
+            "p95": 2.8999149999999645,
+            "maximum": 5.172711000000163
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2240989999991143,
+            "p95": 1.925439999999071,
+            "maximum": 3.032553999997617
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2829660000006697,
+            "p95": 1.8375489999998535,
+            "maximum": 3.5364470000004076
+          },
+          "cancellationMs": 4.965513000002829,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 4.965513000002829,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.7870189999994182,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 213.25390625,
+            "sampledPeak": 305.2109375,
+            "final": 305.2109375,
+            "endMinusBaseline": 91.95703125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "337886d0aa9146f4a6a5ac2ed1d8249622485a024abec9901f9a7c7c2f03f906.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-7.3-experimental",
+        "mode": "experimental",
+        "phpVersion": "7.3",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "7.3"
+        },
+        "startedAtUtc": "2026-10-14T03:41:01.056633+00:00",
+        "pid": 95304,
+        "processGroup": 95304,
+        "startTicks": "59782506",
+        "observedProcesses": [
+          {
+            "pid": 95304,
+            "startTicks": "59782506",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 95318,
+            "startTicks": "59782513",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 95439,
+            "startTicks": "59785021",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-jSgxdQ"
+        ],
+        "lastObservedUtc": "2026-10-14T03:41:28.218312+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:41:29.234836+00:00",
+        "stdoutSha256": "78509f527264532b209d92cac3e32e05e885f210b20a6f37b20ba4c4234726e3",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v22.14.0",
+          "phpVersion": "7.3",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.322042999998303,
+            "p95": 29.980133999997634,
+            "maximum": 37.2895869999993
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.566313999999693,
+            "p95": 2.9212979999992967,
+            "maximum": 3.7734869999985676
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.2174349999995684,
+            "p95": 5.286756999999852,
+            "maximum": 7.989109000000099
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6000549999989744,
+            "p95": 3.7597789999999804,
+            "maximum": 6.666133000000627
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1161879999999655,
+            "p95": 3.484139000000141,
+            "maximum": 6.6620030000012775
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2290759999996226,
+            "p95": 1.8621399999992718,
+            "maximum": 2.8176620000012917
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.26173099999869,
+            "p95": 2.084714000000531,
+            "maximum": 4.2582559999973455
+          },
+          "cancellationMs": 0.8872510000001057,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.7486510000017006,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.8872510000001057,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 220.5546875,
+            "sampledPeak": 241.19921875,
+            "final": 241.19921875,
+            "endMinusBaseline": 20.64453125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "66101ec46a1942dbbc03a4d942b70f5081e498e5b9ee2a947e24773177cac8ef.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-7.4-progressive",
+        "mode": "progressive",
+        "phpVersion": "7.4",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "7.4",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:41:31.743844+00:00",
+        "pid": 95471,
+        "processGroup": 95471,
+        "startTicks": "59785575",
+        "observedProcesses": [
+          {
+            "pid": 95471,
+            "startTicks": "59785575",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 95482,
+            "startTicks": "59785582",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 95669,
+            "startTicks": "59788146",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-QnUVWz"
+        ],
+        "lastObservedUtc": "2026-10-14T03:41:58.971683+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:41:59.987310+00:00",
+        "stdoutSha256": "30716d6f47d85feb5d94484cedf3eb35a894d48ee5db07721c98d1de846071d1",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "7.4",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.32280300000093,
+            "p95": 29.89774800000123,
+            "maximum": 31.60511100000076
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6096309999993537,
+            "p95": 2.8288250000005064,
+            "maximum": 5.020867999999609
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.208337999998548,
+            "p95": 5.206106000001455,
+            "maximum": 9.215361000000485
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6535280000007333,
+            "p95": 3.8819240000002537,
+            "maximum": 6.8658570000006875
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1464620000006107,
+            "p95": 3.0383329999995112,
+            "maximum": 6.660216999998738
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2428730000010546,
+            "p95": 1.7730119999996532,
+            "maximum": 3.8353490000008605
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3307519999998476,
+            "p95": 2.2519380000003366,
+            "maximum": 3.01687099999981
+          },
+          "cancellationMs": 1.2965640000002168,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.2965640000002168,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.1716799999994691,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 229.4921875,
+            "sampledPeak": 273.35546875,
+            "final": 273.35546875,
+            "endMinusBaseline": 43.86328125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "6b448b77428ea0370586f2a01c4f775886622215e83a899fb2b3ac8265ffbf01.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-7.4-onDemand",
+        "mode": "onDemand",
+        "phpVersion": "7.4",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "7.4",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:42:02.539300+00:00",
+        "pid": 95720,
+        "processGroup": 95720,
+        "startTicks": "59788655",
+        "observedProcesses": [
+          {
+            "pid": 95720,
+            "startTicks": "59788655",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 95731,
+            "startTicks": "59788663",
+            "state": "Z",
+            "command": ""
+          },
+          {
+            "pid": 95975,
+            "startTicks": "59791212",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-4wkmUR"
+        ],
+        "lastObservedUtc": "2026-10-14T03:42:30.252837+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:42:31.274594+00:00",
+        "stdoutSha256": "3c6e8954baa32bc40657d309de34de5abaacfb1e4e79650ea75862aab6feefa9",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "7.4",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.32678400000077,
+            "p95": 30.620623000000705,
+            "maximum": 31.971950000001016
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.5588970000026166,
+            "p95": 2.7711830000007467,
+            "maximum": 3.750479999998788
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.1950099999994563,
+            "p95": 5.713057999997545,
+            "maximum": 9.107836999999563
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.5680059999995137,
+            "p95": 4.536775000000489,
+            "maximum": 7.9524879999989935
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.0880400000005466,
+            "p95": 3.7200409999968542,
+            "maximum": 5.074475000000348
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.228610000000117,
+            "p95": 2.1047450000005483,
+            "maximum": 3.789154000001872
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2668529999973543,
+            "p95": 2.234429000000091,
+            "maximum": 2.9592630000006466
+          },
+          "cancellationMs": 5.359411000001273,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 5.359411000001273,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.1285689999967872,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 224.609375,
+            "sampledPeak": 284.51953125,
+            "final": 284.51953125,
+            "endMinusBaseline": 59.91015625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "9caaa1ee4836c371f5b8aa3ca7c465b862ffef620c8db16988cf1b02b27b1e6d.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-7.4-experimental",
+        "mode": "experimental",
+        "phpVersion": "7.4",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "7.4"
+        },
+        "startedAtUtc": "2026-10-14T03:42:33.892068+00:00",
+        "pid": 96025,
+        "processGroup": 96025,
+        "startTicks": "59791790",
+        "observedProcesses": [
+          {
+            "pid": 96025,
+            "startTicks": "59791790",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 96036,
+            "startTicks": "59791799",
+            "state": "Z",
+            "command": ""
+          },
+          {
+            "pid": 96206,
+            "startTicks": "59794299",
+            "state": "R",
+            "command": ""
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-wxCynu"
+        ],
+        "lastObservedUtc": "2026-10-14T03:43:01.084622+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:43:02.097822+00:00",
+        "stdoutSha256": "d9ee1d4232a105cb00c2f87cb849f0d72f5a5c818bad74a2a5eaa4dfd7bf9825",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v22.14.0",
+          "phpVersion": "7.4",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.282058999999208,
+            "p95": 29.63169299999936,
+            "maximum": 31.73686699999962
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.5472919999992882,
+            "p95": 2.641816999999719,
+            "maximum": 3.4824310000003607
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.1784070000012434,
+            "p95": 5.335586000001058,
+            "maximum": 8.774961000000985
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.60810500000116,
+            "p95": 3.8213529999993625,
+            "maximum": 7.238572999999633
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.090513000000101,
+            "p95": 3.753320999996504,
+            "maximum": 5.176633999999467
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2047229999989213,
+            "p95": 1.7226270000010118,
+            "maximum": 3.7580980000020645
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.274545999996917,
+            "p95": 1.9709700000003068,
+            "maximum": 3.7546540000003006
+          },
+          "cancellationMs": 1.0231800000001385,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.5870580000009795,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.0231800000001385,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 230.5703125,
+            "sampledPeak": 249.60546875,
+            "final": 249.60546875,
+            "endMinusBaseline": 19.03515625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "d8dbd75958468f30a66423c5845e7a12a6294f6872a694626cebc62627d4d0ab.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.0-progressive",
+        "mode": "progressive",
+        "phpVersion": "8.0",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.0",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:43:04.658524+00:00",
+        "pid": 96250,
+        "processGroup": 96250,
+        "startTicks": "59794867",
+        "observedProcesses": [
+          {
+            "pid": 96250,
+            "startTicks": "59794867",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 96261,
+            "startTicks": "59794878",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 96509,
+            "startTicks": "59797470",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-5E6aik"
+        ],
+        "lastObservedUtc": "2026-10-14T03:43:32.881243+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:43:33.900514+00:00",
+        "stdoutSha256": "713e15346f22e333ed3a44dee795e7748b6f8cc31e22653584555e89050ccfac",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.0",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.47541799999999,
+            "p95": 30.631445999999414,
+            "maximum": 31.74274399999922
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6762109999999666,
+            "p95": 2.8867479999989882,
+            "maximum": 4.510261999999784
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.323316999999406,
+            "p95": 5.758154999999533,
+            "maximum": 9.104347999999845
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.7531470000012632,
+            "p95": 4.255130999999892,
+            "maximum": 7.25443500000074
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.265159999999014,
+            "p95": 3.625618999998551,
+            "maximum": 5.755079000000478
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2141650000012305,
+            "p95": 1.8714700000000448,
+            "maximum": 2.705528999999842
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2887679999985266,
+            "p95": 2.1348259999995207,
+            "maximum": 3.7656949999982317
+          },
+          "cancellationMs": 0.7129930000010063,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.7129930000010063,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.5440899999994144,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 255.83203125,
+            "sampledPeak": 288.0546875,
+            "final": 288.0546875,
+            "endMinusBaseline": 32.22265625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "09e097ce5c6cebdb6980b301049e7c472fa7ca946df495949f35617888b50794.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.0-onDemand",
+        "mode": "onDemand",
+        "phpVersion": "8.0",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.0",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:43:36.532511+00:00",
+        "pid": 96559,
+        "processGroup": 96559,
+        "startTicks": "59798055",
+        "observedProcesses": [
+          {
+            "pid": 96559,
+            "startTicks": "59798055",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 96570,
+            "startTicks": "59798063",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 96725,
+            "startTicks": "59800674",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-I6L7t4"
+        ],
+        "lastObservedUtc": "2026-10-14T03:44:04.799521+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:44:05.814959+00:00",
+        "stdoutSha256": "33810bd3ac22d203350e1cab03b25e40bb0ccfdbb0936cfdd42ab65d7a47ee07",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.0",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.540608000001157,
+            "p95": 30.57786699999997,
+            "maximum": 33.502174999999625
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6184679999969376,
+            "p95": 2.990208000000166,
+            "maximum": 4.955608000000211
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.3630689999990864,
+            "p95": 6.356789999998,
+            "maximum": 10.829517000000124
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.7710259999985283,
+            "p95": 4.868223999999827,
+            "maximum": 8.20582000000013
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.2537570000004052,
+            "p95": 4.045491000000766,
+            "maximum": 6.7023840000001655
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1777300000012474,
+            "p95": 2.0718290000004345,
+            "maximum": 2.888691999999537
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2454209999996237,
+            "p95": 2.2325460000010935,
+            "maximum": 4.1853790000004665
+          },
+          "cancellationMs": 22.502620999999635,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 22.502620999999635,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 3.1614149999986694,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 192.90234375,
+            "sampledPeak": 265.52734375,
+            "final": 265.52734375,
+            "endMinusBaseline": 72.625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "fd7e2d6c474583f6d953bb94cbe6421b07e13a1303a7965ab2de58dd305418e6.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.0-experimental",
+        "mode": "experimental",
+        "phpVersion": "8.0",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.0"
+        },
+        "startedAtUtc": "2026-10-14T03:44:08.564859+00:00",
+        "pid": 96770,
+        "processGroup": 96770,
+        "startTicks": "59801259",
+        "observedProcesses": [
+          {
+            "pid": 96770,
+            "startTicks": "59801259",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 96784,
+            "startTicks": "59801267",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 96956,
+            "startTicks": "59803900",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-6ga90D"
+        ],
+        "lastObservedUtc": "2026-10-14T03:44:36.850845+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:44:37.870863+00:00",
+        "stdoutSha256": "712727a0ac516703aa9e9c9de9d38b066e92ce88f15b753a6ba7e5e388865b94",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.0",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.682230999998865,
+            "p95": 30.644829999999274,
+            "maximum": 31.498578999999154
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.704293000000689,
+            "p95": 3.015681000000768,
+            "maximum": 4.48446100000001
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.3671099999992293,
+            "p95": 6.41352999999981,
+            "maximum": 8.463660999999775
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.8014689999999973,
+            "p95": 5.0003580000011425,
+            "maximum": 6.611370999999053
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.2713870000006864,
+            "p95": 4.055069000001822,
+            "maximum": 5.349286999997275
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.228462999999465,
+            "p95": 2.0107459999999264,
+            "maximum": 3.021045999998023
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2796479999997246,
+            "p95": 2.1820349999998143,
+            "maximum": 2.9754549999997835
+          },
+          "cancellationMs": 1.188149000001431,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.188149000001431,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.9327879999982542,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 221,
+            "sampledPeak": 242.0234375,
+            "final": 242.0234375,
+            "endMinusBaseline": 21.0234375,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "7ab3bd12f37f87f5d7df83d498672e7946738d71d51a6f955ad2ed25bd862f17.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.1-progressive",
+        "mode": "progressive",
+        "phpVersion": "8.1",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.1",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:44:40.683631+00:00",
+        "pid": 96993,
+        "processGroup": 96993,
+        "startTicks": "59804471",
+        "observedProcesses": [
+          {
+            "pid": 96993,
+            "startTicks": "59804471",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 97004,
+            "startTicks": "59804479",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 97146,
+            "startTicks": "59807096",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-bGPUzx"
+        ],
+        "lastObservedUtc": "2026-10-14T03:45:08.988110+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:45:10.013626+00:00",
+        "stdoutSha256": "65adddce878c287b457c10706512874b76afb7b7de08d0ecb67c2deea3a3dadd",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.1",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.556421000000228,
+            "p95": 30.48690600000191,
+            "maximum": 31.91157199999998
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6836620000003677,
+            "p95": 2.9672730000020238,
+            "maximum": 5.049431999999797
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.399413999999524,
+            "p95": 5.936244000000443,
+            "maximum": 8.764107999999396
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.8116210000007413,
+            "p95": 4.781781999998202,
+            "maximum": 7.447049999999763
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.2547450000020035,
+            "p95": 3.868589999998221,
+            "maximum": 6.574977000000217
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2207849999995233,
+            "p95": 2.0158529999971506,
+            "maximum": 2.748537999999826
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.295154999999795,
+            "p95": 2.1370130000013887,
+            "maximum": 3.127626000001328
+          },
+          "cancellationMs": 0.8358890000017709,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.8358890000017709,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.6300809999993362,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 261.140625,
+            "sampledPeak": 283.453125,
+            "final": 283.453125,
+            "endMinusBaseline": 22.3125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "52b0e3e344da5d25f5d4ab5118a9cc09c480fe5691289cef800bb9f5375d7d05.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.1-onDemand",
+        "mode": "onDemand",
+        "phpVersion": "8.1",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.1",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:45:12.794215+00:00",
+        "pid": 97197,
+        "processGroup": 97197,
+        "startTicks": "59807683",
+        "observedProcesses": [
+          {
+            "pid": 97197,
+            "startTicks": "59807683",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 97208,
+            "startTicks": "59807691",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 97391,
+            "startTicks": "59810307",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-BJwsHA"
+        ],
+        "lastObservedUtc": "2026-10-14T03:45:41.151065+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:45:42.168957+00:00",
+        "stdoutSha256": "8069bd9ff85d8779bc199e20ee257da7fac1533797a12a8a3208b4a0452da51b",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.1",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.51757499999985,
+            "p95": 30.361754000001383,
+            "maximum": 31.760404000000563
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.587336000000505,
+            "p95": 2.9340869999978167,
+            "maximum": 3.7994300000000294
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.3218999999990046,
+            "p95": 5.1759299999994255,
+            "maximum": 9.229417000000467
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.7686670000002778,
+            "p95": 4.593124999999418,
+            "maximum": 7.114762999999584
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.237159000000247,
+            "p95": 3.3839689999995244,
+            "maximum": 6.417603999999301
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.182877000001099,
+            "p95": 1.827105999998821,
+            "maximum": 3.0822729999999865
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2567650000019057,
+            "p95": 1.9770619999999326,
+            "maximum": 3.9186439999994036
+          },
+          "cancellationMs": 22.17945999999938,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 22.17945999999938,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.1641829999971378,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 212.9453125,
+            "sampledPeak": 295.80078125,
+            "final": 295.80078125,
+            "endMinusBaseline": 82.85546875,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "9dd198ae00cf14e74ab5890727567eb544178296834e88fffcea605266b0b1ed.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.1-experimental",
+        "mode": "experimental",
+        "phpVersion": "8.1",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.1"
+        },
+        "startedAtUtc": "2026-10-14T03:45:44.837785+00:00",
+        "pid": 97458,
+        "processGroup": 97458,
+        "startTicks": "59810886",
+        "observedProcesses": [
+          {
+            "pid": 97458,
+            "startTicks": "59810886",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 97469,
+            "startTicks": "59810892",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 97583,
+            "startTicks": "59813444",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-nlSKdO"
+        ],
+        "lastObservedUtc": "2026-10-14T03:46:12.173754+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:46:13.197783+00:00",
+        "stdoutSha256": "3670bb9c086a24a31fe5ef87b3704aaa37ff84fbc5f6ffcb955e7624a3b47fd4",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.1",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.758025999999518,
+            "p95": 30.484519999999975,
+            "maximum": 32.70772399999987
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.558694999999716,
+            "p95": 2.663442999997642,
+            "maximum": 3.8978149999993548
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.2427000000025146,
+            "p95": 5.688105000001087,
+            "maximum": 8.65173700000014
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6430990000008023,
+            "p95": 4.434627000002365,
+            "maximum": 7.469261000000188
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1858589999992546,
+            "p95": 3.38747499999954,
+            "maximum": 5.085788000000321
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.182533000001058,
+            "p95": 2.0367349999978615,
+            "maximum": 3.5276770000000397
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.277061999999205,
+            "p95": 2.2203249999993204,
+            "maximum": 3.912114999999176
+          },
+          "cancellationMs": 0.7049700000025041,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.7049700000025041,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.6642309999988356,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 241.51953125,
+            "sampledPeak": 274.87890625,
+            "final": 274.87890625,
+            "endMinusBaseline": 33.359375,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "066fb75de442020474c17829feaa60653dab672c0849fcb9e969c9e58f2c30fa.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.2-progressive",
+        "mode": "progressive",
+        "phpVersion": "8.2",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.2",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:46:15.690276+00:00",
+        "pid": 97669,
+        "processGroup": 97669,
+        "startTicks": "59814036",
+        "observedProcesses": [
+          {
+            "pid": 97669,
+            "startTicks": "59814036",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 97680,
+            "startTicks": "59814046",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 97877,
+            "startTicks": "59816612",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-T3VcLd"
+        ],
+        "lastObservedUtc": "2026-10-14T03:46:44.625441+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:46:45.640944+00:00",
+        "stdoutSha256": "b62f831df7129f62e0a3bf56995de83c3e4eef86037e2270d927cdc1182fad76",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.2",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.36205599999994,
+            "p95": 29.68088700000044,
+            "maximum": 31.748773999999685
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.5842909999992116,
+            "p95": 2.88469299999997,
+            "maximum": 3.990284000000429
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.2358489999987796,
+            "p95": 5.325614999997924,
+            "maximum": 8.513812000000144
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.689022999998997,
+            "p95": 3.890863000000536,
+            "maximum": 6.081247000000076
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.155629000000772,
+            "p95": 3.1914859999997134,
+            "maximum": 5.817221999999674
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.16005099999893,
+            "p95": 2.0483390000008512,
+            "maximum": 3.229289000002609
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.256945999997697,
+            "p95": 2.1165650000002643,
+            "maximum": 3.81955200000084
+          },
+          "cancellationMs": 0.9930590000003576,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.9930590000003576,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.5392080000019632,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 255.8515625,
+            "sampledPeak": 291.98828125,
+            "final": 291.98828125,
+            "endMinusBaseline": 36.13671875,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "05b3ebee3327723b2f45c710933382bbc58ef077c92e509f88d383337e4f924c.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.2-onDemand",
+        "mode": "onDemand",
+        "phpVersion": "8.2",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.2",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:46:48.173434+00:00",
+        "pid": 97932,
+        "processGroup": 97932,
+        "startTicks": "59817221",
+        "observedProcesses": [
+          {
+            "pid": 97932,
+            "startTicks": "59817221",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 97943,
+            "startTicks": "59817230",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 98071,
+            "startTicks": "59819847",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-fdfgs3"
+        ],
+        "lastObservedUtc": "2026-10-14T03:47:16.497311+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:47:17.517642+00:00",
+        "stdoutSha256": "1c383d9ee8967b3901e8baf7d06026e56eba97de808ec4ba51d721591e97a2a7",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.2",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.451390000001993,
+            "p95": 30.365610000000743,
+            "maximum": 33.022572999998374
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6466760000002978,
+            "p95": 2.775390000000698,
+            "maximum": 4.206308000000718
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.4065339999979187,
+            "p95": 5.710957999999664,
+            "maximum": 8.681538999999248
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.7934760000007373,
+            "p95": 4.501411999997799,
+            "maximum": 7.335838999999396
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.216526000000158,
+            "p95": 3.501776000000973,
+            "maximum": 5.7637570000006235
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2370670000000246,
+            "p95": 2.007101999999577,
+            "maximum": 6.188162000000375
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3160729999999603,
+            "p95": 2.133473000001686,
+            "maximum": 4.199994999999944
+          },
+          "cancellationMs": 5.874562999997579,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 5.874562999997579,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 2.8346810000002733,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 226.7265625,
+            "sampledPeak": 303.15625,
+            "final": 303.15625,
+            "endMinusBaseline": 76.4296875,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "696cb3ebb60ea74f0046834de602abfbb27504eaea2be4186640bbe27f623fef.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.2-experimental",
+        "mode": "experimental",
+        "phpVersion": "8.2",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.2"
+        },
+        "startedAtUtc": "2026-10-14T03:47:20.110906+00:00",
+        "pid": 98182,
+        "processGroup": 98182,
+        "startTicks": "59820416",
+        "observedProcesses": [
+          {
+            "pid": 98182,
+            "startTicks": "59820416",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 98193,
+            "startTicks": "59820422",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 98313,
+            "startTicks": "59823044",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-lV5VH3"
+        ],
+        "lastObservedUtc": "2026-10-14T03:47:48.468560+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:47:49.494448+00:00",
+        "stdoutSha256": "6d4ddd13d273a7f8e5ea77e476be6be619a3aed7aaaf201e98a89b6aa116549f",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.2",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 29.110325000001467,
+            "p95": 31.187062999999398,
+            "maximum": 33.231401000000915
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6067159999993237,
+            "p95": 2.787194999998974,
+            "maximum": 3.5697819999986677
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.4104670000015176,
+            "p95": 6.096969000001991,
+            "maximum": 8.084516999999323
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.8261940000011236,
+            "p95": 4.778372999997373,
+            "maximum": 5.991023999999925
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.284638000000996,
+            "p95": 3.9358009999996284,
+            "maximum": 6.717061999999714
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2498780000023544,
+            "p95": 2.084122999999636,
+            "maximum": 3.3888200000001234
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3112220000002708,
+            "p95": 2.0679610000006505,
+            "maximum": 3.292381999999634
+          },
+          "cancellationMs": 1.0441830000017944,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.0441830000017944,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.6121190000012575,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 215.61328125,
+            "sampledPeak": 242.76953125,
+            "final": 242.76953125,
+            "endMinusBaseline": 27.15625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "d42feb64ab5e67649548bf05f86f4eee6799b223e16241661aaa97dcb719efb9.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.3-progressive",
+        "mode": "progressive",
+        "phpVersion": "8.3",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.3",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:47:51.985230+00:00",
+        "pid": 98351,
+        "processGroup": 98351,
+        "startTicks": "59823602",
+        "observedProcesses": [
+          {
+            "pid": 98351,
+            "startTicks": "59823602",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 98362,
+            "startTicks": "59823611",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 98521,
+            "startTicks": "59826205",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-Tte1Bh"
+        ],
+        "lastObservedUtc": "2026-10-14T03:48:20.300915+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:48:21.324121+00:00",
+        "stdoutSha256": "ec0c60785ae37e8f55c7023e0a16757c6b69e149f065bad325b78e290ce8654e",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.3",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.431131999997888,
+            "p95": 30.466703000000052,
+            "maximum": 32.40326999999979
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6413069999998697,
+            "p95": 2.8836800000026415,
+            "maximum": 4.337102000001323
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.3064810000032594,
+            "p95": 6.0250750000013795,
+            "maximum": 9.512784000000465
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.7388279999995575,
+            "p95": 3.933168999999907,
+            "maximum": 6.065035999999964
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.2200159999993048,
+            "p95": 3.703423999999359,
+            "maximum": 4.805793999999878
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2044570000016392,
+            "p95": 2.057645999999295,
+            "maximum": 2.8621320000020205
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2664630000035686,
+            "p95": 2.0295269999987795,
+            "maximum": 2.9221470000002228
+          },
+          "cancellationMs": 1.2517009999974107,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.9431320000003325,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.2517009999974107,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 261.3046875,
+            "sampledPeak": 294.40625,
+            "final": 294.40625,
+            "endMinusBaseline": 33.1015625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "7cf0899eccdba3de36af422af617dbe47430f632f3e186619b4be40fb7076d1f.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.3-onDemand",
+        "mode": "onDemand",
+        "phpVersion": "8.3",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.3",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:48:23.963166+00:00",
+        "pid": 98569,
+        "processGroup": 98569,
+        "startTicks": "59826801",
+        "observedProcesses": [
+          {
+            "pid": 98569,
+            "startTicks": "59826801",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 98580,
+            "startTicks": "59826808",
+            "state": "Z",
+            "command": ""
+          },
+          {
+            "pid": 98765,
+            "startTicks": "59829432",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-ndiiCO"
+        ],
+        "lastObservedUtc": "2026-10-14T03:48:52.400252+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:48:53.422875+00:00",
+        "stdoutSha256": "4436912cb2f56119fa000970552bf0a6e6b23917e0938ef7c9128c4661231157",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.3",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.50674700000127,
+            "p95": 30.403815000001487,
+            "maximum": 32.9504620000007
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6148020000000542,
+            "p95": 2.8219439999993483,
+            "maximum": 3.797207999999955
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.3992070000022068,
+            "p95": 5.647243999999773,
+            "maximum": 8.152662000000419
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.78149200000189,
+            "p95": 4.512899000001198,
+            "maximum": 6.881040000000212
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.253860999997414,
+            "p95": 3.533237999999983,
+            "maximum": 5.962545999998838
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2192039999990811,
+            "p95": 2.019344000000274,
+            "maximum": 2.9435560000001715
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2803969999986293,
+            "p95": 2.116294999999809,
+            "maximum": 2.811794000000191
+          },
+          "cancellationMs": 22.70553299999665,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 22.70553299999665,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 2.2073459999992338,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 208.19921875,
+            "sampledPeak": 290.6796875,
+            "final": 290.6796875,
+            "endMinusBaseline": 82.48046875,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "ec04edf429706d71bee990e13fb2e262582bcfec8594b29ec439389f91467570.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.3-experimental",
+        "mode": "experimental",
+        "phpVersion": "8.3",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.3"
+        },
+        "startedAtUtc": "2026-10-14T03:48:56.170667+00:00",
+        "pid": 98831,
+        "processGroup": 98831,
+        "startTicks": "59830022",
+        "observedProcesses": [
+          {
+            "pid": 98831,
+            "startTicks": "59830022",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 98842,
+            "startTicks": "59830030",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 98959,
+            "startTicks": "59832645",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-qZMNN5"
+        ],
+        "lastObservedUtc": "2026-10-14T03:49:24.496278+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:49:25.517843+00:00",
+        "stdoutSha256": "9667691f26a91293dc41bb5495010cf27fdbac92e94a7958b23c01f371463262",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.3",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 29.078778000000966,
+            "p95": 30.980907999999545,
+            "maximum": 35.96339799999987
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6634329999997135,
+            "p95": 2.890300999999454,
+            "maximum": 4.484902000000147
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.366417000000183,
+            "p95": 5.879518999998254,
+            "maximum": 9.516254999998637
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.734440000000177,
+            "p95": 4.630182999997487,
+            "maximum": 6.7399810000006255
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.257274999999936,
+            "p95": 3.765567999999803,
+            "maximum": 4.903077999999368
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2506739999989804,
+            "p95": 2.316581999999471,
+            "maximum": 3.6384760000000824
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3202579999997397,
+            "p95": 2.3739580000001297,
+            "maximum": 3.2268590000003314
+          },
+          "cancellationMs": 0.8774929999999586,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.8774929999999586,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.5898229999984324,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 214.65234375,
+            "sampledPeak": 248.640625,
+            "final": 248.640625,
+            "endMinusBaseline": 33.98828125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "a96fcdc8ff20e9aec91fc2d917e62a0b2e6a9a694dba793ef74b13345be78c81.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.4-progressive",
+        "mode": "progressive",
+        "phpVersion": "8.4",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.4",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:49:27.996176+00:00",
+        "pid": 98992,
+        "processGroup": 98992,
+        "startTicks": "59833205",
+        "observedProcesses": [
+          {
+            "pid": 98992,
+            "startTicks": "59833205",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 99003,
+            "startTicks": "59833212",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 99205,
+            "startTicks": "59835820",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-Tv2x3k"
+        ],
+        "lastObservedUtc": "2026-10-14T03:49:56.294996+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:49:57.315517+00:00",
+        "stdoutSha256": "eb8ac7645ef34ea575f3d0b5c479bef47f2de299a3eb7d05b5c5b3a4140a5030",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.4",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.394437999999354,
+            "p95": 30.27933800000028,
+            "maximum": 33.95000800000071
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.590834000000541,
+            "p95": 2.8587320000006002,
+            "maximum": 4.848249999999098
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.2702989999997953,
+            "p95": 5.785388000000239,
+            "maximum": 8.760349000000133
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.682978999997431,
+            "p95": 4.522922999999537,
+            "maximum": 7.912661000000298
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1438770000022487,
+            "p95": 3.6467820000034408,
+            "maximum": 5.367408000000069
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.186890000000858,
+            "p95": 1.810314999998809,
+            "maximum": 3.5258229999999458
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2459610000005341,
+            "p95": 1.9006220000001122,
+            "maximum": 3.294373999999152
+          },
+          "cancellationMs": 0.8901809999988473,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.8901809999988473,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.5192370000004303,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 259.88671875,
+            "sampledPeak": 293.16796875,
+            "final": 293.16796875,
+            "endMinusBaseline": 33.28125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "08c2a1d67d015b3c6aa69d2b25d40660fc32554dcc21a6534f63f9d0a00d75fa.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.4-onDemand",
+        "mode": "onDemand",
+        "phpVersion": "8.4",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.4",
+          "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:49:59.919627+00:00",
+        "pid": 99259,
+        "processGroup": 99259,
+        "startTicks": "59836397",
+        "observedProcesses": [
+          {
+            "pid": 99259,
+            "startTicks": "59836397",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 99270,
+            "startTicks": "59836406",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 99453,
+            "startTicks": "59838993",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-16v0SS"
+        ],
+        "lastObservedUtc": "2026-10-14T03:50:28.334702+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:50:29.355803+00:00",
+        "stdoutSha256": "ee5c9f602646e423c1eafe687f6ec5879021ed22e1cf8779cea61bf48e878d47",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.4",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.310758999999962,
+            "p95": 29.85550300000068,
+            "maximum": 32.11929500000042
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.5624139999999898,
+            "p95": 2.665571000001364,
+            "maximum": 3.6173060000000987
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.17367700000068,
+            "p95": 4.857576000000336,
+            "maximum": 8.817793999999594
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6558960000002116,
+            "p95": 4.01365799999985,
+            "maximum": 7.463463000000047
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1699269999990065,
+            "p95": 3.194374999999127,
+            "maximum": 5.657040000000052
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1726909999997588,
+            "p95": 1.9688160000005155,
+            "maximum": 3.301451999999699
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2317220000004454,
+            "p95": 2.1486580000018876,
+            "maximum": 3.329932999999073
+          },
+          "cancellationMs": 6.333748000000924,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 6.333748000000924,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 3.9752360000020417,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 210.38671875,
+            "sampledPeak": 311.54296875,
+            "final": 311.54296875,
+            "endMinusBaseline": 101.15625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "2c7d3bbf126700ca1f2b2a2e207ab8f2e42a2a1e7618fac13370e4f343746697.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.4-experimental",
+        "mode": "experimental",
+        "phpVersion": "8.4",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_PHP_VERSION": "8.4"
+        },
+        "startedAtUtc": "2026-10-14T03:50:32.065345+00:00",
+        "pid": 99510,
+        "processGroup": 99510,
+        "startTicks": "59839613",
+        "observedProcesses": [
+          {
+            "pid": 99510,
+            "startTicks": "59839613",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 99521,
+            "startTicks": "59839621",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 99629,
+            "startTicks": "59842253",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-nLo3NA"
+        ],
+        "lastObservedUtc": "2026-10-14T03:51:00.419771+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:51:01.435270+00:00",
+        "stdoutSha256": "d1b05ab726281cbe43c04db95473bc104f6b79efbb280e9bbaa4db40aac9615a",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.4",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.97906899999998,
+            "p95": 31.006000999999742,
+            "maximum": 33.41783100000066
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.628435000000536,
+            "p95": 2.9127389999994193,
+            "maximum": 3.71071800000027
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.3357600000017555,
+            "p95": 5.021213999996689,
+            "maximum": 7.86003299999993
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.7653140000002168,
+            "p95": 4.770362000001114,
+            "maximum": 7.550768999999491
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.296145999998771,
+            "p95": 3.5282180000031076,
+            "maximum": 5.747674999998708
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2853940000022703,
+            "p95": 2.2542610000000423,
+            "maximum": 4.888324999999895
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3506950000009965,
+            "p95": 2.302299999999377,
+            "maximum": 3.9886010000009264
+          },
+          "cancellationMs": 0.699177000002237,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.699177000002237,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.5264639999986684,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 250.1875,
+            "sampledPeak": 276.83203125,
+            "final": 276.83203125,
+            "endMinusBaseline": 26.64453125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "703bd820d724140b2327349f04c19cc051471642094a2d2f52da390094637722.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.5-progressive",
+        "mode": "progressive",
+        "phpVersion": "8.5",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:51:03.870017+00:00",
+        "pid": 99666,
+        "processGroup": 99666,
+        "startTicks": "59842794",
+        "observedProcesses": [
+          {
+            "pid": 99666,
+            "startTicks": "59842794",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 99677,
+            "startTicks": "59842801",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 99876,
+            "startTicks": "59845406",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-6xtGau"
+        ],
+        "lastObservedUtc": "2026-10-14T03:51:32.273793+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:51:33.295823+00:00",
+        "stdoutSha256": "a139ddae1f29aff6fd61dc2b6ef57d8d71fdc3bc85a2b9b18bb802c7efcd1827",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.47443199999907,
+            "p95": 30.58168999999998,
+            "maximum": 31.6019610000003
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6337160000002768,
+            "p95": 2.8970680000002176,
+            "maximum": 4.803100000000995
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.3241049999996903,
+            "p95": 5.978885000000446,
+            "maximum": 8.21045200000026
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.757615000000442,
+            "p95": 4.617252000000008,
+            "maximum": 7.550449000000299
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.226161000000502,
+            "p95": 3.805676999996649,
+            "maximum": 5.227321000000302
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.212617000001046,
+            "p95": 1.8543840000020282,
+            "maximum": 2.9391669999968144
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2843739999989339,
+            "p95": 2.1853230000015174,
+            "maximum": 3.6354410000021744
+          },
+          "cancellationMs": 0.8762800000004063,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.8762800000004063,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.658928000000742,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 251.38671875,
+            "sampledPeak": 290.3828125,
+            "final": 290.3828125,
+            "endMinusBaseline": 38.99609375,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "2699fb76761f65f68f699d447a33dba262a27cb8eebfb5dd958db646762eb26f.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.5-onDemand",
+        "mode": "onDemand",
+        "phpVersion": "8.5",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {
+          "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+          "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+          "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500"
+        },
+        "startedAtUtc": "2026-10-14T03:51:35.832082+00:00",
+        "pid": 99926,
+        "processGroup": 99926,
+        "startTicks": "59845991",
+        "observedProcesses": [
+          {
+            "pid": 99926,
+            "startTicks": "59845991",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 99937,
+            "startTicks": "59846000",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 384,
+            "startTicks": "59848610",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-aWhP1t"
+        ],
+        "lastObservedUtc": "2026-10-14T03:52:04.429232+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:52:05.456505+00:00",
+        "stdoutSha256": "51704f08e5213e57abd8182784a6e732729707a35446ac836f0a565f410c5e87",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 28.35443800000212,
+            "p95": 29.734721000000718,
+            "maximum": 32.29961099999855
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.5898750000014843,
+            "p95": 2.9175090000007913,
+            "maximum": 3.708206000001155
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.3367499999994834,
+            "p95": 4.9217420000004495,
+            "maximum": 8.341682000000219
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.755948999998509,
+            "p95": 4.160233999999036,
+            "maximum": 8.655190000000403
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.2060719999972207,
+            "p95": 3.2937379999993937,
+            "maximum": 6.492992000000413
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.196578999999474,
+            "p95": 1.8127290000011271,
+            "maximum": 4.274242000000413
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2766449999980978,
+            "p95": 1.8547579999994923,
+            "maximum": 3.2562440000001516
+          },
+          "cancellationMs": 4.971059999999852,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 4.971059999999852,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.646004999998695,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 223.77734375,
+            "sampledPeak": 323.33984375,
+            "final": 323.33984375,
+            "endMinusBaseline": 99.5625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "38f704c825efb6e0548d37713fe39ca8e166d29fcceff377a89bbee8909f9ec8.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      },
+      {
+        "name": "php-8.5-experimental",
+        "mode": "experimental",
+        "phpVersion": "8.5",
+        "status": "exited",
+        "command": [
+          "node",
+          "scripts/benchmark-editing.mjs",
+          "500",
+          "50",
+          "dist/language-server.js",
+          "dist/web-tree-sitter.wasm",
+          "dist/tree-sitter-php.wasm"
+        ],
+        "environment": {},
+        "startedAtUtc": "2026-10-14T03:52:08.085651+00:00",
+        "pid": 432,
+        "processGroup": 432,
+        "startTicks": "59849216",
+        "observedProcesses": [
+          {
+            "pid": 432,
+            "startTicks": "59849216",
+            "state": "S",
+            "command": "node scripts/benchmark-editing.mjs 500 50 dist/language-server.js dist/web-tree-sitter.wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 443,
+            "startTicks": "59849223",
+            "state": "R",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          },
+          {
+            "pid": 619,
+            "startTicks": "59851915",
+            "state": "S",
+            "command": "/home/jason/.nvm/versions/node/v22.14.0/bin/node /var/www/node/php-companion/dist/language-server.js --stdio --parser-core-wasm dist/web-tree-sitter.wasm --php-wasm dist/tree-sitter-php.wasm "
+          }
+        ],
+        "temporaryDirectories": [
+          "/tmp/php-companion-editing-c3Y6rn"
+        ],
+        "lastObservedUtc": "2026-10-14T03:52:36.533749+00:00",
+        "exitCode": 0,
+        "remainingProcesses": [],
+        "remainingDirectories": [],
+        "finishedAtUtc": "2026-10-14T03:52:37.558416+00:00",
+        "stdoutSha256": "b59da7ec334e6d2341a40334d6dd8dc2478504d64fb2b1a3148551c43169d2de",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v22.14.0",
+          "phpVersion": "8.5",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "linux",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 29.138640999999552,
+            "p95": 31.545004999999946,
+            "maximum": 33.9897660000006
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6840680000004795,
+            "p95": 2.9583000000002357,
+            "maximum": 5.079673000000184
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.483396999999968,
+            "p95": 6.299756999998863,
+            "maximum": 7.756217000001925
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.865262999999686,
+            "p95": 4.784275999998499,
+            "maximum": 8.95574299999953
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.320229000000836,
+            "p95": 3.9295789999996487,
+            "maximum": 7.240159000000858
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.293192999999519,
+            "p95": 2.326381000000765,
+            "maximum": 4.607218999997713
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3773670000009588,
+            "p95": 2.376032000000123,
+            "maximum": 3.9800260000010894
+          },
+          "cancellationMs": 1.1424219999971683,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.1424219999971683,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.087774999999965,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 227.79296875,
+            "sampledPeak": 255.85546875,
+            "final": 255.85546875,
+            "endMinusBaseline": 28.0625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "d469c427644d91e298dd4be1e077795dba9878c8bbe879d3c8f0f2a0609e4283.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true
+      }
+    ],
+    "changedInputs": [],
+    "coreUnchanged": true,
+    "finishedAtUtc": "2026-10-14T03:52:40.228374+00:00",
+    "exitCode": 0
+  },
+  "audit": {
+    "auditedAtUtc": "2026-10-14T03:53:23.879083+00:00",
+    "qualifiedThisBatch": true,
+    "productionChanged": false,
+    "normalCoreSha256": "b403e33a2c93c6959507fd8248703c148886849b91b1d05f0a9ffbb23f4d5951",
+    "stages": 27,
+    "measuredEdits": 13500,
+    "warmupEdits": 1350,
+    "normalServerLifecycles": 54,
+    "sourceCompatibilityCases": 72,
+    "actualLoadedVersionControls": 27,
+    "independentVersionServerLifecycles": 27,
+    "productInputsUnchanged": 3316,
+    "remainingProcesses": [],
+    "allTemporaryDirectoriesRemoved": true,
+    "toolChangeFromThisTurn": {
+      "beforeSha256": "e1ff8f7c8ba7e7c2217b28ef0faf1eb2d2fdbaacafea567f6fc91173161c40dd",
+      "afterSha256": "e1ff8f7c8ba7e7c2217b28ef0faf1eb2d2fdbaacafea567f6fc91173161c40dd"
+    },
+    "fullObjectiveComplete": false,
+    "realPhpCliExecuted": false,
+    "summary": [
+      {
+        "phpVersion": "7.2",
+        "mode": "progressive",
+        "diagnosticP95Ms": 30.328850000001694,
+        "maxHotQueryP95Ms": 5.821327999998175,
+        "cancellationMs": 0.6374460000006366,
+        "rssEndMinusBaselineMiB": 26.625
+      },
+      {
+        "phpVersion": "7.2",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 30.915884000000005,
+        "maxHotQueryP95Ms": 6.354174000000057,
+        "cancellationMs": 6.1094560000019555,
+        "rssEndMinusBaselineMiB": 70.32421875
+      },
+      {
+        "phpVersion": "7.2",
+        "mode": "experimental",
+        "diagnosticP95Ms": 30.84742499999993,
+        "maxHotQueryP95Ms": 6.053531000001385,
+        "cancellationMs": 1.187142999999196,
+        "rssEndMinusBaselineMiB": 17.53125
+      },
+      {
+        "phpVersion": "7.3",
+        "mode": "progressive",
+        "diagnosticP95Ms": 30.071092000000135,
+        "maxHotQueryP95Ms": 5.884907999999996,
+        "cancellationMs": 1.126895000001241,
+        "rssEndMinusBaselineMiB": 26.84375
+      },
+      {
+        "phpVersion": "7.3",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 30.017698000001474,
+        "maxHotQueryP95Ms": 5.082427999999709,
+        "cancellationMs": 4.965513000002829,
+        "rssEndMinusBaselineMiB": 91.95703125
+      },
+      {
+        "phpVersion": "7.3",
+        "mode": "experimental",
+        "diagnosticP95Ms": 29.980133999997634,
+        "maxHotQueryP95Ms": 5.286756999999852,
+        "cancellationMs": 0.8872510000001057,
+        "rssEndMinusBaselineMiB": 20.64453125
+      },
+      {
+        "phpVersion": "7.4",
+        "mode": "progressive",
+        "diagnosticP95Ms": 29.89774800000123,
+        "maxHotQueryP95Ms": 5.206106000001455,
+        "cancellationMs": 1.2965640000002168,
+        "rssEndMinusBaselineMiB": 43.86328125
+      },
+      {
+        "phpVersion": "7.4",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 30.620623000000705,
+        "maxHotQueryP95Ms": 5.713057999997545,
+        "cancellationMs": 5.359411000001273,
+        "rssEndMinusBaselineMiB": 59.91015625
+      },
+      {
+        "phpVersion": "7.4",
+        "mode": "experimental",
+        "diagnosticP95Ms": 29.63169299999936,
+        "maxHotQueryP95Ms": 5.335586000001058,
+        "cancellationMs": 1.0231800000001385,
+        "rssEndMinusBaselineMiB": 19.03515625
+      },
+      {
+        "phpVersion": "8.0",
+        "mode": "progressive",
+        "diagnosticP95Ms": 30.631445999999414,
+        "maxHotQueryP95Ms": 5.758154999999533,
+        "cancellationMs": 0.7129930000010063,
+        "rssEndMinusBaselineMiB": 32.22265625
+      },
+      {
+        "phpVersion": "8.0",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 30.57786699999997,
+        "maxHotQueryP95Ms": 6.356789999998,
+        "cancellationMs": 22.502620999999635,
+        "rssEndMinusBaselineMiB": 72.625
+      },
+      {
+        "phpVersion": "8.0",
+        "mode": "experimental",
+        "diagnosticP95Ms": 30.644829999999274,
+        "maxHotQueryP95Ms": 6.41352999999981,
+        "cancellationMs": 1.188149000001431,
+        "rssEndMinusBaselineMiB": 21.0234375
+      },
+      {
+        "phpVersion": "8.1",
+        "mode": "progressive",
+        "diagnosticP95Ms": 30.48690600000191,
+        "maxHotQueryP95Ms": 5.936244000000443,
+        "cancellationMs": 0.8358890000017709,
+        "rssEndMinusBaselineMiB": 22.3125
+      },
+      {
+        "phpVersion": "8.1",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 30.361754000001383,
+        "maxHotQueryP95Ms": 5.1759299999994255,
+        "cancellationMs": 22.17945999999938,
+        "rssEndMinusBaselineMiB": 82.85546875
+      },
+      {
+        "phpVersion": "8.1",
+        "mode": "experimental",
+        "diagnosticP95Ms": 30.484519999999975,
+        "maxHotQueryP95Ms": 5.688105000001087,
+        "cancellationMs": 0.7049700000025041,
+        "rssEndMinusBaselineMiB": 33.359375
+      },
+      {
+        "phpVersion": "8.2",
+        "mode": "progressive",
+        "diagnosticP95Ms": 29.68088700000044,
+        "maxHotQueryP95Ms": 5.325614999997924,
+        "cancellationMs": 0.9930590000003576,
+        "rssEndMinusBaselineMiB": 36.13671875
+      },
+      {
+        "phpVersion": "8.2",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 30.365610000000743,
+        "maxHotQueryP95Ms": 5.710957999999664,
+        "cancellationMs": 5.874562999997579,
+        "rssEndMinusBaselineMiB": 76.4296875
+      },
+      {
+        "phpVersion": "8.2",
+        "mode": "experimental",
+        "diagnosticP95Ms": 31.187062999999398,
+        "maxHotQueryP95Ms": 6.096969000001991,
+        "cancellationMs": 1.0441830000017944,
+        "rssEndMinusBaselineMiB": 27.15625
+      },
+      {
+        "phpVersion": "8.3",
+        "mode": "progressive",
+        "diagnosticP95Ms": 30.466703000000052,
+        "maxHotQueryP95Ms": 6.0250750000013795,
+        "cancellationMs": 1.2517009999974107,
+        "rssEndMinusBaselineMiB": 33.1015625
+      },
+      {
+        "phpVersion": "8.3",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 30.403815000001487,
+        "maxHotQueryP95Ms": 5.647243999999773,
+        "cancellationMs": 22.70553299999665,
+        "rssEndMinusBaselineMiB": 82.48046875
+      },
+      {
+        "phpVersion": "8.3",
+        "mode": "experimental",
+        "diagnosticP95Ms": 30.980907999999545,
+        "maxHotQueryP95Ms": 5.879518999998254,
+        "cancellationMs": 0.8774929999999586,
+        "rssEndMinusBaselineMiB": 33.98828125
+      },
+      {
+        "phpVersion": "8.4",
+        "mode": "progressive",
+        "diagnosticP95Ms": 30.27933800000028,
+        "maxHotQueryP95Ms": 5.785388000000239,
+        "cancellationMs": 0.8901809999988473,
+        "rssEndMinusBaselineMiB": 33.28125
+      },
+      {
+        "phpVersion": "8.4",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 29.85550300000068,
+        "maxHotQueryP95Ms": 4.857576000000336,
+        "cancellationMs": 6.333748000000924,
+        "rssEndMinusBaselineMiB": 101.15625
+      },
+      {
+        "phpVersion": "8.4",
+        "mode": "experimental",
+        "diagnosticP95Ms": 31.006000999999742,
+        "maxHotQueryP95Ms": 5.021213999996689,
+        "cancellationMs": 0.699177000002237,
+        "rssEndMinusBaselineMiB": 26.64453125
+      },
+      {
+        "phpVersion": "8.5",
+        "mode": "progressive",
+        "diagnosticP95Ms": 30.58168999999998,
+        "maxHotQueryP95Ms": 5.978885000000446,
+        "cancellationMs": 0.8762800000004063,
+        "rssEndMinusBaselineMiB": 38.99609375
+      },
+      {
+        "phpVersion": "8.5",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 29.734721000000718,
+        "maxHotQueryP95Ms": 4.9217420000004495,
+        "cancellationMs": 4.971059999999852,
+        "rssEndMinusBaselineMiB": 99.5625
+      },
+      {
+        "phpVersion": "8.5",
+        "mode": "experimental",
+        "diagnosticP95Ms": 31.545004999999946,
+        "maxHotQueryP95Ms": 6.299756999998863,
+        "cancellationMs": 1.1424219999971683,
+        "rssEndMinusBaselineMiB": 28.0625
+      }
+    ]
+  },
+  "artifactDigests": {
+    "terminal-audit.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.3-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.1-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "audit-supervision.py": "2d12ffe8181d7cb61507dc8e703a2cd2475833887c70fc785b0b2ac58081a6c6",
+    "preparation.json": "5384092d264ad25bf4c69bb12c4c1d16fd7b8c34e2707818ab6d047a2423111d",
+    "php-8.5-onDemand.json": "51704f08e5213e57abd8182784a6e732729707a35446ac836f0a565f410c5e87",
+    "supervise.py": "be43c0d0cdb28f0b6d92ba377c6dc2399ebfc3c9d4dd1677360d8677f7ddfd22",
+    "php-8.0-progressive.json": "713e15346f22e333ed3a44dee795e7748b6f8cc31e22653584555e89050ccfac",
+    "php-7.3-progressive.json": "63860629e62247e18133ba61db0f6c94467dbb63b8167d751427a740bcb6844b",
+    "php-8.5-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.2-experimental.json": "a363f7624815eb27a85a1b500d3e34dbcce76af9db9ad7e37c8c9ab1d03f0097",
+    "final-audit.py": "9820c765c607aaa40eefb3e9f17d26a49c1029a9cbb21a111a1a394919ee5503",
+    "loaded-version-proof.json": "895b4d74cb59c3f6a7c2c3d23f8a6bb02c456caefd8b7d060f35a897da4b50fc",
+    "check-source-compatibility.mjs": "f5301af4d71a3e75c7fb05702ff283c35a260f3981960f63a91323278c25ca85",
+    "source-compatibility.log": "18638ddb63c9220aa31b047e4a5e2933399b2dbbb3d4e0cadeef9dda61d6a895",
+    "php-7.4-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.4-progressive.json": "eb8ac7645ef34ea575f3d0b5c479bef47f2de299a3eb7d05b5c5b3a4140a5030",
+    "php-8.0-experimental.json": "712727a0ac516703aa9e9c9de9d38b066e92ce88f15b753a6ba7e5e388865b94",
+    "php-8.3-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.0-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.2-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.1-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.2-onDemand.json": "1c383d9ee8967b3901e8baf7d06026e56eba97de808ec4ba51d721591e97a2a7",
+    "inputs.json": "c8be56c402f304466c18500c18b0c3cf6a15108032dfa46530d7dc8fe8888817",
+    "php-8.2-progressive.json": "b62f831df7129f62e0a3bf56995de83c3e4eef86037e2270d927cdc1182fad76",
+    "php-7.2-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.2-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "matrix.log": "523e920ba913a62d5cce9cdbdece50b5c4c1a975cafea9a3e5ec89bce988aca8",
+    "php-7.3-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.3-experimental.json": "78509f527264532b209d92cac3e32e05e885f210b20a6f37b20ba4c4234726e3",
+    "php-8.3-experimental.json": "9667691f26a91293dc41bb5495010cf27fdbac92e94a7958b23c01f371463262",
+    "php-8.2-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.2-onDemand.json": "33195cb26c79866cdc9005401ec038873a8b26f5fb7f24f7e8ac21186147352f",
+    "php-7.4-experimental.json": "d9ee1d4232a105cb00c2f87cb849f0d72f5a5c818bad74a2a5eaa4dfd7bf9825",
+    "php-7.4-onDemand.json": "3c6e8954baa32bc40657d309de34de5abaacfb1e4e79650ea75862aab6feefa9",
+    "private-inputs.json": "eff5fe32997d922a2eb250693e46c14bd49fd2b5311b757145c117c5c5a6159d",
+    "php-7.4-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.2-progressive.json": "ad79df6d48d3c2b007d5840ba437760a6a7b0c081729db7dd47d49427d170fa8",
+    "php-7.2-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.0-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.2-experimental.json": "6d4ddd13d273a7f8e5ea77e476be6be619a3aed7aaaf201e98a89b6aa116549f",
+    "php-8.1-progressive.json": "65adddce878c287b457c10706512874b76afb7b7de08d0ecb67c2deea3a3dadd",
+    "php-7.4-progressive.json": "30716d6f47d85feb5d94484cedf3eb35a894d48ee5db07721c98d1de846071d1",
+    "php-8.3-onDemand.json": "4436912cb2f56119fa000970552bf0a6e6b23917e0938ef7c9128c4661231157",
+    "source-compatibility.json": "5c738a1712827a880ef2edc84a0be875d1c709e3d810f2aa441660ecde5637a3",
+    "checkpoint-8-input-audit.json": "a307f905ff5298e6bdad33f574305d3e62773550411049770239a41e8b6adfcc",
+    "php-8.5-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.5-progressive.json": "a139ddae1f29aff6fd61dc2b6ef57d8d71fdc3bc85a2b9b18bb802c7efcd1827",
+    "php-8.4-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final-audit.json": "9cb097a1be4c248d2474b486e85ecbc6557bccadff34c719680e260448dcaf81",
+    "php-7.3-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.4-onDemand.json": "ee5c9f602646e423c1eafe687f6ec5879021ed22e1cf8779cea61bf48e878d47",
+    "driver.log": "58db9624b43a10d21c411ab497576f73351be2f7b777f976d5598a40c1b5ab69",
+    "php-8.2-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "loaded-version-proof.log": "ea3794de08a589954debc57745c5b5d304fa6ce02bffa46bd8e5972f7a7280d0",
+    "launch.json": "c399b6ec219e81655dc9d3fdf3dee10a7cc4d9918ee27c8db972a450f2e970df",
+    "probe-loaded-version.mjs": "71937c2cf38f2d94c3be0132ccfaf542f3532ed94247f9a2fce43d00a9917a3c",
+    "checkpoint-6-groups.json": "daab6a1518b7a748edebfc253f31454f3df9b1f4b1ddec4d6629320d7d4bfe29",
+    "php-8.4-experimental.json": "d1b05ab726281cbe43c04db95473bc104f6b79efbb280e9bbaa4db40aac9615a",
+    "php-7.3-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "original-benchmark.mjs": "309b2b4f3de3f88147fa59dfde875826fb4491401dd20a19eb7b3c33e85a1126",
+    "php-8.5-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "checkpoint-count-correction.json": "a4ec88acd8fe5e18d696f3ab5d35ae2217ec3a431449e1756a3407639ec6734f",
+    "observe.py": "536ab0901af5dc34a9a259cb048afd5b521383d460637707ae5054436b6e15c8",
+    "state.json": "0888bf3c88b69c3433009a9d85d5b983075239220d9ff63cd677113778b3b159",
+    "php-8.1-experimental.json": "3670bb9c086a24a31fe5ef87b3704aaa37ff84fbc5f6ffcb955e7624a3b47fd4",
+    "run-matrix.py": "5f7c9e0a019b1ac8760db10c33139e8082c6d2a872e97935d54d5ecafbf0422b",
+    "php-8.1-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.3-onDemand.json": "08875eb5b10a787c56c920ea4a5a86924871c930743353aff1c096a18228b845",
+    "php-8.3-progressive.json": "ec0c60785ae37e8f55c7023e0a16757c6b69e149f065bad325b78e290ce8654e",
+    "php-8.3-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "supervisor-state.json": "54a01811ddc855331e80bea002d776d6881f51188a1d456925913b7d20ebe651",
+    "php-8.1-onDemand.json": "8069bd9ff85d8779bc199e20ee257da7fac1533797a12a8a3208b4a0452da51b",
+    "php-8.5-experimental.json": "b59da7ec334e6d2341a40334d6dd8dc2478504d64fb2b1a3148551c43169d2de",
+    "php-8.0-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.4-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.4-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.4-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.0-onDemand.json": "33810bd3ac22d203350e1cab03b25e40bb0ccfdbb0936cfdd42ab65d7a47ee07"
+  },
+  "actualSourceCompatibilityCommandExitCode": 0,
+  "actualLoadedTargetCommandExitCode": 0,
+  "actualMatrixCommandExitCode": 0,
+  "actualIndependentAuditorExitCode": 0,
+  "detachedSupervisionVerified": true,
+  "privateInputsVerified": 10,
+  "ownedProcessesAndGroupsGone": true,
+  "supervisorStateSHA256": "54a01811ddc855331e80bea002d776d6881f51188a1d456925913b7d20ebe651",
+  "finalAuditSHA256": "9cb097a1be4c248d2474b486e85ecbc6557bccadff34c719680e260448dcaf81"
+}

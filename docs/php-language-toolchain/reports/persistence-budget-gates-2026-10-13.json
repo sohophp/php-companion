@@ -1,0 +1,193 @@
+{
+  "date": "2026-10-13",
+  "scope": "持久缓存基准CLI精确预算拒绝",
+  "audit": {
+    "qualified": true,
+    "productInputs": 2093,
+    "changedInputs": [],
+    "normalCoreSHA256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "productRuntimeChanged": false,
+    "rootTests": {
+      "files": 22,
+      "passed": 116,
+      "failed": 0,
+      "skipped": 0
+    },
+    "regressionTests": {
+      "passed": 3,
+      "oldImplementationExpectedFailures": 2
+    },
+    "oldControlledColdTimeExitCode": 0,
+    "oldControlledCacheByteExitCode": 0,
+    "oldNegativeTestProcessExitCode": 1,
+    "fixedRootTestProcessExitCode": 0,
+    "fixedNormalCommandExitCode": 0,
+    "fixedCustomEightCommandExitCode": 0,
+    "customFourOldAndNewExitCode": 1,
+    "customFourExistingFailureRetained": true,
+    "controlledSamplesAreNotRealPerformanceRegressions": true,
+    "normalResult": {
+      "schema": 1,
+      "files": 1000,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 2623.74,
+        "parsed": 1000,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 1820.46,
+        "parsed": 0,
+        "restored": 1000,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.6938,
+      "cache": {
+        "cold": {
+          "files": 1002,
+          "bytes": 5741872,
+          "mebibytes": 5.48
+        },
+        "warm": {
+          "files": 1002,
+          "bytes": 5741872,
+          "mebibytes": 5.48
+        },
+        "frozenBudgetMb": 64
+      },
+      "coldIndexBudget": {
+        "milliseconds": 8000,
+        "passed": true
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 132.89,
+        "warmPeakRssMb": 132.32,
+        "layerRecoveryPeakRssMb": 137.5,
+        "callableRecoveryPeakRssMb": 139.67,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": 384,
+        "processPeakRssMb": 139.67,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": true
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 1000,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 1999,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "customEightResult": {
+      "schema": 1,
+      "files": 8,
+      "runtime": "v22.14.0",
+      "platform": "linux",
+      "architecture": "x64",
+      "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+      "cold": {
+        "durationMs": 105.83,
+        "parsed": 8,
+        "restored": 0,
+        "doctrineParsed": 1
+      },
+      "warm": {
+        "durationMs": 26.03,
+        "parsed": 0,
+        "restored": 8,
+        "doctrineParsed": 0
+      },
+      "warmToColdRatio": 0.2459,
+      "cache": {
+        "cold": {
+          "files": 10,
+          "bytes": 51732,
+          "mebibytes": 0.05
+        },
+        "warm": {
+          "files": 10,
+          "bytes": 51732,
+          "mebibytes": 0.05
+        },
+        "frozenBudgetMb": null
+      },
+      "coldIndexBudget": {
+        "milliseconds": null,
+        "passed": null
+      },
+      "loadMemory": {
+        "coldPeakRssMb": 90.02,
+        "warmPeakRssMb": 89.19,
+        "layerRecoveryPeakRssMb": 79.24,
+        "callableRecoveryPeakRssMb": 80.07,
+        "sampledIntervalMs": 10,
+        "frozenScalePeakRssMb": null,
+        "processPeakRssMb": 90.54,
+        "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+        "processRssBudgetPassed": null
+      },
+      "exactness": {
+        "transitiveDependencyRestored": true,
+        "derivedFactInvalidated": true,
+        "doctrineFactsRestored": true,
+        "callableFactsRestored": 3,
+        "deferredImplementations": 8,
+        "implementationsLoadedByQuery": 4,
+        "callableImplementationsLoadedByFocusedQuery": [
+          "benchmark\\consumer::inspect"
+        ],
+        "callableImplementationRecords": 15,
+        "corruptLayerReparsedFiles": 1,
+        "corruptCallableReparsedFiles": 1,
+        "completionAfterLayerRecovery": true,
+        "completionAfterCallableRecovery": true,
+        "constructorFactsAfterRecovery": true
+      }
+    },
+    "scopedLintPassedAfterReturnTypeCorrection": true,
+    "rootTypecheckPassed": true,
+    "wholeDefaultPipelineRerun": false,
+    "remoteCIExecuted": false,
+    "fullObjectiveComplete": false,
+    "artifactDigests": {
+      "preparation.json": "2226ee16260eae27ebeb446eefc8f15d1ce43f87d26ca7419d8079c57e33d7e6",
+      "old-controlled.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fixed-test-results.json": "f66ecc0f78b07736ab2520d8de58e78da156653d8322f574de1576fa2536f5c2",
+      "fixed-normal-results.json": "6b3352b91fda626be231d3ef5b8e09d266f4967e67f92740585a3855cc702444",
+      "lint-first-error.json": "54a39585717f8cc8b356f4cd0961209b5bc7de9d6dbeaaf3a3ad255552bdc5f8",
+      "fixed-custom-eight.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "old-test.log": "b0f14ab330312cf1d36adee747795d5122b742f36d1df8bea49971c9df720761",
+      "fixed-custom-results.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "old-controlled-results.json": "318d61d4c24cafd7cbe9ffd27c658af5e195754659177673c0c58dfe279b3264",
+      "old-custom-four-results.json": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "old-cache-results.json": "60de83e749bea33f077563edc1433a07d7ddb09091ca18f2ea8a40d5f019f9ad",
+      "inputs.json": "22a1aa7f77cbb27c539f7fa78abda4bc44b3b08dcaad260f87adcda167488f38",
+      "fixed-normal.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "root-test.log": "d64ebab0b2c9c196b13d4e93cf7e803ab7185d8e76b3a2d0bbf88da3c55cdb1b",
+      "old-test-results.json": "0a3707ad9f3981c3527797366086ea2ffb35753bc945008039670c6c9e9f32d5",
+      "fixed-custom-eight-results.json": "6e4c632e6b045fd31023cf15b51d509fb1a7191af38c706adb294af1db069939",
+      "root-test-results.json": "b3744ed4dcee1d493fbec61f5e4cebf13d9e65ce2346e366bd07ccc1efab4681",
+      "before-inputs.json": "23e58344566b309383f5aa8cda7e451891e74e94231745321c90e75bd3bb9673",
+      "old-custom-four.stderr": "66a17b72730cc9f350f0ac71ff758e03378c461d535463e6fbaa2c569d78e814",
+      "old-cache.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fixed-custom.stderr": "13c072ffc80e8bd9eb1d477aa303a29331e3580b7cfb2a43eecd87120c78ec80"
+    }
+  },
+  "existingCustomFourFailureRetained": true,
+  "productionChanged": false,
+  "fullObjectiveComplete": false
+}

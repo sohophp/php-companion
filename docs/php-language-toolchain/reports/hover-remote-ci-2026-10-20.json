@@ -1,0 +1,25 @@
+{
+  "observedAtUtc": "2026-10-20T02:23:06.997190+00:00",
+  "sourceCommit": "a7e9166ae2cbfabb1516e480d19d98a5a490a8aa",
+  "branch": "work/stable-hover-guard-20261020",
+  "pushCompleted": true,
+  "workflowRun": 39354347663,
+  "workflowUrl": "https://github.com/sohophp/php-companion/actions/runs/39354347663",
+  "status": "completed",
+  "conclusion": "failure",
+  "jobsPassed": 19,
+  "jobsTotal": 20,
+  "runningJobs": [],
+  "failedJobs": [
+    "Quality (windows-latest)"
+  ],
+  "matrixRun": 39354347715,
+  "matrixAllNineJobsPassed": true,
+  "matrixArtifactIndependentAuditPassed": true,
+  "current8439QualificationTransferred": false,
+  "fullObjectiveComplete": false,
+  "ciVSIXProductFilesByteEqual": 39,
+  "terminalAudit": "hover-remote-ci-terminal-2026-10-20.json",
+  "supersedingFixCommit": "bf9613d5445e8c0390dae1865e591c1d7a8901d6",
+  "supersedingCIRun": 39359865699
+}

@@ -1,0 +1,31 @@
+{
+  "recordedAtUtc": "2026-10-14T08:56:53.295035+00:00",
+  "actualOriginalCommandExitCode": 0,
+  "actualIndependentAuditorExitCode": 0,
+  "qualifiedComplete12PackagedFlow": true,
+  "durationSeconds": 96.04426564299501,
+  "feedbackMetrics": {
+    "scalar": {
+      "rounds": 50,
+      "p50Ms": 70,
+      "p95Ms": 83,
+      "maxMs": 1191
+    },
+    "union-shape": {
+      "rounds": 30,
+      "p50Ms": 74,
+      "p95Ms": 97,
+      "maxMs": 480
+    }
+  },
+  "originalCompositeP95BudgetMs": 150,
+  "frozenInputsUnchanged": 36270,
+  "frozenLinksUnchanged": 10,
+  "normalCompiledTestsVerified": 104,
+  "twigResourcesVerified": 94,
+  "archiveOriginalsAndCopiesVerified": 75,
+  "actualOwnedProcessesGone": true,
+  "currentCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false
+}

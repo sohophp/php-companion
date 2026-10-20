@@ -1,0 +1,32 @@
+{
+  "sourceFiles": {
+    "owned-process.mjs": "a7118b77d00625aa82c85d7b4d24cf65882e2ce7907afdf700cb3ce2452e6e77",
+    "windows-owned-process.mjs": "4042306bea034a4bda36ffb1ffa7388868b134852d3c8960db40f431d453ed9c",
+    "windows-owned-process.ps1": "3085bded262db170c0cd5eebd9ca703217f1b13c7db5457bdbb5f86211a70f9e",
+    "audit-owned-process.mjs": "8e18f78c145e9404e4f73ada7bef5ef00467b4a4300bc697292b3dce05b3e33a",
+    "run-matrix.mjs": "5c3854153fff6f32a0fa8945f25fc70052e8daedab50b51f96ae349af9cc3334"
+  },
+  "windowsEvidence": {
+    "file": ".vscode-test/windows-job-controls-kernel-proof-20261020.json",
+    "sha256": "9fb2782f030194476e64df9c7dde1001bf05c755d2c7cee03e5c2166d84300ac",
+    "runtime": "v24.16.0",
+    "controlsPassed": 10
+  },
+  "linuxEvidence": {
+    "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/.vscode-test/linux-job-controls-final-20261020.json",
+    "sha256": "a8e78a05af090ec50e6bffa5436ad7d0b29ee7969ede2639807fe6bf2ca1e16f",
+    "runtime": "v22.14.0",
+    "controlsPassed": 7
+  },
+  "productionSourceChanged": false,
+  "remoteMatrixQualified": false,
+  "fullObjectiveComplete": false,
+  "sourceCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+  "parentCommit": "53e85c8d55caabb2ffedf85f958072ca06e0ef5a",
+  "branch": "work/stable-cold-cache-recovery-20261020",
+  "pushed": true,
+  "ciRun": 39363787201,
+  "matrixRun": 39363787111,
+  "ciWatchSession": 8104,
+  "matrixWatchSession": 84088
+}

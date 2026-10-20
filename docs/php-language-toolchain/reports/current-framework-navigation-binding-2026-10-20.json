@@ -1,0 +1,1571 @@
+{
+  "auditedAtUtc": "2026-10-20T03:48:00.457161+00:00",
+  "independentBindingAuditPassed": true,
+  "sourceCommit": "bf9613d5445e8c0390dae1865e591c1d7a8901d6",
+  "currentCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+  "workflowRun": 39359865699,
+  "workflowConclusion": "success",
+  "sourceFiles": [
+    {
+      "file": "packages/framework-symfony/test/acceptance-f09-services.test.ts",
+      "sha256": "08ccae3aaa40d58ea1ae0398416f110847df17013b051f61cc8468fe6eb92e6e"
+    },
+    {
+      "file": "packages/framework-symfony/test/acceptance-f09-routes.test.ts",
+      "sha256": "c3459958e712379f7a3697fb54e165c30048b2cd13f4d4e211e09c0c5333882a"
+    },
+    {
+      "file": "packages/framework-doctrine/test/acceptance-f09-doctrine.test.ts",
+      "sha256": "82e4394ad4fea9f04ed5a199d1fd05019ed7c838a55f67e2233c84b73801dd16"
+    },
+    {
+      "file": "packages/provider-symfony-services/test/unit/provider-symfony-services.test.ts",
+      "sha256": "d6da3a91143cea4bb0de62fc946ff961fa2c6acd43806b40d000bce649353923"
+    },
+    {
+      "file": "packages/language-server/test/stdio.test.ts",
+      "sha256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1"
+    }
+  ],
+  "sourceRegistrationSHA256": "8d22eb6bacb87c8afbc4bbb70e8a7e1037c244c05ae63adf21496f36b9e78a74",
+  "canonicalLogArchiveSHA256": "26ab0d8cf77c40cf69e4dd2e091340cfd4b59badff6f4711b3bfca3e2ebe20d0",
+  "testRerunPerformed": false,
+  "newUniqueNumberedIds": [
+    "F02-VERSION-01",
+    "F04-NAV-01",
+    "F04-NAV-04",
+    "F04-NAV-05",
+    "F04-NAV-07",
+    "F04-NAV-08",
+    "F04-NAV-10",
+    "F04-NAV-11",
+    "F04-NAV-12",
+    "F04-NAV-13",
+    "F04-NAV-14",
+    "F04-NAV-15",
+    "F04-NAV-16",
+    "F04-NAV-17",
+    "F04-NAV-18",
+    "F04-NAV-19",
+    "F09-DOC-01",
+    "F09-DOC-02",
+    "F09-DOC-03",
+    "F09-ROUTE-01",
+    "F09-ROUTE-02",
+    "F09-ROUTE-03",
+    "F09-SVC-01",
+    "F09-SVC-02",
+    "F09-SVC-03"
+  ],
+  "newUniqueNumberedIdCount": 25,
+  "additionalPassedAssertionCount": 31,
+  "actualPlatformExecutionsProven": 93,
+  "allThreePlatformCases": 31,
+  "partialPlatformCases": 0,
+  "combinedPartialExecutionIds": 71,
+  "combinedPartialExecutionAssertions": 252,
+  "combinedIds": [
+    "F02-VERSION-01",
+    "F04-NAV-01",
+    "F04-NAV-04",
+    "F04-NAV-05",
+    "F04-NAV-07",
+    "F04-NAV-08",
+    "F04-NAV-10",
+    "F04-NAV-11",
+    "F04-NAV-12",
+    "F04-NAV-13",
+    "F04-NAV-14",
+    "F04-NAV-15",
+    "F04-NAV-16",
+    "F04-NAV-17",
+    "F04-NAV-18",
+    "F04-NAV-19",
+    "F04-REF-01",
+    "F04-REF-02",
+    "F04-REF-03",
+    "F04-REF-04",
+    "F05-BOUND-01",
+    "F05-CALLABLE-01",
+    "F05-CALLABLE-02",
+    "F05-CONDITIONAL-01",
+    "F05-FLOW-01",
+    "F05-FLOW-02",
+    "F05-FLOW-03",
+    "F05-GEN-03",
+    "F05-GEN-04",
+    "F05-GEN-05",
+    "F05-GEN-06",
+    "F05-MIXIN-01",
+    "F05-SHAPE-01",
+    "F05-SHAPE-02",
+    "F05-SHAPE-03",
+    "F05-TEMPLATE-01",
+    "F05-TEMPLATE-02",
+    "F06-DIAG-01",
+    "F06-DIAG-02",
+    "F06-DIAG-03",
+    "F06-DIAG-04",
+    "F07-GEN-01",
+    "F07-GEN-02",
+    "F07-GEN-03",
+    "F07-GEN-BODY-01",
+    "F07-GEN-BODY-02",
+    "F07-GEN-BODY-03",
+    "F07-IMPORT-01",
+    "F08-EI-01",
+    "F08-EI-02",
+    "F08-EI-03",
+    "F08-EM-01",
+    "F08-EM-02",
+    "F08-EM-03",
+    "F08-RP-01",
+    "F08-RP-02",
+    "F08-RP-03",
+    "F09-DOC-01",
+    "F09-DOC-02",
+    "F09-DOC-03",
+    "F09-ROUTE-01",
+    "F09-ROUTE-02",
+    "F09-ROUTE-03",
+    "F09-SVC-01",
+    "F09-SVC-02",
+    "F09-SVC-03",
+    "F13-REF-LIFETIME-01",
+    "F13-REF-LIFETIME-02",
+    "F14-CONFIG-01",
+    "F14-LOCALE-01",
+    "F14-MANIFEST-01"
+  ],
+  "rows": [
+    {
+      "ids": [
+        "F09-SVC-01"
+      ],
+      "file": "packages/framework-symfony/test/acceptance-f09-services.test.ts",
+      "title": "F09-SVC-01 resolves an exact YAML service ID reference to one declaration",
+      "fullName": "F09 Symfony service acceptance fixtures > F09-SVC-01 resolves an exact YAML service ID reference to one declaration",
+      "template": "F09-SVC-01 resolves an exact YAML service ID reference to one declaration",
+      "sourceSHA256": "08ccae3aaa40d58ea1ae0398416f110847df17013b051f61cc8468fe6eb92e6e",
+      "registrationLine": 10,
+      "registrationKind": "it",
+      "proofType": "whole-file-zero-skips",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-services.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 650
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-services.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 651
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-services.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 653
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F09-SVC-02"
+      ],
+      "file": "packages/framework-symfony/test/acceptance-f09-services.test.ts",
+      "title": "F09-SVC-02 rejects valid escaped and expression literals as service references",
+      "fullName": "F09 Symfony service acceptance fixtures > F09-SVC-02 rejects valid escaped and expression literals as service references",
+      "template": "F09-SVC-02 rejects valid escaped and expression literals as service references",
+      "sourceSHA256": "08ccae3aaa40d58ea1ae0398416f110847df17013b051f61cc8468fe6eb92e6e",
+      "registrationLine": 23,
+      "registrationKind": "it",
+      "proofType": "whole-file-zero-skips",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-services.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 650
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-services.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 651
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-services.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 653
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F09-SVC-03"
+      ],
+      "file": "packages/framework-symfony/test/acceptance-f09-services.test.ts",
+      "title": "F09-SVC-03 suppresses facts and references for incomplete YAML",
+      "fullName": "F09 Symfony service acceptance fixtures > F09-SVC-03 suppresses facts and references for incomplete YAML",
+      "template": "F09-SVC-03 suppresses facts and references for incomplete YAML",
+      "sourceSHA256": "08ccae3aaa40d58ea1ae0398416f110847df17013b051f61cc8468fe6eb92e6e",
+      "registrationLine": 31,
+      "registrationKind": "it",
+      "proofType": "whole-file-zero-skips",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-services.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 650
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-services.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 651
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-services.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 653
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F09-ROUTE-01"
+      ],
+      "file": "packages/framework-symfony/test/acceptance-f09-routes.test.ts",
+      "title": "F09-ROUTE-01 resolves a literal route and its exact controller range",
+      "fullName": "F09 Symfony route acceptance fixtures > F09-ROUTE-01 resolves a literal route and its exact controller range",
+      "template": "F09-ROUTE-01 resolves a literal route and its exact controller range",
+      "sourceSHA256": "c3459958e712379f7a3697fb54e165c30048b2cd13f4d4e211e09c0c5333882a",
+      "registrationLine": 10,
+      "registrationKind": "it",
+      "proofType": "whole-file-zero-skips",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-routes.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 652
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-routes.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 652
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-routes.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 654
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F09-ROUTE-02"
+      ],
+      "file": "packages/framework-symfony/test/acceptance-f09-routes.test.ts",
+      "title": "F09-ROUTE-02 does not invent routes for a valid attribute directory import",
+      "fullName": "F09 Symfony route acceptance fixtures > F09-ROUTE-02 does not invent routes for a valid attribute directory import",
+      "template": "F09-ROUTE-02 does not invent routes for a valid attribute directory import",
+      "sourceSHA256": "c3459958e712379f7a3697fb54e165c30048b2cd13f4d4e211e09c0c5333882a",
+      "registrationLine": 23,
+      "registrationKind": "it",
+      "proofType": "whole-file-zero-skips",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-routes.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 652
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-routes.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 652
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-routes.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 654
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F09-ROUTE-03"
+      ],
+      "file": "packages/framework-symfony/test/acceptance-f09-routes.test.ts",
+      "title": "F09-ROUTE-03 does not claim a route with a dynamic path",
+      "fullName": "F09 Symfony route acceptance fixtures > F09-ROUTE-03 does not claim a route with a dynamic path",
+      "template": "F09-ROUTE-03 does not claim a route with a dynamic path",
+      "sourceSHA256": "c3459958e712379f7a3697fb54e165c30048b2cd13f4d4e211e09c0c5333882a",
+      "registrationLine": 31,
+      "registrationKind": "it",
+      "proofType": "whole-file-zero-skips",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-routes.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 652
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-routes.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 652
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-routes.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 654
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F09-DOC-01"
+      ],
+      "file": "packages/framework-doctrine/test/acceptance-f09-doctrine.test.ts",
+      "title": "F09-DOC-01 binds an entity, association and repository return type",
+      "fullName": "F09 Doctrine acceptance fixtures > F09-DOC-01 binds an entity, association and repository return type",
+      "template": "F09-DOC-01 binds an entity, association and repository return type",
+      "sourceSHA256": "82e4394ad4fea9f04ed5a199d1fd05019ed7c838a55f67e2233c84b73801dd16",
+      "registrationLine": 15,
+      "registrationKind": "it",
+      "proofType": "whole-file-zero-skips",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-doctrine.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 708
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-doctrine.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 709
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-doctrine.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 710
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F09-DOC-02"
+      ],
+      "file": "packages/framework-doctrine/test/acceptance-f09-doctrine.test.ts",
+      "title": "F09-DOC-02 ignores a valid non-Doctrine Entity attribute",
+      "fullName": "F09 Doctrine acceptance fixtures > F09-DOC-02 ignores a valid non-Doctrine Entity attribute",
+      "template": "F09-DOC-02 ignores a valid non-Doctrine Entity attribute",
+      "sourceSHA256": "82e4394ad4fea9f04ed5a199d1fd05019ed7c838a55f67e2233c84b73801dd16",
+      "registrationLine": 27,
+      "registrationKind": "it",
+      "proofType": "whole-file-zero-skips",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-doctrine.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 708
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-doctrine.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 709
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-doctrine.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 710
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F09-DOC-03"
+      ],
+      "file": "packages/framework-doctrine/test/acceptance-f09-doctrine.test.ts",
+      "title": "F09-DOC-03 does not publish incomplete entity facts",
+      "fullName": "F09 Doctrine acceptance fixtures > F09-DOC-03 does not publish incomplete entity facts",
+      "template": "F09-DOC-03 does not publish incomplete entity facts",
+      "sourceSHA256": "82e4394ad4fea9f04ed5a199d1fd05019ed7c838a55f67e2233c84b73801dd16",
+      "registrationLine": 33,
+      "registrationKind": "it",
+      "proofType": "whole-file-zero-skips",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-doctrine.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 708
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-doctrine.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 709
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/acceptance-f09-doctrine.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 710
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F09-SVC-03"
+      ],
+      "file": "packages/provider-symfony-services/test/unit/provider-symfony-services.test.ts",
+      "title": "F09-SVC-03 rejects an authoritative snapshot when service YAML is incomplete",
+      "fullName": "standalone Symfony service provider > F09-SVC-03 rejects an authoritative snapshot when service YAML is incomplete",
+      "template": "F09-SVC-03 rejects an authoritative snapshot when service YAML is incomplete",
+      "sourceSHA256": "d6da3a91143cea4bb0de62fc946ff961fa2c6acd43806b40d000bce649353923",
+      "registrationLine": 149,
+      "registrationKind": "it",
+      "proofType": "whole-file-zero-skips",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/unit/provider-symfony-services.test.ts",
+            "cases": 14,
+            "passed": 14,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 675
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/unit/provider-symfony-services.test.ts",
+            "cases": 14,
+            "passed": 14,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 675
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "whole-file-passed-zero-skips",
+          "fileRecord": {
+            "relativeFile": "test/unit/provider-symfony-services.test.ts",
+            "cases": 14,
+            "passed": 14,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 677
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-REF-04"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-REF-04 resolves a top-level assigned receiver without mixing later or closure assignments",
+      "fullName": "language server stdio > F04-REF-04 resolves a top-level assigned receiver without mixing later or closure assignments",
+      "template": "F04-REF-04 resolves a top-level assigned receiver without mixing later or closure assignments",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 5881,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3955,
+            "record": "2026-10-20T03:17:24.8476131Z      \u2713 F04-REF-04 resolves a top-level assigned receiver without mixing later or closure assignments  2520ms",
+            "elapsedMs": 2520
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3995,
+            "record": "2026-10-20T03:26:13.1173585Z      \u2713 F04-REF-04 resolves a top-level assigned receiver without mixing later or closure assignments  3515ms",
+            "elapsedMs": 3515
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2763,
+            "record": "2026-10-20T03:00:56.4468770Z      \u2713 F04-REF-04 resolves a top-level assigned receiver without mixing later or closure assignments  1585ms",
+            "elapsedMs": 1585
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-01"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-01 follows one Composer member through editing and navigation without mixing a namesake",
+      "fullName": "language server stdio > F04-NAV-01 follows one Composer member through editing and navigation without mixing a namesake",
+      "template": "F04-NAV-01 follows one Composer member through editing and navigation without mixing a namesake",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 5946,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3957,
+            "record": "2026-10-20T03:17:24.8478529Z      \u2713 F04-NAV-01 follows one Composer member through editing and navigation without mixing a namesake  3243ms",
+            "elapsedMs": 3243
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3997,
+            "record": "2026-10-20T03:26:13.1175566Z      \u2713 F04-NAV-01 follows one Composer member through editing and navigation without mixing a namesake  4441ms",
+            "elapsedMs": 4441
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2765,
+            "record": "2026-10-20T03:00:56.4470620Z      \u2713 F04-NAV-01 follows one Composer member through editing and navigation without mixing a namesake  1658ms",
+            "elapsedMs": 1658
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-04",
+        "F04-NAV-05"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-04/05 follows aliased parent and trait members without mixing a namesake",
+      "fullName": "language server stdio > F04-NAV-04/05 follows aliased parent and trait members without mixing a namesake",
+      "template": "F04-NAV-04/05 follows aliased parent and trait members without mixing a namesake",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 6115,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3958,
+            "record": "2026-10-20T03:17:24.8479568Z      \u2713 F04-NAV-04/05 follows aliased parent and trait members without mixing a namesake  32328ms",
+            "elapsedMs": 32328
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3998,
+            "record": "2026-10-20T03:26:13.1176498Z      \u2713 F04-NAV-04/05 follows aliased parent and trait members without mixing a namesake  35997ms",
+            "elapsedMs": 35997
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2766,
+            "record": "2026-10-20T03:00:56.4471540Z      \u2713 F04-NAV-04/05 follows aliased parent and trait members without mixing a namesake  15386ms",
+            "elapsedMs": 15386
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-07"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-07 keeps same-short-name classes in separate Composer namespaces",
+      "fullName": "language server stdio > F04-NAV-07 keeps same-short-name classes in separate Composer namespaces",
+      "template": "F04-NAV-07 keeps same-short-name classes in separate Composer namespaces",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 6217,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3959,
+            "record": "2026-10-20T03:17:24.8480516Z      \u2713 F04-NAV-07 keeps same-short-name classes in separate Composer namespaces  3367ms",
+            "elapsedMs": 3367
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3999,
+            "record": "2026-10-20T03:26:13.1177366Z      \u2713 F04-NAV-07 keeps same-short-name classes in separate Composer namespaces  4074ms",
+            "elapsedMs": 4074
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2767,
+            "record": "2026-10-20T03:00:56.4472410Z      \u2713 F04-NAV-07 keeps same-short-name classes in separate Composer namespaces  1464ms",
+            "elapsedMs": 1464
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-08"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-08 resolves external trait precedence and alias in onDemand mode",
+      "fullName": "language server stdio > F04-NAV-08 resolves external trait precedence and alias in onDemand mode",
+      "template": "F04-NAV-08 resolves external trait precedence and alias in onDemand mode",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 6289,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3960,
+            "record": "2026-10-20T03:17:24.8481430Z      \u2713 F04-NAV-08 resolves external trait precedence and alias in onDemand mode  3564ms",
+            "elapsedMs": 3564
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4000,
+            "record": "2026-10-20T03:26:13.1178196Z      \u2713 F04-NAV-08 resolves external trait precedence and alias in onDemand mode  4023ms",
+            "elapsedMs": 4023
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2768,
+            "record": "2026-10-20T03:00:56.4473250Z      \u2713 F04-NAV-08 resolves external trait precedence and alias in onDemand mode  1429ms",
+            "elapsedMs": 1429
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-10"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-10 cancels an in-flight project References query after a newer edit",
+      "fullName": "language server stdio > F04-NAV-10 cancels an in-flight project References query after a newer edit",
+      "template": "F04-NAV-10 cancels an in-flight project References query after a newer edit",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 6360,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3961,
+            "record": "2026-10-20T03:17:24.8482354Z      \u2713 F04-NAV-10 cancels an in-flight project References query after a newer edit  3157ms",
+            "elapsedMs": 3157
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4001,
+            "record": "2026-10-20T03:26:13.1179044Z      \u2713 F04-NAV-10 cancels an in-flight project References query after a newer edit  4221ms",
+            "elapsedMs": 4221
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2769,
+            "record": "2026-10-20T03:00:56.4474090Z      \u2713 F04-NAV-10 cancels an in-flight project References query after a newer edit  1455ms",
+            "elapsedMs": 1455
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-11"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-11 rejects an in-flight Implementation query after an unsaved declaration edit",
+      "fullName": "language server stdio > F04-NAV-11 rejects an in-flight Implementation query after an unsaved declaration edit",
+      "template": "F04-NAV-11 rejects an in-flight Implementation query after an unsaved declaration edit",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 6410,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3962,
+            "record": "2026-10-20T03:17:24.8483331Z      \u2713 F04-NAV-11 rejects an in-flight Implementation query after an unsaved declaration edit  5014ms",
+            "elapsedMs": 5014
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4002,
+            "record": "2026-10-20T03:26:13.1179941Z      \u2713 F04-NAV-11 rejects an in-flight Implementation query after an unsaved declaration edit  6475ms",
+            "elapsedMs": 6475
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2770,
+            "record": "2026-10-20T03:00:56.4474990Z      \u2713 F04-NAV-11 rejects an in-flight Implementation query after an unsaved declaration edit  2001ms",
+            "elapsedMs": 2001
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-12"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-12 discards paused Completion, Hover, Signature Help and Definition after a newer edit",
+      "fullName": "language server stdio > F04-NAV-12 discards paused Completion, Hover, Signature Help and Definition after a newer edit",
+      "template": "F04-NAV-12 discards paused Completion, Hover, Signature Help and Definition after a newer edit",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 6455,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3963,
+            "record": "2026-10-20T03:17:24.8484665Z      \u2713 F04-NAV-12 discards paused Completion, Hover, Signature Help and Definition after a newer edit  3229ms",
+            "elapsedMs": 3229
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4003,
+            "record": "2026-10-20T03:26:13.1180912Z      \u2713 F04-NAV-12 discards paused Completion, Hover, Signature Help and Definition after a newer edit  3973ms",
+            "elapsedMs": 3973
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2771,
+            "record": "2026-10-20T03:00:56.4492240Z      \u2713 F04-NAV-12 discards paused Completion, Hover, Signature Help and Definition after a newer edit  1684ms",
+            "elapsedMs": 1684
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-13"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-13 discards paused editing queries after a same-version reopen in onDemand mode",
+      "fullName": "language server stdio > F04-NAV-13 discards paused editing queries after a same-version reopen in onDemand mode",
+      "template": "F04-NAV-13 discards paused editing queries after a same-version reopen in %s mode",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 6528,
+      "registrationKind": "it.each-literal-matrix",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3964,
+            "record": "2026-10-20T03:17:24.8485729Z      \u2713 F04-NAV-13 discards paused editing queries after a same-version reopen in onDemand mode  3310ms",
+            "elapsedMs": 3310
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4004,
+            "record": "2026-10-20T03:26:13.1181874Z      \u2713 F04-NAV-13 discards paused editing queries after a same-version reopen in onDemand mode  3494ms",
+            "elapsedMs": 3494
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2772,
+            "record": "2026-10-20T03:00:56.4493240Z      \u2713 F04-NAV-13 discards paused editing queries after a same-version reopen in onDemand mode  1272ms",
+            "elapsedMs": 1272
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-13"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-13 discards paused editing queries after a same-version reopen in experimental mode",
+      "fullName": "language server stdio > F04-NAV-13 discards paused editing queries after a same-version reopen in experimental mode",
+      "template": "F04-NAV-13 discards paused editing queries after a same-version reopen in %s mode",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 6528,
+      "registrationKind": "it.each-literal-matrix",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3965,
+            "record": "2026-10-20T03:17:24.8486776Z      \u2713 F04-NAV-13 discards paused editing queries after a same-version reopen in experimental mode  3432ms",
+            "elapsedMs": 3432
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4005,
+            "record": "2026-10-20T03:26:13.1182793Z      \u2713 F04-NAV-13 discards paused editing queries after a same-version reopen in experimental mode  3792ms",
+            "elapsedMs": 3792
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2773,
+            "record": "2026-10-20T03:00:56.4494260Z      \u2713 F04-NAV-13 discards paused editing queries after a same-version reopen in experimental mode  1323ms",
+            "elapsedMs": 1323
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-13"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-13 discards paused editing queries after a same-version reopen in progressive mode",
+      "fullName": "language server stdio > F04-NAV-13 discards paused editing queries after a same-version reopen in progressive mode",
+      "template": "F04-NAV-13 discards paused editing queries after a same-version reopen in %s mode",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 6528,
+      "registrationKind": "it.each-literal-matrix",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3966,
+            "record": "2026-10-20T03:17:24.8487822Z      \u2713 F04-NAV-13 discards paused editing queries after a same-version reopen in progressive mode  3232ms",
+            "elapsedMs": 3232
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4006,
+            "record": "2026-10-20T03:26:13.1183952Z      \u2713 F04-NAV-13 discards paused editing queries after a same-version reopen in progressive mode  4003ms",
+            "elapsedMs": 4003
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2774,
+            "record": "2026-10-20T03:00:56.4495210Z      \u2713 F04-NAV-13 discards paused editing queries after a same-version reopen in progressive mode  1876ms",
+            "elapsedMs": 1876
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F02-VERSION-01"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F02-VERSION-01 reports syntax boundaries at PHP 7.2, 8.1 and 8.5",
+      "fullName": "language server stdio > F02-VERSION-01 reports syntax boundaries at PHP 7.2, 8.1 and 8.5",
+      "template": "F02-VERSION-01 reports syntax boundaries at PHP 7.2, 8.1 and 8.5",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 6595,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3967,
+            "record": "2026-10-20T03:17:24.8488762Z      \u2713 F02-VERSION-01 reports syntax boundaries at PHP 7.2, 8.1 and 8.5  8517ms",
+            "elapsedMs": 8517
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4007,
+            "record": "2026-10-20T03:26:13.1185167Z      \u2713 F02-VERSION-01 reports syntax boundaries at PHP 7.2, 8.1 and 8.5  10073ms",
+            "elapsedMs": 10073
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2775,
+            "record": "2026-10-20T03:00:56.4496070Z      \u2713 F02-VERSION-01 reports syntax boundaries at PHP 7.2, 8.1 and 8.5  3182ms",
+            "elapsedMs": 3182
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F09-SVC-01"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration",
+      "fullName": "language server stdio > F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration",
+      "template": "F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 6728,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3970,
+            "record": "2026-10-20T03:17:24.8491605Z      \u2713 F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration  4132ms",
+            "elapsedMs": 4132
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4010,
+            "record": "2026-10-20T03:26:13.1187898Z      \u2713 F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration  4833ms",
+            "elapsedMs": 4833
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2778,
+            "record": "2026-10-20T03:00:56.4499040Z      \u2713 F09-SVC-01 follows the standalone Symfony service Provider to a YAML declaration  1482ms",
+            "elapsedMs": 1482
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F09-ROUTE-01"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F09-ROUTE-01 obtains a route completion from the standalone Symfony route Provider",
+      "fullName": "language server stdio > F09-ROUTE-01 obtains a route completion from the standalone Symfony route Provider",
+      "template": "F09-ROUTE-01 obtains a route completion from the standalone Symfony route Provider",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 6883,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 3973,
+            "record": "2026-10-20T03:17:24.8494689Z      \u2713 F09-ROUTE-01 obtains a route completion from the standalone Symfony route Provider  3426ms",
+            "elapsedMs": 3426
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4013,
+            "record": "2026-10-20T03:26:13.1190533Z      \u2713 F09-ROUTE-01 obtains a route completion from the standalone Symfony route Provider  4380ms",
+            "elapsedMs": 4380
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2781,
+            "record": "2026-10-20T03:00:56.4501830Z      \u2713 F09-ROUTE-01 obtains a route completion from the standalone Symfony route Provider  1378ms",
+            "elapsedMs": 1378
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-18"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-18 finds an unopened installed Composer implementation",
+      "fullName": "language server stdio > F04-NAV-18 finds an unopened installed Composer implementation",
+      "template": "F04-NAV-18 finds an unopened installed Composer implementation",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 14412,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4140,
+            "record": "2026-10-20T03:17:24.8676960Z      \u2713 F04-NAV-18 finds an unopened installed Composer implementation  2974ms",
+            "elapsedMs": 2974
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4176,
+            "record": "2026-10-20T03:26:13.1347922Z      \u2713 F04-NAV-18 finds an unopened installed Composer implementation  3447ms",
+            "elapsedMs": 3447
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2947,
+            "record": "2026-10-20T03:00:56.4677100Z      \u2713 F04-NAV-18 finds an unopened installed Composer implementation  1446ms",
+            "elapsedMs": 1446
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-19"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-19 reports an incomplete dependency Implementation scan instead of an empty result",
+      "fullName": "language server stdio > F04-NAV-19 reports an incomplete dependency Implementation scan instead of an empty result",
+      "template": "F04-NAV-19 reports an incomplete dependency Implementation scan instead of an empty result",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 14700,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4144,
+            "record": "2026-10-20T03:17:24.8685132Z      \u2713 F04-NAV-19 reports an incomplete dependency Implementation scan instead of an empty result  2691ms",
+            "elapsedMs": 2691
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4180,
+            "record": "2026-10-20T03:26:13.1352341Z      \u2713 F04-NAV-19 reports an incomplete dependency Implementation scan instead of an empty result  3303ms",
+            "elapsedMs": 3303
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2951,
+            "record": "2026-10-20T03:00:56.4680480Z      \u2713 F04-NAV-19 reports an incomplete dependency Implementation scan instead of an empty result  1061ms",
+            "elapsedMs": 1061
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-14"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-14 keeps the six editing queries and unsaved changes inside their Composer root",
+      "fullName": "language server stdio > F04-NAV-14 keeps the six editing queries and unsaved changes inside their Composer root",
+      "template": "F04-NAV-14 keeps the six editing queries and unsaved changes inside their Composer root",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 14788,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4146,
+            "record": "2026-10-20T03:17:24.8689235Z      \u2713 F04-NAV-14 keeps the six editing queries and unsaved changes inside their Composer root  5539ms",
+            "elapsedMs": 5539
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4182,
+            "record": "2026-10-20T03:26:13.1354435Z      \u2713 F04-NAV-14 keeps the six editing queries and unsaved changes inside their Composer root  6284ms",
+            "elapsedMs": 6284
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2953,
+            "record": "2026-10-20T03:00:56.4682290Z      \u2713 F04-NAV-14 keeps the six editing queries and unsaved changes inside their Composer root  2240ms",
+            "elapsedMs": 2240
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-15"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-15 routes nested Composer projects to the deepest project root in experimental mode",
+      "fullName": "language server stdio > F04-NAV-15 routes nested Composer projects to the deepest project root in experimental mode",
+      "template": "F04-NAV-15 routes nested Composer projects to the deepest project root in %s mode",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 15308,
+      "registrationKind": "it.each-literal-matrix",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4149,
+            "record": "2026-10-20T03:17:24.8693664Z      \u2713 F04-NAV-15 routes nested Composer projects to the deepest project root in experimental mode  4686ms",
+            "elapsedMs": 4686
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4185,
+            "record": "2026-10-20T03:26:13.1357346Z      \u2713 F04-NAV-15 routes nested Composer projects to the deepest project root in experimental mode  5915ms",
+            "elapsedMs": 5915
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2956,
+            "record": "2026-10-20T03:00:56.4684720Z      \u2713 F04-NAV-15 routes nested Composer projects to the deepest project root in experimental mode  1868ms",
+            "elapsedMs": 1868
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-15"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-15 routes nested Composer projects to the deepest project root in onDemand mode",
+      "fullName": "language server stdio > F04-NAV-15 routes nested Composer projects to the deepest project root in onDemand mode",
+      "template": "F04-NAV-15 routes nested Composer projects to the deepest project root in %s mode",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 15308,
+      "registrationKind": "it.each-literal-matrix",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4150,
+            "record": "2026-10-20T03:17:24.8694903Z      \u2713 F04-NAV-15 routes nested Composer projects to the deepest project root in onDemand mode  4850ms",
+            "elapsedMs": 4850
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4186,
+            "record": "2026-10-20T03:26:13.1358359Z      \u2713 F04-NAV-15 routes nested Composer projects to the deepest project root in onDemand mode  5495ms",
+            "elapsedMs": 5495
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2957,
+            "record": "2026-10-20T03:00:56.4685550Z      \u2713 F04-NAV-15 routes nested Composer projects to the deepest project root in onDemand mode  1706ms",
+            "elapsedMs": 1706
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-16"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-16 keeps an opened installed vendor package inside its owning Composer project in onDemand mode",
+      "fullName": "language server stdio > F04-NAV-16 keeps an opened installed vendor package inside its owning Composer project in onDemand mode",
+      "template": "F04-NAV-16 keeps an opened installed vendor package inside its owning Composer project in onDemand mode",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 15462,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4154,
+            "record": "2026-10-20T03:17:24.8699066Z      \u2713 F04-NAV-16 keeps an opened installed vendor package inside its owning Composer project in onDemand mode  3058ms",
+            "elapsedMs": 3058
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4190,
+            "record": "2026-10-20T03:26:13.1362251Z      \u2713 F04-NAV-16 keeps an opened installed vendor package inside its owning Composer project in onDemand mode  3295ms",
+            "elapsedMs": 3295
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2961,
+            "record": "2026-10-20T03:00:56.4689060Z      \u2713 F04-NAV-16 keeps an opened installed vendor package inside its owning Composer project in onDemand mode  1200ms",
+            "elapsedMs": 1200
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    },
+    {
+      "ids": [
+        "F04-NAV-17"
+      ],
+      "file": "packages/language-server/test/stdio.test.ts",
+      "title": "F04-NAV-17 follows an installed path repository symlink without splitting its Composer project",
+      "fullName": "language server stdio > F04-NAV-17 follows an installed path repository symlink without splitting its Composer project",
+      "template": "F04-NAV-17 follows an installed path repository symlink without splitting its Composer project",
+      "sourceSHA256": "b7f969e44389932a038ae14b025dca3eab51873e2a1d0c52d52fb190a82f5dc1",
+      "registrationLine": 15501,
+      "registrationKind": "it",
+      "proofType": "explicit-passed-case-record",
+      "platforms": [
+        {
+          "job": "10_Quality (ubuntu-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4155,
+            "record": "2026-10-20T03:17:24.8700196Z      \u2713 F04-NAV-17 follows an installed path repository symlink without splitting its Composer project  3091ms",
+            "elapsedMs": 3091
+          }
+        },
+        {
+          "job": "11_Quality (windows-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 4191,
+            "record": "2026-10-20T03:26:13.1363327Z      \u2713 F04-NAV-17 follows an installed path repository symlink without splitting its Composer project  3483ms",
+            "elapsedMs": 3483
+          }
+        },
+        {
+          "job": "17_Quality (macos-latest).txt",
+          "proof": "explicit-passed-test-name",
+          "passRecord": {
+            "line": 2962,
+            "record": "2026-10-20T03:00:56.4690110Z      \u2713 F04-NAV-17 follows an installed path repository symlink without splitting its Composer project  1199ms",
+            "elapsedMs": 1199
+          }
+        }
+      ],
+      "allThreePlatformsProven": true
+    }
+  ],
+  "missingOrUnproven": [],
+  "wholeF04OrF09Qualified": false,
+  "originalPhaseWorkItemsClosed": 0,
+  "fullObjectiveComplete": false,
+  "all252AssertionIdentitiesIndependentlyDeduplicated": true
+}

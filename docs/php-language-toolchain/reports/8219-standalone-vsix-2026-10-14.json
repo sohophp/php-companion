@@ -1,0 +1,23 @@
+{
+  "recordedAtUtc": "2026-10-14T09:03:25.842605+00:00",
+  "actualOriginalCommandExitCode": 0,
+  "actualIndependentAuditorExitCode": 0,
+  "qualifiedOriginalCompleteStandaloneFlow": true,
+  "durationSeconds": 424.76411144901067,
+  "currentCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "frozenInputsVerified": 3329,
+  "compiledJavaScriptCount": 105,
+  "packagedRuntimeEntriesVerified": 16,
+  "originalInjectedCrashAndRecoveryRetained": true,
+  "lifecycle": {
+    "unexpectedCloses": 1,
+    "restartFailures": 0,
+    "pendingVersionRefreshes": 0,
+    "restarting": false,
+    "scheduled": false
+  },
+  "ownedProcessesGroupsFixtureAndDisplayGone": true,
+  "archiveOriginalsAndCopiesVerified": 52,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false
+}

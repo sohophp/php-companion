@@ -1,0 +1,912 @@
+{
+  "auditedAtUtc": "2026-10-20T05:18:58.993510+00:00",
+  "independentBindingAuditPassed": true,
+  "currentSourceCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+  "workflowRun": 39363787201,
+  "workflowConclusion": "success",
+  "canonicalLogArchiveSHA256": "e7a7feb33ef2678fb231ff217b22f4737c3dce2d3b7d3cf67ddb6d5959371614",
+  "localActualResultSHA256": "ecf2a62235aa83c71ad9f7c64077468562946b820b466e8a13bee38ed9a73d59",
+  "originalPerformanceInputManifestSHA256": "c48db8687a18a80931e414fe3bb42baed64f2f50e586ef47b0bc09f90c77b5b4",
+  "localResultsAndSourcesMatchFrozenRunDigests": true,
+  "localControlRuntimeSHA256": "8439eea8cbdec5fe8f0008b56fcd411c4517c433a018b8586b07bc6ccc6f3edc",
+  "testRerunPerformed": false,
+  "sourceFiles": [
+    {
+      "file": "packages/semantic/test/pathinfo-contract.test.ts",
+      "sha256": "09ffe7d65e6d5e9a51df8ea114d4045883d122d6fcd5b9cb44af5b6d156950cd",
+      "caseCount": 2,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/pathinfo-contract.test.ts",
+            "cases": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 980
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/pathinfo-contract.test.ts",
+            "cases": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1074
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/pathinfo-contract.test.ts",
+            "cases": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1044
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    },
+    {
+      "file": "packages/semantic/test/stat-contract.test.ts",
+      "sha256": "1f3a361784e18ecfb1facab41b1165134fc76c994c4ac4dda21e729ebe9c295d",
+      "caseCount": 2,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/stat-contract.test.ts",
+            "cases": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1121
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/stat-contract.test.ts",
+            "cases": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1258
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/stat-contract.test.ts",
+            "cases": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1220
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    },
+    {
+      "file": "packages/semantic/test/simplexml-factory-contract.test.ts",
+      "sha256": "1c1c6c985afe39ab8445d6e872831dd690f80ceda8e1907d8b426c5e60c866b0",
+      "caseCount": 3,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/simplexml-factory-contract.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 915
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/simplexml-factory-contract.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 981
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/simplexml-factory-contract.test.ts",
+            "cases": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 951
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    },
+    {
+      "file": "packages/semantic/test/getrusage-contract.test.ts",
+      "sha256": "eb1d4c162ec734521f0ab6d5a971dfa2bccdd816bed3ed50bd1ae9d9b4c4fa7e",
+      "caseCount": 5,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/getrusage-contract.test.ts",
+            "cases": 5,
+            "passed": 5,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 942
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/getrusage-contract.test.ts",
+            "cases": 5,
+            "passed": 5,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 995
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/getrusage-contract.test.ts",
+            "cases": 5,
+            "passed": 5,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 965
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    },
+    {
+      "file": "packages/semantic/test/image-size-contract.test.ts",
+      "sha256": "ffd47a804c255b42e50a85544757a65d7b00aacc5aee104f6773e52b2ab2472a",
+      "caseCount": 2,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/image-size-contract.test.ts",
+            "cases": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1024
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/image-size-contract.test.ts",
+            "cases": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1117
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/image-size-contract.test.ts",
+            "cases": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1085
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    },
+    {
+      "file": "packages/semantic/test/highlight-contract.test.ts",
+      "sha256": "0a9d02d4dd8a1945eb465c32bfb5ac3ff9e30cf8f7904fc59aa86d7ca9e5c13c",
+      "caseCount": 4,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/highlight-contract.test.ts",
+            "cases": 4,
+            "passed": 4,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1079
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/highlight-contract.test.ts",
+            "cases": 4,
+            "passed": 4,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1200
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/highlight-contract.test.ts",
+            "cases": 4,
+            "passed": 4,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1164
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    },
+    {
+      "file": "packages/semantic/test/array-key-preservation.test.ts",
+      "sha256": "d6b9b23749dc9303f7ed9852487f4def06b44cce1cab47713a340db736966eff",
+      "caseCount": 4,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/array-key-preservation.test.ts",
+            "cases": 4,
+            "passed": 4,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 974
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/array-key-preservation.test.ts",
+            "cases": 4,
+            "passed": 4,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1069
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/array-key-preservation.test.ts",
+            "cases": 4,
+            "passed": 4,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1039
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    },
+    {
+      "file": "packages/semantic/test/value-call-binding.test.ts",
+      "sha256": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "caseCount": 11,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/value-call-binding.test.ts",
+            "cases": 11,
+            "passed": 11,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1050
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/value-call-binding.test.ts",
+            "cases": 11,
+            "passed": 11,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1171
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/value-call-binding.test.ts",
+            "cases": 11,
+            "passed": 11,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1133
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    },
+    {
+      "file": "packages/semantic/test/native-generic-parent.test.ts",
+      "sha256": "f91aca88bb1f259475cda21d88e11c97dc4bc474f2d3af097e7ef773abf0e0c8",
+      "caseCount": 6,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/native-generic-parent.test.ts",
+            "cases": 6,
+            "passed": 6,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1003
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/native-generic-parent.test.ts",
+            "cases": 6,
+            "passed": 6,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1098
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/native-generic-parent.test.ts",
+            "cases": 6,
+            "passed": 6,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1068
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    }
+  ],
+  "rows": [
+    {
+      "id": "F03-BUILTIN-01",
+      "file": "packages/semantic/test/pathinfo-contract.test.ts",
+      "fullName": "infers pathinfo contracts and key completion at PHP 7.2",
+      "status": "passed",
+      "sourceSHA256": "09ffe7d65e6d5e9a51df8ea114d4045883d122d6fcd5b9cb44af5b6d156950cd",
+      "localDurationMs": 1564.997337,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-01",
+      "file": "packages/semantic/test/pathinfo-contract.test.ts",
+      "fullName": "infers pathinfo contracts and key completion at PHP 8.5",
+      "status": "passed",
+      "sourceSHA256": "09ffe7d65e6d5e9a51df8ea114d4045883d122d6fcd5b9cb44af5b6d156950cd",
+      "localDurationMs": 1480.781787,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-02",
+      "file": "packages/semantic/test/stat-contract.test.ts",
+      "fullName": "retains stat failures and only suggests keys after narrowing at PHP 7.2",
+      "status": "passed",
+      "sourceSHA256": "1f3a361784e18ecfb1facab41b1165134fc76c994c4ac4dda21e729ebe9c295d",
+      "localDurationMs": 1383.5879249999998,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-02",
+      "file": "packages/semantic/test/stat-contract.test.ts",
+      "fullName": "retains stat failures and only suggests keys after narrowing at PHP 8.5",
+      "status": "passed",
+      "sourceSHA256": "1f3a361784e18ecfb1facab41b1165134fc76c994c4ac4dda21e729ebe9c295d",
+      "localDurationMs": 1469.6735549999999,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-03",
+      "file": "packages/semantic/test/simplexml-factory-contract.test.ts",
+      "fullName": "resolves optional class-string defaults in the declaration scope and rejects unbound template names",
+      "status": "passed",
+      "sourceSHA256": "1c1c6c985afe39ab8445d6e872831dd690f80ceda8e1907d8b426c5e60c866b0",
+      "localDurationMs": 124.138195,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-03",
+      "file": "packages/semantic/test/simplexml-factory-contract.test.ts",
+      "fullName": "preserves SimpleXML factory subclass witnesses and failure branches at PHP 7.2",
+      "status": "passed",
+      "sourceSHA256": "1c1c6c985afe39ab8445d6e872831dd690f80ceda8e1907d8b426c5e60c866b0",
+      "localDurationMs": 1501.243454,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-03",
+      "file": "packages/semantic/test/simplexml-factory-contract.test.ts",
+      "fullName": "preserves SimpleXML factory subclass witnesses and failure branches at PHP 8.5",
+      "status": "passed",
+      "sourceSHA256": "1c1c6c985afe39ab8445d6e872831dd690f80ceda8e1907d8b426c5e60c866b0",
+      "localDurationMs": 1448.6655809999997,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-04",
+      "file": "packages/semantic/test/getrusage-contract.test.ts",
+      "fullName": "uses measured getrusage fields and withdraws old platform keys at PHP 7.2",
+      "status": "passed",
+      "sourceSHA256": "eb1d4c162ec734521f0ab6d5a971dfa2bccdd816bed3ed50bd1ae9d9b4c4fa7e",
+      "localDurationMs": 199.60817699999996,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-04",
+      "file": "packages/semantic/test/getrusage-contract.test.ts",
+      "fullName": "uses measured getrusage fields and withdraws old platform keys at PHP 8.5",
+      "status": "passed",
+      "sourceSHA256": "eb1d4c162ec734521f0ab6d5a971dfa2bccdd816bed3ed50bd1ae9d9b4c4fa7e",
+      "localDurationMs": 66.34705300000007,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-04",
+      "file": "packages/semantic/test/getrusage-contract.test.ts",
+      "fullName": "distinguishes measured children fields and unknown mode at PHP 7.2",
+      "status": "passed",
+      "sourceSHA256": "eb1d4c162ec734521f0ab6d5a971dfa2bccdd816bed3ed50bd1ae9d9b4c4fa7e",
+      "localDurationMs": 8.209337000000005,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-04",
+      "file": "packages/semantic/test/getrusage-contract.test.ts",
+      "fullName": "distinguishes measured children fields and unknown mode at PHP 8.5",
+      "status": "passed",
+      "sourceSHA256": "eb1d4c162ec734521f0ab6d5a971dfa2bccdd816bed3ed50bd1ae9d9b4c4fa7e",
+      "localDurationMs": 8.547613999999953,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-04",
+      "file": "packages/semantic/test/getrusage-contract.test.ts",
+      "fullName": "rejects unsafe or incomplete field facts and canonicalizes measured fields",
+      "status": "passed",
+      "sourceSHA256": "eb1d4c162ec734521f0ab6d5a971dfa2bccdd816bed3ed50bd1ae9d9b4c4fa7e",
+      "localDurationMs": 0.9611429999999928,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-05",
+      "file": "packages/semantic/test/image-size-contract.test.ts",
+      "fullName": "offers image metadata keys after success guards and retains failure at PHP 7.2",
+      "status": "passed",
+      "sourceSHA256": "ffd47a804c255b42e50a85544757a65d7b00aacc5aee104f6773e52b2ab2472a",
+      "localDurationMs": 1360.2740350000001,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-05",
+      "file": "packages/semantic/test/image-size-contract.test.ts",
+      "fullName": "offers image metadata keys after success guards and retains failure at PHP 8.5",
+      "status": "passed",
+      "sourceSHA256": "ffd47a804c255b42e50a85544757a65d7b00aacc5aee104f6773e52b2ab2472a",
+      "localDurationMs": 1329.177357,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-06",
+      "file": "packages/semantic/test/highlight-contract.test.ts",
+      "fullName": "distinguishes highlighted output from returned source at PHP 7.2",
+      "status": "passed",
+      "sourceSHA256": "0a9d02d4dd8a1945eb465c32bfb5ac3ff9e30cf8f7904fc59aa86d7ca9e5c13c",
+      "localDurationMs": 1301.7041550000001,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-06",
+      "file": "packages/semantic/test/highlight-contract.test.ts",
+      "fullName": "distinguishes highlighted output from returned source at PHP 8.3",
+      "status": "passed",
+      "sourceSHA256": "0a9d02d4dd8a1945eb465c32bfb5ac3ff9e30cf8f7904fc59aa86d7ca9e5c13c",
+      "localDurationMs": 1235.2340570000001,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-06",
+      "file": "packages/semantic/test/highlight-contract.test.ts",
+      "fullName": "distinguishes highlighted output from returned source at PHP 8.4",
+      "status": "passed",
+      "sourceSHA256": "0a9d02d4dd8a1945eb465c32bfb5ac3ff9e30cf8f7904fc59aa86d7ca9e5c13c",
+      "localDurationMs": 1309.1726530000005,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-06",
+      "file": "packages/semantic/test/highlight-contract.test.ts",
+      "fullName": "distinguishes highlighted output from returned source at PHP 8.5",
+      "status": "passed",
+      "sourceSHA256": "0a9d02d4dd8a1945eb465c32bfb5ac3ff9e30cf8f7904fc59aa86d7ca9e5c13c",
+      "localDurationMs": 1165.721356,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-07",
+      "file": "packages/semantic/test/array-key-preservation.test.ts",
+      "fullName": "retains key domains across array ordering and partition functions at PHP 7.2",
+      "status": "passed",
+      "sourceSHA256": "d6b9b23749dc9303f7ed9852487f4def06b44cce1cab47713a340db736966eff",
+      "localDurationMs": 1612.786998,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-07",
+      "file": "packages/semantic/test/array-key-preservation.test.ts",
+      "fullName": "retains key domains across array ordering and partition functions at PHP 7.4",
+      "status": "passed",
+      "sourceSHA256": "d6b9b23749dc9303f7ed9852487f4def06b44cce1cab47713a340db736966eff",
+      "localDurationMs": 1323.3272750000006,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-07",
+      "file": "packages/semantic/test/array-key-preservation.test.ts",
+      "fullName": "retains key domains across array ordering and partition functions at PHP 8.1",
+      "status": "passed",
+      "sourceSHA256": "d6b9b23749dc9303f7ed9852487f4def06b44cce1cab47713a340db736966eff",
+      "localDurationMs": 1380.301993,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-07",
+      "file": "packages/semantic/test/array-key-preservation.test.ts",
+      "fullName": "retains key domains across array ordering and partition functions at PHP 8.5",
+      "status": "passed",
+      "sourceSHA256": "d6b9b23749dc9303f7ed9852487f4def06b44cce1cab47713a340db736966eff",
+      "localDurationMs": 1564.5998719999998,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/value-call-binding.test.ts",
+      "fullName": "retains an object binding when optional reference outputs are not supplied at PHP 7.2",
+      "status": "passed",
+      "sourceSHA256": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "localDurationMs": 1265.901914,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/value-call-binding.test.ts",
+      "fullName": "retains an object binding when optional reference outputs are not supplied at PHP 8.5",
+      "status": "passed",
+      "sourceSHA256": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "localDurationMs": 1291.3486270000003,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/value-call-binding.test.ts",
+      "fullName": "protects local object completion after function",
+      "status": "passed",
+      "sourceSHA256": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "localDurationMs": 4.139158999999836,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/value-call-binding.test.ts",
+      "fullName": "protects local object completion after constructor",
+      "status": "passed",
+      "sourceSHA256": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "localDurationMs": 6.49369200000001,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/value-call-binding.test.ts",
+      "fullName": "protects local object completion after named output omitted",
+      "status": "passed",
+      "sourceSHA256": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "localDurationMs": 2.7906699999998636,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/value-call-binding.test.ts",
+      "fullName": "protects local object completion after actual reference",
+      "status": "passed",
+      "sourceSHA256": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "localDurationMs": 11.848911999999928,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/value-call-binding.test.ts",
+      "fullName": "protects local object completion after reference constructor",
+      "status": "passed",
+      "sourceSHA256": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "localDurationMs": 3.5386929999999666,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/value-call-binding.test.ts",
+      "fullName": "protects local object completion after unknown call",
+      "status": "passed",
+      "sourceSHA256": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "localDurationMs": 2.6749260000001414,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/value-call-binding.test.ts",
+      "fullName": "protects local object completion after missing required reference argument",
+      "status": "passed",
+      "sourceSHA256": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "localDurationMs": 3.705486999999721,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/value-call-binding.test.ts",
+      "fullName": "protects local object completion after missing required constructor argument",
+      "status": "passed",
+      "sourceSHA256": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "localDurationMs": 3.550720000000183,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/value-call-binding.test.ts",
+      "fullName": "protects local object completion after literal unpack cannot rebind its element variable",
+      "status": "passed",
+      "sourceSHA256": "e419a4a8de41975a5dd25d768da71493143863b4faf93dd0d61cc3f0cc1ad14e",
+      "localDurationMs": 2.513698000000204,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/native-generic-parent.test.ts",
+      "fullName": "retains SimpleXML iteration contracts through a native subclass at PHP 7.2",
+      "status": "passed",
+      "sourceSHA256": "f91aca88bb1f259475cda21d88e11c97dc4bc474f2d3af097e7ef773abf0e0c8",
+      "localDurationMs": 1382.8821309999998,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/native-generic-parent.test.ts",
+      "fullName": "retains SimpleXML iteration contracts through a native subclass at PHP 8.5",
+      "status": "passed",
+      "sourceSHA256": "f91aca88bb1f259475cda21d88e11c97dc4bc474f2d3af097e7ef773abf0e0c8",
+      "localDurationMs": 1319.897826,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/native-generic-parent.test.ts",
+      "fullName": "projects a fixed parent without inventing missing type arguments",
+      "status": "passed",
+      "sourceSHA256": "f91aca88bb1f259475cda21d88e11c97dc4bc474f2d3af097e7ef773abf0e0c8",
+      "localDurationMs": 375.537057,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/native-generic-parent.test.ts",
+      "fullName": "projects a unbound generic parent without inventing missing type arguments",
+      "status": "passed",
+      "sourceSHA256": "f91aca88bb1f259475cda21d88e11c97dc4bc474f2d3af097e7ef773abf0e0c8",
+      "localDurationMs": 414.407334,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/native-generic-parent.test.ts",
+      "fullName": "projects a missing hierarchy without inventing missing type arguments",
+      "status": "passed",
+      "sourceSHA256": "f91aca88bb1f259475cda21d88e11c97dc4bc474f2d3af097e7ef773abf0e0c8",
+      "localDurationMs": 364.88756099999955,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F03-BUILTIN-08",
+      "file": "packages/semantic/test/native-generic-parent.test.ts",
+      "fullName": "projects a conflicting inherited contracts without inventing missing type arguments",
+      "status": "passed",
+      "sourceSHA256": "f91aca88bb1f259475cda21d88e11c97dc4bc474f2d3af097e7ef773abf0e0c8",
+      "localDurationMs": 362.13645200000065,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    }
+  ],
+  "additionalNumberedIds": [
+    "F03-BUILTIN-01",
+    "F03-BUILTIN-02",
+    "F03-BUILTIN-03",
+    "F03-BUILTIN-04",
+    "F03-BUILTIN-05",
+    "F03-BUILTIN-06",
+    "F03-BUILTIN-07",
+    "F03-BUILTIN-08"
+  ],
+  "additionalNumberedIdCount": 8,
+  "semanticAssertionRecordsWithCurrentThreePlatformFileProof": 39,
+  "distinctNamedAssertionIdentities": 39,
+  "repeatedFullNamesConservativelyDeduplicated": 0,
+  "actualThreePlatformExecutions": 117,
+  "overlappingPriorAssertionIdentities": 0,
+  "combinedIds": [
+    "F02-VERSION-01",
+    "F03-BUILTIN-01",
+    "F03-BUILTIN-02",
+    "F03-BUILTIN-03",
+    "F03-BUILTIN-04",
+    "F03-BUILTIN-05",
+    "F03-BUILTIN-06",
+    "F03-BUILTIN-07",
+    "F03-BUILTIN-08",
+    "F04-NAV-01",
+    "F04-NAV-04",
+    "F04-NAV-05",
+    "F04-NAV-07",
+    "F04-NAV-08",
+    "F04-NAV-10",
+    "F04-NAV-11",
+    "F04-NAV-12",
+    "F04-NAV-13",
+    "F04-NAV-14",
+    "F04-NAV-15",
+    "F04-NAV-16",
+    "F04-NAV-17",
+    "F04-NAV-18",
+    "F04-NAV-19",
+    "F04-REF-01",
+    "F04-REF-02",
+    "F04-REF-03",
+    "F04-REF-04",
+    "F05-BOUND-01",
+    "F05-CALLABLE-01",
+    "F05-CALLABLE-02",
+    "F05-CONDITIONAL-01",
+    "F05-FLOW-01",
+    "F05-FLOW-02",
+    "F05-FLOW-03",
+    "F05-GEN-03",
+    "F05-GEN-04",
+    "F05-GEN-05",
+    "F05-GEN-06",
+    "F05-MIXIN-01",
+    "F05-SHAPE-01",
+    "F05-SHAPE-02",
+    "F05-SHAPE-03",
+    "F05-TEMPLATE-01",
+    "F05-TEMPLATE-02",
+    "F06-DIAG-01",
+    "F06-DIAG-02",
+    "F06-DIAG-03",
+    "F06-DIAG-04",
+    "F07-GEN-01",
+    "F07-GEN-02",
+    "F07-GEN-03",
+    "F07-GEN-BODY-01",
+    "F07-GEN-BODY-02",
+    "F07-GEN-BODY-03",
+    "F07-IMPORT-01",
+    "F08-EI-01",
+    "F08-EI-02",
+    "F08-EI-03",
+    "F08-EM-01",
+    "F08-EM-02",
+    "F08-EM-03",
+    "F08-EM-04",
+    "F08-EM-05",
+    "F08-EM-06",
+    "F08-EM-07",
+    "F08-RP-01",
+    "F08-RP-02",
+    "F08-RP-03",
+    "F08-RP-04",
+    "F08-RP-05",
+    "F09-DOC-01",
+    "F09-DOC-02",
+    "F09-DOC-03",
+    "F09-ROUTE-01",
+    "F09-ROUTE-02",
+    "F09-ROUTE-03",
+    "F09-SVC-01",
+    "F09-SVC-02",
+    "F09-SVC-03",
+    "F13-REF-LIFETIME-01",
+    "F13-REF-LIFETIME-02",
+    "F14-CONFIG-01",
+    "F14-LOCALE-01",
+    "F14-MANIFEST-01"
+  ],
+  "combinedPartialExecutionIds": 85,
+  "combinedPartialExecutionAssertions": 384,
+  "allCombinedIdentitiesIndependentlyDeduplicated": true,
+  "wholeF03Qualified": false,
+  "originalPhaseWorkItemsClosed": 0,
+  "fullObjectiveComplete": false
+}

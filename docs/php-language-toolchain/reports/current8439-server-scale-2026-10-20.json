@@ -1,0 +1,87 @@
+{
+  "qualified": true,
+  "currentNormalProductionServerScaleQualified": true,
+  "engineSha256": "8439eea8cbdec5fe8f0008b56fcd411c4517c433a018b8586b07bc6ccc6f3edc",
+  "sourceCommit": "3b0b97245fcb23591c0183eacbd1a60a5162bc89",
+  "integrationCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+  "actualOriginalCommandExitCode": 0,
+  "originalWorkloadByteIdentical": true,
+  "scales": [
+    1000,
+    10000,
+    50000
+  ],
+  "roundsPerScale": 5,
+  "actualServers": 30,
+  "originalBudgetsPreserved": true,
+  "frozenInputsRechecked": 4556,
+  "frozenLinksRechecked": 49,
+  "ownedProcessesAndGroupsGone": true,
+  "fixturesRemoved": true,
+  "statistics": {
+    "1000": {
+      "cold": {
+        "indexP95Ms": 2211,
+        "maximumRssMiB": 345.89453125,
+        "maximumCacheBytes": 2696911,
+        "firstExactCompletionP95Ms": 2999.935132,
+        "maximumHotQueryP95Ms": 3.6464560000003985
+      },
+      "warm": {
+        "indexP95Ms": 1901,
+        "maximumRssMiB": 347.375,
+        "maximumCacheBytes": 2696911,
+        "firstExactCompletionP95Ms": 3075.7642960000003,
+        "maximumHotQueryP95Ms": 3.7083480000001146
+      }
+    },
+    "10000": {
+      "cold": {
+        "indexP95Ms": 16538,
+        "maximumRssMiB": 605.82421875,
+        "maximumCacheBytes": 27007237,
+        "firstExactCompletionP95Ms": 3116.5631700000004,
+        "maximumHotQueryP95Ms": 5.051674999998795
+      },
+      "warm": {
+        "indexP95Ms": 12604,
+        "maximumRssMiB": 525.125,
+        "maximumCacheBytes": 27007237,
+        "firstExactCompletionP95Ms": 3184.4599290000006,
+        "maximumHotQueryP95Ms": 4.810485999994853
+      }
+    },
+    "50000": {
+      "cold": {
+        "indexP95Ms": 76217,
+        "maximumRssMiB": 1105.36328125,
+        "maximumCacheBytes": 135265993,
+        "firstExactCompletionP95Ms": 3216.5062449999987,
+        "maximumHotQueryP95Ms": 4.111877999996068
+      },
+      "warm": {
+        "indexP95Ms": 59220,
+        "maximumRssMiB": 1119.65234375,
+        "maximumCacheBytes": 135265993,
+        "firstExactCompletionP95Ms": 3046.67313499999,
+        "maximumHotQueryP95Ms": 3.5197690000059083
+      }
+    }
+  },
+  "scope": "Linux PHP8.5 progressive actual production server, explicit maxFiles per scale, cold/warm project indexing, cache bytes, first and hot queries. wait4 covers server threads through shutdown; driver memory and editor UI are outside scope. Progressive excludes vendor indexing.",
+  "fullPerformanceQualified": false,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "verifiedAtUtc": "2026-10-20T05:45:48.815983+00:00",
+  "status": "passed-original15round-and-independent-audit",
+  "actualIndependentAuditorExitCode": 0,
+  "actualSupervisorExitCode": 0,
+  "hotQuerySamples": 9000,
+  "primaryArchivesVerified": 205,
+  "supervisionArchivesVerified": 4,
+  "archiveManifestSHA256": "efd6d72ac0818915da72d5d7a2647d98779c19549fafbd95dc2a0c4d6e319642",
+  "supplementArchiveManifestSHA256": "2b6dbf80bc986d4b24556a7e1020498a297a5953aeed50cd1a4172d08566b8db",
+  "originalSupervisionActorsActuallyGone": true,
+  "toolSession": null
+}

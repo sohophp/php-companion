@@ -1,0 +1,83 @@
+{
+  "qualifiedComparison": true,
+  "admitted": true,
+  "comparison": {
+    "control": {
+      "completionMs": {
+        "p95Ms": 586.8436119999969,
+        "medianMs": 115.76545400000032,
+        "maxMs": 628.6285799999996
+      },
+      "diagnosticMs": {
+        "p95Ms": 1672.3552420000015,
+        "medianMs": 1481.548376000006,
+        "maxMs": 2012.7848000000004
+      }
+    },
+    "prototype": {
+      "completionMs": {
+        "p95Ms": 596.912918,
+        "medianMs": 111.74641700000211,
+        "maxMs": 703.2604609999999
+      },
+      "diagnosticMs": {
+        "p95Ms": 1474.7930110000016,
+        "medianMs": 1325.8004629999996,
+        "maxMs": 2215.5345499999994
+      }
+    }
+  },
+  "paired": {
+    "completionMs": {
+      "improvedSamples": 15,
+      "medianImprovementPercent": 5.039523307764315
+    },
+    "diagnosticMs": {
+      "improvedSamples": 22,
+      "medianImprovementPercent": 9.80655812021957
+    }
+  },
+  "admissionChecks": {
+    "diagnosticImprovedSamples": true,
+    "diagnosticPairedMedianImprovement": true,
+    "diagnosticP95Improved": true,
+    "queryP95RegressionBound": true,
+    "queryMedianRegressionBound": true,
+    "completeResultsAndInputsUnchanged": true
+  },
+  "correctness": {
+    "semantic": {
+      "passedEachSide": 24145,
+      "notSelectedEachSide": 0,
+      "sameCaseIdentitiesCountsAndStatuses": true
+    },
+    "protocol": {
+      "passedEachSide": 58,
+      "notSelectedEachSide": 0,
+      "sameCaseIdentitiesCountsAndStatuses": true
+    },
+    "version": {
+      "passedEachSide": 36,
+      "notSelectedEachSide": 532,
+      "sameCaseIdentitiesCountsAndStatuses": true
+    }
+  },
+  "differentialStates": 480,
+  "boundaryChecks": 5,
+  "exactCandidateSourceAndBundleWitnessesVerified": true,
+  "frozenInputs": {
+    "inputs.json": 3316,
+    "project-inputs.json": 66079,
+    "private-inputs.json": 34
+  },
+  "ownedActorsGroupsAndPerformanceCachesGone": true,
+  "originalDiagnosticBudgetPassed": false,
+  "originalQueryBudgetPassed": false,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "recordedAtUtc": "2026-10-13T23:11:40.517012+00:00",
+  "archiveFilesVerified": 61,
+  "localSourceAdopted": true,
+  "adoptedBuildPending": true,
+  "fullDefaultPending": true
+}

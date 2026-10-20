@@ -1,0 +1,126 @@
+{
+  "independentAuditPassed": true,
+  "completeFourStateResultsEqual": true,
+  "frozenInputsVerified": 69825,
+  "buildExitCodes": [
+    0,
+    0
+  ],
+  "commandExitCodes": [
+    0,
+    0
+  ],
+  "originalFourEditCosts": [
+    {
+      "round": 0,
+      "parts": [
+        {
+          "localOnly": true,
+          "eligiblePairs": 104,
+          "secondProofMs": 88.19956799999727,
+          "mutatedPairsExcluded": 0,
+          "stableUnequalPairs": 0,
+          "singleProofPairs": 53
+        },
+        {
+          "localOnly": false,
+          "eligiblePairs": 104,
+          "secondProofMs": 86.94498399999702,
+          "mutatedPairsExcluded": 0,
+          "stableUnequalPairs": 0,
+          "singleProofPairs": 53
+        }
+      ],
+      "secondProofMs": 175.1445519999943
+    },
+    {
+      "round": 1,
+      "parts": [
+        {
+          "localOnly": true,
+          "eligiblePairs": 104,
+          "secondProofMs": 78.22452100000737,
+          "mutatedPairsExcluded": 0,
+          "stableUnequalPairs": 0,
+          "singleProofPairs": 53
+        },
+        {
+          "localOnly": false,
+          "eligiblePairs": 104,
+          "secondProofMs": 97.68221600001198,
+          "mutatedPairsExcluded": 0,
+          "stableUnequalPairs": 0,
+          "singleProofPairs": 53
+        }
+      ],
+      "secondProofMs": 175.90673700001935
+    },
+    {
+      "round": 2,
+      "parts": [
+        {
+          "localOnly": true,
+          "eligiblePairs": 104,
+          "secondProofMs": 65.82959200001642,
+          "mutatedPairsExcluded": 0,
+          "stableUnequalPairs": 0,
+          "singleProofPairs": 53
+        },
+        {
+          "localOnly": false,
+          "eligiblePairs": 104,
+          "secondProofMs": 67.42754399999467,
+          "mutatedPairsExcluded": 0,
+          "stableUnequalPairs": 0,
+          "singleProofPairs": 53
+        }
+      ],
+      "secondProofMs": 133.2571360000111
+    },
+    {
+      "round": 3,
+      "parts": [
+        {
+          "localOnly": true,
+          "eligiblePairs": 104,
+          "secondProofMs": 70.87847699999656,
+          "mutatedPairsExcluded": 0,
+          "stableUnequalPairs": 0,
+          "singleProofPairs": 53
+        },
+        {
+          "localOnly": false,
+          "eligiblePairs": 104,
+          "secondProofMs": 70.91362399999525,
+          "mutatedPairsExcluded": 0,
+          "stableUnequalPairs": 0,
+          "singleProofPairs": 53
+        }
+      ],
+      "secondProofMs": 141.79210099999182
+    }
+  ],
+  "medianImmediateSecondProofMsPerEdit": 158.46832649999305,
+  "minimumInvestigationMs": 50,
+  "stableUnequalPairs": [],
+  "admitted": true,
+  "noCrossEditReuse": true,
+  "normalCoreSHA256": "8439eea8cbdec5fe8f0008b56fcd411c4517c433a018b8586b07bc6ccc6f3edc",
+  "prototypeImplemented": false,
+  "productionChanged": false,
+  "performanceQualified": false,
+  "fullObjectiveComplete": false,
+  "actualQueueExitCode": 0,
+  "actualRunnerExitCode": 0,
+  "actualIndependentAuditExitCode": 0,
+  "crossEditReuse": false,
+  "revisionOnlyNotSufficientForFutureReuse": true,
+  "requiredFutureAdditionalGuards": [
+    "signature cache generation stable including lazy implementation materialization",
+    "original recursive proof guards empty before and after proof",
+    "same live SemanticFile identity",
+    "capture undefined results explicitly",
+    "preserve original scalar-fact preference and proof order"
+  ],
+  "observationNotFinalBudgetQualification": true
+}

@@ -1,0 +1,514 @@
+{
+  "observedAtUtc": "2026-10-20T05:31:49.274781+00:00",
+  "status": "failed-unrelated-callable-accessor-regression",
+  "privateDirectory": "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20",
+  "baseCoreSHA256": "f0f5f73b352736a338c412fd7f7a0ae90ffc0c0fc50752f6ce0b8988b860dd66",
+  "implementationPrepared": true,
+  "buildExecuted": true,
+  "functionalTestsExecuted": true,
+  "performanceExecuted": false,
+  "syntaxChecksPassed": [
+    "prototype.mjs",
+    "boundaries.mjs",
+    "focused-queue.py"
+  ],
+  "sourceHashes": {
+    "admission.json": "da100c3f217f4d6b3a7585c5622aef1ccc4e99fa67bbad923c489aa911662087",
+    "helpers.ts": "21c944038bfffb83de1bb75cb79f246dfa52fca424d9fec8e60caee80a6140b1",
+    "prototype.mjs": "6005ba4fd2f70302510867a264d049360a62a120c7fd48561c48933d5e6251a5",
+    "boundaries.mjs": "0b3be794e8b3c719e2fc1b8af375a0f1d4878f4aea12fa4ff083977abebac89f",
+    "legacy-boundaries.mjs": "be397bdf55b1048d1c914ec739b9d22f9a88b34f78a13497c5a4dbdaa6732667",
+    "typecheck.mjs": "48527b48ef3ccd0fa80e4e2b378a175f34166846c828a93ea8f704b6c5a3eb1e",
+    "declarations.mjs": "666ec046dd4f980134095acc91e59ba40c9dca24196ec65b26557048a32eb17e",
+    "semantic-differential.mjs": "4d410acc94311e78dda32328a1d31d126fd01a5dd225f47a424568c47461e341",
+    "focused-queue.py": "a8c7ddde32e549a7492a064163cb8237fc20aac283f7cb98bf8ee19e9e2329eb"
+  },
+  "queuePid": 3471853,
+  "queueStartTicks": "39612541",
+  "queueActualLiveVerified": true,
+  "queueToolSession": null,
+  "waitingForOriginalScaleToolSession": 45942,
+  "queueCondition": "same original scale supervisor/driver must exit successfully; original auditor actual0; original actors gone before focused checks",
+  "newCorrectnessChecksPlanned": 28,
+  "legacyChecksPlanned": 47,
+  "publicDeclarationFilesExpected": 9,
+  "differentialStatesExpected": 960,
+  "productionChanged": false,
+  "performanceQualified": false,
+  "fullObjectiveComplete": false,
+  "focusedActualExitCode": 0,
+  "focusedStages": [
+    {
+      "name": "bounded-cache-boundaries",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/boundaries.mjs"
+      ],
+      "pid": 3484900,
+      "startTicks": "39649096",
+      "actualExitCode": 0
+    },
+    {
+      "name": "legacy-adjacent47",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/legacy-boundaries.mjs"
+      ],
+      "pid": 3485384,
+      "startTicks": "39649235",
+      "actualExitCode": 0
+    },
+    {
+      "name": "full-typescript",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/typecheck.mjs"
+      ],
+      "pid": 3485414,
+      "startTicks": "39649373",
+      "actualExitCode": 0
+    },
+    {
+      "name": "public-declarations",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/declarations.mjs"
+      ],
+      "pid": 3486707,
+      "startTicks": "39650449",
+      "actualExitCode": 0
+    },
+    {
+      "name": "original960-differential",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/semantic-differential.mjs"
+      ],
+      "pid": 3488164,
+      "startTicks": "39652474",
+      "actualExitCode": 0
+    }
+  ],
+  "focusedInputsUnchanged": true,
+  "focusedInputCount": 4552,
+  "newCorrectnessChecksPassed": 28,
+  "legacyChecksPassed": 47,
+  "publicDeclarationFilesByteEqual": 9,
+  "differentialStatesPassed": 960,
+  "initialValidationActualExitCode": 1,
+  "initialValidationStagesExecuted": 0,
+  "differentialOutputProvenance": {
+    "preservedInitialValidationActualExitCode": 1,
+    "initialValidationStagesExecuted": 0,
+    "currentFocusedDifferentialActualExitCode": 0,
+    "currentFocusedDifferentialCheckedStates": 960,
+    "currentExecutionLog": "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20-supervision/original960-differential.log",
+    "currentExecutionLogSHA256": "327063378ce05a607c03f2c293c4c5459f5a9f1f431570554005df9f4f59e173",
+    "currentExecutedSemanticModuleSHA256": "090eff4f39b7ef56a6789542630a2dde4df5c0bd2d3b69ba4dfc09e0555882fa",
+    "currentModuleMatchesUninstrumentedCandidate": true,
+    "newResultSHA256": "6aebe31e7a37f817d48d8df196df2165d7551c026b0a9d9f48523e62d7746ee7",
+    "oldReportPathWasTouchedByCopiedRunner": true,
+    "oldReportBytesStillMatchOriginalFrozenDigest": true,
+    "originalFrozenDigest": "6aebe31e7a37f817d48d8df196df2165d7551c026b0a9d9f48523e62d7746ee7",
+    "frozenRunnerSourceNotEdited": true,
+    "testsRerun": false,
+    "performanceMeasurementRun": false,
+    "scope": "The already executed current960 report was printed in the actual stage log and written to the old path with identical original bytes. Recovered a copy at the new path after verifying log content, actual candidate module and old frozen digest. Original failure and runner source retained."
+  },
+  "validationToolSession": null,
+  "validationStateFile": "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20-supervision/validation-v2-state.json",
+  "validationPid": 3522468,
+  "validationStartTicks": "39724634",
+  "validationStatus": "exited",
+  "validationStages": [
+    {
+      "name": "control-build",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/build.mjs",
+        "--production",
+        "control"
+      ],
+      "pid": 3522646,
+      "startTicks": "39725104",
+      "actualExitCode": 0
+    },
+    {
+      "name": "prototype-build",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/build.mjs",
+        "--production",
+        "prototype"
+      ],
+      "pid": 3522690,
+      "startTicks": "39725256",
+      "actualExitCode": 0
+    },
+    {
+      "name": "control-semantic",
+      "status": "exited",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/private-semantic.config.mjs",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/control-semantic-results.json"
+      ],
+      "pid": 3522745,
+      "startTicks": "39725430",
+      "actualExitCode": 0
+    },
+    {
+      "name": "control-protocol",
+      "status": "exited",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/private-lsp.config.mjs",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/control-protocol-results.json",
+        "--maxWorkers=2",
+        "test/ambiguous-function-argument-stdio.test.ts",
+        "test/canonical-construction-stdio.test.ts",
+        "test/class-relative-construction-stdio.test.ts",
+        "test/completion-prefix-refresh-stdio.test.ts",
+        "test/inherited-constructor-generics-stdio.test.ts",
+        "test/legacy-project-construction-stdio.test.ts",
+        "test/native-boundary-diagnostics-stdio.test.ts",
+        "test/phpdoc-callable-conditional-inputs-stdio.test.ts",
+        "test/phpdoc-method-parameters-stdio.test.ts",
+        "test/receiver-guard-argument-assertions-stdio.test.ts",
+        "test/reflection-construction-stdio.test.ts",
+        "test/symfony-container-provider-concurrency-stdio.test.ts",
+        "test/trait-adaptation-order-stdio.test.ts",
+        "test/trait-construction-stdio.test.ts",
+        "test/trait-constructor-phpdoc-stdio.test.ts",
+        "test/trait-precedence-names-stdio.test.ts",
+        "test/trait-use-generics-stdio.test.ts",
+        "test/undefined-variable-scope-boundary-stdio.test.ts"
+      ],
+      "pid": 3526482,
+      "startTicks": "39733278",
+      "actualExitCode": 0
+    },
+    {
+      "name": "control-version",
+      "status": "exited",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/private-lsp.config.mjs",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/control-version-results.json",
+        "--maxWorkers=2",
+        "test/stdio.test.ts",
+        "--testNamePattern",
+        "language server stdio selects PHP 7\\.2 standard function overloads from argument shapes through stdio$|language server stdio offers proven enum cases and scalar values in argument expressions$|language server stdio completes PHPDoc string literal values from a proven argument signature$|language server stdio ranks new class candidates by a proven interface argument$|language server stdio ranks compatible method results in a typed argument and keeps unknown results$|language server stdio refreshes generic argument ranking from other arguments for PHP 7\\.2$|language server stdio refreshes generic argument ranking from other arguments for PHP 8\\.5$|language server stdio ranks agreed overload arguments and retracts conflicting contracts for PHP 7\\.2$|language server stdio ranks agreed overload arguments and retracts conflicting contracts for PHP 8\\.5$|language server stdio reports and withdraws a proven built-in argument mismatch in onDemand mode$|language server stdio only offers named arguments where PHP 7\\.2 supports them$|language server stdio only offers named arguments where PHP 7\\.4 supports them$|language server stdio only offers named arguments where PHP 8\\.0 supports them$|language server stdio only offers named arguments where PHP 8\\.5 supports them$|language server stdio inserts constructor parentheses only in new expressions and retains named arguments$|language server stdio publishes outer-call diagnostics and parameter hints for legacy array arguments$|language server stdio uses versioned internal Fileinfo constructors for signature help at PHP 7\\.2$|language server stdio uses versioned internal Fileinfo constructors for signature help at PHP 8\\.5$|language server stdio offers strict identity return extraction only for proven scalar operands$|language server stdio offers scalar choice return extraction only for proven native operands$|language server stdio publishes Chinese member, PHPDoc, hooked property and constructor diagnostics through stdio$|language server stdio sends versioned diagnostics to the editor and clears them on close$|language server stdio keeps direct scalar argument diagnostics across common literal forms in onDemand mode$|language server stdio updates a proven native scalar return argument from another file in onDemand mode$|language server stdio reports proven same-file argument errors in onDemand PHP 7\\.2 without trusting another file$|language server stdio reports proven same-file argument errors in onDemand PHP 8\\.5 without trusting another file$|language server stdio reports only proven same-file unknown named arguments in onDemand PHP 8\\.5$|language server stdio gates literal unpack argument order at PHP 8\\.0$|language server stdio gates literal unpack argument order at PHP 8\\.1$|language server stdio highlights the next unused parameter after out-of-order named arguments$|language server stdio offers PHP Attribute constructor parameter names before the attribute is closed$|language server stdio follows an unsaved Composer Attribute constructor and restores disk parameters after close$|language server stdio selects the documented overload across punctuation in an argument comment$|language server stdio reports only local scalar PHPDoc/native conflicts in onDemand PHP 7\\.2$|language server stdio reports only local scalar PHPDoc/native conflicts in onDemand PHP 8\\.5$|language server stdio rebuilds named-argument candidates after restoring a symbol-only source cache$|language server stdio keeps classmap method feedback on one unsaved declaration snapshot$|language server stdio publishes outer-call diagnostics and parameter hints for legacy array arguments$|language server stdio publishes proven missing-member diagnostics after a complete project index$|language server stdio updates a proven PSR-4 method literal mismatch across open files in onDemand mode$|language server stdio reports proven same-file argument errors in onDemand PHP .*? without trusting another file$|language server stdio serves first-class callable invocation signatures, diagnostics, and return completion through stdio$|language server stdio serves PHPDoc Callable parameter signatures and direct invocation diagnostics through stdio$|language server stdio serves standalone local PHPDoc Callable assertions and immutable aliases through stdio$|language server stdio serves native closure and arrow variable invocation contracts through stdio$|language server stdio serves unique invokable object contracts through stdio$|language server stdio serves precise callable-array contracts through stdio$"
+      ],
+      "pid": 3534993,
+      "startTicks": "39756932",
+      "actualExitCode": 0
+    },
+    {
+      "name": "prototype-semantic",
+      "status": "exited",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/private-semantic.config.mjs",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/prototype-semantic-results.json"
+      ],
+      "pid": 3539095,
+      "startTicks": "39770534",
+      "actualExitCode": 1
+    }
+  ],
+  "controlEightAssetsByteEqual": true,
+  "validationFrozenInputs": 9131,
+  "prototypeCoreSHA256": "292cbfb48b9f87087e03a9e3a38e838d583b93976f7444d42548f4dccd3b386b",
+  "expandedCaseSelection": {
+    "independentCaseSelectionAuditPassed": true,
+    "sourceCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+    "referenceCurrentCI": 39363787201,
+    "referenceJob": "14_Quality (ubuntu-latest).txt",
+    "rawLogSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+    "expectedProtocolFiles": 18,
+    "expectedProtocolPassed": 122,
+    "protocolFileRecords": [
+      {
+        "relativeFile": "test/ambiguous-function-argument-stdio.test.ts",
+        "cases": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 3515
+      },
+      {
+        "relativeFile": "test/canonical-construction-stdio.test.ts",
+        "cases": 16,
+        "passed": 16,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 1930
+      },
+      {
+        "relativeFile": "test/class-relative-construction-stdio.test.ts",
+        "cases": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 3060
+      },
+      {
+        "relativeFile": "test/completion-prefix-refresh-stdio.test.ts",
+        "cases": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 3112
+      },
+      {
+        "relativeFile": "test/inherited-constructor-generics-stdio.test.ts",
+        "cases": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 2836
+      },
+      {
+        "relativeFile": "test/legacy-project-construction-stdio.test.ts",
+        "cases": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 1987
+      },
+      {
+        "relativeFile": "test/native-boundary-diagnostics-stdio.test.ts",
+        "cases": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 3654
+      },
+      {
+        "relativeFile": "test/phpdoc-callable-conditional-inputs-stdio.test.ts",
+        "cases": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 3070
+      },
+      {
+        "relativeFile": "test/phpdoc-method-parameters-stdio.test.ts",
+        "cases": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 3333
+      },
+      {
+        "relativeFile": "test/receiver-guard-argument-assertions-stdio.test.ts",
+        "cases": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 3024
+      },
+      {
+        "relativeFile": "test/reflection-construction-stdio.test.ts",
+        "cases": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 3292
+      },
+      {
+        "relativeFile": "test/symfony-container-provider-concurrency-stdio.test.ts",
+        "cases": 35,
+        "passed": 35,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 1328
+      },
+      {
+        "relativeFile": "test/trait-adaptation-order-stdio.test.ts",
+        "cases": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 3632
+      },
+      {
+        "relativeFile": "test/trait-construction-stdio.test.ts",
+        "cases": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 3010
+      },
+      {
+        "relativeFile": "test/trait-constructor-phpdoc-stdio.test.ts",
+        "cases": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 2755
+      },
+      {
+        "relativeFile": "test/trait-precedence-names-stdio.test.ts",
+        "cases": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 2693
+      },
+      {
+        "relativeFile": "test/trait-use-generics-stdio.test.ts",
+        "cases": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 2105
+      },
+      {
+        "relativeFile": "test/undefined-variable-scope-boundary-stdio.test.ts",
+        "cases": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "logLine": 3640
+      }
+    ],
+    "expectedMainPassed": 45,
+    "expectedMainPassedFullNames": [
+      "language server stdio selects PHP 7.2 standard function overloads from argument shapes through stdio",
+      "language server stdio offers proven enum cases and scalar values in argument expressions",
+      "language server stdio completes PHPDoc string literal values from a proven argument signature",
+      "language server stdio ranks new class candidates by a proven interface argument",
+      "language server stdio ranks compatible method results in a typed argument and keeps unknown results",
+      "language server stdio refreshes generic argument ranking from other arguments for PHP 7.2",
+      "language server stdio refreshes generic argument ranking from other arguments for PHP 8.5",
+      "language server stdio ranks agreed overload arguments and retracts conflicting contracts for PHP 7.2",
+      "language server stdio ranks agreed overload arguments and retracts conflicting contracts for PHP 8.5",
+      "language server stdio reports and withdraws a proven built-in argument mismatch in onDemand mode",
+      "language server stdio only offers named arguments where PHP 7.2 supports them",
+      "language server stdio only offers named arguments where PHP 7.4 supports them",
+      "language server stdio only offers named arguments where PHP 8.0 supports them",
+      "language server stdio only offers named arguments where PHP 8.5 supports them",
+      "language server stdio inserts constructor parentheses only in new expressions and retains named arguments",
+      "language server stdio keeps classmap method feedback on one unsaved declaration snapshot",
+      "language server stdio publishes outer-call diagnostics and parameter hints for legacy array arguments",
+      "language server stdio uses versioned internal Fileinfo constructors for signature help at PHP 7.2",
+      "language server stdio uses versioned internal Fileinfo constructors for signature help at PHP 8.5",
+      "language server stdio offers strict identity return extraction only for proven scalar operands",
+      "language server stdio offers scalar choice return extraction only for proven native operands",
+      "language server stdio publishes Chinese member, PHPDoc, hooked property and constructor diagnostics through stdio",
+      "language server stdio publishes proven missing-member diagnostics after a complete project index",
+      "language server stdio sends versioned diagnostics to the editor and clears them on close",
+      "language server stdio updates a proven PSR-4 method literal mismatch across open files in onDemand mode",
+      "language server stdio keeps direct scalar argument diagnostics across common literal forms in onDemand mode",
+      "language server stdio updates a proven native scalar return argument from another file in onDemand mode",
+      "language server stdio reports proven same-file argument errors in onDemand PHP 7.2 without trusting another file",
+      "language server stdio reports proven same-file argument errors in onDemand PHP 8.5 without trusting another file",
+      "language server stdio reports only proven same-file unknown named arguments in onDemand PHP 8.5",
+      "language server stdio gates literal unpack argument order at PHP 8.0",
+      "language server stdio gates literal unpack argument order at PHP 8.1",
+      "language server stdio highlights the next unused parameter after out-of-order named arguments",
+      "language server stdio offers PHP Attribute constructor parameter names before the attribute is closed",
+      "language server stdio follows an unsaved Composer Attribute constructor and restores disk parameters after close",
+      "language server stdio selects the documented overload across punctuation in an argument comment",
+      "language server stdio reports only local scalar PHPDoc/native conflicts in onDemand PHP 7.2",
+      "language server stdio reports only local scalar PHPDoc/native conflicts in onDemand PHP 8.5",
+      "language server stdio rebuilds named-argument candidates after restoring a symbol-only source cache",
+      "language server stdio serves first-class callable invocation signatures, diagnostics, and return completion through stdio",
+      "language server stdio serves PHPDoc Callable parameter signatures and direct invocation diagnostics through stdio",
+      "language server stdio serves standalone local PHPDoc Callable assertions and immutable aliases through stdio",
+      "language server stdio serves native closure and arrow variable invocation contracts through stdio",
+      "language server stdio serves unique invokable object contracts through stdio",
+      "language server stdio serves precise callable-array contracts through stdio"
+    ],
+    "allOriginal75ProtocolAnd36VersionCasesRetained": true,
+    "additionalMainRegistrations": 11,
+    "referenceOnlyNotNewPrototypeExecution": true
+  },
+  "validationActualExitCode": 1,
+  "controlPassedCounts": {
+    "semantic": 24491,
+    "protocol": 122,
+    "mainVersion": 45
+  },
+  "prototypeSemanticPassed": 24489,
+  "prototypeSemanticFailed": 2,
+  "prototypeProtocolAndVersionExecuted": false,
+  "independentFailureAudit": {
+    "independentFailureAuditPassed": true,
+    "auditedAtUtc": "2026-10-20T06:04:01.785345+00:00",
+    "actualValidationExitCode": 1,
+    "actualStageExitCodes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "frozenInputsVerified": 9131,
+    "completeSemanticCaseIdentitiesUnchanged": true,
+    "controlPassed": {
+      "semantic": 24491,
+      "protocol": 122,
+      "mainVersion": 45
+    },
+    "prototypeSemanticPassed": 24489,
+    "prototypeSemanticFailed": 2,
+    "failures": [
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/semantic/test/diagnostic-declaration-candidates.test.ts",
+        "fullName": "does not inspect unrelated indexed callable arrays for missing arguments with live sources",
+        "failureMessages": [
+          "AssertionError: expected 1 to be +0 // Object.is equality\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/semantic/test/diagnostic-declaration-candidates.test.ts:50:71\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/semantic/test/diagnostic-declaration-candidates.test.ts",
+        "fullName": "does not inspect unrelated indexed callable arrays for local missing arguments with live sources",
+        "failureMessages": [
+          "AssertionError: expected 1 to be +0 // Object.is equality\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/semantic/test/diagnostic-declaration-candidates.test.ts:50:71\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:60\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)"
+        ]
+      }
+    ],
+    "cause": "Eligibility evaluated an unrelated file.callables getter before testing its property descriptor. Both original assertions require zero getter reads.",
+    "prototypeProtocolAndVersionExecuted": false,
+    "performanceExecuted": false,
+    "noPerformanceRetry": true,
+    "ownedTestGroupsAndRuntimeProcessesGone": true,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "failureArchivesVerified": 64,
+    "failureArchiveManifestSHA256": "8f56595af82b4b1c53810f0a5949dd3c12d70a64456077e9d35ed86962c53591"
+  },
+  "frozenFailedExperimentRetained": true,
+  "successorPrivateDirectory": "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20"
+}

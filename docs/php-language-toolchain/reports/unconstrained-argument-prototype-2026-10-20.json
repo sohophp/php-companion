@@ -1,0 +1,91 @@
+{
+  "independentAuditPassed": true,
+  "validationActualExitCodes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "performanceActualExitCodes": [
+    0,
+    0
+  ],
+  "groups": {
+    "semantic": {
+      "passedEachSide": 24473,
+      "notSelectedEachSide": 0,
+      "caseIdentitiesAndStatesEqual": true
+    },
+    "protocol": {
+      "passedEachSide": 75,
+      "notSelectedEachSide": 0,
+      "caseIdentitiesAndStatesEqual": true
+    },
+    "version": {
+      "passedEachSide": 36,
+      "notSelectedEachSide": 532,
+      "caseIdentitiesAndStatesEqual": true
+    }
+  },
+  "differentialStates": 960,
+  "typecheckPassed": true,
+  "oneGuardSourceAndRuntimeVerified": true,
+  "frozenInputsVerified": 70651,
+  "complete25StateResultsEqual": true,
+  "comparison": {
+    "control": {
+      "diagnosticMs": {
+        "p95Ms": 1598.4018079999987,
+        "medianMs": 1424.180640999999,
+        "maxMs": 2145.8533479999996
+      },
+      "completionMs": {
+        "p95Ms": 683.2539560000005,
+        "medianMs": 126.94644100000005,
+        "maxMs": 687.1629799999992
+      }
+    },
+    "prototype": {
+      "diagnosticMs": {
+        "p95Ms": 1461.5889169999973,
+        "medianMs": 1261.3693760000024,
+        "maxMs": 2026.0378449999998
+      },
+      "completionMs": {
+        "p95Ms": 667.2898230000001,
+        "medianMs": 123.3731989999942,
+        "maxMs": 675.2500879999989
+      }
+    }
+  },
+  "paired": {
+    "diagnosticMs": {
+      "improvedSamples": 24,
+      "medianImprovementPercent": 9.354031689007938
+    },
+    "completionMs": {
+      "improvedSamples": 13,
+      "medianImprovementPercent": 1.733634137275599
+    }
+  },
+  "admissionChecks": {
+    "diagnosticImprovedSamples": true,
+    "diagnosticPairedMedianImprovement": true,
+    "diagnosticP95Improved": true,
+    "queryP95RegressionBound": true,
+    "queryMedianRegressionBound": true,
+    "completeResultsAndInputsUnchanged": true
+  },
+  "admitted": true,
+  "originalDiagnosticBudgetPassed": false,
+  "originalQueryBudgetPassed": false,
+  "ownedRuntimeProcessesGone": true,
+  "cachesRemoved": true,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "auditedAtUtc": "2026-10-20T00:59:43.740247+00:00"
+}

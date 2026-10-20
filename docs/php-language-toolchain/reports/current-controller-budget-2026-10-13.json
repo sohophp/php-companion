@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-13",
+  "coreSHA256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+  "rounds": 25,
+  "functionalQualified": true,
+  "diagnosticP95Ms": 1713.8124879999996,
+  "queryP95Ms": 600.4424530000033,
+  "diagnosticMedianMs": 1457.0816320000013,
+  "queryMedianMs": 115.51688600000125,
+  "diagnosticBudgetMs": 500,
+  "queryBudgetMs": 150,
+  "diagnosticBudgetPassed": false,
+  "queryBudgetPassed": false,
+  "performanceQualified": false,
+  "previousNormalDigestsEqual": true,
+  "frozenProductsUnchanged": 1012,
+  "frozenProjectUnchanged": 66079,
+  "ownedProcessesGone": true,
+  "cacheDirectoryRemoved": true,
+  "productionChanged": false,
+  "fullObjectiveComplete": false
+}
