@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runOwned } from './owned-process.mjs';
+import { spawn } from 'node:child_process';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const scratch = await mkdtemp(join(tmpdir(), 'sophp-matrix-runner-controls-'));
@@ -24,6 +25,7 @@ try {
       env: process.env, temporaryDirectory: join(scratch, name + '-temporary'),
       stdoutPath, stderrPath, timeoutMs });
     assert(row.ownedProcessesGoneAfterCleanup && row.temporaryDirectoryRemoved);
+    if (process.platform === 'win32') assert(row.supervisorOutsideOwnedJob && row.rootAssignedToOwnedJob);
     if (name === 'normal') {
       assert(row.normalExitAndNoLeftovers);
       assert.equal(row.actualExitCode, 0);
@@ -57,7 +59,57 @@ try {
   assert.deepEqual(JSON.parse(await readFile(join(scratch, 'normal.stdout'))), { ok: true });
   rows.push({ name: 'existing-output', rejectedWith: 'EEXIST', evidencePreserved: true,
     temporaryDirectoryRemoved: true });
-  assert.equal((await readdir(scratch)).length, 12);
+  if (process.platform === 'win32') {
+    // This process is deliberately outside every Job created by runOwned.
+    const sentinel = spawn(process.execPath, ['-e', 'console.log("ready");setInterval(()=>{},100);'],
+      { stdio: ['ignore', 'pipe', 'ignore'] });
+    const sentinelClosed = new Promise(resolve => sentinel.once('close', resolve));
+    try {
+      await new Promise((resolve, reject) => {
+        sentinel.once('error', reject);
+        sentinel.stdout.once('data', resolve);
+        sentinel.once('exit', () => reject(new Error('Unrelated sentinel exited before ready')));
+      });
+      const spawnIdle = 'require("node:child_process").spawn(process.execPath,["-e",' +
+        '"setInterval(()=>{},100)"],{detached:true,stdio:"ignore"}).unref();';
+      for (const [name, code] of [
+        ['orphan-child', spawnIdle],
+        ['orphan-grandchild', 'require("node:child_process").spawnSync(process.execPath,["-e",' +
+          JSON.stringify(spawnIdle) + '],{stdio:"ignore"});'],
+      ]) {
+        const row = await runOwned({ command: process.execPath, args: ['-e', code], cwd: root,
+          env: process.env, temporaryDirectory: join(scratch, name + '-temporary'),
+          stdoutPath: join(scratch, name + '.stdout'), stderrPath: join(scratch, name + '.stderr'),
+          timeoutMs: 5_000 });
+        assert.equal(row.actualExitCode, 0);
+        assert.equal(row.timedOut, false);
+        assert.equal(row.normalExitAndNoLeftovers, false);
+        assert(row.cleanupNeeded && row.jobMemberPidsObservedAfterExit.length > 0);
+        assert.equal(row.ownership, 'kernel-job');
+        assert(row.ownedProcessesGoneAfterCleanup && row.temporaryDirectoryRemoved);
+        assert.equal(sentinel.exitCode, null);
+        assert.equal(sentinel.signalCode, null);
+        process.kill(sentinel.pid, 0);
+        rows.push({ name, ...row, unrelatedSentinelSurvived: true });
+      }
+      const name = 'argument-quoting';
+      const values = ['', 'space value', 'a"b', 'end\\', 'space end\\', '中文', '$(literal)`&'];
+      const stdoutPath = join(scratch, name + '.stdout');
+      const row = await runOwned({ command: process.execPath,
+        args: ['-e', 'console.log(JSON.stringify(process.argv.slice(1)))', '--', ...values], cwd: root,
+        env: process.env, temporaryDirectory: join(scratch, name + '-temporary'), stdoutPath,
+        stderrPath: join(scratch, name + '.stderr'), timeoutMs: 5_000 });
+      assert(row.normalExitAndNoLeftovers && row.ownedProcessesGoneAfterCleanup && row.temporaryDirectoryRemoved);
+      assert.deepEqual(JSON.parse(await readFile(stdoutPath)), values);
+      assert.equal(sentinel.exitCode, null);
+      rows.push({ name, ...row, argumentsPreserved: true, unrelatedSentinelSurvived: true });
+    } finally {
+      // Terminate via the ChildProcess handle we created, never a reconstructed PID tree.
+      sentinel.kill();
+      await sentinelClosed;
+    }
+  }
+  assert.equal((await readdir(scratch)).length, process.platform === 'win32' ? 18 : 12);
 } finally { await rm(scratch, { recursive: true, force: true }); }
 const gone = await readdir(scratch).then(() => false, e => { if (e.code === 'ENOENT') return true; throw e; });
 assert(gone);

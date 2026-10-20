@@ -37,7 +37,7 @@ const runtimeFiles = ['language-server.js', 'extension.js', 'candidateWorker.js'
 assert.equal(await digest(runtimeFiles[0]), values['core-sha']);
 const trackedInputs = [...runtimeFiles, join(cwd, 'scripts/benchmark-editing.mjs'),
   join(cwd, 'packages/testkit/dist/index.js'), ...['run-matrix.mjs', 'validate-report.mjs',
-    'owned-process.mjs', 'probe-loaded-version.mjs'].map(name => join(helperRoot, name))];
+    'owned-process.mjs', 'windows-owned-process.mjs', 'windows-owned-process.ps1', 'probe-loaded-version.mjs'].map(name => join(helperRoot, name))];
 const manifest = await Promise.all(trackedInputs.map(async path => ({ path, sha256: await digest(path) })));
 const verifyInputs = async () => {
   for (const item of manifest) assert.equal(await digest(item.path), item.sha256, item.path);
