@@ -12957,6 +12957,28 @@ export class SemanticWorkspace {
         return { ...inferred, ...this.signatureContext(match[4]!, inferred.parameters) };
       });
     }
+    const expressionOpening = before.includes('->')
+      ? enclosing?.argumentsStart ?? this.unclosedCallOpening(file, offset) : undefined;
+    const expressionHeader = expressionOpening === undefined ? undefined
+      : file.source.slice(enclosing?.start ?? 0, expressionOpening);
+    const expressionMethod = expressionHeader
+      && /[)\]]\s*(?:\?->|->)\s*([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)\s*$/u.exec(expressionHeader);
+    if (expressionOpening !== undefined && expressionHeader && expressionMethod) {
+      const nameEnd = expressionOpening - (expressionHeader.length - expressionHeader.trimEnd().length);
+      const resolved = this.memberTarget(uri, nameEnd)
+        ?? this.memberTarget(uri, nameEnd - expressionMethod[1]!.length);
+      const target = resolved ? { ...resolved, member: expressionMethod[1]! } : undefined;
+      const members = target && !target.static ? this.targetMembers(target).filter((member) => member.kind === 'method'
+        && this.validAccess(member, false) && memberNameEquals(member.kind, member.name, expressionMethod[1]!)) : [];
+      const argumentsText = file.source.slice(expressionOpening + 1, offset);
+      const compatible = this.methodCandidatesForArguments(members, argumentsText, completeAtCursor, file, expressionOpening + 1);
+      // An unresolved receiver still owns this invocation. Do not reinterpret
+      // its method name as an unrelated namespace/global function below.
+      return (compatible.length ? compatible : members).map((member) => {
+        const inferred = this.withInferredGeneratorReturn(member);
+        return { ...inferred, ...this.signatureContext(argumentsText, inferred.parameters) };
+      });
+    }
     const constructor = /\bnew\s+([\\A-Za-z_\x80-\xff][A-Za-z0-9_\\\x80-\xff]*)\s*\(([^()]*)$/.exec(before);
     if (constructor) {
       const fqcn = this.resolveSourceType(file, constructor[1]!, namespace, accessFrom);
@@ -18193,6 +18215,13 @@ export class SemanticWorkspace {
     const call = file.calls.find(candidate => candidate.start === start && candidate.end === end); if (!call) return undefined;
     if (call.firstClassCallable) return named('Closure');
     const dynamicResult = this.dynamicCallResultType(file, call); if (dynamicResult) return dynamicResult;
+    // A declaration hint does not prove that every receiver step completes.
+    // Keep complete-chain argument checks, null propagation and conditional
+    // provider returns in the existing value proof rather than the new hint.
+    if (!call.receiver
+      && /[)\]]\s*(?:\?->|->)\s*$/u.test(file.source.slice(call.start, call.nameStart))) {
+      return this.memberChainResultType(file, start, end);
+    }
     const signatures = this.completedCallSignatures(file, call);
     if (signatures.length && signatures.every(signature => signature.synthetic === 'phpdoc-magic')) {
       return this.documentedMethodCallResult(file, call, signatures);
