@@ -9207,6 +9207,7 @@ export class SemanticWorkspace {
             ?? (untypedDocumented ? this.phpDocDiagnosticType(declarationFile, untypedDocumented, signature.typeScopeFqcn) : undefined)
             ?? (parameter.nativeType ? this.nativeSourceType(declarationFile, nativeParameterType(parameter, declarationFile.uri), signature.typeScopeFqcn) : undefined);
           if (!expected) return [];
+          if (expected.kind === 'primitive' && expected.name === 'mixed') return [];
           const fact = parameter.nativeType ? this.scalarArgumentFact(file, valueStart, argument.end) : undefined;
           let actual = this.provenArgumentType(file, valueStart, argument.end) ?? fact?.type; if (!actual) return [];
           if (expected.kind === 'integer-range') {
