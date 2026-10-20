@@ -125,6 +125,16 @@ try {
 } catch (error) {
   state.error = String(error.stack ?? error);
   process.exitCode = 1;
+  // Keep the failure diagnosable even when the artifact action cannot start.
+  console.error(state.error);
+  const lastCase = state.cases.at(-1);
+  if (lastCase) {
+    console.error(JSON.stringify({ failedCase: lastCase }));
+    for (const suffix of ['.json', '.stderr']) {
+      const details = await readFile(join(output, lastCase.name + suffix), 'utf8').catch(() => '');
+      if (details.trim()) console.error(details.slice(-12_000));
+    }
+  }
 } finally {
   await rm(temporaryOwner, { recursive: true, force: true });
   state.temporaryOwnerRemoved = await readdir(temporaryOwner).then(() => false,
