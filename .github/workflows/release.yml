@@ -105,7 +105,12 @@ jobs:
         run: |
           set -euo pipefail
           version="${TAG#v}"
+          cd release-assets
+          files=(
+            "php-companion-${version}.vsix"
+            "php-companion-symfony-${version}.vsix"
+            "php-companion-open-source-pack-${version}.vsix"
+          )
+          sha256sum "${files[@]}" > SHA256SUMS
           gh release create "$TAG" --verify-tag --title "SoPHP $version" --notes-from-tag \
-            "release-assets/php-companion-${version}.vsix" \
-            "release-assets/php-companion-symfony-${version}.vsix" \
-            "release-assets/php-companion-open-source-pack-${version}.vsix"
+            "${files[@]}" SHA256SUMS
