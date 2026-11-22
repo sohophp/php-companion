@@ -139,17 +139,25 @@ jobs:
         if: matrix.php == '8.6'
         run: |
           docker pull php:8.6-cli
+          docker run --detach --rm --name sophp-php86 php:8.6-cli sleep infinity
           mkdir -p "$RUNNER_TEMP/php86-bin"
           cat > "$RUNNER_TEMP/php86-bin/php" <<'EOF'
           #!/usr/bin/env bash
-          exec docker run --rm php:8.6-cli php "$@"
+          exec docker exec sophp-php86 php "$@"
           EOF
           chmod +x "$RUNNER_TEMP/php86-bin/php"
+          "$RUNNER_TEMP/php86-bin/php" --version
           printf '%s\n' "$RUNNER_TEMP/php86-bin" >> "$GITHUB_PATH"
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:integration:php
         env:
           PHP_COMPANION_TEST_PHP_BINARIES: '{"${{ matrix.php }}":"php"}'
+      - name: Stop the PHP 8.6 CLI container
+        if: always() && matrix.php == '8.6'
+        run: |
+          if docker container inspect sophp-php86 > /dev/null 2>&1; then
+            docker rm -f sophp-php86
+          fi
 
   extension-host:
     name: Extension host (${{ matrix.os }})
