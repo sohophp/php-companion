@@ -16298,7 +16298,7 @@ class Example {}`;
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
-  it('returns Chinese References failure and warning when indexing is disabled', async () => {
+  it('returns a Chinese References failure with status-bar feedback when indexing is disabled', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-zh-references-unavailable-'));
     try {
       await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': './' } } }));
@@ -16319,11 +16319,13 @@ class Example {}`;
         textDocument: { uri }, position: lspPosition(source, source.indexOf('Target') + 2), context: { includeDeclaration: true },
       } }));
       const response = await output.waitFor((message) => message.id === 137);
-      expect(response.error).toMatchObject({ message: '项目索引不完整；不能将此结果视为零处引用。' });
-      const warning = await output.waitFor((message) => message.method === 'window/showMessageRequest');
-      expect(warning.params).toMatchObject({ type: 2,
-        message: 'PHP 引用暂不可用：项目索引不完整或已禁用。请查看 SoPHP 输出。' });
-      server.stdin.write(encode({ jsonrpc: '2.0', id: warning.id, result: null }));
+      expect(response.result).toBeUndefined();
+      expect(response.error).toMatchObject({
+        code: -32803,
+        message: '项目索引不完整；不能将此结果视为零处引用。',
+        data: { kind: 'sophp.navigationIncomplete', status: 'PHP 引用暂不可用：项目索引不完整或已禁用。请查看 SoPHP 输出。' },
+      });
+      expect(output.messages.some(message => message.method === 'window/showMessageRequest' || message.method === 'window/showMessage')).toBe(false);
     } finally { await rm(root, { recursive: true, force: true }); }
   });
 
