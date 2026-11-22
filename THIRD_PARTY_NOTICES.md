@@ -1,5 +1,7 @@
 # Third-party notices
 
+The built-in symbol documentation catalog adapts English summaries from the PHP Documentation Group's [PHP Manual](https://www.php.net/manual/en/). The source is [php/doc-en revision 32979f4fef992cd4cd3c7c33c4be414f86419b83](https://github.com/php/doc-en/tree/32979f4fef992cd4cd3c7c33c4be414f86419b83), distributed under [Creative Commons Attribution 3.0 or later](https://www.php.net/manual/en/copyright.php). SoPHP extracts the short descriptions, normalizes whitespace, and may shorten longer summaries. Each editor entry links to the corresponding manual page.
+
 The PHP grammar WebAssembly module is distributed under the MIT license from [tree-sitter-php v0.25.1](https://github.com/tree-sitter/tree-sitter-php/releases/tag/v0.25.1). The VS Code bundles include `dist/LICENSE-tree-sitter-php`, and the parser package includes `vendor/LICENSE-tree-sitter-php`.
 
 SoPHP adapts the structural `pathinfo` return fields from `standard/standard_1.php` in JetBrains/phpstorm-stubs revision `e4f5f6c3de39f3bab3e9f3fca4b8cdb8b061e681`. The flag-dependent return type and optional dirname/extension fields are independently checked against PHP documentation and local runtimes. Upstream descriptive text is omitted; see `LICENSE-phpstorm-stubs.txt` for Apache-2.0 licensing.
