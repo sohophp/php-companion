@@ -2,6 +2,8 @@
 
 SoPHP Symfony 集成扩展。它依赖 `sohophp.php-companion` 的通用 PHP 语言核心，负责服务容器、依赖注入、事件订阅、路由和 Controller → Twig 上下文编排。Twig 语法、模板补全、导航和格式化继续由 twig-plus 负责。
 
+在 VS Code 中开发 Symfony 项目时，推荐通过 SoPHP Dev Pack 一起安装 SoPHP、SoPHP Symfony 和 TwigPlus，以便在 PHP 代码、路由、服务配置和 Twig 模板之间导航。[在 VS Code Marketplace 获取 SoPHP Dev Pack](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)
+
 权威服务 ID 的编辑能力覆盖 YAML、XML、PHP Configurator 和项目 PHP 中可证明属于 Symfony 的 `#[Autowire(service: '...')]` 字面量。Definition、References、Completion 与 Rename 共用同一服务目录；Rename 只有在配置图和项目 Attribute 扫描都完整时才返回一次可撤销的跨文件编辑。
 
 静态 YAML/XML/PHP Configurator 参数支持从 `parameters`、`<parameter key>`、已证明的 `parameters()->set()` 声明，或精确 `%parameter.id%` 与官方 `param()` 引用执行跨格式 Definition、References、Completion 与 Rename。Provider 只向核心发布参数 ID 和源码范围，不读取或传递参数值；声明不唯一、配置图不完整、文件不可读、`%env(...)%`、`%%escaped%%`、XML Entity、需要解码的字符串、重赋值 DSL 变量和普通业务 `param()` 都保持无结果。
@@ -20,4 +22,4 @@ Twig 语言能力继续由 TwigPlus 提供，通用 YAML/XML 语法和格式化�
 pnpm package:symfony
 ```
 
-VSIX 文件名以打包命令输出的当前版本为准。公开安装时应让 Core、Symfony 和 Open Source Pack 保持同一版本；试用未发布增量时按[同批 Alpha 候选说明](../../docs/php-language-toolchain/alpha-candidate.md)安装三份 VSIX。源码增量验证无需每次重新打包。
+VSIX 文件名以打包命令输出的当前版本为准。公开安装时应让 Core、Symfony 和 SoPHP Dev Pack 保持同一版本；试用未发布增量时按[同批 Alpha 候选说明](../../docs/php-language-toolchain/alpha-candidate.md)安装三份 VSIX。源码增量验证无需每次重新打包。

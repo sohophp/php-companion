@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.15 - 2026-11-23
+
+- Recommend SoPHP Dev Pack for installing Symfony, PHP, and Twig support together.
+
 ## 0.4.14 - 2026-11-22
 
 - Align with SoPHP Core 0.4.14 and its PHP 8.6 support.

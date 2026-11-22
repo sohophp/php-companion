@@ -1,6 +1,8 @@
 # SoPHP
 
-SoPHP 提供自研 PHP Language Server、类型系统以及轻量、按需的 PhpStorm 式项目工作流。当前唯一维护的组合入口是 SoPHP Open Source Pack；它默认启用自研核心且不安装其他通用 PHP Language Server。格式化、调试、测试和 Twig Language Server 继续由专门工具负责。
+SoPHP 提供自研 PHP Language Server、类型系统以及轻量、按需的 PhpStorm 式项目工作流。
+
+在 VS Code 中开发 PHP 项目时，推荐通过 SoPHP Dev Pack（SoPHP 开发套件）一起安装 SoPHP、SoPHP Symfony、TwigPlus、格式化器和调试工具。套件默认启用 SoPHP 语言服务器，PHPUnit/Pest 通过项目命令行运行。[在 VS Code Marketplace 获取 SoPHP Dev Pack](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)
 
 名称已更新为 SoPHP。为了让现有安装与设置继续生效，Marketplace 扩展 ID `sohophp.php-companion`、`sohophp.php-companion-symfony`、`sohophp.php-companion-open-source-pack`，以及 `phpCompanion.*` 配置键和命令 ID 保持原值；包名、仓库路径和历史发布文件名也保持原值。旧版变更记录与验收报告保留发布当时的名称。
 
@@ -103,7 +105,7 @@ SoPHP 默认接管类型声明和唯一解析类型使用点上的标准 Rename 
 }
 ```
 
-独立安装和当前 Open Source Pack 均默认启用自研服务器。若已安装 Intelephense 且没有显式设置 `phpCompanion.languageServer.enabled`，SoPHP 会保留现有提供者并不启动自身服务器；用户显式设置 `true` 或 `false` 时以该选择为准。继续使用 Intelephense Rename 时还应关闭 `phpCompanion.rename.enabled`，避免 Provider 竞争。
+独立安装和 SoPHP Dev Pack 均默认启用自研服务器。若已安装 Intelephense 且没有显式设置 `phpCompanion.languageServer.enabled`，SoPHP 会保留现有提供者并不启动自身服务器；用户显式设置 `true` 或 `false` 时以该选择为准。继续使用 Intelephense Rename 时还应关闭 `phpCompanion.rename.enabled`，避免 Provider 竞争。
 
 ## 性能模型
 
@@ -138,7 +140,7 @@ SoPHP 默认接管类型声明和唯一解析类型使用点上的标准 Rename 
 
 ## 推荐职责边界
 
-- SoPHP 自研服务器：负责 PHP 补全、诊断、类型、符号导航和安全重构；当前由 Open Source Pack 默认启用。
+- SoPHP 自研服务器：负责 PHP 补全、诊断、类型、符号导航和安全重构；当前由 SoPHP Dev Pack 默认启用。
 - PHP Debug：Xdebug 调试。
 - PHP CS Fixer：格式化。
 - 项目 PHPUnit/Pest CLI：默认测试执行；测试视图扩展按项目单独评估。

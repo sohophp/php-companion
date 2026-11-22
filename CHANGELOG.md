@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.15 - 2026-11-23
+
+- Retry PHP References and Implementation when a previous request has abandoned a shared candidate scan.
+- Explain incomplete navigation in the VS Code status bar and preserve details in the SoPHP output.
+- Rename the extension pack to SoPHP Dev Pack and recommend it in the extension documentation.
+
 ## 0.4.14 - 2026-11-22
 
 - Add PHP 8.6 support across version targeting, syntax, the built-in catalog and the runtime integration matrix.

@@ -40,7 +40,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 import { analyzePhpDocument, analyzePhpSemanticTokens, displayPhpParameter, PHP_SEMANTIC_TOKEN_MODIFIERS, PHP_SEMANTIC_TOKEN_TYPES } from './analysis.js';
 import { diagnosticAttributeTarget, diagnosticCompatibilityReason, diagnosticDeprecatedKind, diagnosticLanguage, diagnosticMessage, type DiagnosticLanguage } from './diagnosticMessages.js';
 import { codeActionTitle } from './codeActionMessages.js';
-import { protocolMessage } from './protocolMessages.js';
+import { protocolMessage, type ProtocolMessageKey } from './protocolMessages.js';
 import { progressMessage } from './progressMessages.js';
 import { outputMessage, outputProviderSource } from './outputMessages.js';
 import { semanticIndexCacheVersion } from './cacheVersion.js';
@@ -3201,7 +3201,7 @@ function canonicalTypeDeclaration(workspace: SemanticWorkspace, root: string, fq
 const projectEpochs = new Map<string, number>();
 const candidateQueries = new Map<string, number>();
 const candidateScanTasks = new Map<string, { epoch: number; workspace: SemanticWorkspace;
-  waiters: Set<() => boolean>; promise: Promise<boolean> }>();
+  waiters: Set<() => boolean>; isAbandoned: () => boolean; promise: Promise<boolean> }>();
 type CandidateReadEvidence = { root: string; key: string; epoch: number;
   reads: ReadonlyMap<string, string>; skipped: ReadonlyMap<string, SkippedCandidateStamp> };
 const referenceCandidateReads = new WeakMap<SemanticWorkspace, CandidateReadEvidence>();
@@ -3784,6 +3784,7 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     }).catch((error: unknown) => connection.console.warn(`PHP candidate progress could not start: ${String(error)}`));
   }
   try {
+  if (testPauseNextQueries.has('candidateScanStart')) await pauseTestQuery('candidateScanStart');
   const projectStarted = performance.now();
   const project = await composerProjectForRoot(root);
   recordTestQueryDuration('candidateProject', projectStarted);
@@ -3995,14 +3996,16 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
     }
   }
   connection.console.info(`[named-candidates] files=${scan.files} cached=${scan.cached} parsed=${candidates} restored=${restoredCandidates} declarations=${declarationCandidates} restoredDeclarations=${restoredDeclarations} prepared=${preparedCandidates} preparedRestores=${preparedRestores} elapsedMs=${Date.now() - started}`);
+  if (testPauseNextQueries.has('candidateScanResult')) await pauseTestQuery('candidateScanResult');
   if (progress?.token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'typeQueryCancelled'));
-  if (!(includeDependencies ? scan.complete : scan.projectComplete) || cancelled()) return false;
+  if (cancelled()) return false;
   if ((projectEpochs.get(root) ?? 0) !== epoch) {
     recordTestQueryDuration('candidateEpochRetry', scanBegan);
     await applyPendingFiles();
     return retries > 0 ? performNamedCandidateScan(workspace, root, names, cancelled, retries - 1,
       mode, deferBodies, prepareInWorkers, showProgress, forceFull, includeDependencies) : false;
   }
+  if (!(includeDependencies ? scan.complete : scan.projectComplete)) return false;
   if (candidateReadsComplete && candidateReads.size + skippedCandidateStamps.size === scan.files) {
     const evidence = { root, key, epoch, reads: candidateReads, skipped: skippedCandidateStamps };
     referenceCandidateReads.set(workspace, evidence);
@@ -4022,31 +4025,34 @@ async function performNamedCandidateScan(workspace: SemanticWorkspace, root: str
 async function scanNamedCandidates(workspace: SemanticWorkspace, root: string, names: Set<string>, cancelled: () => boolean, retries = 2,
   mode: 'symbol' | 'named-argument' = 'symbol', deferBodies = false, prepareInWorkers = deferBodies,
   showProgress = true, includeDependencies = false): Promise<boolean> {
+  if (cancelled()) return false;
   const epoch = projectEpochs.get(root) ?? 0;
   const key = `${root}:${mode}:${deferBodies ? 'declarations' : 'full'}:${includeDependencies ? 'dependencies:' : ''}${experimentalReferenceClosure && mode === 'symbol' && deferBodies ? 'exact:' : ''}${[...names].sort().join(',')}`;
   if (candidateQueries.get(key) === epoch) return true;
   let task = candidateScanTasks.get(key);
   if (!task || task.epoch !== epoch || task.workspace !== workspace) {
     const waiters = new Set<() => boolean>([cancelled]);
-    task = { epoch, workspace, waiters, promise: Promise.resolve(false) };
+    let abandoned = false;
+    // Once the scanner sees cancellation, a new waiter cannot restore its coverage.
+    const isAbandoned = (): boolean => abandoned ||= [...waiters].every((isCancelled) => isCancelled());
+    task = { epoch, workspace, waiters, isAbandoned, promise: Promise.resolve(false) };
     const running = task;
-    task.promise = performNamedCandidateScan(workspace, root, names,
-      () => [...waiters].every((isCancelled) => isCancelled()), retries, mode, deferBodies, prepareInWorkers, showProgress,
+    task.promise = performNamedCandidateScan(workspace, root, names, isAbandoned, retries, mode, deferBodies, prepareInWorkers, showProgress,
       false, includeDependencies)
       .finally(() => { if (candidateScanTasks.get(key) === running) candidateScanTasks.delete(key); });
     candidateScanTasks.set(key, task);
-  } else task.waiters.add(cancelled);
+  } else if (!task.isAbandoned()) task.waiters.add(cancelled);
   try {
     const ready = await new Promise<boolean>((done, fail) => {
       const timer = setInterval(() => { if (cancelled()) { clearInterval(timer); done(false); } }, 50);
       void task!.promise.then((value) => { clearInterval(timer); done(value); }, (error) => { clearInterval(timer); fail(error); });
     });
-    if (!ready && !cancelled() && retries > 0 && (projectEpochs.get(root) ?? 0) !== epoch) {
+    if (!ready && !cancelled() && retries > 0 && (task.isAbandoned() || (projectEpochs.get(root) ?? 0) !== epoch)) {
       return scanNamedCandidates(workspace, root, names, cancelled, retries - 1, mode, deferBodies, prepareInWorkers,
         showProgress, includeDependencies);
     }
     return ready;
-  } finally { task.waiters.delete(cancelled); }
+  } finally { task.waiters.delete(cancelled); task.isAbandoned(); }
 }
 
 const referencePrewarmTimers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -4745,7 +4751,7 @@ connection.onRequest('phpCompanion/testCrash', (): boolean => {
 
 connection.onRequest('phpCompanion/testPauseNextQuery', (params: { method?: unknown }): boolean => {
   if (!testMode || typeof params?.method !== 'string'
-    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'moveMemberDiskRefresh', 'moveMemberValidationResult', 'constructorDiagnostics', 'openSourcePublication', 'prewarmReferenceAt', 'interopDocument', 'startupWarmup', 'declarationFacts', 'indexSourceScan', 'indexSourceFinalization'].includes(params.method)) return false;
+    || !['addImport', 'planTypeImports', 'organizeImports', 'refactorExtract', 'rename', 'symfonyRename', 'hover', 'hoverValueSources', 'typeCompletionCandidates', 'importDiskRefresh', 'indexDependencySource', 'copyVerifiedSource', 'generationDiskRefresh', 'safeMoveDiskRefresh', 'moveMemberDiskRefresh', 'moveMemberValidationResult', 'constructorDiagnostics', 'openSourcePublication', 'prewarmReferenceAt', 'interopDocument', 'startupWarmup', 'declarationFacts', 'indexSourceScan', 'indexSourceFinalization', 'candidateScanStart', 'candidateScanResult'].includes(params.method)) return false;
   testPauseNextQueries.add(params.method);
   return true;
 });
@@ -8395,7 +8401,7 @@ connection.onImplementation(async ({ textDocument, position }, token) => {
     recordTestQueryDuration('implementationScan', scanStarted);
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'typeQueryCancelled'));
     if (documents.get(document.uri)?.version !== queryVersion) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
-    if (!ready) throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'implementationIndexIncomplete'));
+    if (!ready) throw incompleteNavigation('implementationIndexIncomplete');
   }
   return workspace.implementations(document.uri, offset).flatMap((location) => {
     const openTarget = documents.get(location.uri); const source = openTarget?.getText() ?? workspace.source(location.uri);
@@ -8435,6 +8441,12 @@ connection.languages.typeHierarchy.onSubtypes(async ({ item }, token) => {
 });
 
 let querySequence = 0;
+function incompleteNavigation(reason: ProtocolMessageKey): ResponseError<{ kind: 'sophp.navigationIncomplete'; status: string }> {
+  const message = protocolMessage(clientDiagnosticLanguage, reason);
+  const status = reason === 'projectIndexIncomplete' ? protocolMessage(clientDiagnosticLanguage, 'referencesUnavailable') : message;
+  return new ResponseError(LSPErrorCodes.RequestFailed, message, { kind: 'sophp.navigationIncomplete', status });
+}
+
 connection.onReferences(async ({ textDocument, position, context }, token) => {
   const document = documents.get(textDocument.uri);
   const requestVersion = document?.version;
@@ -8496,11 +8508,9 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
     const routes = await availableSymfonyRoutes(root, () => token.isCancellationRequested);
     const route = routes.find((candidate) => candidate.name === name); if (!route) return [];
     const ready = await scanNamedCandidates(workspace, root, new Set([name.toLowerCase()]), () => token.isCancellationRequested);
-    if (!ready) {
-      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'routeReferencesCancelled'));
-      throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'projectIndexIncomplete'));
-    }
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'routeReferencesCancelled'));
     if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'routeDocumentChanged'));
+    if (!ready) throw incompleteNavigation('projectIndexIncomplete');
     const uses: Array<{ uri: string; start: number; end: number }> = [];
     for (const uri of workspace.documentUris()) {
       if (token.isCancellationRequested) break;
@@ -8579,20 +8589,20 @@ connection.onReferences(async ({ textDocument, position, context }, token) => {
         closedPromotedTarget ? 'named-argument' : 'symbol', member?.kind === 'method', true)
       : await ensureProjectCompleteRoot(root, () => token.isCancellationRequested));
     recordTestQueryDuration('referencesScan', scanStarted);
-    if (!ready) {
-      if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
-      void connection.window.showWarningMessage(protocolMessage(clientDiagnosticLanguage, 'referencesUnavailable'));
-      throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'projectIndexIncomplete'));
-    }
+    if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
+    if (documents.get(document.uri)?.version !== version) throw new ResponseError(LSPErrorCodes.ContentModified, protocolMessage(clientDiagnosticLanguage, 'documentChangedReferences'));
+    if (!ready) throw incompleteNavigation('projectIndexIncomplete');
     if (root && member?.kind === 'method') {
       const scanKey = `${root}:symbol:declarations:${experimentalReferenceClosure ? 'exact:' : ''}${[...candidateNames].sort().join(',')}`;
       if (sourcePrepared) {
         if (!await hydratePreparedReferenceReceivers(workspace, root, candidateNames, () => token.isCancellationRequested)) {
-          throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'referenceReceiverIncomplete'));
+          if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
+          throw incompleteNavigation('referenceReceiverIncomplete');
         }
       } else if (!await hydrateLoadedReferenceReceiverClosure(workspace, root, candidateNames,
         candidateReceiverMethods.get(scanKey) ?? [], () => token.isCancellationRequested)) {
-        throw new ResponseError(LSPErrorCodes.RequestFailed, protocolMessage(clientDiagnosticLanguage, 'referenceReceiverBound'));
+        if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
+        throw incompleteNavigation('referenceReceiverBound');
       }
     }
     if (token.isCancellationRequested) throw new ResponseError(LSPErrorCodes.RequestCancelled, protocolMessage(clientDiagnosticLanguage, 'referencesCancelled'));
