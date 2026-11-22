@@ -231,6 +231,11 @@ function acceptsWeakScalarCoercion(type: PhpType): boolean {
   return parts.some((part) => ['bool', 'int', 'float', 'string'].includes(part))
     && parts.every((part) => ['bool', 'int', 'float', 'string', 'null'].includes(part));
 }
+
+function acceptsCallable(type: PhpType): boolean {
+  return type.kind === 'callable' || type.kind === 'primitive' && type.name === 'callable'
+    || type.kind === 'union' && type.types.some(acceptsCallable);
+}
 export interface SignatureInfo extends MemberInfo { activeParameter: number; namedArgumentPrefix?: string; usedNamedArguments: string[]; usedParameterNames?: string[];
   uncertainArgumentUnpack?: boolean; activeParameterUncertain?: boolean; }
 export type NamedArgumentInfo = ParsedCallableDeclaration['parameters'][number];
@@ -9054,6 +9059,7 @@ export class SemanticWorkspace {
       if (ownsCache) argumentSignatureCaches.set(this, { generation: 0, entries: new Map() });
       try {
       const file = this.files.get(uri); if (!file) return [];
+      const relation = this.typeRelationContext();
       return file.calls.flatMap((call): IncompatibleArgument[] => {
         if (call.arguments.some((argument) => argument.unpacked)) return [];
         const signature = this.completedCallSignature(file, call); if (!signature) return [];
@@ -9119,11 +9125,27 @@ export class SemanticWorkspace {
               const value = Number(integer[0].replaceAll('_', '')); if (Number.isSafeInteger(value)) actual = literal(value);
             } else if (string) actual = literal(string[1]!);
           }
-          const scalar = parameter.nativeType ? nativeScalarInput(fact?.type ?? actual, expected, this.hasStrictTypes(file), this.targetPhpVersion, fact?.numericKind) : undefined;
+          const stringArgument = (actual.kind === 'primitive' && actual.name === 'string')
+            || (actual.kind === 'literal' && typeof actual.value === 'string');
+          const arrayArgument = actual.kind === 'array' || actual.kind === 'list' || actual.kind === 'shape'
+            || (actual.kind === 'primitive' && actual.name === 'array');
+          let callback: PhpType | undefined;
+          if ((stringArgument || arrayArgument) && acceptsCallable(expected) && compatibility(actual, expected, relation) === 'no') {
+            callback = this.resolvedCallbackExpressionType(file, valueStart, argument.end, true);
+            if (callback) {
+              actual = callback;
+            } else if (stringArgument && actual.kind !== 'literal' && fact?.type.kind !== 'literal') {
+              // A runtime string can name a callable. Keep the diagnostic when
+              // the expression supplies a fixed string, including escaped names.
+              const expression = file.source.slice(valueStart, argument.end).trim();
+              if (!/^(?:'(?:[^'\\]|\\.)*'|"(?:[^"\\$]|\\.)*")$/su.test(expression)) return [];
+            }
+          }
+          const scalar = parameter.nativeType ? nativeScalarInput(callback ?? fact?.type ?? actual, expected, this.hasStrictTypes(file), this.targetPhpVersion, fact?.numericKind) : undefined;
           if (scalar) return scalar.accepted === 'no' ? [{ uri, start: valueStart, end: argument.end, callable: signature.fqcn,
             parameter: parameter.name, actualType: displayType(actual), expectedType: displayType(expected) }] : [];
           if (isDirectScalar(actual) && acceptsWeakScalarCoercion(expected) && !this.hasStrictTypes(file)) return [];
-          const result = compatibility(actual, expected, this.typeRelationContext());
+          const result = compatibility(actual, expected, relation);
           return result === 'no' ? [{ uri, start: valueStart, end: argument.end, callable: signature.fqcn, parameter: parameter.name, actualType: displayType(actual), expectedType: displayType(expected) }] : [];
         });
       });
@@ -18805,7 +18827,7 @@ export class SemanticWorkspace {
     return syntax.right;
   }
 
-  private resolvedCallbackExpressionType(file: SemanticFile, start: number, end: number): PhpType | undefined {
+  private resolvedCallbackExpressionType(file: SemanticFile, start: number, end: number, allowUnspecifiedSignature = false): PhpType | undefined {
     const raw = file.source.slice(start, end); const expression = raw.trim();
     const expressionStart = start + raw.indexOf(expression); const expressionEnd = expressionStart + expression.length;
     let member: MemberInfo | undefined;
@@ -18835,7 +18857,7 @@ export class SemanticWorkspace {
       }
     } else if (/^\$[A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*$/u.test(expression)) {
       const literal = this.localStringCallbackRange(file, expression, expressionStart);
-      if (literal) return this.resolvedCallbackExpressionType(file, literal.start, literal.end);
+      if (literal) return this.resolvedCallbackExpressionType(file, literal.start, literal.end, allowUnspecifiedSignature);
       const signatures = this.arrayCallableSignatures(file, expression, expressionStart);
       if (signatures.length === 1) member = signatures[0];
     } else {
@@ -18863,8 +18885,9 @@ export class SemanticWorkspace {
       if (candidates.length === 1) member = this.withInferredGeneratorReturn(candidates[0]!);
     }
     if (!member) return undefined;
+    const unspecifiedSignature = allowUnspecifiedSignature ? primitive('callable') : undefined;
     const declarationFile = this.files.get(member.uri); const returnType = this.memberDiagnosticType(member);
-    if (!declarationFile || !returnType) return undefined;
+    if (!declarationFile || !returnType) return unspecifiedSignature;
     const parameters = member.parameters.map((parameter) => {
       const text = specializeTemplateType(parameter.type, member!.templateArguments);
       const parsed = text && parsePhpDocType(text).type;
@@ -18873,7 +18896,7 @@ export class SemanticWorkspace {
         variadic: parameter.variadic, byReference: parameter.byReference } : undefined;
     });
     return parameters.every((parameter): parameter is NonNullable<typeof parameter> => Boolean(parameter))
-      ? callableType(parameters, returnType) : undefined;
+      ? callableType(parameters, returnType) : unspecifiedSignature;
   }
 
   private callTemplateArguments(callerFile: SemanticFile, call: ParsedCall, signature: SignatureInfo,
@@ -19137,9 +19160,6 @@ export class SemanticWorkspace {
       const expected = documented ? this.phpDocDiagnosticType(declarationFile, documented, signature.typeScopeFqcn)
         : parameter.nativeType ? this.nativeType(declarationFile, specializeTemplateType(nativeParameterType(parameter, declarationFile.uri), templateArguments)!, signature.typeScopeFqcn) : undefined;
       if (!expected || (expected.kind === 'primitive' && expected.name === 'mixed')) continue;
-      const acceptsCallable = (type: PhpType): boolean => type.kind === 'callable'
-        || type.kind === 'primitive' && type.name === 'callable'
-        || type.kind === 'union' && type.types.some(acceptsCallable);
       const fact = this.scalarArgumentFact(callerFile, argument.start, argument.end);
       const actual = (acceptsCallable(expected) ? this.resolvedCallbackExpressionType(callerFile, argument.start, argument.end) : undefined)
         ?? (!parameter.nativeType && fact?.numericKind === 'float' ? primitive('float')
