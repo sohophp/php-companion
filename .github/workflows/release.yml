@@ -4,13 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
-    inputs:
-      publish:
-        description: Publish the verified VSIX files to Visual Studio Marketplace
-        required: true
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -28,8 +21,12 @@ jobs:
           node-version: 22
           cache: pnpm
       - name: Verify release tag
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: test "$GITHUB_REF" = "refs/tags/v$(node -p 'require("./package.json").version')"
+        run: |
+          version=$(node -p 'require("./package.json").version')
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          test "$GITHUB_REF" = "refs/tags/v$version"
+          git merge-base --is-ancestor HEAD origin/main
+          echo "RELEASE_VERSION=$version" >> "$GITHUB_ENV"
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
@@ -78,48 +75,37 @@ jobs:
           name: editing-resilience-Linux-X64
           if-no-files-found: error
           path: editing-resilience-Linux-X64.json
+      - name: Collect verified VSIX files
+        run: |
+          mkdir release-assets
+          cp "php-companion-${RELEASE_VERSION}.vsix" release-assets/
+          cp "packages/php-companion-symfony/php-companion-symfony-${RELEASE_VERSION}.vsix" release-assets/
+          cp "packages/php-companion-extension-pack/php-companion-open-source-pack-${RELEASE_VERSION}.vsix" release-assets/
       - uses: actions/upload-artifact@v7
         with:
           name: php-companion-vsix
           if-no-files-found: error
-          path: |
-            php-companion-*.vsix
-            packages/php-companion-symfony/php-companion-symfony-*.vsix
-            packages/php-companion-extension-pack/php-companion-open-source-pack-*.vsix
+          path: release-assets/*.vsix
 
-  publish-marketplace:
-    if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && inputs.publish)
+  github-release:
     needs: build
     runs-on: ubuntu-latest
-    environment: marketplace
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-      - run: pnpm install --frozen-lockfile
       - uses: actions/download-artifact@v8
         with:
           name: php-companion-vsix
-      - name: Verify release tag and package version
+          path: release-assets
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
         run: |
-          VERSION=$(node -p 'require("./package.json").version')
-          test "$GITHUB_REF" = "refs/tags/v$VERSION"
-          echo "RELEASE_VERSION=$VERSION" >> "$GITHUB_ENV"
-      - name: Verify Marketplace credentials
-        run: pnpm exec vsce verify-pat sohophp
-        env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
-      - name: Publish SoPHP
-        run: pnpm exec vsce publish --packagePath "php-companion-${RELEASE_VERSION}.vsix"
-        env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
-      - name: Publish SoPHP Symfony
-        run: pnpm exec vsce publish --packagePath "packages/php-companion-symfony/php-companion-symfony-${RELEASE_VERSION}.vsix"
-        env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
-      - name: Publish SoPHP Open Source Pack
-        run: pnpm exec vsce publish --packagePath "packages/php-companion-extension-pack/php-companion-open-source-pack-${RELEASE_VERSION}.vsix"
-        env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          set -euo pipefail
+          version="${TAG#v}"
+          gh release create "$TAG" --verify-tag --title "SoPHP $version" --notes-from-tag \
+            "release-assets/php-companion-${version}.vsix" \
+            "release-assets/php-companion-symfony-${version}.vsix" \
+            "release-assets/php-companion-open-source-pack-${version}.vsix"

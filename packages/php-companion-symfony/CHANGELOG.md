@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.14 - 2026-11-22
+
+- Align with SoPHP Core 0.4.14 and its PHP 8.6 support.
+
 ## 0.4.13 - 2026-10-12
 
 - Align with SoPHP Core and Open Source Pack 0.4.13.

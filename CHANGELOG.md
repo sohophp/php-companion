@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.14 - 2026-11-22
+
+- Add PHP 8.6 support across version targeting, syntax, the built-in catalog and the runtime integration matrix.
+- Recognize valid callable strings and arrays in argument diagnostics, including built-in callbacks such as `'intval'`.
+- Show PHP Manual summaries and clickable links in built-in definitions, including functions, methods, types, properties and constants.
+- Improve query cancellation and protect against stale editor results.
+- Publish the three verified VSIX packages through GitHub Releases and VS Code Marketplace Trusted Publishing.
+
 ## 0.4.13 - 2026-10-12
 
 - Improve Generator send, delegated yield and return inference, multiline PHPDoc types, callable parameters and bounded control-flow assertions.
