@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { createHash } from 'node:crypto';
-import { CloseAction, ErrorAction, LanguageClient, State, TransportKind, type CloseHandlerResult, type ErrorHandler, type ErrorHandlerResult, type LanguageClientOptions, type PublishDiagnosticsParams, type ServerOptions } from 'vscode-languageclient/node.js';
+import { CloseAction, ErrorAction, LanguageClient, LSPErrorCodes, ResponseError, State, TransportKind, type CloseHandlerResult, type ErrorHandler, type ErrorHandlerResult, type LanguageClientOptions, type MessageSignature, type PublishDiagnosticsParams, type ServerOptions } from 'vscode-languageclient/node.js';
 import { createRestartBudget, resolveLanguageServerActivation, type LanguageServerActivationDecision } from './languageServerPolicy.js';
 import type { FolderState, VersionManager } from './versionManager.js';
 import type { IntegrationRegistry } from './integrationRegistry.js';
@@ -16,6 +16,24 @@ interface PhpExtensionAvailabilityEntry {
 }
 
 interface FrameworkDocumentSnapshot { uri: string; languageId: 'yaml' | 'xml'; source: string; snapshotVersion: string; }
+
+class SoPhpLanguageClient extends LanguageClient {
+  private navigationStatus?: vscode.Disposable;
+
+  override handleFailedRequest<T>(type: MessageSignature, token: vscode.CancellationToken | undefined,
+    error: unknown, defaultValue: T, showNotification?: boolean): T {
+    if ((type.method === 'textDocument/references' || type.method === 'textDocument/implementation')
+      && error instanceof ResponseError && error.code === LSPErrorCodes.RequestFailed
+      && error.data?.kind === 'sophp.navigationIncomplete' && typeof error.data.status === 'string') {
+      if (token?.isCancellationRequested) return defaultValue;
+      this.warn(`${type.method}: ${error.message}`, undefined, false);
+      this.navigationStatus?.dispose();
+      this.navigationStatus = vscode.window.setStatusBarMessage(error.data.status, 5000);
+      throw new vscode.CancellationError();
+    }
+    return super.handleFailedRequest(type, token, error, defaultValue, showNotification);
+  }
+}
 
 function openFrameworkDocuments(): { complete: boolean; documents: FrameworkDocumentSnapshot[] } {
   const documents: FrameworkDocumentSnapshot[] = []; let characters = 0;
@@ -307,7 +325,7 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
       };
     })(),
   };
-  const client = new LanguageClient('phpCompanionLanguageServer', 'SoPHP Language Server', serverOptions, clientOptions);
+  const client = new SoPhpLanguageClient('phpCompanionLanguageServer', 'SoPHP Language Server', serverOptions, clientOptions);
   const routeStatus = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 89);
   routeStatus.text = t('symfonyRoutesUnavailable');
   routeStatus.tooltip = t('symfonyRoutesUnavailableDetail');

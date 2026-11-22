@@ -14772,6 +14772,54 @@ namespace Second {
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 
+  it.each(['onDemand', 'progressive'])('retries References during cancelled scan cleanup in %s mode', async indexingMode => {
+    const root = await mkdtemp(join(tmpdir(), 'sophp-references-cancelled-scan-'));
+    try {
+      const src = join(root, 'src'); await mkdir(src);
+      const target = '<?php namespace App; class TargetContract {}';
+      const targetPath = join(src, 'TargetContract.php');
+      const consumerPath = join(src, 'Consumer.php');
+      const uri = pathToFileURL(targetPath).toString();
+      const consumerUri = pathToFileURL(consumerPath).toString();
+      await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
+      await writeFile(targetPath, target);
+      server = spawn(process.execPath, [resolve('dist/server.js'), '--stdio'], { stdio: 'pipe' });
+      const output = messagesFrom(server);
+      const send = (message: object): void => { server!.stdin.write(encode({ jsonrpc: '2.0', ...message })); };
+      const response = (id: number): Promise<any> => output.waitFor(message => message.id === id);
+      const waitForLog = (pattern: RegExp, from = 0): Promise<any> => output.waitFor(message => output.messages.indexOf(message) >= from
+        && message.method === 'window/logMessage' && pattern.test(message.params?.message ?? ''));
+      send({ id: 1, method: 'initialize', params: { processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(),
+        initializationOptions: { indexingMode, testMode: true } } });
+      expect((await response(1)).error).toBeUndefined();
+      send({ method: 'initialized', params: {} });
+      send({ method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: target } } });
+      await output.waitFor(message => message.method === 'textDocument/publishDiagnostics' && message.params?.uri === uri);
+      if (indexingMode === 'progressive') await waitForLog(/Reference source facts ready/u);
+      await writeFile(consumerPath, '<?php namespace App; function consume(TargetContract $target): void {}');
+      send({ method: 'workspace/didChangeWatchedFiles', params: { changes: [{ uri: consumerUri, type: 1 }] } });
+      send({ id: 2, method: 'phpCompanion/testPauseNextQuery', params: { method: 'candidateScanStart' } });
+      send({ id: 3, method: 'phpCompanion/testPauseNextQuery', params: { method: 'candidateScanResult' } });
+      expect((await response(2)).result).toBe(true);
+      expect((await response(3)).result).toBe(true);
+      const params = { textDocument: { uri }, position: lspPosition(target, target.indexOf('TargetContract') + 2), context: { includeDeclaration: false } };
+      send({ id: 4, method: 'textDocument/references', params });
+      await waitForLog(/test-query-paused.*method=candidateScanStart/u);
+      send({ method: '$/cancelRequest', params: { id: 4 } });
+      expect((await response(4)).error?.code).toBe(-32800);
+      send({ id: 5, method: 'phpCompanion/testReleaseQuery', params: { method: 'candidateScanStart' } });
+      await waitForLog(/test-query-paused.*method=candidateScanResult/u);
+      const from = output.messages.length;
+      send({ id: 6, method: 'textDocument/references', params });
+      await waitForLog(/\[references:\d+\] start scope=project/u, from);
+      send({ id: 7, method: 'phpCompanion/testReleaseQuery', params: { method: 'candidateScanResult' } });
+      const recovered = await response(6);
+      expect(recovered.error).toBeUndefined();
+      expect(recovered.result.map((location: { uri: string }) => location.uri)).toEqual([consumerUri]);
+      expect(output.messages.filter(message => message.method === 'window/showMessage')).toEqual([]);
+    } finally { await rm(root, { recursive: true, force: true }); }
+  }, 20_000);
+
   it('F04-NAV-19 reports an incomplete dependency Implementation scan instead of an empty result', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-vendor-implementation-limit-'));
     try {
@@ -14804,7 +14852,8 @@ namespace Second {
       } }));
       const result = await output.waitFor((message) => message.id === 4221, 20_000);
       expect(result.result).toBeUndefined();
-      expect(result.error).toMatchObject({ message: expect.stringContaining('Implementation search incomplete') });
+      expect(result.error).toMatchObject({ code: -32803, message: expect.stringContaining('Implementation search incomplete'),
+        data: { kind: 'sophp.navigationIncomplete', status: expect.stringContaining('Implementation search incomplete') } });
     } finally { await rm(root, { recursive: true, force: true }); }
   }, 30_000);
 

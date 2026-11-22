@@ -34,7 +34,7 @@ pnpm alpha:preflight -- \
   --output /tmp/sophp-alpha-preflight.json
 ```
 
-安装扩展后，从实际 VS Code WSL Remote 窗口的集成终端追加 `--check-editor --extensions-dir <当前 Remote 扩展目录>`。严格检查要求核心、Symfony 扩展和 `candidate.json` 中全部冻结外部扩展版本准确，并且安装 Open Source Pack，卸载旧 Recommended Pack；指定目录后还会逐文件核对三款 SoPHP 产品与候选 VSIX，同时拒绝旧 bundle 等额外安装文件，避免同版本旧包混入。VS Code 安装生成的 `.vsixmanifest` 被允许；安装器在 `package.json` 添加的受限 `__metadata` 会单独记录，其它 manifest 字段仍须与 VSIX 完全相同。若子进程调用 Remote CLI 超时，可先在同一终端运行 `code --list-extensions --show-versions > /tmp/sophp-alpha-extensions.txt`，再追加 `--extensions-list-file /tmp/sophp-alpha-extensions.txt`；报告会记录清单修改时间，扩展变化后须重新生成清单。`code --list-extensions` 无法证明扩展运行于哪个 Extension Host，也无法判断已安装的竞争 PHP Provider 是否已禁用；这两项必须在 VS Code Profile 的扩展面板人工确认。
+安装扩展后，从实际 VS Code WSL Remote 窗口的集成终端追加 `--check-editor --extensions-dir <当前 Remote 扩展目录>`。严格检查要求核心、Symfony 扩展和 `candidate.json` 中全部冻结外部扩展版本准确，并且安装 SoPHP Dev Pack，卸载旧 Recommended Pack；指定目录后还会逐文件核对三款 SoPHP 产品与候选 VSIX，同时拒绝旧 bundle 等额外安装文件，避免同版本旧包混入。VS Code 安装生成的 `.vsixmanifest` 被允许；安装器在 `package.json` 添加的受限 `__metadata` 会单独记录，其它 manifest 字段仍须与 VSIX 完全相同。若子进程调用 Remote CLI 超时，可先在同一终端运行 `code --list-extensions --show-versions > /tmp/sophp-alpha-extensions.txt`，再追加 `--extensions-list-file /tmp/sophp-alpha-extensions.txt`；报告会记录清单修改时间，扩展变化后须重新生成清单。`code --list-extensions` 无法证明扩展运行于哪个 Extension Host，也无法判断已安装的竞争 PHP Provider 是否已禁用；这两项必须在 VS Code Profile 的扩展面板人工确认。
 
 ## 安装边界
 
@@ -48,11 +48,11 @@ pnpm install:open-source-profile
 
 该脚本清除 VS Code Remote CLI 转发环境变量，始终向指定的隔离目录安装；只安装外部成员，不安装 Core、Symfony 或 Pack 三份候选 VSIX。它用于本机自动宿主，不代表用户 WSL Remote Profile 已安装。真实 Remote 试用应按候选目录中的安装命令在目标 Remote 窗口执行，并核对扩展运行位置。
 
-为试用建立干净 VS Code Profile。依次安装核心、`php-companion-symfony` 和 `php-companion-open-source-pack`。Open Source Pack 声明核心和 Symfony 扩展；Symfony 扩展尚未公开发布，试用时须先从同一 Alpha 候选安装其 VSIX。Pack 不能锁定外部扩展版本，安装后按候选目录 `README.zh-CN.md` 中由 `candidate.json` 生成的命令固定成员版本。旧 Recommended Pack 不再构建或发布，新候选 Profile 中应卸载；旧 schema 1/2 候选仍可按其原清单核验。禁用或卸载其他通用 PHP Language Server，避免多个 Provider 共同响应 PHP 请求。
+为试用建立干净 VS Code Profile。依次安装核心、`php-companion-symfony` 和 `php-companion-open-source-pack`。SoPHP Dev Pack 声明核心和 Symfony 扩展；Symfony 扩展尚未公开发布，试用时须先从同一 Alpha 候选安装其 VSIX。Pack 不能锁定外部扩展版本，安装后按候选目录 `README.zh-CN.md` 中由 `candidate.json` 生成的命令固定成员版本。旧 Recommended Pack 不再构建或发布，新候选 Profile 中应卸载；旧 schema 1/2 候选仍可按其原清单核验。禁用或卸载其他通用 PHP Language Server，避免多个 Provider 共同响应 PHP 请求。
 
-Open Source Pack 当前源码使用 SoPHP Core、SoPHP Symfony、TwigPlus、Red Hat YAML、Red Hat XML、PHP Debug、PHP CS Fixer、EditorConfig、Apache Conf Snippets（自动依赖 Apache Conf 语法扩展）和 PHP DocBlocker，共 10 项。PHPUnit/Pest 默认使用项目 CLI；原版 `recca0120.vscode-phpunit` 3.9.40 因测试文件 Rename 后读取旧路径的异常已移出默认清单。已冻结旧候选的实际成员以各自 `candidate.json` 为准，不能用当前源码清单推断旧候选内容。JSON/JSONC 使用 VS Code 内建服务。Symfony Language Tools 和 DotJoshJohnson XML Tools 均不进入受支持 Profile，原因与重新准入条件见 [外部插件集成](integrations.md)。
+SoPHP Dev Pack 当前源码使用 SoPHP Core、SoPHP Symfony、TwigPlus、Red Hat YAML、Red Hat XML、PHP Debug、PHP CS Fixer、EditorConfig、Apache Conf Snippets（自动依赖 Apache Conf 语法扩展）和 PHP DocBlocker，共 10 项。PHPUnit/Pest 默认使用项目 CLI；原版 `recca0120.vscode-phpunit` 3.9.40 因测试文件 Rename 后读取旧路径的异常已移出默认清单。已冻结旧候选的实际成员以各自 `candidate.json` 为准，不能用当前源码清单推断旧候选内容。JSON/JSONC 使用 VS Code 内建服务。Symfony Language Tools 和 DotJoshJohnson XML Tools 均不进入受支持 Profile，原因与重新准入条件见 [外部插件集成](integrations.md)。
 
-Open Source Pack 默认使用 `onDemand` 索引，先在此默认配置下完成组合检查。若单独评估 References 渐进索引，只在此 Profile 的用户设置中启用，不写入项目的 `.vscode/settings.json`：
+SoPHP Dev Pack 默认使用 `onDemand` 索引，先在此默认配置下完成组合检查。若单独评估 References 渐进索引，只在此 Profile 的用户设置中启用，不写入项目的 `.vscode/settings.json`：
 
 ```json
 {
