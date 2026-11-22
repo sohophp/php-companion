@@ -1,0 +1,513 @@
+{
+  "status": "exited",
+  "pid": 24309,
+  "startTicks": "62261263",
+  "dependencyPid": 52725,
+  "dependencyStartTicks": "61324302",
+  "profileQualified": true,
+  "performanceQualified": false,
+  "fullObjectiveComplete": false,
+  "lastVerifiedDependencyLiveUtc": "2026-10-14T11:05:57.567002+00:00",
+  "startedAtUtc": "2026-10-14T11:06:28.855771+00:00",
+  "command": [
+    "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+    "/var/www/node/php-companion/.vscode-test/8219-controller-cpu-2026-10-14/probe.mjs",
+    "/var/www/node/php-companion/.vscode-test/8219-controller-cpu-2026-10-14/normal-probe",
+    "/var/www/node/php-companion/dist/language-server.js",
+    "4"
+  ],
+  "childPid": 36468,
+  "childStartTicks": "62454806",
+  "processGroup": 36468,
+  "actualCommandExitCode": 0,
+  "completeOutputsMatchQualifiedFourStates": true,
+  "frozenProductsUnchanged": 3316,
+  "frozenProjectUnchanged": 66079,
+  "privateInputsUnchanged": 5,
+  "profiles": 2,
+  "ownedServerAndDriverGone": true,
+  "cacheRemoved": true,
+  "archivesVerified": 12,
+  "exitCode": 0,
+  "finishedAtUtc": "2026-10-14T11:06:55.377564+00:00",
+  "independentlyRecheckedAtUtc": "2026-10-14T11:11:32.624925+00:00",
+  "normalCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "rawStateSHA256": "8d6a6f710ef590d3dc66dacb6b212cede8b3c83dcc24e2c7de1163a95acbcfa6",
+  "analysis": {
+    "profiles": [
+      {
+        "profile": "/var/www/node/php-companion/.vscode-test/8219-controller-cpu-2026-10-14/profiles/CPU.20261014.190629.36479.1.002.cpuprofile",
+        "sha256": "e00ea139d593c81a3fa7e8f6c2d3c22e17a92cef37f45da2277230d00fd4999f",
+        "samples": 1139,
+        "durationMs": 1370.982,
+        "topSelfSamples": [
+          {
+            "function": "(garbage collector)",
+            "url": "",
+            "zeroBasedLine": -1,
+            "zeroBasedColumn": -1,
+            "selfSampledMs": 148.19200000000004
+          },
+          {
+            "function": "structuredClone",
+            "url": "node:internal/worker/js_transferable",
+            "zeroBasedLine": 111,
+            "zeroBasedColumn": 24,
+            "selfSampledMs": 110.82900000000004
+          },
+          {
+            "function": "",
+            "url": "file:///var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 7864,
+            "selfSampledMs": 87.787
+          },
+          {
+            "function": "wasm-function[265]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 160179,
+            "selfSampledMs": 74.27799999999999
+          },
+          {
+            "function": "Nt",
+            "url": "file:///var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+            "zeroBasedLine": 5,
+            "zeroBasedColumn": 16713,
+            "selfSampledMs": 65.99000000000001
+          },
+          {
+            "function": "",
+            "url": "file:///var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+            "zeroBasedLine": 5,
+            "zeroBasedColumn": 49373,
+            "selfSampledMs": 55.197
+          },
+          {
+            "function": "parseDocument",
+            "url": "file:///var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+            "zeroBasedLine": 5,
+            "zeroBasedColumn": 5180,
+            "selfSampledMs": 38.287
+          },
+          {
+            "function": "wasm-function[37]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 31170,
+            "selfSampledMs": 35.83400000000001
+          },
+          {
+            "function": "wasm-function[70]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 47840,
+            "selfSampledMs": 32.376
+          },
+          {
+            "function": "de",
+            "url": "file:///var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 14862,
+            "selfSampledMs": 32.036
+          },
+          {
+            "function": "wasm-function[24]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 10750,
+            "selfSampledMs": 30.710000000000008
+          },
+          {
+            "function": "wasm-function[25]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 12005,
+            "selfSampledMs": 29.066999999999993
+          },
+          {
+            "function": "compileForInternalLoader",
+            "url": "node:internal/bootstrap/realm",
+            "zeroBasedLine": 383,
+            "zeroBasedColumn": 26,
+            "selfSampledMs": 24.081
+          },
+          {
+            "function": "H",
+            "url": "file:///var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 14625,
+            "selfSampledMs": 23.555000000000003
+          },
+          {
+            "function": "",
+            "url": "file:///var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+            "zeroBasedLine": 5,
+            "zeroBasedColumn": 15658,
+            "selfSampledMs": 22.602999999999998
+          },
+          {
+            "function": "wasm-function[71]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 48652,
+            "selfSampledMs": 22.400999999999996
+          },
+          {
+            "function": "(program)",
+            "url": "",
+            "zeroBasedLine": -1,
+            "zeroBasedColumn": -1,
+            "selfSampledMs": 19.998
+          },
+          {
+            "function": "wasm-function[23]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 10142,
+            "selfSampledMs": 19.776
+          },
+          {
+            "function": "wasm-function[20]",
+            "url": "wasm://wasm/004093e6",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 11586,
+            "selfSampledMs": 19.509000000000004
+          },
+          {
+            "function": "wasm-function[34]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 25140,
+            "selfSampledMs": 19.418000000000003
+          },
+          {
+            "function": "get type",
+            "url": "file:///var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 8241,
+            "selfSampledMs": 18.665
+          },
+          {
+            "function": "setValue",
+            "url": "file:///var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+            "zeroBasedLine": 3,
+            "zeroBasedColumn": 19936,
+            "selfSampledMs": 18.391000000000002
+          },
+          {
+            "function": "wasm-function[76]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 54749,
+            "selfSampledMs": 17.485
+          },
+          {
+            "function": "parse",
+            "url": "file:///var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+            "zeroBasedLine": 5,
+            "zeroBasedColumn": 3864,
+            "selfSampledMs": 16.2
+          },
+          {
+            "function": "wasm-function[65]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 46228,
+            "selfSampledMs": 16.099999999999998
+          },
+          {
+            "function": "(idle)",
+            "url": "",
+            "zeroBasedLine": -1,
+            "zeroBasedColumn": -1,
+            "selfSampledMs": 14.421000000000001
+          },
+          {
+            "function": "at",
+            "url": "file:///var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+            "zeroBasedLine": 5,
+            "zeroBasedColumn": 15581,
+            "selfSampledMs": 14.181
+          },
+          {
+            "function": "$n",
+            "url": "file:///var/www/node/php-companion/dist/builtinSnapshotWorker.js",
+            "zeroBasedLine": 4,
+            "zeroBasedColumn": 12317,
+            "selfSampledMs": 13.044
+          },
+          {
+            "function": "wasm-function[21]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 7977,
+            "selfSampledMs": 12.775
+          },
+          {
+            "function": "wasm-function[113]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 93427,
+            "selfSampledMs": 11.865
+          }
+        ]
+      },
+      {
+        "profile": "/var/www/node/php-companion/.vscode-test/8219-controller-cpu-2026-10-14/profiles/CPU.20261014.190628.36479.0.001.cpuprofile",
+        "sha256": "91c4d1d5133a0208815e6e84d47421a22f1b6d5f7b7fc3f3c985a27a97885f80",
+        "samples": 14389,
+        "durationMs": 16986.911,
+        "topSelfSamples": [
+          {
+            "function": "(idle)",
+            "url": "",
+            "zeroBasedLine": -1,
+            "zeroBasedColumn": -1,
+            "selfSampledMs": 5532.916000000001
+          },
+          {
+            "function": "",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 175,
+            "zeroBasedColumn": 7491,
+            "selfSampledMs": 590.7570000000003
+          },
+          {
+            "function": "(garbage collector)",
+            "url": "",
+            "zeroBasedLine": -1,
+            "zeroBasedColumn": -1,
+            "selfSampledMs": 585.0170000000002
+          },
+          {
+            "function": "members",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 254,
+            "zeroBasedColumn": 14209,
+            "selfSampledMs": 497.5039999999999
+          },
+          {
+            "function": "signaturesWithImplementation",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 247,
+            "zeroBasedColumn": 62465,
+            "selfSampledMs": 290.059
+          },
+          {
+            "function": "variableClass",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 251,
+            "zeroBasedColumn": 78126,
+            "selfSampledMs": 283.96000000000004
+          },
+          {
+            "function": "setValue",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 178,
+            "zeroBasedColumn": 19977,
+            "selfSampledMs": 232.2219999999999
+          },
+          {
+            "function": "Ft",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 175,
+            "zeroBasedColumn": 14382,
+            "selfSampledMs": 229.22900000000007
+          },
+          {
+            "function": "wasm-function[24]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 10750,
+            "selfSampledMs": 224.916
+          },
+          {
+            "function": "pT",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 184,
+            "zeroBasedColumn": 8811,
+            "selfSampledMs": 222.9329999999999
+          },
+          {
+            "function": "get type",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 175,
+            "zeroBasedColumn": 7873,
+            "selfSampledMs": 218.399
+          },
+          {
+            "function": "callableDeclarationsForSignature",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 251,
+            "zeroBasedColumn": 4484,
+            "selfSampledMs": 217.13999999999993
+          },
+          {
+            "function": "",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 247,
+            "zeroBasedColumn": 60041,
+            "selfSampledMs": 201.5610000000001
+          },
+          {
+            "function": "wrapSafe",
+            "url": "node:internal/modules/cjs/loader",
+            "zeroBasedLine": 1443,
+            "zeroBasedColumn": 17,
+            "selfSampledMs": 182.6699999999999
+          },
+          {
+            "function": "wasm-function[37]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 31170,
+            "selfSampledMs": 167.64600000000007
+          },
+          {
+            "function": "provenArgumentType",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 252,
+            "zeroBasedColumn": 107204,
+            "selfSampledMs": 153.853
+          },
+          {
+            "function": "priorReferenceMutations",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 254,
+            "zeroBasedColumn": 879,
+            "selfSampledMs": 151.64800000000002
+          },
+          {
+            "function": "wasm-function[60]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 44525,
+            "selfSampledMs": 147.68499999999992
+          },
+          {
+            "function": "containingScope",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 251,
+            "zeroBasedColumn": 57468,
+            "selfSampledMs": 141.81699999999998
+          },
+          {
+            "function": "Oa",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 175,
+            "zeroBasedColumn": 14631,
+            "selfSampledMs": 134.973
+          },
+          {
+            "function": "mt",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 186,
+            "zeroBasedColumn": 3250,
+            "selfSampledMs": 122.00999999999998
+          },
+          {
+            "function": "wasm-function[224]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 144961,
+            "selfSampledMs": 107.77299999999998
+          },
+          {
+            "function": "structuredClone",
+            "url": "node:internal/worker/js_transferable",
+            "zeroBasedLine": 111,
+            "zeroBasedColumn": 24,
+            "selfSampledMs": 105.56400000000002
+          },
+          {
+            "function": "completionNonPhpRanges",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 217,
+            "zeroBasedColumn": 83068,
+            "selfSampledMs": 104.54499999999999
+          },
+          {
+            "function": "",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 254,
+            "zeroBasedColumn": 15754,
+            "selfSampledMs": 101.233
+          },
+          {
+            "function": "",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 191,
+            "zeroBasedColumn": 11881,
+            "selfSampledMs": 100.31400000000002
+          },
+          {
+            "function": "standaloneLocalVariableAnnotationTag",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 251,
+            "zeroBasedColumn": 46533,
+            "selfSampledMs": 97.55900000000004
+          },
+          {
+            "function": "wasm-function[85]",
+            "url": "wasm://wasm/000c4536",
+            "zeroBasedLine": 0,
+            "zeroBasedColumn": 73327,
+            "selfSampledMs": 94.81100000000004
+          },
+          {
+            "function": "",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 228,
+            "zeroBasedColumn": 15991,
+            "selfSampledMs": 93.447
+          },
+          {
+            "function": "prepare",
+            "url": "file:///var/www/node/php-companion/dist/language-server.js",
+            "zeroBasedLine": 255,
+            "zeroBasedColumn": 713,
+            "selfSampledMs": 89.96200000000002
+          }
+        ]
+      }
+    ],
+    "scope": "Per-thread V8 self samples include startup and four edits; no diagnostic-only costs or performance qualification inferred"
+  },
+  "sampledRun": {
+    "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+    "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+    "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+    "serverSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+    "rounds": 4,
+    "indexingMode": "onDemand",
+    "phpVersion": "8.5",
+    "normalProtocol": true,
+    "profiled": true,
+    "instrumentedCounts": false,
+    "cacheDirectory": "/tmp/sophp-controller-profile-HV9L9t",
+    "cacheDirectoryRemoved": true,
+    "serverPid": 36479,
+    "exitCode": 0,
+    "signal": null,
+    "correctnessPassed": true,
+    "rows": 4,
+    "completion": {
+      "count": 4,
+      "p95Ms": 728.5425419999992,
+      "maxMs": 728.5425419999992
+    },
+    "diagnostics": {
+      "count": 4,
+      "p95Ms": 2092.339310999999,
+      "maxMs": 2092.339310999999
+    },
+    "diskUnchanged": true,
+    "scope": "V8 CPU profile of normal Core; startup and four edits, not performance qualification."
+  },
+  "scope": "V8 per-thread CPU samples cover startup and four original unsaved edits; timing includes profiler overhead and is not original 25-round performance qualification",
+  "nextCostQuestion": "Measure only callableDeclarationsForSignature global fallback expansion; distinct from priorReferenceMutations rejected 8ms scan",
+  "normalCandidateChanged": false,
+  "independentOriginalArchiveChecks": 12,
+  "remainingOwnedGroups": []
+}

@@ -1,0 +1,69 @@
+{
+  "qualified": true,
+  "rows": [
+    {
+      "version": "20.0.0",
+      "binary": "/var/www/node/php-companion/.vscode-test/8219-node20-runtime-2026-10-14/node-v20.0.0-linux-x64/bin/node",
+      "binarySHA256": "2dc70820110a1110b146df0e723c22e65ff889492acfe7b0fcf235384e688948",
+      "versionGuardActualExitCode": 0,
+      "command": [
+        "/var/www/node/php-companion/.vscode-test/8219-node20-runtime-2026-10-14/node-v20.0.0-linux-x64/bin/node",
+        "--test",
+        "scripts/test/index-runtime-compatibility.test.mjs"
+      ],
+      "actualCommandExitCode": 0,
+      "pid": 99722,
+      "startTicks": "63006794",
+      "counts": {
+        "tests": 5,
+        "pass": 5,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "tapSHA256": "8ded70b706a29943f2770f477ccfb8f8f04957dfda907cd2adb806bb1901b3bb",
+      "stderrSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "startedAtUtc": "2026-10-14T12:38:29.200780+00:00",
+      "ownedProcessGone": true
+    },
+    {
+      "version": "20.11.1",
+      "binary": "/home/jason/.nvm/versions/node/v20.11.1/bin/node",
+      "binarySHA256": "9530ce4bf5a30117b09d190fcccf59b6e79345c70e6b6ab77dd8b52be631323d",
+      "versionGuardActualExitCode": 0,
+      "command": [
+        "/home/jason/.nvm/versions/node/v20.11.1/bin/node",
+        "--test",
+        "scripts/test/index-runtime-compatibility.test.mjs"
+      ],
+      "actualCommandExitCode": 0,
+      "pid": 99793,
+      "startTicks": "63007046",
+      "counts": {
+        "tests": 5,
+        "pass": 5,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      },
+      "tapSHA256": "56f4e70732fb7fe97635cbb7e7603eb4dbde2a983e3a9001e8aaec43e0fdf5e7",
+      "stderrSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "startedAtUtc": "2026-10-14T12:38:31.713694+00:00",
+      "ownedProcessGone": true
+    }
+  ],
+  "frozenInputsUnchanged": 39,
+  "currentCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "indexModuleSHA256": "7941e8e31e51aa92431ffa20abefcfb6b946ac104488f7deec15f1a3aa365726",
+  "originalFiveTestsAndWorkflowCommandsRetained": true,
+  "scope": "Linux Node20.0.0/20.11.1 package index/project runtime, recursive Composer discovery/cache, link/cycle exclusion, cancellation, inventory limit and dependency order; excludes full LSP/editor/complex performance and remote CI",
+  "remoteCiExecuted": false,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "observedAtUtc": "2026-10-14T12:38:33.153319+00:00",
+  "independentRecheckedAtUtc": "2026-10-14T12:40:00.185546+00:00",
+  "ownedProcessGroupsGone": true,
+  "fixturePrefixesEmpty": true
+}

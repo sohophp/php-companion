@@ -1,0 +1,97 @@
+{
+  "date": "2026-10-20",
+  "independentAuditPassed": true,
+  "normalCoreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+  "actualControlAndObservedExitCodes": [
+    0,
+    0
+  ],
+  "completeFourStateResultsEqual": true,
+  "frozenInputsVerified": 69819,
+  "projectInputsVerified": 66079,
+  "startupRows": [
+    {
+      "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "localOnly": true,
+      "calls": 163,
+      "elapsedMs": 15.359471000003396,
+      "declaredMethods": 3022,
+      "magicMembers": 0
+    },
+    {
+      "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "localOnly": false,
+      "calls": 157,
+      "elapsedMs": 13.5421919999917,
+      "declaredMethods": 2896,
+      "magicMembers": 0
+    },
+    {
+      "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "localOnly": true,
+      "calls": 157,
+      "elapsedMs": 17.375740000002224,
+      "declaredMethods": 2896,
+      "magicMembers": 0
+    },
+    {
+      "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "localOnly": false,
+      "calls": 157,
+      "elapsedMs": 16.104216999995515,
+      "declaredMethods": 2896,
+      "magicMembers": 0
+    }
+  ],
+  "editedProjectionCosts": [
+    {
+      "round": 0,
+      "localMs": 14.774980999997751,
+      "fullMs": 17.952630999994653,
+      "totalMs": 32.727611999992405,
+      "calls": 326,
+      "declaredMethods": 5948,
+      "magicMembers": 0
+    },
+    {
+      "round": 1,
+      "localMs": 18.872362999996767,
+      "fullMs": 18.438854999993055,
+      "totalMs": 37.31121799998982,
+      "calls": 326,
+      "declaredMethods": 5948,
+      "magicMembers": 0
+    },
+    {
+      "round": 2,
+      "localMs": 21.246154000005845,
+      "fullMs": 16.08509700002287,
+      "totalMs": 37.331251000028715,
+      "calls": 326,
+      "declaredMethods": 5948,
+      "magicMembers": 0
+    },
+    {
+      "round": 3,
+      "localMs": 16.375523999995494,
+      "fullMs": 20.62142900001527,
+      "totalMs": 36.99695300001076,
+      "calls": 326,
+      "declaredMethods": 5948,
+      "magicMembers": 0
+    }
+  ],
+  "medianProjectionMsPerEdit": 37.15408550000029,
+  "minimumInvestigationMs": 50,
+  "admitted": false,
+  "prototypeImplemented": false,
+  "productionChanged": false,
+  "ownedServersGone": true,
+  "cachesRemoved": true,
+  "performanceQualified": false,
+  "fullObjectiveComplete": false
+}

@@ -1,0 +1,82 @@
+{
+  "passed": true,
+  "actualEngineBase": "frozen adjacent-argument private prototype",
+  "engineModuleSHA256": "07ec87a08b648d0e93d3e00d7a0fdc95fb2a9dab269d51bff944d39cdc3220ca",
+  "compiledSemanticBaseSHA256": "0576e4d749b90729b1682ff9a9b28cb911b7a29a7887491e53cebdb0ec48ad48",
+  "proofSourceSHA256": "acfc2332170fe9f0c5404fed0d570ac0d364bd14c9cdfcc5c861b2e0935fe60a",
+  "checks": 3,
+  "cases": [
+    {
+      "name": "borrowed callable return contract may change without a source revision",
+      "before": [
+        {
+          "uri": "file:///App/Consumer.php",
+          "start": 58,
+          "end": 62,
+          "callable": "App\\A::need",
+          "parameters": [
+            "first"
+          ]
+        }
+      ],
+      "after": [
+        {
+          "uri": "file:///App/Consumer.php",
+          "start": 58,
+          "end": 62,
+          "callable": "App\\B::need",
+          "parameters": [
+            "second",
+            "third"
+          ]
+        }
+      ],
+      "stampBefore": {
+        "revision": 3,
+        "implementationState": "loaded"
+      },
+      "stampAfter": {
+        "revision": 3,
+        "implementationState": "loaded"
+      },
+      "scope": "Mutation between public calls must remain visible; a per-call cache must not outlive that call."
+    },
+    {
+      "name": "borrowed default-value changes must affect the next required-parameter query",
+      "before": [
+        {
+          "uri": "file:///App/Consumer.php",
+          "start": 21,
+          "end": 29,
+          "callable": "App\\required",
+          "parameters": [
+            "first"
+          ]
+        }
+      ],
+      "after": [],
+      "revision": 3
+    },
+    {
+      "name": "shared fork facts change through actual parent partial and full materialization without either revision changing",
+      "before": {
+        "parent": 3,
+        "fork": 1,
+        "parentDeferred": "deferred"
+      },
+      "after": {
+        "parent": 3,
+        "fork": 1,
+        "parentDeferred": "loaded"
+      },
+      "partialReturns": 1,
+      "fullReturns": 2,
+      "sameSharedFileObject": true
+    }
+  ],
+  "noNewCacheImplemented": true,
+  "productionChanged": false,
+  "scope": "Executable dependency requirements, not performance qualification or proof that a cache is safe.",
+  "performanceQualified": false,
+  "fullObjectiveComplete": false
+}

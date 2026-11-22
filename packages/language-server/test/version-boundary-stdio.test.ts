@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { expect, it } from 'vitest';
 import { encodeLspMessage, LspMessageDecoder } from '../../testkit/src/index.js';
 
-const cases = ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5'].flatMap(phpVersion => ['onDemand', 'progressive'].map(indexingMode => ({ phpVersion, indexingMode })));
+const cases = ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6'].flatMap(phpVersion => ['onDemand', 'progressive'].map(indexingMode => ({ phpVersion, indexingMode })));
 
 const sourceFor = (body: string): string => `<?php namespace App;
 // 中文 😀
@@ -17,9 +17,10 @@ const states = [
   ['legal older syntax', 'function f($x) {} $value=1; $fn=function() use($value) {}; try {} catch(\\Exception $e) {} $a=0755; /* 0o755 f($x,) */ $s="catch(Exception)";', [], false],
   ['independent unfinished input', '$a=0o755; function incomplete(', [['explicit octal literal', '0o755', '8.1']], true],
   ['recovered header', 'function f($x,) {}', [['trailing comma in parameters', ',', '8.0']], false],
+  ['partial function application', '$fn = strlen(?); $tail = substr("abc", ...);', [['partial function application', '?', '8.6'], ['partial function application', '...', '8.6']], false],
 ] as const;
 
-it.each(cases)('refreshes octal/list/catch version diagnostics at PHP $phpVersion in $indexingMode', async ({ phpVersion, indexingMode }) => {
+it.each(cases)('refreshes syntax version diagnostics at PHP $phpVersion in $indexingMode', async ({ phpVersion, indexingMode }) => {
   const root = await mkdtemp(join(tmpdir(), 'sophp-version-boundaries-'));
   await mkdir(join(root, 'src'));
   await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
@@ -78,7 +79,7 @@ it.each(cases)('refreshes octal/list/catch version diagnostics at PHP $phpVersio
     const unsupported = diagnostics.filter(item => item.code === 'php.version.unsupported');
     const expected = contracts.filter(([, , minimum]) => Number(phpVersion) < Number(minimum));
     expect(unsupported).toHaveLength(expected.length);
-    let after = 0;
+    let after = source.length - body.length;
     for (const [feature, literal, minimum] of expected) {
       const start = source.indexOf(literal, after); after = start + literal.length;
       const diagnostic = unsupported.find(item => item.message.includes(feature) && item.range.start.line === position(source, start).line && item.range.start.character === position(source, start).character);

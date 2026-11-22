@@ -6,6 +6,7 @@ import { verifyFormatterSaveUndoRedo } from './formatterSave';
 import { verifyFormatterOnSave } from './formatterOnSave';
 import { run as verifyXdebugBreakpoints } from './debugBreakpoints';
 import { verifyPhpunitTasks } from './phpunitTasks';
+import { run as verifyBuiltinDocumentation } from './builtinDocumentation';
 
 interface PhpCompanionPluginRegistration { update?: (contribution: unknown) => void; dispose(): void; }
 interface PhpCompanionPluginApi { version: number; registerIntegration: (...args: unknown[]) => PhpCompanionPluginRegistration; requestLanguageServer?: (method: string, params: unknown) => Promise<unknown>; }
@@ -1422,6 +1423,7 @@ export async function run(): Promise<void> {
     assert.strictEqual(vscode.extensions.getExtension('sohophp.php-companion-symfony'), undefined,
       'Core-only profile unexpectedly loaded SoPHP Symfony');
     const folder = vscode.workspace.workspaceFolders?.[0]; assert.ok(folder, 'Fixture workspace was not opened');
+    await verifyBuiltinDocumentation();
     const servicesUri = vscode.Uri.joinPath(folder.uri, 'config', 'services.yaml');
     const document = await vscode.workspace.openTextDocument(servicesUri); const source = document.getText();
     const position = document.positionAt(source.indexOf('@App\\Service\\Mailer') + 5);
@@ -5830,6 +5832,8 @@ function php84PropertyHooks(Php84Hooks $hooks, array $replacement, Php84Referenc
   for (const relativePath of [['Contract', 'Runner.php'], ['Support', 'LogsActivity.php']] as const) {
     const uri = vscode.Uri.joinPath(workspace.uri, 'src', ...relativePath);
     const document = await vscode.workspace.openTextDocument(uri);
+    // F2 runs on a visible editor; retain its model while the provider awaits the server.
+    await vscode.window.showTextDocument(document);
     const typeName = relativePath[1].replace('.php', '');
     const offset = document.getText().indexOf(typeName);
     const prepared = await vscode.commands.executeCommand<{ placeholder?: string; text?: string }>(

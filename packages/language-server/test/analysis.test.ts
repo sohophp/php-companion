@@ -26,6 +26,15 @@ describe('PHP document analysis', () => {
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
 
+  it('accepts defaults on both kinds of readonly properties starting with PHP 8.6', () => {
+    const document = TextDocument.create('file:///Config.php', 'php', 1, '<?php '
+      + 'class Config { public readonly int $timeout = 30; } '
+      + 'readonly class Defaults { public int $timeout = 30; }');
+    expect(analyzePhpDocument(document, parser, '8.5').diagnostics.map(item => item.code))
+      .toEqual(['php.property.invalid-readonly-declaration', 'php.property.invalid-readonly-declaration']);
+    expect(analyzePhpDocument(document, parser, '8.6').diagnostics).toEqual([]);
+  });
+
   it('preserves nested void recovery and the unrelated unfinished declaration', () => {
     const source = '<?php function run(){ (void)one(); if($ok){ (void)two(); }'
       + ' for((void)init(); $ok; (void)step()) {} } function unfinished(';

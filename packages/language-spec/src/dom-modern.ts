@@ -1877,6 +1877,6 @@ const PHP_85_MODERN_DOM_STUB = String.raw`namespace Dom
 
 export function auditedModernDomStub(version: SupportedPhpVersion): string {
   if (version === '8.4') return PHP_84_MODERN_DOM_STUB;
-  if (version === '8.5') return PHP_85_MODERN_DOM_STUB;
+  if (version === '8.5' || version === '8.6') return PHP_85_MODERN_DOM_STUB;
   return '';
 }

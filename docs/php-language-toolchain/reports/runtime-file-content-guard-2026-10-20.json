@@ -1,0 +1,609 @@
+{
+  "date": "2026-10-20",
+  "status": "local-source-committed-root-C3-standalone-profile-qualified",
+  "candidateBaseCommit": "193cda547dc8f7a1b7a365719e8d6635b84eeb71",
+  "repairWorkspace": "/var/www/node/php-companion-runtime-guard-20261020",
+  "sourceFiles": {
+    "src/refactor/runtimeFiles.ts": "d91136f8a13f090be04d95f53add840664397cccdb8c646dee89d2bf8f7ee84f",
+    "test/unit/runtime-files.test.ts": "7829d4adee65c6fed16e344be37355d4d962dd6e47c7a569bf35e0011a47275e",
+    "test/unit/runtime-files-coarse-metadata.test.ts": "02befefbe550c5737d9e8068d85d6de1bd7f6aedfb0e1fe1aa84ee2bd0ba9724"
+  },
+  "originalSourceSHA256": "d4f4d5173f69a95b967e421a61753e11e2a6d444fc5ea4c3c371f3a9b1f64b28",
+  "originalFixedTimeRegression": {
+    "passed": 5,
+    "failed": 1
+  },
+  "finalLinuxTests": {
+    "passed": 7,
+    "failed": 0,
+    "skipped": 0
+  },
+  "ignoredDigestNegativeControl": {
+    "expectedFailingCases": 1,
+    "actualFailed": 1
+  },
+  "nativeWindowsPhysicalFileProofs": [
+    {
+      "platform": "win32",
+      "node": "v20.19.0",
+      "guardSHA256": "0deca36dd824d4e0212e35ee6f7a2095dff2a0f112dfb19646ec1a800bd4332d",
+      "before": {
+        "dev": "3537329002",
+        "ino": "18014398511119300",
+        "size": "8",
+        "mode": "33206",
+        "mtimeNs": "1767225600000000000",
+        "ctimeNs": "1792442014217246300",
+        "birthtimeNs": "1792442014215232900"
+      },
+      "after": {
+        "dev": "3537329002",
+        "ino": "18014398511119300",
+        "size": "8",
+        "mode": "33206",
+        "mtimeNs": "1767225600000000000",
+        "ctimeNs": "1792442014243822000",
+        "birthtimeNs": "1792442014215232900"
+      },
+      "originalContent": "original",
+      "modifiedContent": "modified",
+      "guardSaidUnchanged": false,
+      "expectedUnchanged": false,
+      "metadataIdentityEqual": false,
+      "root": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-runtime-guard-proof-ygCTNo",
+      "fixtureRemoved": true
+    },
+    {
+      "platform": "win32",
+      "node": "v22.14.0",
+      "guardSHA256": "0deca36dd824d4e0212e35ee6f7a2095dff2a0f112dfb19646ec1a800bd4332d",
+      "before": {
+        "dev": "0",
+        "ino": "18295873487829956",
+        "size": "8",
+        "mode": "33206",
+        "mtimeNs": "1767225600000000000",
+        "ctimeNs": "1792442014603115000",
+        "birthtimeNs": "1792442014600348800"
+      },
+      "after": {
+        "dev": "0",
+        "ino": "18295873487829956",
+        "size": "8",
+        "mode": "33206",
+        "mtimeNs": "1767225600000000000",
+        "ctimeNs": "1792442014623153100",
+        "birthtimeNs": "1792442014600348800"
+      },
+      "originalContent": "original",
+      "modifiedContent": "modified",
+      "guardSaidUnchanged": false,
+      "expectedUnchanged": false,
+      "metadataIdentityEqual": false,
+      "root": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-runtime-guard-proof-XjqkkM",
+      "fixtureRemoved": true
+    },
+    {
+      "platform": "win32",
+      "node": "v22.22.3",
+      "guardSHA256": "0deca36dd824d4e0212e35ee6f7a2095dff2a0f112dfb19646ec1a800bd4332d",
+      "before": {
+        "dev": "3537329002",
+        "ino": "18577348464540612",
+        "size": "8",
+        "mode": "33206",
+        "mtimeNs": "1767225600000000000",
+        "ctimeNs": "1792442014974449600",
+        "birthtimeNs": "1792442014972436200"
+      },
+      "after": {
+        "dev": "3537329002",
+        "ino": "18577348464540612",
+        "size": "8",
+        "mode": "33206",
+        "mtimeNs": "1767225600000000000",
+        "ctimeNs": "1792442014995907600",
+        "birthtimeNs": "1792442014972436200"
+      },
+      "originalContent": "original",
+      "modifiedContent": "modified",
+      "guardSaidUnchanged": false,
+      "expectedUnchanged": false,
+      "metadataIdentityEqual": false,
+      "root": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-runtime-guard-proof-gWgqFl",
+      "fixtureRemoved": true
+    },
+    {
+      "platform": "win32",
+      "node": "v24.16.0",
+      "guardSHA256": "0deca36dd824d4e0212e35ee6f7a2095dff2a0f112dfb19646ec1a800bd4332d",
+      "before": {
+        "dev": "3537329002",
+        "ino": "19140298417961924",
+        "size": "8",
+        "mode": "33206",
+        "mtimeNs": "1767225600000000000",
+        "ctimeNs": "1792442015296334600",
+        "birthtimeNs": "1792442015292808400"
+      },
+      "after": {
+        "dev": "3537329002",
+        "ino": "19140298417961924",
+        "size": "8",
+        "mode": "33206",
+        "mtimeNs": "1767225600000000000",
+        "ctimeNs": "1792442015311853100",
+        "birthtimeNs": "1792442015292808400"
+      },
+      "originalContent": "original",
+      "modifiedContent": "modified",
+      "guardSaidUnchanged": false,
+      "expectedUnchanged": false,
+      "metadataIdentityEqual": false,
+      "root": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-runtime-guard-proof-hVxDXJ",
+      "fixtureRemoved": true
+    }
+  ],
+  "nativeWindowsCoarseMetadataControls": [
+    {
+      "version": "20.19.0",
+      "variant": "control",
+      "exitCode": 1
+    },
+    {
+      "version": "20.19.0",
+      "variant": "final",
+      "exitCode": 0
+    },
+    {
+      "version": "22.14.0",
+      "variant": "control",
+      "exitCode": 1
+    },
+    {
+      "version": "22.14.0",
+      "variant": "final",
+      "exitCode": 0
+    },
+    {
+      "version": "22.22.3",
+      "variant": "control",
+      "exitCode": 1
+    },
+    {
+      "version": "22.22.3",
+      "variant": "final",
+      "exitCode": 0
+    },
+    {
+      "version": "24.16.0",
+      "variant": "control",
+      "exitCode": 1
+    },
+    {
+      "version": "24.16.0",
+      "variant": "final",
+      "exitCode": 0
+    }
+  ],
+  "fifoBoundary": {
+    "results": [
+      {
+        "variant": "pre-type-gate-hash-prototype",
+        "timedOut": true,
+        "ownedProcessKilledAndReaped": true
+      },
+      {
+        "variant": "final",
+        "exitCode": 0,
+        "stdout": "{\"unchanged\":false}\n",
+        "stderr": "",
+        "timedOut": false
+      }
+    ],
+    "fixtureRemoved": true,
+    "priorMissingControlWasNotExecuted": true
+  },
+  "realRuntimeObservedCost": {
+    "file": "/opt/remi/php85/root/usr/bin/php",
+    "bytes": 11404968,
+    "rows": [
+      {
+        "captureMs": 79.167365,
+        "checkMs": 71.275688
+      },
+      {
+        "captureMs": 78.89853200000002,
+        "checkMs": 82.798676
+      },
+      {
+        "captureMs": 72.912147,
+        "checkMs": 69.172395
+      },
+      {
+        "captureMs": 67.41297099999997,
+        "checkMs": 72.83969200000001
+      },
+      {
+        "captureMs": 78.11184299999991,
+        "checkMs": 62.02636000000007
+      }
+    ],
+    "descriptorsBefore": 21,
+    "descriptorsAfter": 21,
+    "coldIoQualified": false,
+    "controllerPerformanceQualified": false
+  },
+  "firstHashFixWindows2214Rejected": true,
+  "reason": "Path stat dev is zero while handle stat dev is nonzero on this Node build; final implementation compares full handle identities and retains dev.",
+  "selectedCrossProcessReferenceArtifactVerified": true,
+  "normalWindowsMatrixInputsChanged": false,
+  "normalProfileChanged": false,
+  "stableReady": false,
+  "fullObjectiveComplete": false,
+  "candidateValidation": {
+    "status": "exited",
+    "pid": 2419487,
+    "startTicks": "36402663",
+    "waitingForPid": 2356977,
+    "waitingForStartTicks": "36250416",
+    "commands": [
+      {
+        "label": "build",
+        "command": [
+          "pnpm",
+          "build"
+        ],
+        "status": "exited",
+        "pid": 2439091,
+        "startTicks": "36503081",
+        "exitCode": 0
+      },
+      {
+        "label": "refresh-bin-links",
+        "command": [
+          "pnpm",
+          "install",
+          "--offline",
+          "--frozen-lockfile",
+          "--ignore-scripts"
+        ],
+        "status": "exited",
+        "pid": 2442185,
+        "startTicks": "36513078",
+        "exitCode": 0
+      },
+      {
+        "label": "root-unit",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/runtime-file-guard-windows-2026-10-20/candidate-root-vitest.json"
+        ],
+        "status": "exited",
+        "pid": 2442246,
+        "startTicks": "36513210",
+        "exitCode": 0
+      },
+      {
+        "label": "lint",
+        "command": [
+          "pnpm",
+          "exec",
+          "eslint",
+          "src/refactor/runtimeFiles.ts",
+          "test/unit/runtime-files.test.ts",
+          "test/unit/runtime-files-coarse-metadata.test.ts"
+        ],
+        "status": "exited",
+        "pid": 2443530,
+        "startTicks": "36516378",
+        "exitCode": 0
+      },
+      {
+        "label": "types",
+        "command": [
+          "pnpm",
+          "exec",
+          "tsc",
+          "--noEmit",
+          "-p",
+          "tsconfig.json"
+        ],
+        "status": "exited",
+        "pid": 2443578,
+        "startTicks": "36516721",
+        "exitCode": 0
+      }
+    ],
+    "qualified": true,
+    "fullObjectiveComplete": false,
+    "sourceInputCount": 3706,
+    "originalCommandSHA256": "95c5ea9f81b0bf57a6010fae46ffffdfcfc628e3ac84dd2c83a4aa07d33c4a00",
+    "lastVerifiedOriginalProcessUtc": "2026-10-19T20:50:14.020541+00:00",
+    "windowsLaunchTerminalQualified": true,
+    "startedAtUtc": "2026-10-19T20:50:16.025481+00:00",
+    "rootTestsPassed": 149,
+    "changedSourceInputs": [],
+    "finishedAtUtc": "2026-10-19T20:52:39.424065+00:00"
+  },
+  "archiveSHA256": {
+    "fixed.cjs": "4a77d965bccf5911a33474426fa0e5bee8df3923c67c5af2df15af643780b677",
+    "fixed-native-runs.json": "db48aa49954ea9b0b839b230b19170e5f8b7247105c516036343c8a80409540c",
+    "final-proof-v20.19.0.json": "e5e0995192e8093cef0afcceb717853a001d14247089f02026a7029b841b1120",
+    "vitest-content-negative.config.mjs": "ec9df5125341b8cb081408c811063e8eb768f596dd23a58359534c63b1243864",
+    "final-two-files.json": "6d8f21c1599cfe0f832081784f3125c3076c37c30741c52073c97d73abcf322c",
+    "inspect-handle-v22.14.0.json": "0001e541cea4d6d271a7baf1bdb8db12caa7e73a1af8484325023751572edc5c",
+    "coarse-final-v22.22.3.json": "b7e577f2799f9795450c19bb318e345eeb34da49898253ceec3417fd4e4f8912",
+    "fixed-linux-vitest.json": "c0ae38ec121bc38ad8de3908f3d96a82e75d5d8b7ee100562fbdd0b92d947f2f",
+    "coarse-native.cjs": "2a38cd936fd60df6e75465505ee89e47b1d4fbef6446b4ce554e75af42723e8b",
+    "final-probe.cjs": "daa8fc4d750e4da6f647e407a8b54f1b60e88c2cceb409fb1596208baee456ac",
+    "coarse-control-v22.14.0.json": "dd8b58de152b6ddb1ab527f4cd1258297252e7066194791a2adbeb50a3f4a694",
+    "probe.cjs": "4495e0c53e01a34732f5578671d124ed135dad6092dc1df644670b16178e6af2",
+    "final-complete-native-runs.json": "e020694959da2478fec67a4b318768c5e828abc0d96b11b786d76c884fe37421",
+    "fifo-proof.json": "9c331d0fb1744f55a022bce5e8285a79c62b9aa42b0bd2b30716c4c91873003c",
+    "without-change-time.ts": "2dbb7e3897423587ab744ad593078839b908c2e1bdc86575d67091633cf7b7c1",
+    "final-content-negative.json": "fe0adcd0ad3a8eea0506bdea2e5d85f69cd78940e555fc6721447f18b3aeea05",
+    "coarse-final-v24.16.0.json": "b80a729648acc1bcfcf0e36ab769ddd8d37ed71ac9df5fb283a7f7b7b3faace9",
+    "coarse-control-v22.22.3.json": "ca662a7bc58c62ad77252913e08a3f4b61a111dbf8592d983aaf96facd2f8bfb",
+    "coarse-final-v20.19.0.json": "6fe3431e4f2a72bf20faee88dd5b902ac0f1b77c57e86d005d152dea32900f9a",
+    "validate-candidate.py": "d55caabc7d913f68f50773b78356002362e3cf6d2034bf738d8c1e4cbb91e629",
+    "control-proof-v24.16.0.json": "b76ecd93c71fc032a1318456ec070a22ee2d91f25f8e924183d4e1098bfd1228",
+    "fixed-proof-v20.19.0.json": "64e6f0b2c48eecc115bd364d28a44bd6dc2eab19751a105a87cc4ab755eb0f30",
+    "probe-initial.cjs": "f7349ce2540e6bcf07def5d2a46de875171153ad4ed05947ddbdeffb8ecfab9b",
+    "control-proof-v20.19.0.json": "1bfda8a81bc726065392ac4676d1ae4f784e5cb35da8d57ca5f15a67294c5ddc",
+    "final-linux-vitest.json": "1faaac57d2447bfb616ab4a9cc4099ff8f013e3995648c86b9e26f36534f29f7",
+    "fixed-proof-v22.14.0.json": "036301348ec6a2f9265722f890782bf4081c56bf2c75c518cd62ed4206316d74",
+    "linux-vitest.json": "c23e09e8c1742be5ea1671ae7798db9073b607e7f7873a53a0c3f37e19defcef",
+    "control-proof-v22.14.0.json": "2f49ce0bf856ea2b878604266de7dc95ca6af1c5ce63a2ea4d59ed7f9efd98c3",
+    "final-native-runs.json": "a50be72429242a81a907351f13ffb8c33754f12a99620bc96eb421ab5968048e",
+    "fixed-probe.cjs": "4609ab2cf368514e70fe92653f2108e6b62fa41c93570bb501adb2041e71f39a",
+    "real-runtime-cost.json": "7727ca136c14de5c70b921f4840a8545d00ba841d92530697ae6ffd7817ca02f",
+    "coarse-native-runs.json": "c27cd205b3f8b6f173c28aee24f9ecdad988e510ee31b9329cb916086887694e",
+    "coarse-final-v22.14.0.json": "acd367ab551592f067bbf8359917f04ba6562c522b99fd75f9c0ce13a8b479b2",
+    "negative-vitest.json": "394bb90bcc729e5639822864376fb2388f7de082695ab7e885db5ecf2c1575e5",
+    "coarse-control-v24.16.0.json": "c95fee1f9a5c92340090e3ba12b8f99dbed81f417ccc0311d6cc292047fbe073",
+    "control-proof-v22.22.3.json": "a1744fcaaa3c99a0d640f6dfa936d089ad2a8af1cdcdf4eaa5fc6e74d1ea63aa",
+    "control.cjs": "934a976158405b30fb68e611e29878beaf2944d89d16e8391f571b8f86de6d1c",
+    "final-proof-v22.14.0.json": "c1a7ee64968146314dcc10909d5fa4b5f4efe865198445c7707fb8cd750f2749",
+    "inspect-handle.cjs": "69421179b1473e4bf960507cd979ea64909c6ef53b2727c6da95db30d3d5c507",
+    "final-proof-v24.16.0.json": "59fe913f5f2cd5d1b76fe9dee1cc8f15f956cb69acad8e08c2a41e7968b197ff",
+    "fixed-proof-v22.22.3.json": "64574e84a4e8caeb577b1ea9d5bf5e139e7d1e8f3cfb4bee3e13c5b6dfcec671",
+    "without-content-check.ts": "95d0c9c728d550aa42df8e1cc140a006fd9ffd9507e9dbb5d2a9711d9a5dd5ac",
+    "control-proof.json": "b76ecd93c71fc032a1318456ec070a22ee2d91f25f8e924183d4e1098bfd1228",
+    "fifo-observation-invalid-control.json": "4cfadf407e325fc677774a03496d6456bd6afc6ab1e67ee0dd166582766231f2",
+    "vitest-negative.config.mjs": "381b66d509d8365320bd35b3fc26bc7975c834ce4fa4c8854778679c4c0549de",
+    "queued-validation-input.json": "f229644c06ecedec54b1d1a52d9a61938ef8b234bc9a5afd931cabe87fe74e60",
+    "coarse-control-v20.19.0.json": "d47e59e772b0d552d4d894616bfe89e7f1359132bc5a232a1bc3eca5cb0a4136",
+    "final-proof-v22.22.3.json": "13c6b03fdffc7ddd9687308921a426da2b293164cd747a30fb525664c473302e",
+    "fixed-proof-v24.16.0.json": "5013fb2824ddb264c74dc2f5d74be726a76a42ea0b30144433c32d39b8802e74",
+    "content-negative.json": "52aef3312f27c0149969d256ded7dfb589795a83518cc22d3076afd5c19a5edc",
+    "without-content-check-pre-type-gate.ts": "5ccf78647a74c26e1de96e41223aa2607dc6ded53442c616d5518c5d6e5bcf84",
+    "candidate-source-inputs.json": "783189629167ba481ddca379ec9b8ed7aff5e31fd66aef3544fb692aaa2be97e",
+    "final-complete-linux.json": "aa8ebd7cff05a84e7ea4a41fd4b104abf6631815f780023c7cfb91d53fcc0182",
+    "final.cjs": "0deca36dd824d4e0212e35ee6f7a2095dff2a0f112dfb19646ec1a800bd4332d"
+  },
+  "sourceCommit": "71c7b40f16ca148a2d6e52787847054307a246cf",
+  "sourceSnapshotMatchesCommit": true,
+  "editorAudit": {
+    "date": "2026-10-20",
+    "auditedAtUtc": "2026-10-19T21:06:23.980710+00:00",
+    "independentAuditPassed": true,
+    "originalFullC3ModesPassed": 2,
+    "originalFullC3GenerationBoundaryCases": 80,
+    "runtimeReplacementRejections": 20,
+    "runtimeRestoreWorkflowKinds": 10,
+    "extraRuntimeCasesPassed": 4,
+    "actualCaseProofs": [
+      {
+        "name": "full-c3-onDemand",
+        "kind": "full",
+        "mode": "onDemand",
+        "actualStreamedContentChecks": 0,
+        "normalPhpServerPid": 2445598,
+        "runtimeWrapperDirectories": []
+      },
+      {
+        "name": "runtime-c3-onDemand",
+        "kind": "runtime",
+        "mode": "onDemand",
+        "actualStreamedContentChecks": 22,
+        "normalPhpServerPid": 2466863,
+        "runtimeWrapperDirectories": [
+          "/tmp/sophp-preview-runtime-Ca3PIH"
+        ]
+      },
+      {
+        "name": "preview-c3-onDemand",
+        "kind": "preview",
+        "mode": "onDemand",
+        "actualStreamedContentChecks": 54,
+        "normalPhpServerPid": 2469481,
+        "runtimeWrapperDirectories": [
+          "/tmp/sophp-preview-runtime-LgaAaA"
+        ]
+      },
+      {
+        "name": "full-c3-progressive",
+        "kind": "full",
+        "mode": "progressive",
+        "actualStreamedContentChecks": 0,
+        "normalPhpServerPid": 2471295,
+        "runtimeWrapperDirectories": []
+      },
+      {
+        "name": "runtime-c3-progressive",
+        "kind": "runtime",
+        "mode": "progressive",
+        "actualStreamedContentChecks": 22,
+        "normalPhpServerPid": 2486909,
+        "runtimeWrapperDirectories": [
+          "/tmp/sophp-preview-runtime-LZj1Ti"
+        ]
+      },
+      {
+        "name": "preview-c3-progressive",
+        "kind": "preview",
+        "mode": "progressive",
+        "actualStreamedContentChecks": 54,
+        "normalPhpServerPid": 2488514,
+        "runtimeWrapperDirectories": [
+          "/tmp/sophp-preview-runtime-ETmhGS"
+        ]
+      }
+    ],
+    "sourceFilesVerified": 3706,
+    "assetsVerified": 16,
+    "compiledFilesVerified": 99,
+    "allOwnedProjectsAndWrappersRemoved": true,
+    "allOwnedServersAndDisplaysGone": true,
+    "remainingOwnedJavaScriptProcesses": [],
+    "realWslAcceptance": false,
+    "fullObjectiveComplete": false,
+    "artifactSHA256": {
+      "preparation.json": "c88c43d3b7162bab2aa53899f8442d12c3247963396f63ebc77733d0b7486cf4",
+      "observer.cjs": "cee679568ae826731e896869d121ba736e16e2c038e2820f14166592bc57d25e",
+      "preview-c3-progressive.log": "df6d966018c7819e39b6fe66719544bcf3a0714c71e65f85f9b8df477c647915",
+      "preview-c3-onDemand.log": "a15a86d75d9ac81486db508ea54be64f85156c5b7c870c442edf0064e506b4e7",
+      "runtime-inputs.json": "a637d1c40bbb37d4e9ee1df8196011d78235d1c690a38aa7eb2768cfd3f058cc",
+      "runtime-c3-onDemand.log": "17dc9f87271d210954a4703584cb753c3fd06c0ea393431cb3299b788d0cfef5",
+      "symfony-build.log": "1e380aeb8313c2c2feb5689661285a43ae623b52730190aa9d043254f39b8e36",
+      "harness-inputs.json": "87d1c6649cfd180b184f767cbd27ae8cdfc57a6dfbf8ea18fe877b9bd785c71f",
+      "audit.py": "fd9e9e26f66739a843effd73e7be8c362b5fa38d493e785025279d21db272244",
+      "run.py": "806ef608a3de5182ee97a389aa082d79daa080f34d1e05e71414b10274f5a746",
+      "runtime-c3-progressive.log": "1137a97567e58e80a86e730a8d78c46ca5984790de32f6b20a4f12167dc188dc",
+      "full-c3-onDemand.log": "652cb3148eff4bc3375527d577dbd2a7442a1fdf3f03009682b031f7c003be01",
+      "full-c3-progressive.log": "9a0d005e44ddf7f39e64219b728d20724b848d72b77c2760e77fb3130d1206c4",
+      "state.json": "c4606563ed3309101858c1e9d90bf9b3f1d3ab4cdeb35c8c1495081154c6035c",
+      "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "preload.cjs": "4a71b9f7526bbd4ceb63659ad1c90326bfea6670aed538537666bf48c782f3fe",
+      "runtime-c3-progressive/fixture-removals.jsonl": "b48b242090bca70ee508a5a0ab25dc55620d3eeae425cbf73ede4f4600975ccb",
+      "runtime-c3-progressive/selection.json": "7c8400359a91cc13fcb24c12f4a830050627c4d845c87f2278ccd2418c3219eb",
+      "runtime-c3-progressive/partial-proof.json": "bb72400c72fec6c20de9835826a05e414a8719725d0ebb2dcfb6e028e4e07842",
+      "runtime-c3-progressive/proof.json": "2585dc7af22418148fac22ba3bcd6537cdcb7108bd18c435b3cdfbdc91ea41c6",
+      "runtime-c3-progressive/config.json": "63dd51d452d61d530544740f88f78e1ce9e88462e8745e5bb67a8b24e9279eb5",
+      "runtime-c3-progressive/display/display-run.json": "7134da41e6247174535ac251ddca6716a81a206b4f9f48c8dbfaa6e99cd9c632",
+      "runtime-c3-progressive/display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6",
+      "runtime-c3-onDemand/fixture-removals.jsonl": "93c9171170545bc45ad551e3fb93a01461c7e6dde1fd27f2b75d6dc16ed110cf",
+      "runtime-c3-onDemand/selection.json": "fe1782ba252278b4fcebd68fc38f06a560bb618d61e22185ed39f59dbd893115",
+      "runtime-c3-onDemand/partial-proof.json": "f828cd37457c6d8b598e74209ca4aa45f7e667573a95bb29c59d499547946b7d",
+      "runtime-c3-onDemand/proof.json": "31a302217bc3a589b083adb931bce37c1765d33b3fb643f085358bfb99485def",
+      "runtime-c3-onDemand/config.json": "fa789d47e15fcf34bbae3ec908ce4f313532cd8f5cb30eac031237c80923646f",
+      "runtime-c3-onDemand/display/display-run.json": "acef7cbd01567c7bde2f83c8d444541c483a4bf4c750a1ddbfe752291a510787",
+      "runtime-c3-onDemand/display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6",
+      "full-c3-progressive/fixture-removals.jsonl": "9d1f2362261caf2cd873ad97a7c034ab4bd584a2d186c5a91618553930a8d3d9",
+      "full-c3-progressive/selection.json": "43e02e345b1788fad517c2ebc4704077e0d3df15719ee213851f64e287fffdfb",
+      "full-c3-progressive/partial-proof.json": "d295edefa93aa1c6f435376f3c4b250593ca5cdca1bb4fd234070ff097c149de",
+      "full-c3-progressive/proof.json": "a724abc1d6c38410690a85a8d357c3e33e07a1aa5e37193e91d1a267e9e8643f",
+      "full-c3-progressive/config.json": "517d43684c82db6645bbc157b82f9a9f15bee86de0c79a36ab8cc04b611d2f67",
+      "full-c3-progressive/display/display-run.json": "fd6030bbd839dbfa8eda3d304934f5a8c4f3ee8f29fb65d49ed33af09f325d97",
+      "full-c3-progressive/display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6",
+      "preview-c3-onDemand/fixture-removals.jsonl": "fc5884d6fb7f28990af59e228456b877446d66947f96975b6015825b75af78f3",
+      "preview-c3-onDemand/selection.json": "b6f8e3021be0906916406b33dde326aaa7e9b1a6e71a750d2992520ef4b44133",
+      "preview-c3-onDemand/partial-proof.json": "a380ca7bf4628bd8713adb4ef604461a21becaa5746201b7d9efffe18d3c6265",
+      "preview-c3-onDemand/proof.json": "0ac001c9becb78e3c73b6fcd980445a2c1cb592f2fb6a89852d8965067b7b7a6",
+      "preview-c3-onDemand/config.json": "d7749635f1bc90c7b55f5cd80f86791caf96fb0700717cee88c2df2495499fca",
+      "preview-c3-onDemand/display/display-run.json": "6a00baf3a49ea8b8b7bdbc9d85ae0f40333f81ed979282fc0eafe396d4730a62",
+      "preview-c3-onDemand/display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6",
+      "full-c3-onDemand/fixture-removals.jsonl": "8d46422528c9ad9ffa9bebff77ec24e8fa2fd630f0a9ae0836068abe274f2b05",
+      "full-c3-onDemand/selection.json": "bb45ba01e23a0e5e29b1dc098628b912808a99b73cb5c3e8525bfa80a6e3cff1",
+      "full-c3-onDemand/partial-proof.json": "d295edefa93aa1c6f435376f3c4b250593ca5cdca1bb4fd234070ff097c149de",
+      "full-c3-onDemand/proof.json": "e1d25e26d9c49c8cb0ee4cb53705519c898f82f2ef72753953d6a6e2793575e6",
+      "full-c3-onDemand/config.json": "781588975bca46f5368b8591b9087aa0bab8e8956002d8c065036555a7182ddb",
+      "full-c3-onDemand/display/display-run.json": "e0875592879d1569237137bdae545da766e8e413e3ed0196e5ce06c986dc75aa",
+      "full-c3-onDemand/display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6",
+      "preview-c3-progressive/fixture-removals.jsonl": "e9a562b625b6e650280c4f0b538376de43f7ca6cd83ce64fa10b0454481dbbda",
+      "preview-c3-progressive/selection.json": "18b00f983e92a8679b0d1472aecb9e86453db330955c93995f537a689bdb1060",
+      "preview-c3-progressive/partial-proof.json": "2256eb27d285b75741f42b7ed949d9e9fed6de5ba2b4a633a49efa2122c1f09c",
+      "preview-c3-progressive/proof.json": "890102be7e7bfe7665bdebf8e4ffb5a1378b0edc9ed9b5eb479259e8cc0abc9b",
+      "preview-c3-progressive/config.json": "29f5abcebfd518e133bc15341d775b3e0c3878f47b115afa2155841e059cb95f",
+      "preview-c3-progressive/display/display-run.json": "fddd22d024eb5f42346e2ddcab9d40c36dd02f713e3a53c3300769d78cd21d54",
+      "preview-c3-progressive/display/xserver.log": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+    }
+  },
+  "assetDelta": {
+    "serverAssetsByteIdentical": 7,
+    "changedAssets": [
+      "extension.js"
+    ],
+    "assets": [
+      {
+        "file": "builtinSnapshotWorker.js",
+        "baselineSHA256": "f7acddfd3c4f1ac04b3ad72daf34f883a6223a616166b3d07559fc049a8cda7c",
+        "repairSHA256": "f7acddfd3c4f1ac04b3ad72daf34f883a6223a616166b3d07559fc049a8cda7c",
+        "equal": true
+      },
+      {
+        "file": "candidateWorker.js",
+        "baselineSHA256": "e798bc0b8d939ada28463a7512ebe71416ef92f45679347b0bd1216ebac922fc",
+        "repairSHA256": "e798bc0b8d939ada28463a7512ebe71416ef92f45679347b0bd1216ebac922fc",
+        "equal": true
+      },
+      {
+        "file": "extension.js",
+        "baselineSHA256": "302809cf2bc6fa515f6f46920a866929e469f391ddbcb316006b4f0c2828f455",
+        "repairSHA256": "863124cbe7a24ea05681cf46ad8d43ea73ff56a76386de3359888fd16ec1b2e4",
+        "equal": false
+      },
+      {
+        "file": "language-server.js",
+        "baselineSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+        "repairSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+        "equal": true
+      },
+      {
+        "file": "portableCandidateSearchWorker.js",
+        "baselineSHA256": "25488cd3ba4751e3e7a3e727aee8940b4fbc83ee2977880dac51f6c874fb0de6",
+        "repairSHA256": "25488cd3ba4751e3e7a3e727aee8940b4fbc83ee2977880dac51f6c874fb0de6",
+        "equal": true
+      },
+      {
+        "file": "sourceStatWorker.js",
+        "baselineSHA256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+        "repairSHA256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+        "equal": true
+      },
+      {
+        "file": "tree-sitter-php.wasm",
+        "baselineSHA256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "repairSHA256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+        "equal": true
+      },
+      {
+        "file": "web-tree-sitter.wasm",
+        "baselineSHA256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "repairSHA256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+        "equal": true
+      }
+    ],
+    "ordinaryBenchmarkAndTestkitByteIdentical": true,
+    "sourceSnapshotQualificationOnly": true,
+    "fullObjectiveComplete": false
+  },
+  "candidateDirectory": "/var/www/node/php-companion-runtime-guard-20261020/artifacts/php-companion-alpha-0.4.13-71c7b40f",
+  "sourceCommitPublished": false,
+  "installedAlphaUpdated": false,
+  "packagedStandaloneStatus": "passed-independent-audit",
+  "packagedStandaloneReport": "runtime-file-content-guard-standalone-2026-10-20.json",
+  "packagedProfileStatus": "passed-independent-audit",
+  "packagedProfilePreparationCorrections": {
+    "externalNestedDependencyFilesRestored": 933,
+    "twigNestedDependencyFilesRestored": 269,
+    "firstFullFlowExitCode": 1,
+    "failure": "TwigPlus activation: missing vscode-html-languageservice",
+    "originalAssertionsAndTimeoutsPreserved": true
+  },
+  "packagedProfileReport": "runtime-file-content-guard-profile-2026-10-20.json",
+  "packagedProfileDurationSeconds": 97.14178515097592,
+  "packagedProfileFeedbackP95Ms": [
+    99,
+    112
+  ],
+  "formalInstalledProfileStatus": "full-original-suite-failed-at-Test-only-pause-hook",
+  "formalInstalledProfileReport": "runtime-file-content-guard-installed-2026-10-20.json",
+  "formalProductCliInstallationsPassed": 3,
+  "installedProductFilesCompared": 39
+}

@@ -45,11 +45,20 @@ Generator 内的普通 `yield` 使用自身函数／闭包的有效四参数 PHP
 
 首次打开 PHP 文件或主动执行版本检测时，扩展在当前 Extension Host 所在环境中运行受限 PHP CLI 探测：直接执行所选可执行文件，不经过 shell，不加载项目 autoloader 或 Symfony Kernel。只有 PHP 次版本与项目目标一致、结构化结果完整返回时，已加载扩展列表才会参与内建符号选择；命令不存在、超时、输出异常或版本不匹配时保持 unknown。该规则使本地、WSL、SSH 与 Dev Container 分别使用各自实际运行环境，并避免把另一套 PHP 的缺失扩展误报到当前项目。
 
+如果 PHP 8.6 与旧版并行安装，可在对应项目的 VS Code 工作区设置中选用 8.6。以下配置适用于通过 Remi 并行安装的环境。
+
+```json
+{
+  "phpCompanion.phpVersion": "8.6",
+  "phpCompanion.phpExecutablePath": "/usr/bin/php86"
+}
+```
+
 `semanticProviders` 只接受用户显式配置的可信可执行文件，不从 Composer 或工作区元数据自动发现命令。每次索引以独立无 shell 子进程请求一份完整事实快照；超时、崩溃、输出超限或协议、身份、generation 校验失败时保留上一代事实。该机制隔离 Provider 故障，不是操作系统安全沙箱。
 
 ## 稳定功能
 
-- 按 Composer `autoload.psr-4` / `autoload-dev.psr-4` 和 PHP 7.2–8.5 约束理解项目。
+- 按 Composer `autoload.psr-4` / `autoload-dev.psr-4` 和 PHP 7.2–8.6 约束理解项目。
 - 从资源管理器创建 Class、Abstract Class、Interface、Trait、Enum 和 PHPUnit Test。
 - 复制当前文件的 FQN、namespace、`::class` 引用和工作区相对路径。
 - 检查打开文件的 namespace、PSR-4 路径以及主类型名/文件名，并提供 namespace Quick Fix。

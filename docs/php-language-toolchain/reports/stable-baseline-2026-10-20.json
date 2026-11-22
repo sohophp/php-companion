@@ -1,0 +1,207 @@
+{
+  "recordedDate": "2026-10-20",
+  "head": "a919d53f997ac462d2758a1968a3e4bc9c0ce959",
+  "clean": false,
+  "trackedFiles": 3453,
+  "trackedInputsSHA256": "6fb0342efa8ccda30129e8110bda524485d9df0473e4c9440b04f3daa0f498ad",
+  "patchSHA256": "be6c36827364c1a3a56770641a4a93bbf0a797970fce34c023f8cccce89356b3",
+  "priorProductInputs": 3316,
+  "changedPriorInputs": [],
+  "missingPriorInputs": [],
+  "artifacts": [
+    {
+      "id": "sohophp.php-companion",
+      "version": "0.4.13",
+      "path": "/var/www/node/php-companion/.vscode-test/8219-local-vsix-2026-10-14/artifacts/php-companion-0.4.13.vsix",
+      "bytes": 4172150,
+      "sha256": "37154c06dfaa8e07e31fa9dd3354091207bc0ac2574e599ce9c03808afc0149c",
+      "runtime": [
+        {
+          "entry": "extension/dist/tree-sitter-php.wasm",
+          "source": "dist/tree-sitter-php.wasm",
+          "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/extension.js",
+          "source": "dist/extension.js",
+          "sha256": "e69452f11955447f3d5d453d3a5536405b9dacc70686ecd670dc3c79778d0ac8",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/candidateWorker.js",
+          "source": "dist/candidateWorker.js",
+          "sha256": "49e00f6068f134c4b422fc59617de0d46897e697722f4ba1d742c0061ee9ec87",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/portableCandidateSearchWorker.js",
+          "source": "dist/portableCandidateSearchWorker.js",
+          "sha256": "25488cd3ba4751e3e7a3e727aee8940b4fbc83ee2977880dac51f6c874fb0de6",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/language-server.js",
+          "source": "dist/language-server.js",
+          "sha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/sourceStatWorker.js",
+          "source": "dist/sourceStatWorker.js",
+          "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/web-tree-sitter.wasm",
+          "source": "dist/web-tree-sitter.wasm",
+          "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/builtinSnapshotWorker.js",
+          "source": "dist/builtinSnapshotWorker.js",
+          "sha256": "b4e2b84781fb17ecf80509c8aa02fa31bdd6551391dd5b646073b39f8e3c9627",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        }
+      ]
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "version": "0.4.13",
+      "path": "/var/www/node/php-companion/.vscode-test/8219-local-vsix-2026-10-14/artifacts/php-companion-symfony-0.4.13.vsix",
+      "bytes": 647404,
+      "sha256": "d3712465f46b8f3566882fd52fc52953e1823918ff5a6a51130674c7e85498b1",
+      "runtime": [
+        {
+          "entry": "extension/dist/service-provider.js",
+          "source": "packages/php-companion-symfony/dist/service-provider.js",
+          "sha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/event-provider.js",
+          "source": "packages/php-companion-symfony/dist/event-provider.js",
+          "sha256": "f7e98415a871b97cf1b3d3a81edc55b2ebf6f0a383ae96566b4ad9755098665e",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/controller-context-provider.js",
+          "source": "packages/php-companion-symfony/dist/controller-context-provider.js",
+          "sha256": "7a2d9fb763afec492187e1f4957daeb7beba2f223e988386e1787346315c877c",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/tree-sitter-php.wasm",
+          "source": "packages/php-companion-symfony/dist/tree-sitter-php.wasm",
+          "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/extension.js",
+          "source": "packages/php-companion-symfony/dist/extension.js",
+          "sha256": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/static-route-provider.js",
+          "source": "packages/php-companion-symfony/dist/static-route-provider.js",
+          "sha256": "dc4523dd505c47b704ad1ce09f5950b6965d8df60bccc22974fa2454581729db",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/winstar-route-provider.js",
+          "source": "packages/php-companion-symfony/dist/winstar-route-provider.js",
+          "sha256": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        },
+        {
+          "entry": "extension/dist/web-tree-sitter.wasm",
+          "source": "packages/php-companion-symfony/dist/web-tree-sitter.wasm",
+          "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+          "matchesRecorded": true,
+          "matchesPackage": true
+        }
+      ]
+    },
+    {
+      "id": "sohophp.php-companion-open-source-pack",
+      "version": "0.4.13",
+      "path": "/var/www/node/php-companion/.vscode-test/8219-local-vsix-2026-10-14/artifacts/php-companion-open-source-pack-0.4.13.vsix",
+      "bytes": 69945,
+      "sha256": "f1ef00b3be532e257ed5e33b8454429fe193cf2af88b495a241585eef6754d2e",
+      "runtime": []
+    }
+  ],
+  "externalExtensions": [
+    {
+      "id": "sohophp.twig-plus",
+      "version": "1.3.8"
+    },
+    {
+      "id": "symfony.language-tools",
+      "version": "0.20.1",
+      "defaultPack": false,
+      "supportedProfile": false
+    },
+    {
+      "id": "DotJoshJohnson.xml",
+      "version": "2.5.1",
+      "defaultPack": false,
+      "supportedProfile": false
+    },
+    {
+      "id": "redhat.vscode-yaml",
+      "version": "1.24.0"
+    },
+    {
+      "id": "redhat.vscode-xml",
+      "version": "0.29.3"
+    },
+    {
+      "id": "xdebug.php-debug",
+      "version": "1.40.1"
+    },
+    {
+      "id": "recca0120.vscode-phpunit",
+      "version": "3.9.40",
+      "defaultPack": false,
+      "supportedProfile": false
+    },
+    {
+      "id": "junstyle.php-cs-fixer",
+      "version": "0.3.21"
+    },
+    {
+      "id": "EditorConfig.EditorConfig",
+      "version": "0.18.2"
+    },
+    {
+      "id": "eiminsasete.apacheconf-snippets",
+      "version": "1.4.0"
+    },
+    {
+      "id": "neilbrayfield.php-docblocker",
+      "version": "2.7.0"
+    }
+  ],
+  "releaseCandidateQualified": false,
+  "fullObjectiveComplete": false,
+  "evidenceDirectory": ".vscode-test/stable-baseline-2026-10-20",
+  "currentInstalledCoreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c"
+}

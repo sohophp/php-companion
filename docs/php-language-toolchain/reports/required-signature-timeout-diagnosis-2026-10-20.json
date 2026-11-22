@@ -1,0 +1,247 @@
+{
+  "diagnosticCleanup": {
+    "allOwnedActorsGone": true,
+    "roots": [
+      {
+        "root": "/tmp/sophp-canonical-constructors-C7J27x",
+        "alreadyRemoved": true,
+        "files": []
+      },
+      {
+        "root": "/tmp/sophp-canonical-constructors-hBtbZ9",
+        "alreadyRemoved": false,
+        "files": [
+          {
+            "relativePath": "composer.json",
+            "sha256": "5e4992edc0657440466fddbd0f428ee40e46422cb80a1c87d02d42347acb943f"
+          },
+          {
+            "relativePath": "origin/Base.php",
+            "sha256": "f9ce48f7917f20eaa7f23918e9f001aec400f244c1eaff33706d560a02224e0c"
+          },
+          {
+            "relativePath": "origin/Init.php",
+            "sha256": "44f77c8651907e0dafa0bb072aeb0623ebcfbf2b86a59f076f22160e519742cb"
+          },
+          {
+            "relativePath": "origin/Mid.php",
+            "sha256": "14af8dbde20826e9269e52b66b804b58634f23bd7b02a0925991f669ecf05d11"
+          },
+          {
+            "relativePath": "src/Editing.php",
+            "sha256": "8bb705bd3592ac7912b1b44f461615b6e6c76d07181ee8b45cfcd86b740f78c7"
+          }
+        ]
+      },
+      {
+        "root": "/tmp/sophp-canonical-constructors-hSUven",
+        "alreadyRemoved": false,
+        "files": [
+          {
+            "relativePath": "composer.json",
+            "sha256": "5e4992edc0657440466fddbd0f428ee40e46422cb80a1c87d02d42347acb943f"
+          },
+          {
+            "relativePath": "origin/Base.php",
+            "sha256": "f9ce48f7917f20eaa7f23918e9f001aec400f244c1eaff33706d560a02224e0c"
+          },
+          {
+            "relativePath": "origin/Init.php",
+            "sha256": "44f77c8651907e0dafa0bb072aeb0623ebcfbf2b86a59f076f22160e519742cb"
+          },
+          {
+            "relativePath": "origin/Mid.php",
+            "sha256": "14af8dbde20826e9269e52b66b804b58634f23bd7b02a0925991f669ecf05d11"
+          },
+          {
+            "relativePath": "src/Editing.php",
+            "sha256": "8bb705bd3592ac7912b1b44f461615b6e6c76d07181ee8b45cfcd86b740f78c7"
+          }
+        ]
+      }
+    ],
+    "onlyExactRootsFromRecordedLSPRequests": true
+  },
+  "priorAuditFailuresRetained": [
+    "audit-first-failure.json",
+    "audit-second-failure.json"
+  ],
+  "independentAuditPassed": true,
+  "auditedAtUtc": "2026-10-20T06:39:53.692900+00:00",
+  "frozenInputsVerified": 9184,
+  "originalFailedArchivesVerified": 60,
+  "cases": [
+    {
+      "directory": "/var/www/node/php-companion/.vscode-test/required-signature-timeout-diagnosis-2026-10-20",
+      "variant": "control",
+      "actualExitCode": 0,
+      "selected": 1,
+      "notSelected": 15,
+      "case": "proves canonical cross-file construction at PHP 8.5 (onDemand)",
+      "durationMs": 3735.36453,
+      "engineSHA256": "f0f5f73b352736a338c412fd7f7a0ae90ffc0c0fc50752f6ce0b8988b860dd66"
+    },
+    {
+      "directory": "/var/www/node/php-companion/.vscode-test/required-signature-timeout-diagnosis-2026-10-20",
+      "variant": "prototype",
+      "actualExitCode": 1,
+      "selected": 1,
+      "notSelected": 15,
+      "case": "proves canonical cross-file construction at PHP 8.5 (onDemand)",
+      "durationMs": 20022.737636,
+      "engineSHA256": "a181fcfddf4cc7ecbb41982a70fddd39e3fc2e7afc4f3e168e87f43397865bcb"
+    },
+    {
+      "directory": "/var/www/node/php-companion/.vscode-test/required-signature-cpu-diagnosis-2026-10-20",
+      "variant": "prototype",
+      "actualExitCode": 1,
+      "selected": 1,
+      "notSelected": 15,
+      "case": "proves canonical cross-file construction at PHP 8.5 (onDemand)",
+      "durationMs": 20012.986452,
+      "engineSHA256": "a181fcfddf4cc7ecbb41982a70fddd39e3fc2e7afc4f3e168e87f43397865bcb"
+    }
+  ],
+  "candidatePartialProfiles": 7,
+  "sampledTopSelfCosts": [
+    {
+      "functionName": "cg",
+      "url": "file:///var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/prototype-runtime/language-server.js",
+      "zeroBasedLine": 185,
+      "zeroBasedColumn": 36944,
+      "sampledSelfMs": 12993.927,
+      "sourceExcerpt": "n,e)}var Vr=0,jr=new WeakMap;function cg(a,e){try{let t=new Map,n=2e5,l=[],s=o=>{if(o==null||[\"string\",\"boolean\",\"number\"].includes(typeof o))return{value:o};if(typeof o!=\"object\"||(0,co.isProxy)(o)||--n<0)return;let u=t.get(o);if(u)return{value:u};let f=Array.isArray(o),c=Object.getPrototypeOf(o);if(c!==(f?Array.prototype:Object.prototype)&&!(c===null&&!f))return;let d=e?f?[]:Object.create(c):o;return t.set(o,d),l.push({source:o,target"
+    },
+    {
+      "functionName": "(idle)",
+      "url": "",
+      "zeroBasedLine": -1,
+      "zeroBasedColumn": -1,
+      "sampledSelfMs": 1476.046
+    },
+    {
+      "functionName": "s",
+      "url": "file:///var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/prototype-runtime/language-server.js",
+      "zeroBasedLine": 185,
+      "zeroBasedColumn": 36981,
+      "sampledSelfMs": 1238.558,
+      "sourceExcerpt": " cg(a,e){try{let t=new Map,n=2e5,l=[],s=o=>{if(o==null||[\"string\",\"boolean\",\"number\"].includes(typeof o))return{value:o};if(typeof o!=\"object\"||(0,co.isProxy)(o)||--n<0)return;let u=t.get(o);if(u)return{value:u};let f=Array.isArray(o),c=Object.getPrototypeOf(o);if(c!==(f?Array.prototype:Object.prototype)&&!(c===null&&!f))return;let d=e?f?[]:Object.create(c):o;return t.set(o,d),l.push({source:o,target:d}),{value:d}},r=s(a);if(!r)return;f"
+    },
+    {
+      "functionName": "(garbage collector)",
+      "url": "",
+      "zeroBasedLine": -1,
+      "zeroBasedColumn": -1,
+      "sampledSelfMs": 728.489
+    },
+    {
+      "functionName": "post",
+      "url": "node:inspector",
+      "zeroBasedLine": 111,
+      "zeroBasedColumn": 6,
+      "sampledSelfMs": 618.085
+    },
+    {
+      "functionName": "rU",
+      "url": "file:///var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/prototype-runtime/language-server.js",
+      "zeroBasedLine": 185,
+      "zeroBasedColumn": 38125,
+      "sampledSelfMs": 540.231,
+      "sourceExcerpt": "et!==l.set)return!1}return!0}function rU(a,e,t,n,l,s){if(!UT(a,Wr.prototype,EU)||!UT(e,Qs.prototype,TU))return!1;let r=[];for(let o of t.values()){if((0,co.isProxy)(o))return!1;let u=Object.getOwnPropertyDescriptor(o,\"callables\"),f=Object.getOwnPropertyDescriptor(o,\"declarations\");if(!u||!(\"value\"in u)||!f||!(\"value\"in f)||(0,co.isProxy)(u.value)||(0,co.isProxy)(f.value))return!1;if(!(!$d.has(u.value)&&!Kr.has(f.value)))for(let[c,d]of O"
+    },
+    {
+      "functionName": "detectModuleFormat",
+      "url": "node:internal/modules/esm/get_format",
+      "zeroBasedLine": 35,
+      "zeroBasedColumn": 27,
+      "sampledSelfMs": 176.214
+    },
+    {
+      "functionName": "isProxy",
+      "url": "",
+      "zeroBasedLine": -1,
+      "zeroBasedColumn": -1,
+      "sampledSelfMs": 141.569
+    },
+    {
+      "functionName": "parseSource",
+      "url": "node:internal/deps/cjs-module-lexer/lexer",
+      "zeroBasedLine": 84,
+      "zeroBasedColumn": 21,
+      "sampledSelfMs": 94.518
+    },
+    {
+      "functionName": "parseCJS",
+      "url": "node:internal/deps/cjs-module-lexer/lexer",
+      "zeroBasedLine": 39,
+      "zeroBasedColumn": 18,
+      "sampledSelfMs": 93.564
+    },
+    {
+      "functionName": "",
+      "url": "file:///var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/prototype-runtime/language-server.js",
+      "zeroBasedLine": 0,
+      "zeroBasedColumn": 0,
+      "sampledSelfMs": 71.736,
+      "sourceExcerpt": "#!/usr/bin/env node"
+    },
+    {
+      "functionName": "",
+      "url": "file:///var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/prototype-runtime/language-server.js",
+      "zeroBasedLine": 191,
+      "zeroBasedColumn": 11963,
+      "sampledSelfMs": 64.327,
+      "sourceExcerpt": "Ranges},q)),m.get(q)),b=d.callables.map(q=>{let G=_(q.declarationStart),W=ea(G,he=>he.name===\"return\",()=>\"return\").at(-1)?.type,D=q.containerFqcn?d.declarations.find(he=>he.fqcn.toLowerCase()===q.containerFqcn.toLowerCase()):void 0,J=ea(D?_(D.declarationStart):void 0,he=>he.name===\"template\"&&!!he.variable,he=>he.variable),ne=ea(G,he=>he.name===\"template\"&&!!he.variable,he=>he.variable),j=ne,re=[...new Map([...J,...ne].map(he=>[he.vari"
+    },
+    {
+      "functionName": "prepare",
+      "url": "file:///var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/prototype-runtime/language-server.js",
+      "zeroBasedLine": 255,
+      "zeroBasedColumn": 713,
+      "sampledSelfMs": 61.245,
+      "sourceExcerpt": "is.failed=!0,this.warn(e)}}async prepare(e,t){if(this.closed)return;let n=JSON.stringify([e,t.map(s=>s.uri)]),l=this.cache.get(n);if(l)this.cache.delete(n),this.cache.set(n,l);else{if(await this.stopping,this.closed||(this.start(),!this.worker))return;let s=++this.nextId,r=await new Promise(o=>{this.waiting.set(s,o);try{this.worker.postMessage({id:s,version:e,documents:t})}catch(u){this.waiting.delete(s),this.warn(u),o(void 0)}});if(thi"
+    },
+    {
+      "functionName": "Zs",
+      "url": "file:///var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/prototype-runtime/language-server.js",
+      "zeroBasedLine": 181,
+      "zeroBasedColumn": 74295,
+      "sampledSelfMs": 42.61,
+      "sourceExcerpt": ":t.position,errors:t.errors}}function Zs(a,e=0){let t=[],n=[],l=a.indexOf(\"*/\"),s=l<0?a.length:l,r=[...a.slice(0,s).matchAll(/(?:\\r\\n?|\\n)[\\t ]*\\*?[\\t ]*(?=@[A-Za-z])/g)].map(f=>f.index),o=0,u=/@(?:(phpstan|psalm)-)?(param(?:-out)?|return|var|throws|property(?:-(?:read|write))?|method|deprecated|mixin|assert(?:-if-(?:true|false))?|(?:template-)?extends|(?:template-)?implements|use|template(?:-covariant|-contravariant)?)\\b(?![-\\w])/g;for"
+    },
+    {
+      "functionName": "",
+      "url": "file:///var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/prototype-runtime/language-server.js",
+      "zeroBasedLine": 191,
+      "zeroBasedColumn": 16721,
+      "sampledSelfMs": 29.841,
+      "sourceExcerpt": "ft(ge):Da(he,e)??he.type}}),returnType:(()=>{let he=W?ft(W):void 0,ge=q.returnType?.replace(/^\\\\/,\"\").toLowerCase(),Se=W?.kind===\"generic\"&&W.base.kind===\"name\"?W.base.name.replace(/^\\\\/,\"\").toLowerCase():void 0,ee=Ce=>{if(!Ce)return!1;if(Ce.kind===\"conditional\")return ee(Ce.ifTrue)&&ee(Ce.ifFalse);if(Ce.kind===\"union\")return Ce.types.length>0&&Ce.types.every(ee);let be=Ce.kind===\"generic\"&&Ce.base.kind===\"name\"?Ce.base.name.replace(/^\\"
+    }
+  ],
+  "finding": "The sampled candidate spends most captured CPU time in cg, the compiled descriptor graph purity scanner, and its nested prepare function. The chosen original test exceeds its unchanged 20s deadline; the control completes.",
+  "limits": [
+    "Diagnostic sampling has overhead and incomplete tail coverage; values are not performance qualification.",
+    "This single original case does not individually establish the cause of all 24 original failures.",
+    "Candidate final SIGTERM CPU profile was not persisted; periodic partial profiles are retained."
+  ],
+  "ownedActorsGone": [
+    3609405,
+    3609462,
+    3609665,
+    3609715,
+    3609870,
+    3612095,
+    3612154,
+    3612377
+  ],
+  "temporaryRootsRemoved": [
+    "/tmp/sophp-canonical-constructors-C7J27x",
+    "/tmp/sophp-canonical-constructors-hBtbZ9",
+    "/tmp/sophp-canonical-constructors-hSUven"
+  ],
+  "performanceExecuted": false,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "archivesVerified": 48,
+  "archiveManifestSHA256": "8690619b7cdb68ad1920e35868f06afc5b246ec6291ceea39db28a3abf066bc0"
+}

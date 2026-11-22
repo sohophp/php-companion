@@ -1,0 +1,143 @@
+{
+  "date": "2026-10-20",
+  "independentAuditPassed": true,
+  "normalCoreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+  "actualControlAndObservedExitCodes": [
+    0,
+    0
+  ],
+  "completeFourStateResultsEqual": true,
+  "frozenInputsVerified": 69819,
+  "projectInputsVerified": 66079,
+  "editedCosts": [
+    {
+      "round": 0,
+      "localMs": 58.5637940000006,
+      "fullMs": 46.62171899999885,
+      "totalMs": 105.18551299999945,
+      "mixedArguments": 92
+    },
+    {
+      "round": 1,
+      "localMs": 56.088188000003356,
+      "fullMs": 54.27359299999807,
+      "totalMs": 110.36178100000143,
+      "mixedArguments": 92
+    },
+    {
+      "round": 2,
+      "localMs": 49.130660000002536,
+      "fullMs": 53.14333199999419,
+      "totalMs": 102.27399199999672,
+      "mixedArguments": 92
+    },
+    {
+      "round": 3,
+      "localMs": 52.72528399999828,
+      "fullMs": 44.7850309999958,
+      "totalMs": 97.51031499999408,
+      "mixedArguments": 92
+    }
+  ],
+  "topSignaturesFromSameRows": [
+    {
+      "signature": "sprintf",
+      "perEditMs": [
+        66.28965999999855,
+        67.86003500000334,
+        63.68786099999488,
+        62.54960999999457
+      ],
+      "medianMs": 64.98876049999672
+    },
+    {
+      "signature": "is_string",
+      "perEditMs": [
+        10.266163000000233,
+        11.097074999997858,
+        10.236913999997341,
+        9.96016899999995
+      ],
+      "medianMs": 10.251538499998787
+    },
+    {
+      "signature": "in_array",
+      "perEditMs": [
+        8.934074000000692,
+        10.329455000000962,
+        9.221864000001005,
+        7.358001999999033
+      ],
+      "medianMs": 9.077969000000849
+    },
+    {
+      "signature": "filter_var",
+      "perEditMs": [
+        6.105818999999428,
+        7.306494999998904,
+        6.217835000001287,
+        6.095906000000468
+      ],
+      "medianMs": 6.161827000000358
+    },
+    {
+      "signature": "is_object",
+      "perEditMs": [
+        5.250393000000258,
+        6.102990999999747,
+        5.639235999999073,
+        5.1766979999993055
+      ],
+      "medianMs": 5.444814499999666
+    },
+    {
+      "signature": "is_array",
+      "perEditMs": [
+        3.061485000000175,
+        3.259964000000764,
+        3.2542710000016086,
+        2.73906899999929
+      ],
+      "medianMs": 3.157878000000892
+    },
+    {
+      "signature": "min",
+      "perEditMs": [
+        3.940716000000066,
+        3.0042990000001737,
+        2.701857000001837,
+        2.411507000000711
+      ],
+      "medianMs": 2.8530780000010054
+    },
+    {
+      "signature": "max",
+      "perEditMs": [
+        1.29004999999961,
+        1.3345689999987371,
+        1.2526430000016262,
+        1.1619590000009339
+      ],
+      "medianMs": 1.271346500000618
+    },
+    {
+      "signature": "array_fill_keys",
+      "perEditMs": [
+        0.047153000000434986,
+        0.06689800000094692,
+        0.0615109999980632,
+        0.0573949999998149
+      ],
+      "medianMs": 0.05945299999893905
+    }
+  ],
+  "medianUnconstrainedFactMsPerEdit": 103.72975249999809,
+  "minimumInvestigationMs": 50,
+  "admitted": true,
+  "prototypeImplemented": false,
+  "productionChanged": false,
+  "ownedServersGone": true,
+  "cachesRemoved": true,
+  "performanceQualified": false,
+  "fullObjectiveComplete": false
+}

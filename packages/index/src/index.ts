@@ -40,8 +40,28 @@ async function phpFiles(directory: string, output: Set<string>, limit: number, i
   if (shouldContinue?.() === false) return false;
   if (output.size >= limit) return true;
   let entries; try { entries = await readdir(directory, { recursive: true, withFileTypes: true }); } catch { return true; }
-  const files = entries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.php'))
-    .map((entry) => join(entry.parentPath, entry.name)).sort((left, right) => left.localeCompare(right));
+  let files: string[];
+  // Node 20.0 predates recursive readdir and both Dirent path fields.
+  if (entries.some(entry => entry.parentPath === undefined && entry.path === undefined)) {
+    files = [];
+    const pending = [directory];
+    try {
+      while (pending.length) {
+        if (shouldContinue?.() === false) return false;
+        const current = pending.pop()!;
+        const children = await readdir(current, { withFileTypes: true });
+        for (const entry of children) {
+          const path = join(current, entry.name);
+          if (entry.isDirectory()) pending.push(path);
+          else if (entry.isFile() && entry.name.toLowerCase().endsWith('.php')) files.push(path);
+        }
+      }
+    } catch { return true; }
+    files.sort((left, right) => left.localeCompare(right));
+  } else {
+    files = entries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.php'))
+      .map((entry) => join(entry.parentPath ?? entry.path, entry.name)).sort((left, right) => left.localeCompare(right));
+  }
   for (const path of files) {
     if (shouldContinue?.() === false) return false;
     if (output.size >= limit) return true;

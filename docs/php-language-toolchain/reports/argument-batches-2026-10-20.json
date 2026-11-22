@@ -1,0 +1,114 @@
+{
+  "status": "exited",
+  "pid": 2243251,
+  "stages": [
+    {
+      "name": "control",
+      "status": "exited",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/.vscode-test/argument-batches-2026-10-20/probe.mjs",
+        "/var/www/node/php-companion/.vscode-test/argument-batches-2026-10-20/control-performance",
+        "/var/www/node/php-companion/.vscode-test/argument-batches-2026-10-20/control-runtime/language-server.js",
+        "25"
+      ],
+      "pid": 2243436,
+      "actualExitCode": 0
+    },
+    {
+      "name": "prototype",
+      "status": "exited",
+      "command": [
+        "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+        "/var/www/node/php-companion/.vscode-test/argument-batches-2026-10-20/probe.mjs",
+        "/var/www/node/php-companion/.vscode-test/argument-batches-2026-10-20/prototype-performance",
+        "/var/www/node/php-companion/.vscode-test/argument-batches-2026-10-20/prototype-runtime/language-server.js",
+        "25"
+      ],
+      "pid": 2244481,
+      "actualExitCode": 0
+    }
+  ],
+  "admitted": false,
+  "fullObjectiveComplete": false,
+  "summaries": {
+    "control": {
+      "diagnosticMs": {
+        "p95Ms": 1530.5655410000036,
+        "medianMs": 1387.1111690000034,
+        "maxMs": 2065.508642
+      },
+      "completionMs": {
+        "p95Ms": 639.6704650000001,
+        "medianMs": 121.84116299999732,
+        "maxMs": 649.1693999999989
+      }
+    },
+    "prototype": {
+      "diagnosticMs": {
+        "p95Ms": 1159.883711999999,
+        "medianMs": 1030.98661,
+        "maxMs": 1851.2396170000002
+      },
+      "completionMs": {
+        "p95Ms": 630.0327230000003,
+        "medianMs": 129.71075799999744,
+        "maxMs": 645.9835380000004
+      }
+    }
+  },
+  "pairedDiagnosticImprovedSamples": 25,
+  "pairedDiagnosticMedianImprovementPercent": 25.03160088918559,
+  "checks": {
+    "diagnosticImprovedSamples": true,
+    "diagnosticPairedMedianImprovement": true,
+    "diagnosticP95Improved": true,
+    "queryP95RegressionBound": true,
+    "queryP95OriginalBudgetAndImprovement": false,
+    "queryMedianRegressionBound": false,
+    "diagnosticP95RegressionBound": true,
+    "completeResultsAndInputsUnchanged": true
+  },
+  "originalDiagnosticBudgetPassed": false,
+  "originalQueryBudgetPassed": false,
+  "productInputsVerified": 1317,
+  "projectInputsVerified": 66079,
+  "actualExitCode": 0,
+  "date": "2026-10-20",
+  "prevalidation": {
+    "qualified": true,
+    "semanticStates": 480,
+    "mutationAndCleanupCases": 10,
+    "groups": {
+      "protocol": {
+        "passedEachSide": 63,
+        "notSelectedEachSide": 0,
+        "caseIdentitiesAndStatesEqual": true,
+        "actualServerLaunchWitnesses": [
+          60,
+          60
+        ]
+      },
+      "version": {
+        "passedEachSide": 36,
+        "notSelectedEachSide": 532,
+        "caseIdentitiesAndStatesEqual": true,
+        "actualServerLaunchWitnesses": [
+          37,
+          37
+        ]
+      }
+    },
+    "productionChanged": false,
+    "performanceQualified": false
+  },
+  "independentTerminalAuditPassed": true,
+  "allFrozenInputsVerified": {
+    "products": 1317,
+    "project": 66079
+  },
+  "ownedServersAndDriversGone": true,
+  "productionChanged": false,
+  "prototypeRejected": true,
+  "noEquivalentRetry": true
+}

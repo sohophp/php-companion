@@ -1,0 +1,177 @@
+{
+  "performance": {
+    "status": "exited",
+    "pid": 91049,
+    "startedAtUtc": "2026-10-12T22:54:57.246246+00:00",
+    "stages": [
+      {
+        "variant": "control",
+        "status": "exited",
+        "pid": 91124,
+        "startTicks": "49432805",
+        "processGroup": 91124,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "cacheDirectory": "/tmp/sophp-controller-profile-yZpZ5T",
+          "cacheDirectoryRemoved": true,
+          "serverPid": 91138,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 632.4613230000004,
+            "maxMs": 708.6082260000003
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1738.0315090000004,
+            "maxMs": 2137.04979
+          },
+          "diskUnchanged": true,
+          "scope": "Normal unsampled stdio comparison with 25 edits and original 500/150ms budgets."
+        }
+      },
+      {
+        "variant": "prototype",
+        "status": "exited",
+        "pid": 91704,
+        "startTicks": "49439775",
+        "processGroup": 91704,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "367e64d2f58714b0982faf64c53b0aed686b5fcf98cc6042c50e798805348b00",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "cacheDirectory": "/tmp/sophp-controller-profile-RHFEpF",
+          "cacheDirectoryRemoved": true,
+          "serverPid": 91715,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 610.1230580000001,
+            "maxMs": 630.3361969999987
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1643.3947610000032,
+            "maxMs": 2002.1153560000002
+          },
+          "diskUnchanged": true,
+          "scope": "Normal unsampled stdio comparison with 25 edits and original 500/150ms budgets."
+        }
+      }
+    ],
+    "products": 2087,
+    "projectInputs": 66079,
+    "privateInputs": 17,
+    "qualifiedComparison": true,
+    "admitted": false,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "completeVisibleResultEquality": true,
+    "comparison": {
+      "control": {
+        "diagnosticMs": {
+          "p95Ms": 1738.0315090000004,
+          "medianMs": 1502.4569999999985,
+          "maxMs": 2137.04979
+        },
+        "completionMs": {
+          "p95Ms": 632.4613230000004,
+          "medianMs": 115.60351300000184,
+          "maxMs": 708.6082260000003
+        }
+      },
+      "prototype": {
+        "diagnosticMs": {
+          "p95Ms": 1643.3947610000032,
+          "medianMs": 1437.1541300000026,
+          "maxMs": 2002.1153560000002
+        },
+        "completionMs": {
+          "p95Ms": 610.1230580000001,
+          "medianMs": 119.2916250000053,
+          "maxMs": 630.3361969999987
+        }
+      }
+    },
+    "paired": {
+      "diagnosticMs": {
+        "improvedSamples": 19,
+        "medianImprovementPercent": 5.233582658272423
+      },
+      "completionMs": {
+        "improvedSamples": 11,
+        "medianImprovementPercent": -0.44853846274747367
+      }
+    },
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "changedPrivateInputs": [],
+    "admissionChecks": {
+      "diagnosticImprovedSamples": false,
+      "diagnosticPairedMedian": true,
+      "diagnosticP95Improved": true,
+      "queryP95NoExcessRegression": true,
+      "completeResultsAndInputsUnchanged": true
+    },
+    "originalDiagnosticBudgetPassed": false,
+    "originalQueryBudgetPassedInThisProbe": false,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T22:57:21.577873+00:00"
+  },
+  "prevalidation": {
+    "atUtc": "2026-10-12T22:47:58.608577+00:00",
+    "semanticUniquePassedEachVariant": 722,
+    "originalCasesAndStatusesEqual": true,
+    "controlMatchesNormalRuntime": true,
+    "normalBundleSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "prototypeBundleSha256": "367e64d2f58714b0982faf64c53b0aed686b5fcf98cc6042c50e798805348b00",
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "controlRelatedProtocolPassed": 36,
+    "prototypeRelatedProtocols": "exited-passed",
+    "pairedPerformance": "exited-rejected",
+    "relatedProtocolPassedEachVariant": 36,
+    "relatedProtocolIdentitiesCountsAndStatusesEqual": true,
+    "updatedAtUtc": "2026-10-12T22:54:50.564840+00:00"
+  },
+  "finalAudit": {
+    "atUtc": "2026-10-12T22:59:13.363617+00:00",
+    "qualifiedComparison": true,
+    "admitted": false,
+    "decision": "Rejected: only 19 of 25 diagnostic samples improved against the predefined minimum 20",
+    "normalBundleSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "productionChanged": false,
+    "processGroupsEmpty": true,
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "changedPrivateInputs": [],
+    "noEquivalentRetry": true,
+    "fullObjectiveComplete": false
+  },
+  "fullObjectiveComplete": false,
+  "profileUpdated": false
+}

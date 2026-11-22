@@ -43,6 +43,25 @@ jobs:
           if-no-files-found: error
           path: persistent-index-${{ runner.os }}-${{ runner.arch }}.json
       - run: pnpm test
+      - name: Build reference cache test providers
+        if: runner.os == 'Linux'
+        run: pnpm --dir packages/php-companion-symfony build
+      - name: Cross-process reference cache regression
+        id: reference_cache_test
+        if: runner.os == 'Linux'
+        working-directory: packages/language-server
+        run: |
+          pnpm exec vitest run test/stdio.test.ts -t "restores proven references across processes and rejects changed query inputs" --reporter=json --outputFile=../../reference-cache-${{ runner.os }}-${{ runner.arch }}.json
+          node ../../scripts/verify-reference-cache-test.mjs ../../reference-cache-${{ runner.os }}-${{ runner.arch }}.json
+        env:
+          PHP_COMPANION_TEST_REFERENCE_BUNDLE: ${{ github.workspace }}/dist/language-server.js
+      - name: Upload reference cache regression result
+        if: always() && runner.os == 'Linux' && steps.reference_cache_test.outcome != 'skipped'
+        uses: actions/upload-artifact@v7
+        with:
+          name: reference-cache-${{ runner.os }}-${{ runner.arch }}
+          if-no-files-found: error
+          path: reference-cache-${{ runner.os }}-${{ runner.arch }}.json
       - run: pnpm package:all
       - run: pnpm verify:vsix
       - if: runner.os == 'Linux'
@@ -55,13 +74,55 @@ jobs:
             packages/php-companion-symfony/php-companion-symfony-*.vsix
             packages/php-companion-extension-pack/php-companion-open-source-pack-*.vsix
 
+  index-runtime-compatibility:
+    name: Index runtime (Node ${{ matrix.node }})
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['20.0.0', '20.11.1']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:packages
+      - name: Select supported package runtime
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          package-manager-cache: false
+      - name: Recursive Composer discovery and cache regression
+        id: index_runtime_test
+        env:
+          SOPHP_EXPECTED_NODE_VERSION: ${{ matrix.node }}
+        run: |
+          node -e "require('node:assert/strict').equal(process.versions.node, process.env.SOPHP_EXPECTED_NODE_VERSION)"
+          node --test scripts/test/index-runtime-compatibility.test.mjs > index-runtime-${{ matrix.node }}.tap 2>&1
+      - name: Restore build runtime
+        if: always()
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          package-manager-cache: false
+      - name: Upload index runtime regression result
+        if: always() && steps.index_runtime_test.outcome != 'skipped'
+        uses: actions/upload-artifact@v7
+        with:
+          name: index-runtime-${{ matrix.node }}
+          if-no-files-found: error
+          path: index-runtime-${{ matrix.node }}.tap
+
   php-integration:
     name: PHP ${{ matrix.php }} integration
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
+        php: ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6']
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6
@@ -70,13 +131,33 @@ jobs:
           node-version: 22
           cache: pnpm
       - uses: shivammathur/setup-php@v2
+        if: matrix.php != '8.6'
         with:
           php-version: ${{ matrix.php }}
           coverage: none
+      - name: Set up the official PHP 8.6 CLI image
+        if: matrix.php == '8.6'
+        run: |
+          docker pull php:8.6-cli
+          docker run --detach --rm --name sophp-php86 php:8.6-cli sleep infinity
+          mkdir -p "$RUNNER_TEMP/php86-bin"
+          cat > "$RUNNER_TEMP/php86-bin/php" <<'EOF'
+          #!/usr/bin/env bash
+          exec docker exec sophp-php86 php "$@"
+          EOF
+          chmod +x "$RUNNER_TEMP/php86-bin/php"
+          "$RUNNER_TEMP/php86-bin/php" --version
+          printf '%s\n' "$RUNNER_TEMP/php86-bin" >> "$GITHUB_PATH"
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:integration:php
         env:
           PHP_COMPANION_TEST_PHP_BINARIES: '{"${{ matrix.php }}":"php"}'
+      - name: Stop the PHP 8.6 CLI container
+        if: always() && matrix.php == '8.6'
+        run: |
+          if docker container inspect sophp-php86 > /dev/null 2>&1; then
+            docker rm -f sophp-php86
+          fi
 
   extension-host:
     name: Extension host (${{ matrix.os }})

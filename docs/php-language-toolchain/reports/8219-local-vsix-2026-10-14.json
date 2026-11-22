@@ -1,0 +1,40 @@
+{
+  "recordedAtUtc": "2026-10-14T08:54:46.021125+00:00",
+  "actualCommands": [
+    [
+      "package-all",
+      0
+    ],
+    [
+      "verify-vsix",
+      0
+    ]
+  ],
+  "actualIndependentAuditorExitCode": 0,
+  "qualifiedLocalPackaging": true,
+  "frozenInputs": 3316,
+  "runtimeEntries": 16,
+  "previousPackagesRestored": 3,
+  "artifacts": [
+    {
+      "id": "sohophp.php-companion",
+      "bytes": 4172150,
+      "sha256": "37154c06dfaa8e07e31fa9dd3354091207bc0ac2574e599ce9c03808afc0149c"
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "bytes": 647404,
+      "sha256": "d3712465f46b8f3566882fd52fc52953e1823918ff5a6a51130674c7e85498b1"
+    },
+    {
+      "id": "sohophp.php-companion-open-source-pack",
+      "bytes": 69945,
+      "sha256": "f1ef00b3be532e257ed5e33b8454429fe193cf2af88b495a241585eef6754d2e"
+    }
+  ],
+  "archiveOriginalsAndCopiesVerified": 16,
+  "currentCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "installed": false,
+  "published": false,
+  "fullObjectiveComplete": false
+}

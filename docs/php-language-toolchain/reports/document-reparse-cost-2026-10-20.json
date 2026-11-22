@@ -1,0 +1,209 @@
+{
+  "date": "2026-10-20",
+  "normalCoreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+  "actualControlAndObservedCommandExitCodes": [
+    0,
+    0
+  ],
+  "completeFourStateResultsEqual": true,
+  "parserRows": [
+    {
+      "method": "parse",
+      "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "bytes": 46144,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": false,
+      "elapsedMs": 139.67742499999986
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "bytes": 46144,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": true,
+      "elapsedMs": 83.66135699999995
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "bytes": 46144,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": false,
+      "elapsedMs": 7.609301999999843
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "bytes": 46144,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": false,
+      "analysisVersion": 1,
+      "elapsedMs": 6.195924000000105
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "bytes": 46144,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": false,
+      "analysisVersion": 1,
+      "elapsedMs": 5.745886000000155
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "04907b16832d05a2209e03897d34ff37a4acd29c85cb9bf9c101e23ff9dfce21",
+      "bytes": 46404,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": true,
+      "elapsedMs": 60.240741999999955
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "04907b16832d05a2209e03897d34ff37a4acd29c85cb9bf9c101e23ff9dfce21",
+      "bytes": 46404,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": false,
+      "elapsedMs": 5.6401089999999385
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "04907b16832d05a2209e03897d34ff37a4acd29c85cb9bf9c101e23ff9dfce21",
+      "bytes": 46404,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": false,
+      "analysisVersion": 2,
+      "elapsedMs": 5.7448830000003
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "764c2a73f4607a342bab468bea22004ac0df97801f6a12d197a795ce58c6c9aa",
+      "bytes": 46418,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": true,
+      "elapsedMs": 85.06696499999998
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "764c2a73f4607a342bab468bea22004ac0df97801f6a12d197a795ce58c6c9aa",
+      "bytes": 46418,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": false,
+      "elapsedMs": 7.077901999999085
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "764c2a73f4607a342bab468bea22004ac0df97801f6a12d197a795ce58c6c9aa",
+      "bytes": 46418,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": false,
+      "analysisVersion": 3,
+      "elapsedMs": 7.012545999999929
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "04907b16832d05a2209e03897d34ff37a4acd29c85cb9bf9c101e23ff9dfce21",
+      "bytes": 46404,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": true,
+      "elapsedMs": 78.69880600000033
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "04907b16832d05a2209e03897d34ff37a4acd29c85cb9bf9c101e23ff9dfce21",
+      "bytes": 46404,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": false,
+      "elapsedMs": 7.334045999999944
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "04907b16832d05a2209e03897d34ff37a4acd29c85cb9bf9c101e23ff9dfce21",
+      "bytes": 46404,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": false,
+      "analysisVersion": 4,
+      "elapsedMs": 7.2579530000002705
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "764c2a73f4607a342bab468bea22004ac0df97801f6a12d197a795ce58c6c9aa",
+      "bytes": 46418,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": true,
+      "elapsedMs": 85.79132000000027
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "764c2a73f4607a342bab468bea22004ac0df97801f6a12d197a795ce58c6c9aa",
+      "bytes": 46418,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": false,
+      "elapsedMs": 7.865499999999884
+    },
+    {
+      "method": "parse",
+      "sourceSHA256": "764c2a73f4607a342bab468bea22004ac0df97801f6a12d197a795ce58c6c9aa",
+      "bytes": 46418,
+      "documentIdentity": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "hasOldTree": false,
+      "analysisVersion": 5,
+      "elapsedMs": 7.327382999999827
+    }
+  ],
+  "analysisRows": [
+    {
+      "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "version": 1,
+      "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "elapsedMs": 127.23359200000004
+    },
+    {
+      "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "version": 1,
+      "sourceSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "elapsedMs": 104.03153900000007
+    },
+    {
+      "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "version": 2,
+      "sourceSHA256": "04907b16832d05a2209e03897d34ff37a4acd29c85cb9bf9c101e23ff9dfce21",
+      "elapsedMs": 85.13569899999948
+    },
+    {
+      "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "version": 3,
+      "sourceSHA256": "764c2a73f4607a342bab468bea22004ac0df97801f6a12d197a795ce58c6c9aa",
+      "elapsedMs": 117.8607890000003
+    },
+    {
+      "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "version": 4,
+      "sourceSHA256": "04907b16832d05a2209e03897d34ff37a4acd29c85cb9bf9c101e23ff9dfce21",
+      "elapsedMs": 106.50433900000098
+    },
+    {
+      "uri": "file:///var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "version": 5,
+      "sourceSHA256": "764c2a73f4607a342bab468bea22004ac0df97801f6a12d197a795ce58c6c9aa",
+      "elapsedMs": 115.05881799999952
+    }
+  ],
+  "editedAnalysisParseMs": [
+    5.7448830000003,
+    7.012545999999929,
+    7.2579530000002705,
+    7.327382999999827
+  ],
+  "medianEditedAnalysisParseMs": 7.1352495000001,
+  "medianAnalysisWallMs": 110.78157850000025,
+  "minimumInvestigationMs": 50,
+  "admitted": false,
+  "prototypeImplemented": false,
+  "normalCodeInputsVerified": 1296,
+  "projectInputsVerified": 66079,
+  "ownedServersGone": true,
+  "cachesRemoved": true,
+  "productionChanged": false,
+  "performanceQualified": false,
+  "fullObjectiveComplete": false
+}

@@ -7,6 +7,7 @@
 - [x] `pnpm lint`
 - [x] `pnpm test`
 - [x] PHP 7.2–8.5 integration matrix passes
+- [ ] PHP 8.6 运行时集成测试在 GitHub Actions 上通过
 - [x] `pnpm test:extension`
 - [x] `pnpm test:extension:packaged`
 - [x] `pnpm test:extension:open-source-profile`（VS Code 1.136.1 / WSL 组合报告；其他发布平台仍须各自验证）

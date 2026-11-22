@@ -1,0 +1,657 @@
+{
+  "recordedAtUtc": "2026-10-12T17:35:01.788782+00:00",
+  "normalBundleSha256": "41ae20f8a37eb23b85f05f1b1f784cad1118520252dd0839cd558465ff5f0358",
+  "control": {
+    "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+    "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+    "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+    "serverSha256": "41ae20f8a37eb23b85f05f1b1f784cad1118520252dd0839cd558465ff5f0358",
+    "rounds": 4,
+    "indexingMode": "onDemand",
+    "phpVersion": "8.5",
+    "normalProtocol": true,
+    "profiled": false,
+    "instrumentedCounts": false,
+    "serverPid": 63253,
+    "exitCode": 0,
+    "signal": null,
+    "correctnessPassed": true,
+    "rows": 4,
+    "completion": {
+      "count": 4,
+      "p95Ms": 834.1247680000006,
+      "maxMs": 834.1247680000006
+    },
+    "diagnostics": {
+      "count": 4,
+      "p95Ms": 2775.8576840000005,
+      "maxMs": 2775.8576840000005
+    },
+    "diskUnchanged": true,
+    "scope": "Private diagnostic-rule observer control; four edits collect counts, not final performance qualification."
+  },
+  "instrumented": {
+    "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+    "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+    "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+    "serverSha256": "f3ddcfc8a0f0a18f851690c068e06e85fd119cb75d9c677316e45a6e50ae2230",
+    "rounds": 4,
+    "indexingMode": "onDemand",
+    "phpVersion": "8.5",
+    "normalProtocol": true,
+    "profiled": false,
+    "instrumentedCounts": true,
+    "serverPid": 63615,
+    "exitCode": 0,
+    "signal": null,
+    "correctnessPassed": true,
+    "rows": 4,
+    "completion": {
+      "count": 4,
+      "p95Ms": 747.2234440000011,
+      "maxMs": 747.2234440000011
+    },
+    "diagnostics": {
+      "count": 4,
+      "p95Ms": 2391.7193229999993,
+      "maxMs": 2391.7193229999993
+    },
+    "diskUnchanged": true,
+    "scope": "Private diagnostic-rule observer control; four edits collect counts, not final performance qualification."
+  },
+  "timingSummary": {
+    "publishedSpans": 6,
+    "spans": 6,
+    "rows": [
+      {
+        "method": "incompatibleArguments",
+        "localOnly": null,
+        "calls": 4,
+        "totalMs": 1784.1758800000025,
+        "medianMs": 436.65605400000095,
+        "maxMs": 488.5199820000016
+      },
+      {
+        "method": "incompatibleArguments",
+        "localOnly": true,
+        "calls": 4,
+        "totalMs": 1775.0450659999997,
+        "medianMs": 444.84773399999995,
+        "maxMs": 473.8257359999998
+      },
+      {
+        "method": "undefinedVariables",
+        "localOnly": null,
+        "calls": 4,
+        "totalMs": 1029.637374,
+        "medianMs": 261.60335699999996,
+        "maxMs": 277.9018329999999
+      },
+      {
+        "method": "readonlyPropertyAssignments",
+        "localOnly": null,
+        "calls": 4,
+        "totalMs": 730.8823700000012,
+        "medianMs": 180.37300250000044,
+        "maxMs": 202.77191099999982
+      },
+      {
+        "method": "missingRequiredArguments",
+        "localOnly": true,
+        "calls": 4,
+        "totalMs": 506.3336420000014,
+        "medianMs": 125.81399850000071,
+        "maxMs": 136.31951800000024
+      },
+      {
+        "method": "missingRequiredArguments",
+        "localOnly": null,
+        "calls": 4,
+        "totalMs": 494.53099199999906,
+        "medianMs": 127.7398189999999,
+        "maxMs": 131.98850799999855
+      },
+      {
+        "method": "syntax",
+        "localOnly": null,
+        "calls": 4,
+        "totalMs": 359.33434600000055,
+        "medianMs": 88.90790300000026,
+        "maxMs": 98.19055099999969
+      },
+      {
+        "method": "incompatibleReturns",
+        "localOnly": true,
+        "calls": 4,
+        "totalMs": 161.02216399999998,
+        "medianMs": 40.60695249999935,
+        "maxMs": 46.55597099999977
+      },
+      {
+        "method": "dynamicPropertyCreations",
+        "localOnly": true,
+        "calls": 4,
+        "totalMs": 44.26883100000123,
+        "medianMs": 9.885832500000106,
+        "maxMs": 15.51594600000135
+      },
+      {
+        "method": "unusedImports",
+        "localOnly": null,
+        "calls": 4,
+        "totalMs": 38.35415499999908,
+        "medianMs": 9.531557499999508,
+        "maxMs": 11.434511999999813
+      },
+      {
+        "method": "invalidAllowDynamicProperties",
+        "localOnly": null,
+        "calls": 4,
+        "totalMs": 34.15716499999871,
+        "medianMs": 8.736614000000372,
+        "maxMs": 9.507119999998395
+      },
+      {
+        "method": "phpDocTypeConflicts",
+        "localOnly": true,
+        "calls": 4,
+        "totalMs": 1.449521999999888,
+        "medianMs": 0.3439325000003919,
+        "maxMs": 0.45133499999974447
+      },
+      {
+        "method": "unknownNamedArguments",
+        "localOnly": true,
+        "calls": 4,
+        "totalMs": 1.335253999998713,
+        "medianMs": 0.29996600000004037,
+        "maxMs": 0.4717189999992115
+      },
+      {
+        "method": "unknownNamedArguments",
+        "localOnly": null,
+        "calls": 4,
+        "totalMs": 0.9485469999990528,
+        "medianMs": 0.23779299999932846,
+        "maxMs": 0.2581479999998919
+      },
+      {
+        "method": "argumentOrderProblems",
+        "localOnly": null,
+        "calls": 4,
+        "totalMs": 0.666864999999234,
+        "medianMs": 0.12328849999994418,
+        "maxMs": 0.3378069999998843
+      },
+      {
+        "method": "incompatibleAssignments",
+        "localOnly": true,
+        "calls": 4,
+        "totalMs": 0.6461069999968458,
+        "medianMs": 0.16110699999990175,
+        "maxMs": 0.201666999997542
+      },
+      {
+        "method": "neverReturningCalls",
+        "localOnly": true,
+        "calls": 4,
+        "totalMs": 0.05265799999961018,
+        "medianMs": 0.011829999999463325,
+        "maxMs": 0.019690000000082364
+      }
+    ],
+    "resultEquality": true,
+    "performanceQualified": false
+  },
+  "perVersion": [
+    {
+      "version": 2,
+      "elapsedMs": 2308.868152,
+      "coalesceMs": 25,
+      "sumTopLevelSyncMs": 1750.0946840000024,
+      "rules": [
+        {
+          "name": "neverReturningCalls",
+          "localOnly": true,
+          "ms": 0.019690000000082364,
+          "revision": 9
+        },
+        {
+          "name": "syntax",
+          "localOnly": null,
+          "ms": 83.32798900000034,
+          "revision": null
+        },
+        {
+          "name": "unusedImports",
+          "localOnly": null,
+          "ms": 7.856528000000253,
+          "revision": 9
+        },
+        {
+          "name": "undefinedVariables",
+          "localOnly": null,
+          "ms": 228.5288270000001,
+          "revision": 9
+        },
+        {
+          "name": "argumentOrderProblems",
+          "localOnly": null,
+          "ms": 0.1156620000001567,
+          "revision": 9
+        },
+        {
+          "name": "phpDocTypeConflicts",
+          "localOnly": true,
+          "ms": 0.3466369999996459,
+          "revision": 9
+        },
+        {
+          "name": "unknownNamedArguments",
+          "localOnly": true,
+          "ms": 0.32465700000011566,
+          "revision": 9
+        },
+        {
+          "name": "unknownNamedArguments",
+          "localOnly": null,
+          "ms": 0.2581479999998919,
+          "revision": 9
+        },
+        {
+          "name": "missingRequiredArguments",
+          "localOnly": true,
+          "ms": 136.31951800000024,
+          "revision": 9
+        },
+        {
+          "name": "missingRequiredArguments",
+          "localOnly": null,
+          "ms": 128.36626100000012,
+          "revision": 9
+        },
+        {
+          "name": "incompatibleArguments",
+          "localOnly": true,
+          "ms": 473.8257359999998,
+          "revision": 9
+        },
+        {
+          "name": "incompatibleArguments",
+          "localOnly": null,
+          "ms": 427.1571090000016,
+          "revision": 9
+        },
+        {
+          "name": "dynamicPropertyCreations",
+          "localOnly": true,
+          "ms": 15.51594600000135,
+          "revision": 9
+        },
+        {
+          "name": "invalidAllowDynamicProperties",
+          "localOnly": null,
+          "ms": 9.507119999998395,
+          "revision": 9
+        },
+        {
+          "name": "incompatibleReturns",
+          "localOnly": true,
+          "ms": 46.55597099999977,
+          "revision": 9
+        },
+        {
+          "name": "incompatibleAssignments",
+          "localOnly": true,
+          "ms": 0.19916399999965506,
+          "revision": 9
+        },
+        {
+          "name": "readonlyPropertyAssignments",
+          "localOnly": null,
+          "ms": 191.86972100000094,
+          "revision": 9
+        }
+      ]
+    },
+    {
+      "version": 3,
+      "elapsedMs": 1767.697169000001,
+      "coalesceMs": 25,
+      "sumTopLevelSyncMs": 1736.5517139999993,
+      "rules": [
+        {
+          "name": "neverReturningCalls",
+          "localOnly": true,
+          "ms": 0.009308000000601169,
+          "revision": 10
+        },
+        {
+          "name": "syntax",
+          "localOnly": null,
+          "ms": 91.28617099999974,
+          "revision": null
+        },
+        {
+          "name": "unusedImports",
+          "localOnly": null,
+          "ms": 9.48903799999971,
+          "revision": 10
+        },
+        {
+          "name": "undefinedVariables",
+          "localOnly": null,
+          "ms": 272.8498670000008,
+          "revision": 10
+        },
+        {
+          "name": "argumentOrderProblems",
+          "localOnly": null,
+          "ms": 0.3378069999998843,
+          "revision": 10
+        },
+        {
+          "name": "phpDocTypeConflicts",
+          "localOnly": true,
+          "ms": 0.34122800000113784,
+          "revision": 10
+        },
+        {
+          "name": "unknownNamedArguments",
+          "localOnly": true,
+          "ms": 0.2752749999999651,
+          "revision": 10
+        },
+        {
+          "name": "unknownNamedArguments",
+          "localOnly": null,
+          "ms": 0.24270999999862397,
+          "revision": 10
+        },
+        {
+          "name": "missingRequiredArguments",
+          "localOnly": true,
+          "ms": 119.37258000000111,
+          "revision": 10
+        },
+        {
+          "name": "missingRequiredArguments",
+          "localOnly": null,
+          "ms": 131.98850799999855,
+          "revision": 10
+        },
+        {
+          "name": "incompatibleArguments",
+          "localOnly": true,
+          "ms": 442.029618999999,
+          "revision": 10
+        },
+        {
+          "name": "incompatibleArguments",
+          "localOnly": null,
+          "ms": 446.1549990000003,
+          "revision": 10
+        },
+        {
+          "name": "dynamicPropertyCreations",
+          "localOnly": true,
+          "ms": 8.981219999999666,
+          "revision": 10
+        },
+        {
+          "name": "invalidAllowDynamicProperties",
+          "localOnly": null,
+          "ms": 7.1768169999995735,
+          "revision": 10
+        },
+        {
+          "name": "incompatibleReturns",
+          "localOnly": true,
+          "ms": 38.52906299999995,
+          "revision": 10
+        },
+        {
+          "name": "incompatibleAssignments",
+          "localOnly": true,
+          "ms": 0.12305000000014843,
+          "revision": 10
+        },
+        {
+          "name": "readonlyPropertyAssignments",
+          "localOnly": null,
+          "ms": 167.36445400000048,
+          "revision": 10
+        }
+      ]
+    },
+    {
+      "version": 4,
+      "elapsedMs": 1691.0932949999988,
+      "coalesceMs": 25,
+      "sumTopLevelSyncMs": 1661.547217999996,
+      "rules": [
+        {
+          "name": "neverReturningCalls",
+          "localOnly": true,
+          "ms": 0.010384999999587308,
+          "revision": 11
+        },
+        {
+          "name": "syntax",
+          "localOnly": null,
+          "ms": 86.52963500000078,
+          "revision": null
+        },
+        {
+          "name": "unusedImports",
+          "localOnly": null,
+          "ms": 9.574076999999306,
+          "revision": 11
+        },
+        {
+          "name": "undefinedVariables",
+          "localOnly": null,
+          "ms": 250.3568469999991,
+          "revision": 11
+        },
+        {
+          "name": "argumentOrderProblems",
+          "localOnly": null,
+          "ms": 0.13091499999973166,
+          "revision": 11
+        },
+        {
+          "name": "phpDocTypeConflicts",
+          "localOnly": true,
+          "ms": 0.31032199999935983,
+          "revision": 11
+        },
+        {
+          "name": "unknownNamedArguments",
+          "localOnly": true,
+          "ms": 0.4717189999992115,
+          "revision": 11
+        },
+        {
+          "name": "unknownNamedArguments",
+          "localOnly": null,
+          "ms": 0.23287600000003295,
+          "revision": 11
+        },
+        {
+          "name": "missingRequiredArguments",
+          "localOnly": true,
+          "ms": 132.2554170000003,
+          "revision": 11
+        },
+        {
+          "name": "missingRequiredArguments",
+          "localOnly": null,
+          "ms": 127.11337699999967,
+          "revision": 11
+        },
+        {
+          "name": "incompatibleArguments",
+          "localOnly": true,
+          "ms": 411.523862,
+          "revision": 11
+        },
+        {
+          "name": "incompatibleArguments",
+          "localOnly": null,
+          "ms": 422.343789999999,
+          "revision": 11
+        },
+        {
+          "name": "dynamicPropertyCreations",
+          "localOnly": true,
+          "ms": 9.075564999999187,
+          "revision": 11
+        },
+        {
+          "name": "invalidAllowDynamicProperties",
+          "localOnly": null,
+          "ms": 9.367632999999842,
+          "revision": 11
+        },
+        {
+          "name": "incompatibleReturns",
+          "localOnly": true,
+          "ms": 33.2522880000015,
+          "revision": 11
+        },
+        {
+          "name": "incompatibleAssignments",
+          "localOnly": true,
+          "ms": 0.12222599999950035,
+          "revision": 11
+        },
+        {
+          "name": "readonlyPropertyAssignments",
+          "localOnly": null,
+          "ms": 168.87628399999994,
+          "revision": 11
+        }
+      ]
+    },
+    {
+      "version": 5,
+      "elapsedMs": 1843.1652429999995,
+      "coalesceMs": 25,
+      "sumTopLevelSyncMs": 1814.647321999999,
+      "rules": [
+        {
+          "name": "neverReturningCalls",
+          "localOnly": true,
+          "ms": 0.013274999999339343,
+          "revision": 12
+        },
+        {
+          "name": "syntax",
+          "localOnly": null,
+          "ms": 98.19055099999969,
+          "revision": null
+        },
+        {
+          "name": "unusedImports",
+          "localOnly": null,
+          "ms": 11.434511999999813,
+          "revision": 12
+        },
+        {
+          "name": "undefinedVariables",
+          "localOnly": null,
+          "ms": 277.9018329999999,
+          "revision": 12
+        },
+        {
+          "name": "argumentOrderProblems",
+          "localOnly": null,
+          "ms": 0.08248099999946135,
+          "revision": 12
+        },
+        {
+          "name": "phpDocTypeConflicts",
+          "localOnly": true,
+          "ms": 0.45133499999974447,
+          "revision": 12
+        },
+        {
+          "name": "unknownNamedArguments",
+          "localOnly": true,
+          "ms": 0.2636029999994207,
+          "revision": 12
+        },
+        {
+          "name": "unknownNamedArguments",
+          "localOnly": null,
+          "ms": 0.21481300000050396,
+          "revision": 12
+        },
+        {
+          "name": "missingRequiredArguments",
+          "localOnly": true,
+          "ms": 118.38612699999976,
+          "revision": 12
+        },
+        {
+          "name": "missingRequiredArguments",
+          "localOnly": null,
+          "ms": 107.06284600000072,
+          "revision": 12
+        },
+        {
+          "name": "incompatibleArguments",
+          "localOnly": true,
+          "ms": 447.6658490000009,
+          "revision": 12
+        },
+        {
+          "name": "incompatibleArguments",
+          "localOnly": null,
+          "ms": 488.5199820000016,
+          "revision": 12
+        },
+        {
+          "name": "dynamicPropertyCreations",
+          "localOnly": true,
+          "ms": 10.696100000001024,
+          "revision": 12
+        },
+        {
+          "name": "invalidAllowDynamicProperties",
+          "localOnly": null,
+          "ms": 8.105595000000903,
+          "revision": 12
+        },
+        {
+          "name": "incompatibleReturns",
+          "localOnly": true,
+          "ms": 42.68484199999875,
+          "revision": 12
+        },
+        {
+          "name": "incompatibleAssignments",
+          "localOnly": true,
+          "ms": 0.201666999997542,
+          "revision": 12
+        },
+        {
+          "name": "readonlyPropertyAssignments",
+          "localOnly": null,
+          "ms": 202.77191099999982,
+          "revision": 12
+        }
+      ]
+    }
+  ],
+  "productInputs": 2085,
+  "changedProductInputs": [],
+  "projectInputs": 66079,
+  "changedProjectInputs": [],
+  "resultEquality": true,
+  "productionSourceChanged": false,
+  "performanceQualified": false,
+  "fullObjectiveComplete": false,
+  "nextHypothesis": "Reuse existing signature memoization across the two synchronous local/full calls of incompatibleArguments within one publication, preserving both original result arrays and order."
+}

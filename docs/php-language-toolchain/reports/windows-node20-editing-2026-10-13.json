@@ -1,0 +1,33 @@
+{
+  "qualifiedWindowsOnDemand": true,
+  "coreSHA256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+  "rows": [
+    {
+      "runtime": "v20.0.0",
+      "diagnosticsP95Ms": 45.77590000629425,
+      "maximumHotQueryP95Ms": 8.957799911499023,
+      "maximumCancellationMs": 19.200299978256226,
+      "rssEndMinusBaselineMiB": 53.74609375,
+      "iterations": 500,
+      "warmup": 50,
+      "referenceRecovery": true,
+      "unsavedReplayDiffersFromDisk": true
+    },
+    {
+      "runtime": "v24.16.0",
+      "diagnosticsP95Ms": 43.69930000000022,
+      "maximumHotQueryP95Ms": 6.562099999999191,
+      "maximumCancellationMs": 28.418000000005122,
+      "rssEndMinusBaselineMiB": 14.234375,
+      "iterations": 500,
+      "warmup": 50,
+      "referenceRecovery": true,
+      "unsavedReplayDiffersFromDisk": true
+    }
+  ],
+  "copiedResourceCount": 12,
+  "frozenInputsUnchanged": 1012,
+  "remainingNativeProcesses": [],
+  "nativeDirectoryRemoved": true,
+  "fullObjectiveComplete": false
+}

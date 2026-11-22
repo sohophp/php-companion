@@ -1,0 +1,106 @@
+{
+  "qualifiedComparison": true,
+  "admitted": true,
+  "comparison": {
+    "control": {
+      "completionMs": {
+        "p95Ms": 592.3189009999987,
+        "medianMs": 131.07443499998772,
+        "maxMs": 641.174965000002
+      },
+      "diagnosticMs": {
+        "p95Ms": 1765.935357000002,
+        "medianMs": 1490.028366999999,
+        "maxMs": 2125.2834009999997
+      }
+    },
+    "prototype": {
+      "completionMs": {
+        "p95Ms": 132.1770800000013,
+        "medianMs": 104.81029200000194,
+        "maxMs": 645.1145849999994
+      },
+      "diagnosticMs": {
+        "p95Ms": 1528.0087249999997,
+        "medianMs": 1305.8002620000043,
+        "maxMs": 2160.7469459999993
+      }
+    }
+  },
+  "paired": {
+    "completionMs": {
+      "improvedSamples": 18,
+      "medianImprovementPercent": 16.12782323522956
+    },
+    "diagnosticMs": {
+      "improvedSamples": 22,
+      "medianImprovementPercent": 12.967976401727924
+    }
+  },
+  "admissionChecks": {
+    "diagnosticImprovedSamples": true,
+    "diagnosticPairedMedianImprovement": true,
+    "diagnosticP95Improved": true,
+    "queryP95RegressionBound": true,
+    "queryMedianRegressionBound": true,
+    "completeResultsAndInputsUnchanged": true
+  },
+  "correctness": {
+    "semantic": {
+      "passedEachSide": 24145,
+      "notSelectedEachSide": 0,
+      "sameCaseIdentitiesCountsAndStatuses": true
+    },
+    "protocol": {
+      "passedEachSide": 58,
+      "notSelectedEachSide": 0,
+      "sameCaseIdentitiesCountsAndStatuses": true
+    },
+    "version": {
+      "passedEachSide": 36,
+      "notSelectedEachSide": 532,
+      "sameCaseIdentitiesCountsAndStatuses": true
+    }
+  },
+  "differentialStates": 480,
+  "actualScopedRootCalls": 264,
+  "maximumRetainedNamedWrappersInDifferential": 27,
+  "boundaryChecks": 13,
+  "sourceAndBundleWitnessesAndOriginalSdkVerified": true,
+  "frozenInputs": {
+    "inputs.json": 3316,
+    "project-inputs.json": 66079,
+    "private-inputs.json": 77
+  },
+  "ownedActorsGroupsAndPerformanceCachesGone": true,
+  "originalDiagnosticBudgetPassed": false,
+  "originalQueryBudgetPassed": true,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "initialTypecheckedResourceDesignPreserved": true,
+  "initial10BoundaryChecksPreserved": true,
+  "final13BoundariesPassedWithoutPrototypeChange": true,
+  "recordedAtUtc": "2026-10-14T05:39:31.414063+00:00",
+  "archiveFiles": 105,
+  "actualCorrectnessCommandExitCode": 0,
+  "actualPerformanceCommandExitCode": 0,
+  "actualIndependentAuditExitCode": 0,
+  "localSourceAdopted": true,
+  "adoptedCoreExpectedSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "adoptionDefaultQualified": true,
+  "adoptionStatePath": ".vscode-test/argument-root-traversal-adoption-2026-10-14/state.json",
+  "normalAdoptedBuildQualified": true,
+  "normalAdoptedTypecheckAndLintPassed": true,
+  "publicDeclarationsUnchanged": 9,
+  "normalAdoptedCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "adoptionDefaultOriginalExitCode": 0,
+  "adoptionDefaultIndependentAuditExitCode": 0,
+  "adoptionDefaultVitestPassed": 26950,
+  "adoptionDefaultNativePassed": 7,
+  "adoptionDefaultVitestSkipped": 1,
+  "adoptionEditorFlowsStarted": true,
+  "adoptionEditorFlowsQualified": true,
+  "adoptionEditorIndependentAuditExitCode": 0,
+  "adoptionLongSessionStarted": true,
+  "adoptionLongSessionQualified": false
+}

@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { bcmathNumberDocumentUri, bcmathNumberPhpStub, filterClassesDocumentUri, filterClassesPhpStub, builtinDocumentUri, builtinPhpExtensionStub, builtinPhpStub, CONFIGURABLE_PHP_EXTENSIONS, isBuiltinDocumentUri, isSyntaxAvailable, lowestSupportedVersion, normalizeApcuRuntimeFacts, normalizeCurlRuntimeFacts, normalizeGdRuntimeFacts, normalizePcntlRuntimeFacts, normalizePgsqlRuntimeFacts, normalizeReadlineLib, normalizeTokenizerRuntimeFacts, normalizeMysqliRuntimeFacts, normalizeOpenSslRuntimeFacts, normalizePcreRuntimeConstants, normalizePdoRuntimeFacts, normalizeSocketsRuntimeFacts, normalizeSodiumRuntimeFacts, normalizeZipRuntimeFacts, normalizeZlibRuntimeFacts, parseBcmathNumberDocumentUri, parseBuiltinDocumentUri, parseFilterClassesDocumentUri, parsePdoDriverDocumentUri, parseRandomClassesDocumentUri, pdoDriverDocumentUri, pdoDriverPhpStub, randomClassesDocumentUri, randomClassesPhpStub, SUPPORTED_PHP_VERSIONS, unsupportedSyntax } from '../src/index.js';
 describe('PHP language specification', () => {
+  it('exposes PHP 8.6 core declarations while retaining the PHP 8.5 DOM catalog', () => {
+    expect(lowestSupportedVersion('^8.6')).toBe('8.6');
+    expect(parseBuiltinDocumentUri(builtinDocumentUri('8.6'))?.version).toBe('8.6');
+    const stub = builtinPhpStub('8.6');
+    for (const declaration of ['function clamp(', 'enum SortDirection', 'final readonly class Duration', 'namespace Io\\Poll']) {
+      expect(stub).toContain(declaration);
+      expect(builtinPhpStub('8.5')).not.toContain(declaration);
+    }
+    expect(builtinPhpExtensionStub('8.6', 'dom')).toBe(builtinPhpExtensionStub('8.5', 'dom'));
+  });
+
   it('describes SimpleXML factories with bounded class-string witnesses and explicit failures', () => {
     for (const version of SUPPORTED_PHP_VERSIONS) {
       const stub = builtinPhpStub(version);
@@ -44,7 +55,7 @@ describe('PHP language specification', () => {
     expect(parseBuiltinDocumentUri(`${vscodeRoundTrip}%26unexpected%3D1`)).toBeUndefined();
     expect(isBuiltinDocumentUri(uri)).toBe(true);
     expect(builtinDocumentUri('8.5')).not.toBe(uri);
-    expect(parseBuiltinDocumentUri('php-companion-builtin:/common-core.php?php=8.6')).toBeUndefined();
+    expect(parseBuiltinDocumentUri('php-companion-builtin:/common-core.php?php=8.7')).toBeUndefined();
     expect(parseBuiltinDocumentUri('php-companion-builtin:/common-core.php?php=7.2&disabled=unknown')).toBeUndefined();
     const conditional = builtinDocumentUri('8.5', { unavailableFunctions: ['curl_upkeep'] });
     expect(parseBuiltinDocumentUri(conditional)).toEqual({ version: '8.5', disabledExtensions: [], unavailableFunctions: ['curl_upkeep'] });
@@ -819,7 +830,7 @@ describe('PHP language specification', () => {
     const php82 = builtinPhpExtensionStub('8.2', 'openssl');
     const php85 = builtinPhpExtensionStub('8.5', 'openssl');
     const counts: Record<string, number> = { '7.2': 56, '7.3': 57, '7.4': 58, '8.0': 63,
-      '8.1': 63, '8.2': 64, '8.3': 64, '8.4': 64, '8.5': 64 };
+      '8.1': 63, '8.2': 64, '8.3': 64, '8.4': 64, '8.5': 64, '8.6': 64 };
     for (const version of SUPPORTED_PHP_VERSIONS) {
       const stub = builtinPhpExtensionStub(version, 'openssl');
       expect(stub.match(/\bfunction openssl_[a-z_0-9]+\(/g)).toHaveLength(counts[version]);
@@ -1439,7 +1450,7 @@ describe('PHP language specification', () => {
     expect(parseBuiltinDocumentUri(`${uri}&intlChar=malformed`)).toBeUndefined();
     expect(builtinPhpStub('8.5', { disabledExtensions: ['intl'], intlCharConstants: values })).not.toContain('class IntlChar {');
   });
-  it('declares the complete configured target-version set', () => { expect(SUPPORTED_PHP_VERSIONS).toEqual(['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']); });
+  it('declares the complete configured target-version set', () => { expect(SUPPORTED_PHP_VERSIONS).toEqual(['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6']); });
   it('returns the audited core and versioned reference signatures for every target version', () => {
     for (const version of SUPPORTED_PHP_VERSIONS) {
       expect(builtinPhpStub(version)).toContain('class DateTimeImmutable');
@@ -3206,10 +3217,10 @@ describe('PHP language specification', () => {
     expect(php84).toContain('public static function toMemory(): static');
     expect(php84).toContain('public static function toStream($stream): static');
   });
-  it('models the complete classic DOM surface and its PHP 7.2–8.5 boundaries', () => {
+  it('models the complete classic DOM surface and its PHP 7.2–8.6 boundaries', () => {
     const expectedCounts: Record<string, readonly [types: number, methods: number, properties: number]> = {
       '7.2': [31, 124, 87], '7.3': [31, 124, 87], '7.4': [31, 124, 87], '8.0': [22, 122, 87],
-      '8.1': [22, 126, 87], '8.2': [22, 126, 87], '8.3': [22, 137, 93], '8.4': [22, 139, 93], '8.5': [22, 139, 93],
+      '8.1': [22, 126, 87], '8.2': [22, 126, 87], '8.3': [22, 137, 93], '8.4': [22, 139, 93], '8.5': [22, 139, 93], '8.6': [22, 139, 93],
     };
     for (const version of SUPPORTED_PHP_VERSIONS) {
       const stub = builtinPhpStub(version);

@@ -1,0 +1,521 @@
+{
+  "auditedAtUtc": "2026-10-20T03:29:41.227301+00:00",
+  "independentProtocolBindingAuditPassed": true,
+  "executedSourceCommit": "bf9613d5445e8c0390dae1865e591c1d7a8901d6",
+  "currentSourceCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+  "selectedTestSourceBytesUnchanged": true,
+  "ciRun": 39359865699,
+  "ciJob": 118423267415,
+  "ciJobConclusion": "success",
+  "ciWorkflowStillNotQualified": false,
+  "platform": "macos-latest",
+  "newRealTestRerunPerformed": false,
+  "rawLogSHA256": "267a72f365af139740d06849c6f91d099dacc1714a0028f602b91aece186a1f0",
+  "jobMetadataSHA256": "c0768d1e25b152af656e57540deea02d843ebbf7c9dc5506e572e723662ffc97",
+  "collectionSHA256": "f2bf430c75a4090966a6eb95ca9e2dd666bcd236ddce2bd0e2cac971ed1bf1b0",
+  "originalPreviouslyUnprovenLinks": 13,
+  "expandedPassedLinks": 15,
+  "uniquePassedTests": 9,
+  "numberedIds": [
+    "F05-GEN-05",
+    "F06-DIAG-04",
+    "F07-GEN-BODY-01",
+    "F07-GEN-BODY-02",
+    "F07-GEN-BODY-03",
+    "F13-REF-LIFETIME-01",
+    "F13-REF-LIFETIME-02"
+  ],
+  "files": [
+    {
+      "file": "packages/language-server/test/generator-return-control-flow-stdio.test.ts",
+      "sourceSHA256": "590fc7f3d3f7da2d63e00ab0e303660a858eeedff4b5e9b59712c3f69013bfb0",
+      "collectedTests": 4,
+      "actualPassedTests": 4,
+      "actualSkippedTests": 0,
+      "logLine": 3254,
+      "logRecord": "2026-10-20T03:01:37.8124140Z  \u2713  lsp  test/generator-return-control-flow-stdio.test.ts (4 tests) 6451ms",
+      "deterministicRegistrationsNoPlatformOrSkipFilters": true
+    },
+    {
+      "file": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+      "sourceSHA256": "f6ac3d5053a3a9589321eb0f55febbbebf718b952085513670ad9cfed3482858",
+      "collectedTests": 2,
+      "actualPassedTests": 2,
+      "actualSkippedTests": 0,
+      "logLine": 3130,
+      "logRecord": "2026-10-20T03:00:59.2612060Z  \u2713  lsp  test/generation-body-boundary-stdio.test.ts (2 tests) 2667ms",
+      "deterministicRegistrationsNoPlatformOrSkipFilters": true
+    },
+    {
+      "file": "packages/language-server/test/analysis.test.ts",
+      "sourceSHA256": "9d1daa301814eaebf0bc8f9c386be47b1e5e4e2a955c996efa9f688e04c9c6e0",
+      "collectedTests": 48,
+      "actualPassedTests": 48,
+      "actualSkippedTests": 0,
+      "logLine": 1237,
+      "logRecord": "2026-10-20T02:50:04.6748670Z  \u2713  lsp  test/analysis.test.ts (48 tests) 532ms",
+      "deterministicRegistrationsNoPlatformOrSkipFilters": true
+    },
+    {
+      "file": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "sourceSHA256": "536d0ec96ea276fc0072d47f1e13bc5153f9d8d3de7ef07ed66129969227992a",
+      "collectedTests": 2,
+      "actualPassedTests": 2,
+      "actualSkippedTests": 0,
+      "logLine": 3142,
+      "logRecord": "2026-10-20T03:01:06.4056350Z  \u2713  lsp  test/reference-progress-lifecycle-stdio.test.ts (2 tests) 11996ms",
+      "deterministicRegistrationsNoPlatformOrSkipFilters": true
+    }
+  ],
+  "matchedOriginalLinks": [
+    {
+      "original": {
+        "id": "F06-DIAG-04",
+        "testFile": "packages/language-server/test/analysis.test.ts",
+        "fullName": "PHP document analysis preserves nested void recovery and the unrelated unfinished declaration",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "PHP document analysis > preserves nested void recovery and the unrelated unfinished declaration"
+      ]
+    },
+    {
+      "original": {
+        "id": "F13-REF-LIFETIME-01",
+        "testFile": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+        "fullName": "finishes cold, cached and cancelled reference preparation at PHP %s",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "finishes cold, cached and cancelled reference preparation at PHP 7.2",
+        "finishes cold, cached and cancelled reference preparation at PHP 8.5"
+      ]
+    },
+    {
+      "original": {
+        "id": "F13-REF-LIFETIME-02",
+        "testFile": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+        "fullName": "finishes cold, cached and cancelled reference preparation at PHP %s",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "finishes cold, cached and cancelled reference preparation at PHP 7.2",
+        "finishes cold, cached and cancelled reference preparation at PHP 8.5"
+      ]
+    },
+    {
+      "original": {
+        "id": "F07-GEN-BODY-01",
+        "testFile": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+        "fullName": "generates only inside the selected complete class body in onDemand",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "generates only inside the selected complete class body in onDemand"
+      ]
+    },
+    {
+      "original": {
+        "id": "F07-GEN-BODY-01",
+        "testFile": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+        "fullName": "generates only inside the selected complete class body in progressive",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "generates only inside the selected complete class body in progressive"
+      ]
+    },
+    {
+      "original": {
+        "id": "F07-GEN-BODY-02",
+        "testFile": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+        "fullName": "generates only inside the selected complete class body in onDemand",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "generates only inside the selected complete class body in onDemand"
+      ]
+    },
+    {
+      "original": {
+        "id": "F07-GEN-BODY-02",
+        "testFile": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+        "fullName": "generates only inside the selected complete class body in progressive",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "generates only inside the selected complete class body in progressive"
+      ]
+    },
+    {
+      "original": {
+        "id": "F07-GEN-BODY-03",
+        "testFile": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+        "fullName": "generates only inside the selected complete class body in onDemand",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "generates only inside the selected complete class body in onDemand"
+      ]
+    },
+    {
+      "original": {
+        "id": "F07-GEN-BODY-03",
+        "testFile": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+        "fullName": "generates only inside the selected complete class body in progressive",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "generates only inside the selected complete class body in progressive"
+      ]
+    },
+    {
+      "original": {
+        "id": "F05-GEN-05",
+        "testFile": "packages/language-server/test/generator-return-control-flow-stdio.test.ts",
+        "fullName": "tracks reachable Generator return paths at PHP '7.2' in 'onDemand'",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "tracks reachable Generator return paths at PHP '7.2' in 'onDemand'"
+      ]
+    },
+    {
+      "original": {
+        "id": "F05-GEN-05",
+        "testFile": "packages/language-server/test/generator-return-control-flow-stdio.test.ts",
+        "fullName": "tracks reachable Generator return paths at PHP '7.2' in 'progressive'",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "tracks reachable Generator return paths at PHP '7.2' in 'progressive'"
+      ]
+    },
+    {
+      "original": {
+        "id": "F05-GEN-05",
+        "testFile": "packages/language-server/test/generator-return-control-flow-stdio.test.ts",
+        "fullName": "tracks reachable Generator return paths at PHP '8.5' in 'onDemand'",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "tracks reachable Generator return paths at PHP '8.5' in 'onDemand'"
+      ]
+    },
+    {
+      "original": {
+        "id": "F05-GEN-05",
+        "testFile": "packages/language-server/test/generator-return-control-flow-stdio.test.ts",
+        "fullName": "tracks reachable Generator return paths at PHP '8.5' in 'progressive'",
+        "bindingSource": "historical exact name, current actual result independently matched",
+        "currentSelectedPassedResultAvailable": false,
+        "status": "not-proven-by-selected-results"
+      },
+      "actualPassedNames": [
+        "tracks reachable Generator return paths at PHP '8.5' in 'progressive'"
+      ]
+    }
+  ],
+  "expandedBindings": [
+    {
+      "id": "F06-DIAG-04",
+      "file": "packages/language-server/test/analysis.test.ts",
+      "actualCollectedName": "PHP document analysis > preserves nested void recovery and the unrelated unfinished declaration",
+      "project": "lsp",
+      "sourceSHA256": "9d1daa301814eaebf0bc8f9c386be47b1e5e4e2a955c996efa9f688e04c9c6e0"
+    },
+    {
+      "id": "F13-REF-LIFETIME-01",
+      "file": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "actualCollectedName": "finishes cold, cached and cancelled reference preparation at PHP 7.2",
+      "project": "lsp",
+      "sourceSHA256": "536d0ec96ea276fc0072d47f1e13bc5153f9d8d3de7ef07ed66129969227992a"
+    },
+    {
+      "id": "F13-REF-LIFETIME-01",
+      "file": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "actualCollectedName": "finishes cold, cached and cancelled reference preparation at PHP 8.5",
+      "project": "lsp",
+      "sourceSHA256": "536d0ec96ea276fc0072d47f1e13bc5153f9d8d3de7ef07ed66129969227992a"
+    },
+    {
+      "id": "F13-REF-LIFETIME-02",
+      "file": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "actualCollectedName": "finishes cold, cached and cancelled reference preparation at PHP 7.2",
+      "project": "lsp",
+      "sourceSHA256": "536d0ec96ea276fc0072d47f1e13bc5153f9d8d3de7ef07ed66129969227992a"
+    },
+    {
+      "id": "F13-REF-LIFETIME-02",
+      "file": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+      "actualCollectedName": "finishes cold, cached and cancelled reference preparation at PHP 8.5",
+      "project": "lsp",
+      "sourceSHA256": "536d0ec96ea276fc0072d47f1e13bc5153f9d8d3de7ef07ed66129969227992a"
+    },
+    {
+      "id": "F07-GEN-BODY-01",
+      "file": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+      "actualCollectedName": "generates only inside the selected complete class body in onDemand",
+      "project": "lsp",
+      "sourceSHA256": "f6ac3d5053a3a9589321eb0f55febbbebf718b952085513670ad9cfed3482858"
+    },
+    {
+      "id": "F07-GEN-BODY-01",
+      "file": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+      "actualCollectedName": "generates only inside the selected complete class body in progressive",
+      "project": "lsp",
+      "sourceSHA256": "f6ac3d5053a3a9589321eb0f55febbbebf718b952085513670ad9cfed3482858"
+    },
+    {
+      "id": "F07-GEN-BODY-02",
+      "file": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+      "actualCollectedName": "generates only inside the selected complete class body in onDemand",
+      "project": "lsp",
+      "sourceSHA256": "f6ac3d5053a3a9589321eb0f55febbbebf718b952085513670ad9cfed3482858"
+    },
+    {
+      "id": "F07-GEN-BODY-02",
+      "file": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+      "actualCollectedName": "generates only inside the selected complete class body in progressive",
+      "project": "lsp",
+      "sourceSHA256": "f6ac3d5053a3a9589321eb0f55febbbebf718b952085513670ad9cfed3482858"
+    },
+    {
+      "id": "F07-GEN-BODY-03",
+      "file": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+      "actualCollectedName": "generates only inside the selected complete class body in onDemand",
+      "project": "lsp",
+      "sourceSHA256": "f6ac3d5053a3a9589321eb0f55febbbebf718b952085513670ad9cfed3482858"
+    },
+    {
+      "id": "F07-GEN-BODY-03",
+      "file": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+      "actualCollectedName": "generates only inside the selected complete class body in progressive",
+      "project": "lsp",
+      "sourceSHA256": "f6ac3d5053a3a9589321eb0f55febbbebf718b952085513670ad9cfed3482858"
+    },
+    {
+      "id": "F05-GEN-05",
+      "file": "packages/language-server/test/generator-return-control-flow-stdio.test.ts",
+      "actualCollectedName": "tracks reachable Generator return paths at PHP '7.2' in 'onDemand'",
+      "project": "lsp",
+      "sourceSHA256": "590fc7f3d3f7da2d63e00ab0e303660a858eeedff4b5e9b59712c3f69013bfb0"
+    },
+    {
+      "id": "F05-GEN-05",
+      "file": "packages/language-server/test/generator-return-control-flow-stdio.test.ts",
+      "actualCollectedName": "tracks reachable Generator return paths at PHP '7.2' in 'progressive'",
+      "project": "lsp",
+      "sourceSHA256": "590fc7f3d3f7da2d63e00ab0e303660a858eeedff4b5e9b59712c3f69013bfb0"
+    },
+    {
+      "id": "F05-GEN-05",
+      "file": "packages/language-server/test/generator-return-control-flow-stdio.test.ts",
+      "actualCollectedName": "tracks reachable Generator return paths at PHP '8.5' in 'onDemand'",
+      "project": "lsp",
+      "sourceSHA256": "590fc7f3d3f7da2d63e00ab0e303660a858eeedff4b5e9b59712c3f69013bfb0"
+    },
+    {
+      "id": "F05-GEN-05",
+      "file": "packages/language-server/test/generator-return-control-flow-stdio.test.ts",
+      "actualCollectedName": "tracks reachable Generator return paths at PHP '8.5' in 'progressive'",
+      "project": "lsp",
+      "sourceSHA256": "590fc7f3d3f7da2d63e00ab0e303660a858eeedff4b5e9b59712c3f69013bfb0"
+    }
+  ],
+  "remainingUnprovenLinksFromOriginalSelection": 0,
+  "combinedPartialExecutionIds": 46,
+  "combinedPartialExecutionAssertions": 221,
+  "combinedIds": [
+    "F04-REF-01",
+    "F04-REF-02",
+    "F04-REF-03",
+    "F04-REF-04",
+    "F05-BOUND-01",
+    "F05-CALLABLE-01",
+    "F05-CALLABLE-02",
+    "F05-CONDITIONAL-01",
+    "F05-FLOW-01",
+    "F05-FLOW-02",
+    "F05-FLOW-03",
+    "F05-GEN-03",
+    "F05-GEN-04",
+    "F05-GEN-05",
+    "F05-GEN-06",
+    "F05-MIXIN-01",
+    "F05-SHAPE-01",
+    "F05-SHAPE-02",
+    "F05-SHAPE-03",
+    "F05-TEMPLATE-01",
+    "F05-TEMPLATE-02",
+    "F06-DIAG-01",
+    "F06-DIAG-02",
+    "F06-DIAG-03",
+    "F06-DIAG-04",
+    "F07-GEN-01",
+    "F07-GEN-02",
+    "F07-GEN-03",
+    "F07-GEN-BODY-01",
+    "F07-GEN-BODY-02",
+    "F07-GEN-BODY-03",
+    "F07-IMPORT-01",
+    "F08-EI-01",
+    "F08-EI-02",
+    "F08-EI-03",
+    "F08-EM-01",
+    "F08-EM-02",
+    "F08-EM-03",
+    "F08-RP-01",
+    "F08-RP-02",
+    "F08-RP-03",
+    "F13-REF-LIFETIME-01",
+    "F13-REF-LIFETIME-02",
+    "F14-CONFIG-01",
+    "F14-LOCALE-01",
+    "F14-MANIFEST-01"
+  ],
+  "allDeclaredHistoricalBindingExecutionProvenCount": 33,
+  "allOriginalWorkflowQualified": false,
+  "fullF01ToF14Qualified": false,
+  "originalPhaseWorkItemsClosed": 0,
+  "fullObjectiveComplete": false,
+  "subsequentCrossPlatformAudit": {
+    "auditedAtUtc": "2026-10-20T03:42:17.307450+00:00",
+    "sourceCommit": "bf9613d5445e8c0390dae1865e591c1d7a8901d6",
+    "workflowRun": 39359865699,
+    "workflowConclusion": "success",
+    "independentCrossPlatformProtocolBindingPassed": true,
+    "sourceRegistrationProof": "Reuse identical four files, deterministic registrations, exact current nine names and historical template expansion from audit-remaining-protocol.py; no platform or skip filters",
+    "sourceRegistrationAuditSHA256": "d6680d424cc19722b60b215ffe31a06e5c30f16692dada05b976d74b423a635f",
+    "archiveSHA256": "26ab0d8cf77c40cf69e4dd2e091340cfd4b59badff6f4711b3bfca3e2ebe20d0",
+    "platforms": [
+      {
+        "job": "10_Quality (ubuntu-latest).txt",
+        "logSHA256": "25aad7c61c18cb9be0a5e73333a98b36e06ba930b2a74c5caf514046afd43f32",
+        "sourceCommitFound": true,
+        "files": [
+          {
+            "file": "packages/language-server/test/generator-return-control-flow-stdio.test.ts",
+            "actualPassedTests": 4,
+            "skipped": 0,
+            "rawLogLine": 2858
+          },
+          {
+            "file": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+            "actualPassedTests": 2,
+            "skipped": 0,
+            "rawLogLine": 2740
+          },
+          {
+            "file": "packages/language-server/test/analysis.test.ts",
+            "actualPassedTests": 48,
+            "skipped": 0,
+            "rawLogLine": 1287
+          },
+          {
+            "file": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+            "actualPassedTests": 2,
+            "skipped": 0,
+            "rawLogLine": 2697
+          }
+        ],
+        "selectedUniqueTestsProven": 9
+      },
+      {
+        "job": "11_Quality (windows-latest).txt",
+        "logSHA256": "586eb4fe1cf9e61008ad34daa75843f1094deb3acad319ddc1215f059a2f0bd2",
+        "sourceCommitFound": true,
+        "files": [
+          {
+            "file": "packages/language-server/test/generator-return-control-flow-stdio.test.ts",
+            "actualPassedTests": 4,
+            "skipped": 0,
+            "rawLogLine": 2843
+          },
+          {
+            "file": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+            "actualPassedTests": 2,
+            "skipped": 0,
+            "rawLogLine": 2777
+          },
+          {
+            "file": "packages/language-server/test/analysis.test.ts",
+            "actualPassedTests": 48,
+            "skipped": 0,
+            "rawLogLine": 1327
+          },
+          {
+            "file": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+            "actualPassedTests": 2,
+            "skipped": 0,
+            "rawLogLine": 2774
+          }
+        ],
+        "selectedUniqueTestsProven": 9
+      },
+      {
+        "job": "17_Quality (macos-latest).txt",
+        "logSHA256": "267a72f365af139740d06849c6f91d099dacc1714a0028f602b91aece186a1f0",
+        "sourceCommitFound": true,
+        "files": [
+          {
+            "file": "packages/language-server/test/generator-return-control-flow-stdio.test.ts",
+            "actualPassedTests": 4,
+            "skipped": 0,
+            "rawLogLine": 3254
+          },
+          {
+            "file": "packages/language-server/test/generation-body-boundary-stdio.test.ts",
+            "actualPassedTests": 2,
+            "skipped": 0,
+            "rawLogLine": 3130
+          },
+          {
+            "file": "packages/language-server/test/analysis.test.ts",
+            "actualPassedTests": 48,
+            "skipped": 0,
+            "rawLogLine": 1237
+          },
+          {
+            "file": "packages/language-server/test/reference-progress-lifecycle-stdio.test.ts",
+            "actualPassedTests": 2,
+            "skipped": 0,
+            "rawLogLine": 3142
+          }
+        ],
+        "selectedUniqueTestsProven": 9
+      }
+    ],
+    "uniqueTests": 9,
+    "actualSelectedTestExecutions": 27,
+    "expandedHistoricalLinks": 15,
+    "combinedPartialExecutionIds": 46,
+    "combinedPartialExecutionAssertions": 221,
+    "allOriginalWorkflowQualified": false,
+    "fullObjectiveComplete": false
+  }
+}

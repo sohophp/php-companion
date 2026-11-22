@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-20",
+  "commit": "193cda547dc8f7a1b7a365719e8d6635b84eeb71",
+  "coreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+  "mode": "onDemand",
+  "platform": "linux",
+  "actualRunnerExitCode": 0,
+  "independentAuditPassed": true,
+  "cases": [
+    {
+      "phpVersion": "7.2",
+      "mode": "onDemand",
+      "platform": "linux",
+      "diagnosticP95Ms": 30.517084999999497,
+      "maxHotQueryP95Ms": 6.128082999999606,
+      "cancellationMs": 19.66095199999836
+    },
+    {
+      "phpVersion": "7.3",
+      "mode": "onDemand",
+      "platform": "linux",
+      "diagnosticP95Ms": 30.706516000000192,
+      "maxHotQueryP95Ms": 6.646928999998636,
+      "cancellationMs": 5.2245140000013635
+    },
+    {
+      "phpVersion": "7.4",
+      "mode": "onDemand",
+      "platform": "linux",
+      "diagnosticP95Ms": 30.668188999999984,
+      "maxHotQueryP95Ms": 6.496924000002764,
+      "cancellationMs": 5.654262000000017
+    },
+    {
+      "phpVersion": "8.0",
+      "mode": "onDemand",
+      "platform": "linux",
+      "diagnosticP95Ms": 30.843721000001096,
+      "maxHotQueryP95Ms": 6.201021999997465,
+      "cancellationMs": 5.815948999999819
+    },
+    {
+      "phpVersion": "8.1",
+      "mode": "onDemand",
+      "platform": "linux",
+      "diagnosticP95Ms": 30.87007799999992,
+      "maxHotQueryP95Ms": 5.9378059999999095,
+      "cancellationMs": 5.108415999999124
+    },
+    {
+      "phpVersion": "8.2",
+      "mode": "onDemand",
+      "platform": "linux",
+      "diagnosticP95Ms": 30.76820299999963,
+      "maxHotQueryP95Ms": 6.43836999999985,
+      "cancellationMs": 31.918526000001293
+    },
+    {
+      "phpVersion": "8.3",
+      "mode": "onDemand",
+      "platform": "linux",
+      "diagnosticP95Ms": 31.049308000001474,
+      "maxHotQueryP95Ms": 6.42973400000119,
+      "cancellationMs": 13.296672000000399
+    },
+    {
+      "phpVersion": "8.4",
+      "mode": "onDemand",
+      "platform": "linux",
+      "diagnosticP95Ms": 30.84515900000042,
+      "maxHotQueryP95Ms": 6.943052999999054,
+      "cancellationMs": 4.970094000000245
+    },
+    {
+      "phpVersion": "8.5",
+      "mode": "onDemand",
+      "platform": "linux",
+      "diagnosticP95Ms": 31.01238999999987,
+      "maxHotQueryP95Ms": 6.82013999999981,
+      "cancellationMs": 5.695418999999674
+    }
+  ],
+  "formalEdits": 4500,
+  "warmupEdits": 450,
+  "loadedTargetProofs": 9,
+  "allRuntimeAndRawEvidenceHashesVerified": true,
+  "ownedProcessesGone": true,
+  "temporaryOwnerRemoved": true,
+  "maxDiagnosticP95Ms": 31.049308000001474,
+  "maxQueryP95Ms": 6.943052999999054,
+  "maxCancellationMs": 31.918526000001293,
+  "wholePlatformMatrixQualified": false,
+  "fullObjectiveComplete": false
+}

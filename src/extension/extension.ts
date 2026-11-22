@@ -26,7 +26,7 @@ import { moveFileExists } from '../refactor/moveFileState.js';
 import { captureRuntimeFileGuard } from '../refactor/runtimeFiles.js';
 import { languageServerActivationDecision, startLanguageServer } from './languageServer.js';
 import { composerRequiresSymfony } from './languageServerPolicy.js';
-import { BCMATH_NUMBER_DOCUMENT_URI, BUILTIN_DOCUMENT_URI, FILTER_CLASSES_DOCUMENT_URI, bcmathNumberPhpStub, builtinPhpStub, filterClassesPhpStub, parseBcmathNumberDocumentUri, parseBuiltinDocumentUri, parseFilterClassesDocumentUri, SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from '@php-companion/language-spec';
+import { registerBuiltinDocumentation } from './builtinDocumentation.js';
 import type { PhpCompanionPluginApi } from '@php-companion/plugin-api';
 import { IntegrationRegistry } from './integrationRegistry.js';
 import { t } from './localize.js';
@@ -258,26 +258,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<PhpCom
   const moveParser = (): Promise<PhpSyntaxParser> => moveParserPromise ??= PhpSyntaxParser.create({ coreWasmPath: context.asAbsolutePath('dist/web-tree-sitter.wasm'), phpWasmPath: context.asAbsolutePath('dist/tree-sitter-php.wasm') });
   let workspacePromise: Promise<WorkspaceManager> | undefined;
 
-  context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('php-companion-builtin', {
-    provideTextDocumentContent: (uri) => {
-      const bcmathSnapshot = parseBcmathNumberDocumentUri(uri.toString());
-      if (bcmathSnapshot) return bcmathNumberPhpStub(bcmathSnapshot.version, bcmathSnapshot);
-      const filterSnapshot = parseFilterClassesDocumentUri(uri.toString());
-      if (filterSnapshot) return filterClassesPhpStub(filterSnapshot.version, filterSnapshot);
-      const snapshot = parseBuiltinDocumentUri(uri.toString());
-      if (snapshot) return builtinPhpStub(snapshot.version, snapshot);
-      if (uri.toString() !== BUILTIN_DOCUMENT_URI && uri.toString() !== BCMATH_NUMBER_DOCUMENT_URI
-        && uri.toString() !== FILTER_CLASSES_DOCUMENT_URI) return '';
-      const requested = vscode.workspace.getConfiguration('phpCompanion').get<string>('phpVersion', 'auto');
-      const target = (SUPPORTED_PHP_VERSIONS as readonly string[]).includes(requested) ? requested as SupportedPhpVersion : '8.5';
-      if (uri.toString() === BCMATH_NUMBER_DOCUMENT_URI) return bcmathNumberPhpStub(target);
-      return uri.toString() === FILTER_CLASSES_DOCUMENT_URI ? filterClassesPhpStub(target) : builtinPhpStub(target);
-    },
-  }));
+  const builtinDocumentation = registerBuiltinDocumentation(context, moveParser, output);
   context.subscriptions.push(registerPhpTypePreviewProvider());
   context.subscriptions.push(registerRenamePreviewProvider());
 
-  const languageServer = startLanguageServer(context, output, versions, integrations).then((client) => {
+  const languageServer = startLanguageServer(context, output, versions, integrations, builtinDocumentation).then((client) => {
     return client;
   }).catch((error) => {
     output.error(`PHP language server failed to start: ${error instanceof Error ? error.message : String(error)}`);

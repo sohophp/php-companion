@@ -54,11 +54,17 @@ describe('runtime files during refactor previews', () => {
     });
   });
 
-  it.skipIf(process.platform === 'win32')('detects equal-length edits with a restored modification time', async () => {
+  it('detects equal-length edits with a restored modification time', async () => {
     await withRuntimeFiles(async root => {
-      const file = join(root, 'php'); await writeFile(file, 'original'); const before = await stat(file);
+      const file = join(root, 'php'); const timestamp = new Date('2026-01-01T00:00:00.000Z');
+      await writeFile(file, 'original'); await utimes(file, timestamp, timestamp);
+      const before = await stat(file, { bigint: true });
       const unchanged = await captureRuntimeFileGuard([file]);
-      await writeFile(file, 'modified'); await utimes(file, before.atime, before.mtime);
+      expect(await unchanged()).toBe(true);
+      await writeFile(file, 'modified'); await utimes(file, timestamp, timestamp);
+      const after = await stat(file, { bigint: true });
+      expect(after.size).toBe(before.size);
+      expect(after.mtimeNs).toBe(before.mtimeNs);
       expect(await unchanged()).toBe(false);
     });
   });

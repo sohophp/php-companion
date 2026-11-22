@@ -1,0 +1,95 @@
+{
+  "recordedAtUtc": "2026-10-14T08:41:06.478202+00:00",
+  "status": "passed",
+  "actualOriginalCommandExitCode": 0,
+  "actualIndependentAuditorExitCode": 0,
+  "twoHourQualified": true,
+  "currentCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "originalRunnerSHA256": "f16a24a67e32c070436f15b78f827e157c715f0081b9dc43fd0b91f250dd6aee",
+  "elapsedMs": 7200642.510609,
+  "cycles": 23530,
+  "checkedResults": 117650,
+  "staleResults": 0,
+  "completedWindows": 235,
+  "allTimings": {
+    "change": {
+      "samples": 23520,
+      "p50": 29.23002600017935,
+      "p95": 31.300364000002446,
+      "maximum": 147.75184100028127
+    },
+    "betaCompletion": {
+      "samples": 23520,
+      "p50": 2.1710840007290244,
+      "p95": 3.7108720000833273,
+      "maximum": 26.186590999364853
+    },
+    "betaHover": {
+      "samples": 23520,
+      "p50": 1.7597879995591938,
+      "p95": 3.093840000219643,
+      "maximum": 18.8319129999727
+    },
+    "betaDefinition": {
+      "samples": 23520,
+      "p50": 1.7767770001664758,
+      "p95": 3.0732370000332594,
+      "maximum": 18.029431000351906
+    },
+    "alphaCompletion": {
+      "samples": 23520,
+      "p50": 1.9647289998829365,
+      "p95": 3.363255999982357,
+      "maximum": 85.37470899987966
+    },
+    "alphaDefinition": {
+      "samples": 23520,
+      "p50": 3.689771999605,
+      "p95": 6.318262000568211,
+      "maximum": 81.60857800021768
+    }
+  },
+  "sampledPeakHighWaterMiB": 313.6171875,
+  "sampledPeakCacheMiB": 3.762873649597168,
+  "recoveryWitnesses": [
+    {
+      "kind": "forced-process-exit",
+      "previousPid": 4025,
+      "replacementPid": 26317,
+      "recoveryMs": 4861.791256000288,
+      "unsavedBufferReopenedExactly": true,
+      "firstQueryCorrect": true,
+      "diskUnchanged": true
+    },
+    {
+      "kind": "cache-manifest-corruption",
+      "path": "/tmp/sophp-final-long-0ejj7s50/sophp-long-session-p6Mqex/.cache/73c70f07e18fe2a4f5c4b3e3415e33919e67fbef0a1e74921c8a9ade460aaf0f.json",
+      "originalSha256": "0b6c63694b943c2ad83ffe9d15b0b979e63bb91c7cd88b6743762492742f9562",
+      "corruptedSha256": "be302461cda285db3ed2d45fb767b23e08ca8808b35a638009937df22b332d73",
+      "recoveryProbe": {
+        "uri": "file:///tmp/sophp-final-long-0ejj7s50/sophp-long-session-p6Mqex/src/Noise997.php",
+        "method": "textDocument/references",
+        "declarationReturned": true
+      },
+      "rebuiltSha256": "c4f3b5e0c3ca14c30efd2fcaf2c4b6a8f5a911fd4c0134feb3b88b0e2596c5ab",
+      "replacementPid": 50655,
+      "recoveryMs": 4729.06288899947,
+      "unsavedBufferReopenedExactly": true,
+      "firstQueryCorrect": true,
+      "diskUnchanged": true
+    }
+  ],
+  "frozenProductsVerified": 3316,
+  "privateInputsVerified": 7,
+  "normalAssetsVerified": 8,
+  "archiveOriginalsAndCopiesVerified": 15,
+  "allOwnedProcessesGroupsAndDirectoriesGone": true,
+  "initialLiveReportRetained": "/var/www/node/php-companion/.vscode-test/8219-long-session-2026-10-14/initial-live-report-summary.json",
+  "initialLiveReportSHA256": "719ecd0278d9f02857fd08a8e9d1fd8d6865a98ee2141556d70719b7f8816c3f",
+  "terminalAudit": "/var/www/node/php-companion/.vscode-test/8219-long-session-2026-10-14/two-hour-terminal-audit.json",
+  "terminalAuditSHA256": "1a47f1726cc4ff555280b00684192190a1b14939174feb5ae52bb904f72c109d",
+  "realWslAcceptance": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "scope": "Linux normal bundled LSP, 1k synthetic continuous unsaved edits/close recovery, actual process exit/cache manifest corruption; excludes editor UI, real project, cancellation, Remote and other modes/platforms"
+}

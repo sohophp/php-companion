@@ -1,0 +1,390 @@
+{
+  "date": "2026-10-13",
+  "scope": "单次完整实参遍历按原谓词分别收集本地和完整结果",
+  "adopted": false,
+  "semanticDifferential": {
+    "qualified": true,
+    "checkedStates": 480,
+    "localDiagnosticsCompared": 360,
+    "fullDiagnosticsCompared": 510,
+    "versions": [
+      "7.2",
+      "8.0",
+      "8.5"
+    ],
+    "strictAndWeak": true,
+    "fullAndRestored": true,
+    "externalSignatureChangesAndRemoval": true,
+    "productionChanged": false
+  },
+  "prevalidation": {
+    "status": "exited",
+    "wrapperPid": 93308,
+    "startedAtUtc": "2026-10-13T04:53:40.266668+00:00",
+    "stages": [
+      {
+        "name": "build-control",
+        "status": "exited",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/argument-single-pass-2026-10-13/build-private.mjs",
+          "--production",
+          "control"
+        ],
+        "pid": 93420,
+        "processGroup": 93420,
+        "startTicks": "51584587",
+        "exitCode": 0
+      },
+      {
+        "name": "protocol-control",
+        "status": "exited",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/argument-single-pass-2026-10-13/private-lsp.config.mjs",
+          "test/receiver-guard-argument-assertions-stdio.test.ts",
+          "test/trait-constructor-phpdoc-stdio.test.ts",
+          "test/inherited-constructor-generics-stdio.test.ts",
+          "test/native-boundary-diagnostics-stdio.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/argument-single-pass-2026-10-13/control-protocol-results.json"
+        ],
+        "pid": 93459,
+        "processGroup": 93459,
+        "startTicks": "51584692",
+        "exitCode": 0
+      },
+      {
+        "name": "version-control",
+        "status": "exited",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/argument-single-pass-2026-10-13/private-lsp.config.mjs",
+          "test/stdio.test.ts",
+          "-t",
+          "argument|scalar|constructor|versioned diagnostics",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/argument-single-pass-2026-10-13/control-version-results.json"
+        ],
+        "pid": 93986,
+        "processGroup": 93986,
+        "startTicks": "51586996",
+        "exitCode": 0
+      },
+      {
+        "name": "build-prototype",
+        "status": "exited",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/argument-single-pass-2026-10-13/build-private.mjs",
+          "--production",
+          "prototype"
+        ],
+        "pid": 95219,
+        "processGroup": 95219,
+        "startTicks": "51595822",
+        "exitCode": 0
+      },
+      {
+        "name": "protocol-prototype",
+        "status": "exited",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/argument-single-pass-2026-10-13/private-lsp.config.mjs",
+          "test/receiver-guard-argument-assertions-stdio.test.ts",
+          "test/trait-constructor-phpdoc-stdio.test.ts",
+          "test/inherited-constructor-generics-stdio.test.ts",
+          "test/native-boundary-diagnostics-stdio.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/argument-single-pass-2026-10-13/prototype-protocol-results.json"
+        ],
+        "pid": 95257,
+        "processGroup": 95257,
+        "startTicks": "51595922",
+        "exitCode": 0
+      },
+      {
+        "name": "version-prototype",
+        "status": "exited",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/argument-single-pass-2026-10-13/private-lsp.config.mjs",
+          "test/stdio.test.ts",
+          "-t",
+          "argument|scalar|constructor|versioned diagnostics",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/argument-single-pass-2026-10-13/prototype-version-results.json"
+        ],
+        "pid": 95777,
+        "processGroup": 95777,
+        "startTicks": "51598223",
+        "exitCode": 0
+      }
+    ],
+    "qualified": true,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "protocol": {
+      "passedEachSide": 20,
+      "notSelectedEachSide": 0,
+      "sameCaseIdentitiesCountsAndStatuses": true
+    },
+    "version": {
+      "passedEachSide": 36,
+      "notSelectedEachSide": 532,
+      "sameCaseIdentitiesCountsAndStatuses": true
+    },
+    "changedInputs": [],
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-13T04:57:24.963449+00:00"
+  },
+  "performance": {
+    "status": "exited",
+    "wrapperPid": 97125,
+    "startedAtUtc": "2026-10-13T04:57:53.704857+00:00",
+    "stages": [
+      {
+        "variant": "control",
+        "status": "exited",
+        "pid": 97281,
+        "startTicks": "51609933",
+        "processGroup": 97281,
+        "lastObservedUtc": "2026-10-13T04:59:05.781325+00:00",
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "cacheDirectory": "/tmp/sophp-controller-profile-pMF3a0",
+          "cacheDirectoryRemoved": true,
+          "serverPid": 97295,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 590.5794750000005,
+            "maxMs": 611.8149979999998
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1718.1440169999987,
+            "maxMs": 2344.090142000001
+          },
+          "diskUnchanged": true,
+          "scope": "Normal unsampled completion-tail comparison; 25 edits, unchanged original budgets."
+        }
+      },
+      {
+        "variant": "prototype",
+        "status": "exited",
+        "pid": 97819,
+        "startTicks": "51617242",
+        "processGroup": 97819,
+        "lastObservedUtc": "2026-10-13T05:00:05.853045+00:00",
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "5aa8229c86f5a5a69cb9fc235ff6e30d504a98d60cfde97f69062be86eaf9423",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "cacheDirectory": "/tmp/sophp-controller-profile-js6hM7",
+          "cacheDirectoryRemoved": true,
+          "serverPid": 97832,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 694.3724389999998,
+            "maxMs": 731.6633430000002
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1380.7691319999994,
+            "maxMs": 1846.9260809999996
+          },
+          "diskUnchanged": true,
+          "scope": "Normal unsampled completion-tail comparison; 25 edits, unchanged original budgets."
+        }
+      }
+    ],
+    "products": 2091,
+    "projectInputs": 66079,
+    "privateInputs": 25,
+    "qualifiedComparison": true,
+    "admitted": false,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "completeVisibleResultEquality": true,
+    "comparison": {
+      "control": {
+        "completionMs": {
+          "p95Ms": 590.5794750000005,
+          "medianMs": 118.19839800000045,
+          "maxMs": 611.8149979999998
+        },
+        "diagnosticMs": {
+          "p95Ms": 1718.1440169999987,
+          "medianMs": 1631.7652880000023,
+          "maxMs": 2344.090142000001
+        }
+      },
+      "prototype": {
+        "completionMs": {
+          "p95Ms": 694.3724389999998,
+          "medianMs": 122.7852010000006,
+          "maxMs": 731.6633430000002
+        },
+        "diagnosticMs": {
+          "p95Ms": 1380.7691319999994,
+          "medianMs": 1127.7570650000016,
+          "maxMs": 1846.9260809999996
+        }
+      }
+    },
+    "paired": {
+      "completionMs": {
+        "improvedSamples": 7,
+        "medianImprovementPercent": -6.39397159967842
+      },
+      "diagnosticMs": {
+        "improvedSamples": 25,
+        "medianImprovementPercent": 29.39850315698525
+      }
+    },
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "changedPrivateInputs": [],
+    "admissionChecks": {
+      "diagnosticImprovedSamples": true,
+      "diagnosticMedianImprovement": true,
+      "diagnosticP95Improved": true,
+      "queryP95RegressionBound": false,
+      "completeResultsAndInputsUnchanged": true
+    },
+    "originalDiagnosticBudgetPassed": false,
+    "originalQueryBudgetPassed": false,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-13T05:00:15.019822+00:00"
+  },
+  "audit": {
+    "qualified": true,
+    "auditedAtUtc": "2026-10-13T05:01:18.057846+00:00",
+    "products": 2091,
+    "projectInputs": 66079,
+    "privateInputs": 25,
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "controlRuntimeByteEquality": [
+      {
+        "name": "tree-sitter-php.wasm",
+        "sameBytes": true
+      },
+      {
+        "name": "extension.js",
+        "sameBytes": true
+      },
+      {
+        "name": "candidateWorker.js",
+        "sameBytes": true
+      },
+      {
+        "name": "portableCandidateSearchWorker.js",
+        "sameBytes": true
+      },
+      {
+        "name": "language-server.js",
+        "sameBytes": true
+      },
+      {
+        "name": "sourceStatWorker.js",
+        "sameBytes": true
+      },
+      {
+        "name": "web-tree-sitter.wasm",
+        "sameBytes": true
+      },
+      {
+        "name": "builtinSnapshotWorker.js",
+        "sameBytes": true
+      }
+    ],
+    "remainingProcessGroupMembers": [],
+    "remainingCaches": [],
+    "visibleResultsEqual": true,
+    "admitted": false,
+    "metricsAndAdmissionRecomputed": true,
+    "semanticDifferentialStates": 480,
+    "changedPrivateInputs": [],
+    "queryP95RegressionPercent": 17.574766546026545,
+    "queryMedianRegressionPercent": 3.880596588119678,
+    "diagnosticP95RegressionPercent": -19.636007323127647,
+    "normalCoreSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "productionChanged": false,
+    "fullObjectiveComplete": false
+  },
+  "originalBudgets": {
+    "diagnosticMs": 500,
+    "queryMs": 150
+  },
+  "admissionRule": {
+    "roundsPerVariant": 25,
+    "minimumImprovedSamples": 20,
+    "minimumMedianImprovementPercent": 5,
+    "queryP95RegressionTolerancePercent": 5,
+    "originalDiagnosticBudgetMs": 500,
+    "originalQueryBudgetMs": 150,
+    "completeVisibleResultEqualityRequired": true,
+    "unchangedInputsRequired": true,
+    "noEquivalentRetryIfRejected": true,
+    "scope": "单次完整遍历分别收集本地和完整实参结果，保持全部诊断与外部证明"
+  },
+  "artifactDigests": {
+    "prototype.mjs": "df3108bede64b24eeb287f6f75a44b4212b1f97314f30fbc828b159f7f724a63",
+    "build-private.mjs": "afde607f479af608d8b3dd668644beba410a59d75322b50f8fc08b476bc329f1",
+    "semantic-differential.mjs": "ab1bc77f933259b06dbcc7a130b81d224ca2cdaa4d8dc4ea6fa628f878eb6193",
+    "semantic-differential.json": "80bc5194fc21a5991ce03ca0f575357bc372ba7661548a9de1cda033f4659345",
+    "prevalidation.json": "258c9b629974fee4e2cebbc1f315cedb193e7e905e1937231c4675d38d046232",
+    "performance-state.json": "16500c7044c30bfa67e81b86eb565a76e55d0964209c7fe3053f1140f1e8a89f",
+    "admission-rule.json": "17ad46bdaf3e635f9bb29900fb5b5ece029ccb64a5559a12fdf11ce5a6d6b52a",
+    "private-inputs.json": "1f6ef05fac5bc9ecb6bb597b2a34c7aa3531464f0ce9c2ba4b891682f04e3956",
+    "final-audit.json": "07e423f4775cb628a0bdd5b08fbe7b170eacf5abcb38fef86b72c64995e99767",
+    "control-performance/rows.json": "e3103314de3d66ee04d1f3346ba08a809d25091437338054e93040ef7d030f3f",
+    "prototype-performance/rows.json": "5a4aae23192984cd35db22df3feaafd89ff14a556da209c9b6ce8784ef41ff04"
+  },
+  "fullObjectiveComplete": false,
+  "remoteCIExecuted": false,
+  "productionChanged": false
+}

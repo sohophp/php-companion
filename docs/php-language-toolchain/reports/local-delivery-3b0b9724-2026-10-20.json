@@ -1,0 +1,39 @@
+{
+  "assembledAtUtc": "2026-10-20T01:38:19.333109+00:00",
+  "channel": "alpha",
+  "sourceCommit": "3b0b97245fcb23591c0183eacbd1a60a5162bc89",
+  "coreSHA256": "8439eea8cbdec5fe8f0008b56fcd411c4517c433a018b8586b07bc6ccc6f3edc",
+  "sourceArchive": {
+    "sourceCommit": "3b0b97245fcb23591c0183eacbd1a60a5162bc89",
+    "gitTree": "67186dbc3514c2e5a03b1d99664178c6517c05f6",
+    "archiveFile": "php-companion-source-3b0b9724.tar",
+    "bytes": 57303040,
+    "sha256": "0f17eb78829e392ff842b981932f0f95660891f475f401d5bb638ddd47ba5510",
+    "trackedFilesVerified": 3720,
+    "allGitBlobContentsVerified": true,
+    "untrackedWorkIncluded": false
+  },
+  "productFilesAccountedFor": 39,
+  "nativeCompleteProfileIndependentAuditPassed": true,
+  "formalProfileFeedbackP95Ms": [
+    81,
+    100
+  ],
+  "complexControllerP95Ms": [
+    1461.588917,
+    667.289823
+  ],
+  "complexControllerBudgetPassed": false,
+  "currentSourceRemoteCIQualified": false,
+  "currentCoreFullMatrixQualified": false,
+  "currentCoreTwoHourQualified": false,
+  "realWslAcceptance": false,
+  "dailyProfileUpdated": false,
+  "pushed": false,
+  "published": false,
+  "fullObjectiveComplete": false,
+  "currentCoreLinuxFullMatrixQualified": true,
+  "currentCoreTwoHourStatus": "running",
+  "deliveryFilesVerified": 17,
+  "deliveryChecksumSHA256": "42811da17c14b10ad5fb4a762ac5c63f95e6cfaf1f839b7b50728eaa4b75d0a2"
+}

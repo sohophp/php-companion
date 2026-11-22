@@ -1,0 +1,68 @@
+{
+  "qualifiedObservation": true,
+  "independentTerminalAuditPassed": true,
+  "prototypeInvestigationEligible": true,
+  "prototypeImplemented": false,
+  "medianRepeatedTraversalExpansionMs": 119.57960150001963,
+  "traversalsPerEdit": [
+    1502,
+    1502,
+    1502,
+    1502
+  ],
+  "repeatedTraversalWrappersPerEdit": [
+    1500,
+    1500,
+    1500,
+    1500
+  ],
+  "repeatedTraversalExpansionCallsPerEdit": [
+    25122,
+    25122,
+    25122,
+    25122
+  ],
+  "changedRootContexts": 0,
+  "scope": "existing firstLocalSyntax read-only traversals only",
+  "samples": [
+    128.18674599993756,
+    131.50777800009564,
+    110.97245700010171,
+    108.28106000004846
+  ],
+  "changedShapes": 0,
+  "freshExpansionRepeatedOnSameWrapper": 0,
+  "capped": false,
+  "originalGetterComputationAndReturnUnchanged": true,
+  "completeResultsEqual": true,
+  "controlAssetsMatchNormal": 8,
+  "frozenProducts": 3316,
+  "frozenProject": 66079,
+  "frozenPrivate": 30,
+  "frozenSetup": 11,
+  "ownedActorsAndGroupsGone": true,
+  "checkedProcessIds": [
+    72935,
+    72936,
+    73335,
+    73381,
+    73420,
+    73431,
+    73570,
+    73581
+  ],
+  "actualOriginalCommandExitCode": 0,
+  "actualStageExitCodes": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "sourceGetterAuditExitCode": 0,
+  "p95Qualification": false,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "observedAtUtc": "2026-10-14T05:13:52.972746+00:00",
+  "archiveFiles": 34,
+  "costQualificationOnly": true
+}

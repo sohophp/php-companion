@@ -1,0 +1,98 @@
+{
+  "observedAtUtc": "2026-10-13T19:06:04.819903+00:00",
+  "reportDataVerified": true,
+  "originalBudgetChecksPassed": true,
+  "originalCommandExitCode": null,
+  "originalCommandExecutionQualified": false,
+  "strictOriginalAuditPassed": false,
+  "strictAuditFailure": "Original driver interrupted; original exited/exitCode/qualified metadata absent",
+  "fullObjectiveComplete": false,
+  "actualElapsedMs": 7200470.538582001,
+  "cycles": 23512,
+  "checkedResults": 117560,
+  "staleResults": 0,
+  "windows": 235,
+  "allTimings": {
+    "change": {
+      "samples": 23502,
+      "p50": 29.252373000606894,
+      "p95": 31.234771999996156,
+      "maximum": 37.02241199975833
+    },
+    "betaCompletion": {
+      "samples": 23502,
+      "p50": 2.202920999843627,
+      "p95": 3.6999949999153614,
+      "maximum": 13.59954100009054
+    },
+    "betaHover": {
+      "samples": 23502,
+      "p50": 1.7782369999913499,
+      "p95": 3.062667999882251,
+      "maximum": 16.017010000068694
+    },
+    "betaDefinition": {
+      "samples": 23502,
+      "p50": 1.8008710000431165,
+      "p95": 3.111207999754697,
+      "maximum": 10.235716000199318
+    },
+    "alphaCompletion": {
+      "samples": 23502,
+      "p50": 1.9875460001640022,
+      "p95": 3.333222999237478,
+      "maximum": 25.317144000000553
+    },
+    "alphaDefinition": {
+      "samples": 23502,
+      "p50": 3.744520000007469,
+      "p95": 6.3093750001862645,
+      "maximum": 24.54739600000903
+    }
+  },
+  "sampledPeakHighWaterMiB": 307.75390625,
+  "sampledPeakCacheMiB": 3.764777183532715,
+  "faults": [
+    {
+      "kind": "forced-process-exit",
+      "previousPid": 30813,
+      "replacementPid": 52779,
+      "recoveryMs": 4746.903513000347,
+      "unsavedBufferReopenedExactly": true,
+      "firstQueryCorrect": true,
+      "diskUnchanged": true
+    },
+    {
+      "kind": "cache-manifest-corruption",
+      "path": "/tmp/sophp-final-long-r2uh3u3h/sophp-long-session-PVkLEg/.cache/3eccfdce98b14bc1721b9fac1782fea17c73413da4cbb692a56b3ebff4e3005e.json",
+      "originalSha256": "d48c5c789338c9d39fdec2e126594523f61ccdcd2cd1f523f1ffb89340f564a9",
+      "corruptedSha256": "be302461cda285db3ed2d45fb767b23e08ca8808b35a638009937df22b332d73",
+      "recoveryProbe": {
+        "uri": "file:///tmp/sophp-final-long-r2uh3u3h/sophp-long-session-PVkLEg/src/Noise997.php",
+        "method": "textDocument/references",
+        "declarationReturned": true
+      },
+      "rebuiltSha256": "a0a7d76d97ea8db07ca2b5274ae4ccbc0dd0e08d7a95b793df5ae47b9dd4f65c",
+      "replacementPid": 69413,
+      "recoveryMs": 4469.699827000499,
+      "unsavedBufferReopenedExactly": true,
+      "firstQueryCorrect": true,
+      "diskUnchanged": true
+    }
+  ],
+  "productInputsUnchanged": 3186,
+  "privateInputsUnchanged": 2,
+  "originalToolAndServersGone": true,
+  "ownedProcessGroupEmpty": true,
+  "ownedProjectRemoved": true,
+  "ownedEmptyTemporaryParentIndependentlyRemoved": true,
+  "reportSHA256": "365f43fb6b1e80cb4dd99714dd53fdb9a3c2274632e09c3218f4cd5aa41f6724",
+  "scope": "Linux Node22.14/PHP8.5/onDemand/1k normal stdio report data and resources only; interrupted command exit qualification remains unverified",
+  "date": "2026-10-14",
+  "status": "terminal-data-verified-command-qualification-incomplete",
+  "archiveFiles": 34,
+  "coreSHA256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+  "runnerSHA256": "f16a24a67e32c070436f15b78f827e157c715f0081b9dc43fd0b91f250dd6aee",
+  "qualified": false,
+  "multiHourReportVerified": true
+}

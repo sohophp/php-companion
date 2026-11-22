@@ -1,0 +1,79 @@
+name: Publish SoPHP to Marketplace
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Published GitHub Release tag, such as v0.4.14
+        required: true
+        type: string
+      package:
+        description: Use one package to retry an interrupted publication
+        required: true
+        type: choice
+        default: all
+        options: [all, core, symfony, pack]
+
+permissions: {}
+
+concurrency:
+  group: marketplace
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: marketplace
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Download and verify GitHub Release packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          version="${TAG#v}"
+          gh release view "$TAG" --json isDraft,isPrerelease,assets > release.json
+
+          for name in php-companion php-companion-symfony php-companion-open-source-pack; do
+            file="$name-$version.vsix"
+            digest=$(jq -er --arg file "$file" '
+              select(.isDraft == false and .isPrerelease == false)
+              | .assets[] | select(.name == $file) | .digest
+              | select(test("^sha256:[0-9a-f]{64}$"))
+            ' release.json)
+            gh release download "$TAG" --pattern "$file"
+            printf '%s  %s\n' "${digest#sha256:}" "$file" | sha256sum --check
+            unzip -p "$file" extension/package.json | jq -e --arg name "$name" --arg version "$version" '
+              .publisher == "sohophp" and .name == $name and .version == $version
+            '
+          done
+          echo "RELEASE_VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Publish verified packages
+        env:
+          PACKAGE: ${{ inputs.package }}
+        run: |
+          set -euo pipefail
+          publish() {
+            npx --yes --package=@vscode/vsce@4.1.1 -- vsce publish --oidc --packagePath "$1-$RELEASE_VERSION.vsix"
+          }
+          case "$PACKAGE" in
+            all)
+              publish php-companion
+              publish php-companion-symfony
+              publish php-companion-open-source-pack
+              ;;
+            core) publish php-companion ;;
+            symfony) publish php-companion-symfony ;;
+            pack) publish php-companion-open-source-pack ;;
+            *) exit 1 ;;
+          esac

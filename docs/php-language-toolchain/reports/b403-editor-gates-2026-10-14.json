@@ -1,0 +1,335 @@
+{
+  "audit": {
+    "qualifiedFourLinuxEditorFlows": true,
+    "coreSHA256": "b403e33a2c93c6959507fd8248703c148886849b91b1d05f0a9ffbb23f4d5951",
+    "frozenProducts": 3316,
+    "compiledJavaScriptVerified": 105,
+    "originalFourFlowsAndTimeoutsPreserved": true,
+    "generationBoundaryCases": 80,
+    "stages": [
+      {
+        "name": "compile",
+        "exitCode": 0,
+        "seconds": 13.887044182047248
+      },
+      {
+        "name": "c1-onDemand",
+        "exitCode": 0,
+        "seconds": 106.749407740077
+      },
+      {
+        "name": "c2-onDemand",
+        "exitCode": 0,
+        "seconds": 133.4264920699643
+      },
+      {
+        "name": "c3-onDemand",
+        "exitCode": 0,
+        "seconds": 277.9229113209294
+      },
+      {
+        "name": "c3-progressive",
+        "exitCode": 0,
+        "seconds": 268.5984054240398
+      }
+    ],
+    "ownedActorsGroupsDisplaysAndAuthorityDirectoriesGone": true,
+    "checkedProcessIds": [
+      80384,
+      80385,
+      80507,
+      80509,
+      80513,
+      84415,
+      84417,
+      84421,
+      86856,
+      86861,
+      86865,
+      96592,
+      96594,
+      96598
+    ],
+    "humanWslAcceptance": false,
+    "fullObjectiveComplete": false,
+    "recordedAtUtc": "2026-10-14T00:10:31.136093+00:00"
+  },
+  "execution": {
+    "status": "exited",
+    "parentPid": 80384,
+    "parentStartTicks": "58438152",
+    "startedAtUtc": "2026-10-13T23:56:55.398569+00:00",
+    "stages": [
+      {
+        "name": "compile",
+        "command": [
+          "pnpm",
+          "exec",
+          "tsc",
+          "-p",
+          "test/extension/tsconfig.json"
+        ],
+        "status": "exited",
+        "pid": 80385,
+        "startTicks": "58438305",
+        "processGroup": 80385,
+        "exitCode": 0,
+        "seconds": 13.887044182047248,
+        "logSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "c1-onDemand",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c1-onDemand-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "status": "exited",
+        "pid": 80507,
+        "startTicks": "58439906",
+        "processGroup": 80507,
+        "exitCode": 0,
+        "seconds": 106.749407740077,
+        "logSHA256": "4f46e64886f47a6513a8df0eb9ebf32da5f98334b76144a5cad5cc8b98177c55",
+        "displayCleaned": true,
+        "inputsUnchanged": true,
+        "ownedProjectsRemoved": 3
+      },
+      {
+        "name": "c2-onDemand",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c2-onDemand-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "status": "exited",
+        "pid": 84415,
+        "startTicks": "58450725",
+        "processGroup": 84415,
+        "exitCode": 0,
+        "seconds": 133.4264920699643,
+        "logSHA256": "fed27bb92a54f18b8591af4823d1e50301a99dfed1afffb38e0c3e1f1b49c771",
+        "displayCleaned": true,
+        "inputsUnchanged": true,
+        "ownedProjectsRemoved": 1
+      },
+      {
+        "name": "c3-onDemand",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c3-onDemand-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "status": "exited",
+        "pid": 86856,
+        "startTicks": "58464196",
+        "processGroup": 86856,
+        "exitCode": 0,
+        "seconds": 277.9229113209294,
+        "logSHA256": "ee9a2f2137afa557c67e3c781670ae22b9a2b786d5e4a32dba18fd714e8d4fa2",
+        "generationBoundaryCases": 40,
+        "displayCleaned": true,
+        "inputsUnchanged": true,
+        "ownedProjectsRemoved": 1
+      },
+      {
+        "name": "c3-progressive",
+        "command": [
+          "/home/jason/.pyenv/versions/3.11.9/bin/python3",
+          "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c3-progressive-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "status": "exited",
+        "pid": 96592,
+        "startTicks": "58492114",
+        "processGroup": 96592,
+        "exitCode": 0,
+        "seconds": 268.5984054240398,
+        "logSHA256": "017e38a3aa43cfac8f75c49096d56a88db09b3e313ea7c5728f920d7147a580f",
+        "generationBoundaryCases": 40,
+        "displayCleaned": true,
+        "inputsUnchanged": true,
+        "ownedProjectsRemoved": 1
+      }
+    ],
+    "qualified": true,
+    "fullObjectiveComplete": false,
+    "editorAcceptance": "automated Linux Extension Host",
+    "humanWSLAcceptance": false,
+    "coreSHA256": "b403e33a2c93c6959507fd8248703c148886849b91b1d05f0a9ffbb23f4d5951",
+    "compiledJavaScriptCount": 105,
+    "compiledSameAsPreviousEmission": true,
+    "editorSHA256": "281399f7f9079213ec3fa9c46de38360cf1c749d4d9330584673ed0dae72ee31",
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-14T00:10:25.205742+00:00"
+  },
+  "archiveFilesVerified": 30,
+  "archiveManifest": [
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/audit.py",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/0-audit.py",
+      "sha256": "537756962c85b10194d1b7f88a7cf1fb354a7450505e0a92142687414abdb0b0"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c1-onDemand-display/display-run.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/1-display-run.json",
+      "sha256": "183f40af8e11602777b25b85f8d7b571019aab5a8e4f7b8b6e537aca155c647b"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c1-onDemand-display/xserver.log",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/2-xserver.log",
+      "sha256": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c1-onDemand-fixture-removals.jsonl",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/3-c1-onDemand-fixture-removals.jsonl",
+      "sha256": "64eababaca4eb1e5e5219756c29b35429e1098994733a6053c9560f83c0c5a8a"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c1-onDemand.log",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/4-c1-onDemand.log",
+      "sha256": "4f46e64886f47a6513a8df0eb9ebf32da5f98334b76144a5cad5cc8b98177c55"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c2-onDemand-display/display-run.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/5-display-run.json",
+      "sha256": "66e9348809c2fc2015bca770dc7f5571c88b66786f035227535fbd503d9f6889"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c2-onDemand-display/xserver.log",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/6-xserver.log",
+      "sha256": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c2-onDemand-fixture-removals.jsonl",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/7-c2-onDemand-fixture-removals.jsonl",
+      "sha256": "cc4afe3c9463a588da8ea34ac2334abfec1b8cef6de3009b3abc533036f724e9"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c2-onDemand.log",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/8-c2-onDemand.log",
+      "sha256": "fed27bb92a54f18b8591af4823d1e50301a99dfed1afffb38e0c3e1f1b49c771"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c3-onDemand-display/display-run.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/9-display-run.json",
+      "sha256": "f917365ebf74b644102a8a7df32276553cecc63205385853357ef40653ab1555"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c3-onDemand-display/xserver.log",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/10-xserver.log",
+      "sha256": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c3-onDemand-fixture-removals.jsonl",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/11-c3-onDemand-fixture-removals.jsonl",
+      "sha256": "7e49a5eb6a77112d8c644201128f391d5c787b71629c5bd4e29b830120bd35f5"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c3-onDemand.log",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/12-c3-onDemand.log",
+      "sha256": "ee9a2f2137afa557c67e3c781670ae22b9a2b786d5e4a32dba18fd714e8d4fa2"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c3-progressive-display/display-run.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/13-display-run.json",
+      "sha256": "0a484b5c667f332a19d11275eb5fbac7085119836b407d4a3d7d4c4b844be442"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c3-progressive-display/xserver.log",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/14-xserver.log",
+      "sha256": "98d0b656a7a6248f9ae8d9ac042a284d7fa83026161675f6364995ad36fd29b6"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c3-progressive-fixture-removals.jsonl",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/15-c3-progressive-fixture-removals.jsonl",
+      "sha256": "947ed62f2dcdebdcd66cfabe7ea6d77a5027d59ecf9929597364374e784e06a0"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/c3-progressive.log",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/16-c3-progressive.log",
+      "sha256": "017e38a3aa43cfac8f75c49096d56a88db09b3e313ea7c5728f920d7147a580f"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/compile.log",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/17-compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/compiled-before.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/18-compiled-before.json",
+      "sha256": "0c124c9f38ae561532a19fef5395910112266275a5e21931eb0bd6de2e22dce9"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/compiled-inputs.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/19-compiled-inputs.json",
+      "sha256": "0c124c9f38ae561532a19fef5395910112266275a5e21931eb0bd6de2e22dce9"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/driver.log",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/20-driver.log",
+      "sha256": "0d1ca723da1f3b3657c680c29a5c74ea8bedf1e860af5b9e68fb1595c4b9193e"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/final-audit.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/21-final-audit.json",
+      "sha256": "02b9c26e41732182f8fe17e38c709186ac485b37f2a2f1f82ed4ff84aed5724a"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/fixture-cleanup-observer.cjs",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/22-fixture-cleanup-observer.cjs",
+      "sha256": "d886e3347dc0c649c68cca33195cae7e6c0f1c79fbf8365bb68286a46fa57df4"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/inputs.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/23-inputs.json",
+      "sha256": "c8be56c402f304466c18500c18b0c3cf6a15108032dfa46530d7dc8fe8888817"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/launch.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/24-launch.json",
+      "sha256": "7f3ff3fe47210b6280b996978e0c88793e78b1308fb338e883a9b639405cbcdc"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/preparation.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/25-preparation.json",
+      "sha256": "7f535be5d78905a91d13d0b2124e27970b2ced4ed053bf7ca05b55b5480a389b"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/run.py",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/26-run.py",
+      "sha256": "e1746f638f99be94f5cdd93d68a59ee758f737a3f2328b4450d2e614c8f06da0"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/state.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/27-state.json",
+      "sha256": "0df4b4272523f4a972b5abb49750e5742fb43f634cc8ea4586792e68006ebc2e"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/three-flow-checkpoint.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/28-three-flow-checkpoint.json",
+      "sha256": "ff6ce6a6956f0ced3d520702828eb94a5b868c1fcafe2b90b621d85b11f95e56"
+    },
+    {
+      "original": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/verified-wait-latest.json",
+      "archived": "/var/www/node/php-companion/.vscode-test/b403-editor-gates-2026-10-14/archive/29-verified-wait-latest.json",
+      "sha256": "dcf9e47fdc759ede48a60e3de2e67e44c0b6af0a41f49b36c3e4909cf417dcc3"
+    }
+  ]
+}

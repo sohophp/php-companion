@@ -1,0 +1,216 @@
+{
+  "audit": {
+    "verified": true,
+    "qualified": true,
+    "mode": "two-hour",
+    "scope": "Linux normal bundled LSP, 1k synthetic continuous unsaved edits/close recovery, actual process exit/cache manifest corruption; excludes editor UI, real project, cancellation, Remote and other modes/platforms",
+    "multiHourQualified": true,
+    "actualElapsedMs": 7200488.374123,
+    "cycles": 23561,
+    "checkedResults": 117805,
+    "staleResults": 0,
+    "windows": 235,
+    "allTimings": {
+      "change": {
+        "samples": 23551,
+        "p50": 29.1206219997257,
+        "p95": 31.01284600002691,
+        "maximum": 36.512486999854445
+      },
+      "betaCompletion": {
+        "samples": 23551,
+        "p50": 2.13181299995631,
+        "p95": 3.583953999914229,
+        "maximum": 9.021006000228226
+      },
+      "betaHover": {
+        "samples": 23551,
+        "p50": 1.7436230001039803,
+        "p95": 2.9984659999608994,
+        "maximum": 10.274381999857724
+      },
+      "betaDefinition": {
+        "samples": 23551,
+        "p50": 1.7599130002781749,
+        "p95": 2.9887530002743006,
+        "maximum": 8.19354599993676
+      },
+      "alphaCompletion": {
+        "samples": 23551,
+        "p50": 1.9349459996446967,
+        "p95": 3.2454189999989467,
+        "maximum": 8.759972999803722
+      },
+      "alphaDefinition": {
+        "samples": 23551,
+        "p50": 3.6575969997793436,
+        "p95": 6.112165000289679,
+        "maximum": 15.766235999763012
+      }
+    },
+    "peakHighWaterMiB": 294.7109375,
+    "peakCacheMiB": 3.764777183532715,
+    "recoveryWitnesses": [
+      {
+        "kind": "forced-process-exit",
+        "previousPid": 6451,
+        "replacementPid": 24913,
+        "recoveryMs": 4288.828682000283,
+        "unsavedBufferReopenedExactly": true,
+        "firstQueryCorrect": true,
+        "diskUnchanged": true
+      },
+      {
+        "kind": "cache-manifest-corruption",
+        "path": "/tmp/sophp-final-long-_bqud1zi/sophp-long-session-4cOp0Z/.cache/62eb99d36f46ae661ac3b018ffdda44ef02c77c9a763e115dce53e2b64beb44c.json",
+        "originalSha256": "5de0815a2f974d1f53f2ff2f567560ccc423d0df68c6374a340060c13017cb23",
+        "corruptedSha256": "be302461cda285db3ed2d45fb767b23e08ca8808b35a638009937df22b332d73",
+        "recoveryProbe": {
+          "uri": "file:///tmp/sophp-final-long-_bqud1zi/sophp-long-session-4cOp0Z/src/Noise997.php",
+          "method": "textDocument/references",
+          "declarationReturned": true
+        },
+        "rebuiltSha256": "f1b8cb07327efb7f3dd9d77252b8345b73e57b5b2d0359da932c31c59ac9eda2",
+        "replacementPid": 39474,
+        "recoveryMs": 4563.764804000035,
+        "unsavedBufferReopenedExactly": true,
+        "firstQueryCorrect": true,
+        "diskUnchanged": true
+      }
+    ],
+    "recoveryMsHasNoSeparateHardBudget": true,
+    "rebuiltManifestBytesNotRetained": true,
+    "rebuiltManifestHashFromActualRunnerRead": true,
+    "driverAndRunnerAndServersGone": true,
+    "privateInputsUnchanged": 7,
+    "ownedFixtureRemoved": true,
+    "ownedTemporaryParentRemoved": true,
+    "ownedProcessGroupEmpty": true,
+    "frozenSnapshotInputsUnchanged": 3316,
+    "normalAssetsUnchanged": 8,
+    "runnerSha256": "f16a24a67e32c070436f15b78f827e157c715f0081b9dc43fd0b91f250dd6aee",
+    "engineSha256": "b403e33a2c93c6959507fd8248703c148886849b91b1d05f0a9ffbb23f4d5951",
+    "reportSha256": "8bb72d7fb29a53bbcea93d12a797c7cc4a0b0c7e43efb5db503c8d3be93f0e0f",
+    "auditorSha256": "650d489e1a6b1eb67103b77601c81ebac9a6c9d94ba02d985bb8691617529784",
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "openMajorItems": 26,
+    "auditedAtUtc": "2026-10-14T02:11:51.409654+00:00"
+  },
+  "execution": {
+    "status": "exited",
+    "parentPid": 6425,
+    "parentStartTicks": "58525759",
+    "startedAtUtc": "2026-10-14T00:11:33.791926+00:00",
+    "command": [
+      "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+      "/var/www/node/php-companion/scripts/benchmark-long-session.mjs",
+      "7200",
+      "250"
+    ],
+    "seconds": 7200,
+    "intervalMs": 250,
+    "temporaryParent": "/tmp/sophp-final-long-_bqud1zi",
+    "temporaryParentInode": 3487776,
+    "evidence": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/evidence",
+    "frozenProducts": 3316,
+    "coreSHA256": "b403e33a2c93c6959507fd8248703c148886849b91b1d05f0a9ffbb23f4d5951",
+    "runnerSHA256": "f16a24a67e32c070436f15b78f827e157c715f0081b9dc43fd0b91f250dd6aee",
+    "qualified": true,
+    "fullObjectiveComplete": false,
+    "admissionBeforeRun": "Original 7200 seconds and 250ms interval; original exact results, faults, 500/150ms and RSS/cache budgets; input hashes unchanged; original runner and servers exit; owned temporary parent empty and removed",
+    "childPid": 6440,
+    "processGroup": 6440,
+    "childStartTicks": "58525968",
+    "exitCode": 0,
+    "cycles": 23561,
+    "checkedResults": 117805,
+    "staleResults": 0,
+    "elapsedMs": 7200488.374123,
+    "multiHourQualified": true,
+    "reportSHA256": "8bb72d7fb29a53bbcea93d12a797c7cc4a0b0c7e43efb5db503c8d3be93f0e0f",
+    "changedProducts": [],
+    "changedPrivateInputs": [],
+    "ownedFixtureRemoved": true,
+    "temporaryParentRemoved": true,
+    "finishedAtUtc": "2026-10-14T02:11:42.081299+00:00"
+  },
+  "archiveFilesVerified": 15,
+  "archiveManifest": [
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/inputs.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/01-inputs.json",
+      "sha256": "9571d5e91d2a9c825fc9e302b6c2d0e9f7ab206c6ed0e9e7a8a558b0c7418324"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/evidence/run.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/02-run.json",
+      "sha256": "8bb72d7fb29a53bbcea93d12a797c7cc4a0b0c7e43efb5db503c8d3be93f0e0f"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/evidence/cache-before-corruption.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/03-cache-before-corruption.json",
+      "sha256": "5de0815a2f974d1f53f2ff2f567560ccc423d0df68c6374a340060c13017cb23"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/run.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/04-run.log",
+      "sha256": "188972e76675449e20db0ac5e26a389f37404bf805e6c7bfbc55c6aa0c0a7568"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/audit.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/05-audit.py",
+      "sha256": "650d489e1a6b1eb67103b77601c81ebac9a6c9d94ba02d985bb8691617529784"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-audit.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/06-two-hour-terminal-audit.json",
+      "sha256": "7af3a8e214d8ecc96a15fb5c30b20637ab69b41b703110de075675980802ec40"
+    },
+    {
+      "source": "/var/www/node/php-companion/scripts/benchmark-long-session.mjs",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/07-benchmark-long-session.mjs",
+      "sha256": "f16a24a67e32c070436f15b78f827e157c715f0081b9dc43fd0b91f250dd6aee"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/state.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/08-state.json",
+      "sha256": "1e55b95430193ebbe627b8936bb71464deac4bb659e54ac7153eb79aa6527540"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/run.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/09-run.py",
+      "sha256": "116bd9aa245eebfa10d6ed97387d294add8eb0bcae375f46a0d2b4c88cd49f9b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/preparation.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/10-preparation.json",
+      "sha256": "19fcaede045ef9dbaaa9c312ea672046d3c3877492996140f6ecd87d3f38161b"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/audit-preparation.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/11-audit-preparation.json",
+      "sha256": "2aabf4beb73eab21e6704550f06b6cae85eef5c7bc9f32bd36f9839f74947eeb"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/launch.py",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/12-launch.py",
+      "sha256": "64112bbd6d8e70309127a6dd2bc69290e557170870e42e4cc88b36315d5457da"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/launch.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/13-launch.json",
+      "sha256": "83a552d6eff6e80addf3d0ab69a397c6f501be13a5664c34650fddac4ca6ab9d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/driver.log",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/14-driver.log",
+      "sha256": "5ee1b76676c1af735f0ac677c5cef6877d5e73e54ac492d6f6fa6c3eb2509e2d"
+    },
+    {
+      "source": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/supervision-control-results.json",
+      "archive": "/var/www/node/php-companion/.vscode-test/b403-long-session-2026-10-14/two-hour-terminal-archive/15-supervision-control-results.json",
+      "sha256": "971eb98795c3de272f2a30d1fae7c01fe3acf429cb4efc93923e41668ea2568b"
+    }
+  ]
+}

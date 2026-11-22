@@ -1,0 +1,101 @@
+{
+  "qualifiedComparison": true,
+  "independentTerminalAuditPassed": true,
+  "admitted": false,
+  "counts": {
+    "semantic": {
+      "passedEachSide": 24145,
+      "notSelectedEachSide": 0
+    },
+    "protocol": {
+      "passedEachSide": 58,
+      "notSelectedEachSide": 0
+    },
+    "version": {
+      "passedEachSide": 36,
+      "notSelectedEachSide": 532
+    }
+  },
+  "comparison": {
+    "control": {
+      "completionMs": {
+        "p95Ms": 131.15157300000283,
+        "medianMs": 114.2793410000013,
+        "maxMs": 605.7060229999997
+      },
+      "diagnosticMs": {
+        "p95Ms": 1426.9915199999996,
+        "medianMs": 1300.9524679999995,
+        "maxMs": 1893.9717040000005
+      }
+    },
+    "prototype": {
+      "completionMs": {
+        "p95Ms": 155.65086800000427,
+        "medianMs": 139.0105840000033,
+        "maxMs": 716.0167840000004
+      },
+      "diagnosticMs": {
+        "p95Ms": 1651.7176930000005,
+        "medianMs": 1479.9277259999944,
+        "maxMs": 2365.567527
+      }
+    }
+  },
+  "paired": {
+    "completionMs": {
+      "improvedSamples": 1,
+      "medianImprovementPercent": -20.498783765300633
+    },
+    "diagnosticMs": {
+      "improvedSamples": 1,
+      "medianImprovementPercent": -14.76062712235365
+    }
+  },
+  "admissionChecks": {
+    "diagnosticImprovedSamples": false,
+    "diagnosticPairedMedianImprovement": false,
+    "diagnosticP95Improved": false,
+    "queryP95RegressionBound": false,
+    "queryMedianRegressionBound": false,
+    "completeResultsAndInputsUnchanged": true
+  },
+  "actualOriginalValidationExitCode": 0,
+  "actualOriginalPerformanceExitCode": 0,
+  "actualBoundaryWasmCases": 270,
+  "simulatedSharedEndianCases": 20,
+  "differentialStates": 480,
+  "controlAssetsMatchNormal": 8,
+  "SDKSourceUnchanged": true,
+  "originalGetterAndMarshalBodiesRetained": true,
+  "allOwnedActorsAndGroupsGone": true,
+  "checkedProcessIds": [
+    76945,
+    76946,
+    76950,
+    76993,
+    79589,
+    81424,
+    83111,
+    84113,
+    84145,
+    86757,
+    90190,
+    91262,
+    91263,
+    91309,
+    91320,
+    91764,
+    91775
+  ],
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "originalDiagnosticBudgetPassed": false,
+  "originalQueryBudgetPassed": false,
+  "scope": "Primitive numeric i32 little-endian unshared heap branch; full semantic/selected protocol and original 25 unsaved real-controller edits",
+  "observedAtUtc": "2026-10-14T12:20:18.107450+00:00",
+  "actualIndependentAuditorExitCode": 0,
+  "originalArchivesVerified": 85,
+  "currentNormalCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "originalSDKSourceSHA256": "0c868236a47296b4ff3c1570f20e0899e4a784ff6e5cd7bfc9c3a55225463e4a"
+}

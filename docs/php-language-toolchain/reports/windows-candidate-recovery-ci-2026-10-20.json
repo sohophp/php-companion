@@ -1,0 +1,47 @@
+{
+  "originalCaseSHA256": "f0fa8fc79e79f76413a58606f1be2e546da684f376f90a43cd05f0295c84a312",
+  "allOriginalCaseBytesRecoverableRemovingOnlyTwoTimingLines": true,
+  "originalAssertionsPreserved": true,
+  "originalFivePhasesPreserved": true,
+  "original20SecondTimeoutPreserved": true,
+  "originalProtocolWaitTimeoutPreserved": 15000,
+  "originalSourceCommit": "3b0b97245fcb23591c0183eacbd1a60a5162bc89",
+  "originalTestFile": "packages/language-server/test/stdio.test.ts",
+  "newTestFile": "packages/language-server/test/cache-candidate-restoration-stdio.test.ts",
+  "productionSourceChanged": false,
+  "fullObjectiveComplete": false,
+  "changedFilesLintActualExitCode": 0,
+  "collectionActualExitCode": 0,
+  "collectedTestCount": 1,
+  "collectedProject": "cache-recovery",
+  "allOtherStdioTestBytesUnchanged": true,
+  "localFivePhaseRuntimeExecuted": false,
+  "productionBuildReusedWithoutRebuild": true,
+  "remoteValidationPending": true,
+  "sourceCommit": "bf9613d5445e8c0390dae1865e591c1d7a8901d6",
+  "branch": "work/stable-cold-cache-recovery-20261020",
+  "pushed": true,
+  "changedFilesRelativeTo3b": [
+    "docs/php-language-toolchain/reports/windows-candidate-recovery-ci-2026-10-20.md",
+    "packages/language-server/test/cache-candidate-restoration-stdio.test.ts",
+    "packages/language-server/test/stdio.test.ts",
+    "packages/language-server/vitest.config.ts"
+  ],
+  "standingBranchPushAndCITrackingAuthorized": true,
+  "workflowRuns": {
+    "ci": {
+      "run": 39359865699,
+      "status": "in_progress",
+      "conclusion": "",
+      "jobsPassed": 13,
+      "url": "https://github.com/sohophp/php-companion/actions/runs/39359865699"
+    },
+    "matrix": {
+      "run": 39359865811,
+      "status": "in_progress",
+      "conclusion": "",
+      "jobsPassed": 0,
+      "url": "https://github.com/sohophp/php-companion/actions/runs/39359865811"
+    }
+  }
+}

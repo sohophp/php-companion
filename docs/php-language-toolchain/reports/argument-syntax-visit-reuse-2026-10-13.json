@@ -1,0 +1,764 @@
+{
+  "decision": "rejected",
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "rawDirectory": ".vscode-test/argument-syntax-path-cost-2026-10-13",
+  "cost": {
+    "qualifiedObservation": true,
+    "scope": "Four edits per local/full check; instrumented cost includes observer overhead, not P95 performance qualification",
+    "rawRuns": 12,
+    "editRuns": 8,
+    "modes": {
+      "true": {
+        "nonempty": {
+          "samples": [
+            {
+              "calls": 2637,
+              "repeatedCalls": 2245,
+              "exclusiveMs": 49.90974700001607,
+              "repeatedExclusiveMs": 40.90353300001152
+            },
+            {
+              "calls": 2637,
+              "repeatedCalls": 2245,
+              "exclusiveMs": 45.565177999995285,
+              "repeatedExclusiveMs": 37.36250000000291
+            },
+            {
+              "calls": 2637,
+              "repeatedCalls": 2245,
+              "exclusiveMs": 46.68508400009341,
+              "repeatedExclusiveMs": 38.316163000074084
+            },
+            {
+              "calls": 2637,
+              "repeatedCalls": 2245,
+              "exclusiveMs": 46.56743900001857,
+              "repeatedExclusiveMs": 38.34836400000131
+            }
+          ],
+          "median": {
+            "calls": 2637.0,
+            "repeatedCalls": 2245.0,
+            "exclusiveMs": 46.62626150005599,
+            "repeatedExclusiveMs": 38.3322635000377
+          }
+        },
+        "cursor": {
+          "samples": [
+            {
+              "calls": 689,
+              "repeatedCalls": 384,
+              "exclusiveMs": 41.24631699999645,
+              "repeatedExclusiveMs": 19.88380799999777
+            },
+            {
+              "calls": 689,
+              "repeatedCalls": 384,
+              "exclusiveMs": 37.72494899999401,
+              "repeatedExclusiveMs": 20.998428000000786
+            },
+            {
+              "calls": 689,
+              "repeatedCalls": 384,
+              "exclusiveMs": 38.6580030000041,
+              "repeatedExclusiveMs": 21.990927000002557
+            },
+            {
+              "calls": 689,
+              "repeatedCalls": 384,
+              "exclusiveMs": 37.13186300003508,
+              "repeatedExclusiveMs": 19.952441000017643
+            }
+          ],
+          "median": {
+            "calls": 689.0,
+            "repeatedCalls": 384.0,
+            "exclusiveMs": 38.19147599999906,
+            "repeatedExclusiveMs": 20.475434500009214
+          }
+        },
+        "reversed": {
+          "samples": [
+            {
+              "calls": 0,
+              "repeatedCalls": 0,
+              "exclusiveMs": 0,
+              "repeatedExclusiveMs": 0
+            },
+            {
+              "calls": 0,
+              "repeatedCalls": 0,
+              "exclusiveMs": 0,
+              "repeatedExclusiveMs": 0
+            },
+            {
+              "calls": 0,
+              "repeatedCalls": 0,
+              "exclusiveMs": 0,
+              "repeatedExclusiveMs": 0
+            },
+            {
+              "calls": 0,
+              "repeatedCalls": 0,
+              "exclusiveMs": 0,
+              "repeatedExclusiveMs": 0
+            }
+          ],
+          "median": {
+            "calls": 0.0,
+            "repeatedCalls": 0.0,
+            "exclusiveMs": 0.0,
+            "repeatedExclusiveMs": 0.0
+          }
+        }
+      },
+      "false": {
+        "nonempty": {
+          "samples": [
+            {
+              "calls": 2636,
+              "repeatedCalls": 2244,
+              "exclusiveMs": 47.28127199998562,
+              "repeatedExclusiveMs": 38.51100599997153
+            },
+            {
+              "calls": 2636,
+              "repeatedCalls": 2244,
+              "exclusiveMs": 59.02206900000783,
+              "repeatedExclusiveMs": 48.2090010000411
+            },
+            {
+              "calls": 2636,
+              "repeatedCalls": 2244,
+              "exclusiveMs": 54.70531900003516,
+              "repeatedExclusiveMs": 44.82513800005108
+            },
+            {
+              "calls": 2636,
+              "repeatedCalls": 2244,
+              "exclusiveMs": 48.148775000006935,
+              "repeatedExclusiveMs": 38.47935799998959
+            }
+          ],
+          "median": {
+            "calls": 2636.0,
+            "repeatedCalls": 2244.0,
+            "exclusiveMs": 51.42704700002105,
+            "repeatedExclusiveMs": 41.66807200001131
+          }
+        },
+        "cursor": {
+          "samples": [
+            {
+              "calls": 686,
+              "repeatedCalls": 381,
+              "exclusiveMs": 36.14040699999168,
+              "repeatedExclusiveMs": 18.517266999983804
+            },
+            {
+              "calls": 686,
+              "repeatedCalls": 381,
+              "exclusiveMs": 39.330426000014995,
+              "repeatedExclusiveMs": 20.79699600001186
+            },
+            {
+              "calls": 686,
+              "repeatedCalls": 381,
+              "exclusiveMs": 43.93064799995409,
+              "repeatedExclusiveMs": 23.7454509999734
+            },
+            {
+              "calls": 686,
+              "repeatedCalls": 381,
+              "exclusiveMs": 33.23624799993922,
+              "repeatedExclusiveMs": 17.62033399997017
+            }
+          ],
+          "median": {
+            "calls": 686.0,
+            "repeatedCalls": 381.0,
+            "exclusiveMs": 37.73541650000334,
+            "repeatedExclusiveMs": 19.65713149999783
+          }
+        },
+        "reversed": {
+          "samples": [
+            {
+              "calls": 0,
+              "repeatedCalls": 0,
+              "exclusiveMs": 0,
+              "repeatedExclusiveMs": 0
+            },
+            {
+              "calls": 0,
+              "repeatedCalls": 0,
+              "exclusiveMs": 0,
+              "repeatedExclusiveMs": 0
+            },
+            {
+              "calls": 0,
+              "repeatedCalls": 0,
+              "exclusiveMs": 0,
+              "repeatedExclusiveMs": 0
+            },
+            {
+              "calls": 0,
+              "repeatedCalls": 0,
+              "exclusiveMs": 0,
+              "repeatedExclusiveMs": 0
+            }
+          ],
+          "median": {
+            "calls": 0.0,
+            "repeatedCalls": 0.0,
+            "exclusiveMs": 0.0,
+            "repeatedExclusiveMs": 0.0
+          }
+        }
+      }
+    }
+  },
+  "prevalidation": {
+    "status": "exited",
+    "pid": 39103,
+    "startedAtUtc": "2026-10-13T01:33:52.039042+00:00",
+    "stages": [
+      {
+        "name": "build-control",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/build-prototype.mjs",
+          "--production",
+          "control"
+        ],
+        "status": "exited",
+        "pid": 39165,
+        "processGroup": 39165,
+        "startTicks": "50386086",
+        "exitCode": 0,
+        "logSha256": "727c0a518efd2a217cf3c7896d87f0b21fa3abc460cc91ccaa70afdcfc06139f"
+      },
+      {
+        "name": "semantic-control-focused",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/private-semantic.config.mjs",
+          "test/semantic.test.ts",
+          "-t",
+          "argument|signature|reference|binding",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/semantic-control-focused.json"
+        ],
+        "status": "exited",
+        "pid": 39214,
+        "processGroup": 39214,
+        "startTicks": "50386226",
+        "exitCode": 0,
+        "logSha256": "7ca35ef69b4bc5c2c23eb505bf903b1b0c4c838ae367471e8a034965fa60865b"
+      },
+      {
+        "name": "semantic-control-contracts",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/private-semantic.config.mjs",
+          "test/extract-shared-bindings.test.ts",
+          "test/receiver-guard-argument-assertions.test.ts",
+          "test/value-call-binding.test.ts",
+          "test/documented-callable-reuse.test.ts",
+          "test/documented-callable-query-dependencies.test.ts",
+          "test/mixed-callable-recovery.test.ts",
+          "test/local-value-joins.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/semantic-control-contracts.json"
+        ],
+        "status": "exited",
+        "pid": 39357,
+        "processGroup": 39357,
+        "startTicks": "50387417",
+        "exitCode": 0,
+        "logSha256": "c18a4220dd46efa1822d71cc4d3bfd5ab2b773ff78d24580393129ff5448da77"
+      },
+      {
+        "name": "lsp-control-related",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/private-lsp.config.mjs",
+          "test/receiver-guard-argument-assertions-stdio.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/lsp-control-related.json"
+        ],
+        "status": "exited",
+        "pid": 39678,
+        "processGroup": 39678,
+        "startTicks": "50388849",
+        "exitCode": 0,
+        "logSha256": "299842e107e5a0f60cff0d06c96a37b6f48b6a6533485b4c998cb2aca83640ee"
+      },
+      {
+        "name": "build-prototype",
+        "command": [
+          "node",
+          "/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/build-prototype.mjs",
+          "--production",
+          "prototype"
+        ],
+        "status": "exited",
+        "pid": 39920,
+        "processGroup": 39920,
+        "startTicks": "50390557",
+        "exitCode": 0,
+        "logSha256": "4afe1a37fe04d7c0043b9cc4c4ad765dfbdc44accd33a47ce542353d454fc243"
+      },
+      {
+        "name": "semantic-prototype-focused",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/private-semantic.config.mjs",
+          "test/semantic.test.ts",
+          "-t",
+          "argument|signature|reference|binding",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/semantic-prototype-focused.json"
+        ],
+        "status": "exited",
+        "pid": 39966,
+        "processGroup": 39966,
+        "startTicks": "50390791",
+        "exitCode": 0,
+        "logSha256": "dc4f8b8de3d8632ca184915e977488210896a176dfb7b73b0e151f98d66b7757"
+      },
+      {
+        "name": "semantic-prototype-contracts",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/private-semantic.config.mjs",
+          "test/extract-shared-bindings.test.ts",
+          "test/receiver-guard-argument-assertions.test.ts",
+          "test/value-call-binding.test.ts",
+          "test/documented-callable-reuse.test.ts",
+          "test/documented-callable-query-dependencies.test.ts",
+          "test/mixed-callable-recovery.test.ts",
+          "test/local-value-joins.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/semantic-prototype-contracts.json"
+        ],
+        "status": "exited",
+        "pid": 40154,
+        "processGroup": 40154,
+        "startTicks": "50391955",
+        "exitCode": 0,
+        "logSha256": "0badf5094e95696cd8286290d859e570ee9d05e5b53045be327d2623b3460df5"
+      },
+      {
+        "name": "lsp-prototype-related",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "--config",
+          "/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/private-lsp.config.mjs",
+          "test/receiver-guard-argument-assertions-stdio.test.ts",
+          "--reporter=json",
+          "--outputFile=/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/lsp-prototype-related.json"
+        ],
+        "status": "exited",
+        "pid": 40359,
+        "processGroup": 40359,
+        "startTicks": "50393314",
+        "exitCode": 0,
+        "logSha256": "5a9ee3056201bf63f5da3dc2e4c8c567ad21a03f8be0058837af170f669bb148"
+      }
+    ],
+    "qualified": true,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "preparationReusedFrom": "prevalidation.json: prepare-clones exited0; prototype-syntax exited0",
+    "changedProducts": [],
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-13T01:35:20.937962+00:00"
+  },
+  "locatorDifferential": {
+    "passed": true,
+    "comparisons": 13994,
+    "realSources": 5,
+    "checks": [
+      "result identity and predicate order",
+      "cursor/nonempty/reversed/outside",
+      "changing predicates",
+      "physical owner separation",
+      "nested mutation invalidation and incremental edit",
+      "original depth/node limits",
+      "257 visit and 1024 entry caps"
+    ],
+    "productionChanged": false
+  },
+  "performance": {
+    "status": "exited",
+    "pid": 43215,
+    "startedAtUtc": "2026-10-13T01:39:46.660346+00:00",
+    "stages": [
+      {
+        "variant": "control",
+        "status": "exited",
+        "pid": 43352,
+        "startTicks": "50421497",
+        "processGroup": 43352,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "cacheDirectory": "/tmp/sophp-controller-profile-qDMixK",
+          "cacheDirectoryRemoved": true,
+          "serverPid": 43363,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 138.52745399999912,
+            "maxMs": 593.0087979999998
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1690.2974319999994,
+            "maxMs": 2217.880754
+          },
+          "diskUnchanged": true,
+          "scope": "Normal unsampled stdio comparison with 25 edits and original 500/150ms budgets."
+        }
+      },
+      {
+        "variant": "prototype",
+        "status": "exited",
+        "pid": 44115,
+        "startTicks": "50428555",
+        "processGroup": 44115,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "9ad48d6e3fb1902b6f37324d7ca0073c8a46ab4709269a588df7c7b3067a82e9",
+          "rounds": 25,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "cacheDirectory": "/tmp/sophp-controller-profile-IXaRPC",
+          "cacheDirectoryRemoved": true,
+          "serverPid": 44126,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 25,
+          "completion": {
+            "count": 25,
+            "p95Ms": 663.3091759999998,
+            "maxMs": 681.7655930000001
+          },
+          "diagnostics": {
+            "count": 25,
+            "p95Ms": 1745.856530000001,
+            "maxMs": 2335.7848749999994
+          },
+          "diskUnchanged": true,
+          "scope": "Normal unsampled stdio comparison with 25 edits and original 500/150ms budgets."
+        }
+      }
+    ],
+    "products": 2088,
+    "projectInputs": 66079,
+    "privateInputs": 17,
+    "qualifiedComparison": true,
+    "admitted": false,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "completeVisibleResultEquality": true,
+    "comparison": {
+      "control": {
+        "diagnosticMs": {
+          "p95Ms": 1690.2974319999994,
+          "medianMs": 1534.9079069999989,
+          "maxMs": 2217.880754
+        },
+        "completionMs": {
+          "p95Ms": 138.52745399999912,
+          "medianMs": 123.76908999999796,
+          "maxMs": 593.0087979999998
+        }
+      },
+      "prototype": {
+        "diagnosticMs": {
+          "p95Ms": 1745.856530000001,
+          "medianMs": 1510.5301239999972,
+          "maxMs": 2335.7848749999994
+        },
+        "completionMs": {
+          "p95Ms": 663.3091759999998,
+          "medianMs": 115.15987600000153,
+          "maxMs": 681.7655930000001
+        }
+      }
+    },
+    "paired": {
+      "diagnosticMs": {
+        "improvedSamples": 12,
+        "medianImprovementPercent": -0.3478501061847148
+      },
+      "completionMs": {
+        "improvedSamples": 16,
+        "medianImprovementPercent": 3.5618469187291
+      }
+    },
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "changedPrivateInputs": [],
+    "admissionChecks": {
+      "diagnosticImprovedSamples": false,
+      "diagnosticPairedMedian": false,
+      "diagnosticP95Improved": false,
+      "queryP95NoExcessRegression": false,
+      "completeResultsAndInputsUnchanged": true
+    },
+    "originalDiagnosticBudgetPassed": false,
+    "originalQueryBudgetPassedInThisProbe": false,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-13T01:42:14.256937+00:00"
+  },
+  "audit": {
+    "qualified": true,
+    "auditedAtUtc": "2026-10-13T01:42:25.436953+00:00",
+    "products": 2088,
+    "projectInputs": 66079,
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "exactProcessOwners": [
+      {
+        "pid": 33919,
+        "startTicks": "50341651",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 33977,
+        "startTicks": "50341785",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 34156,
+        "startTicks": "50342090",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 34627,
+        "startTicks": "50343931",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 39165,
+        "startTicks": "50386086",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 39214,
+        "startTicks": "50386226",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 39357,
+        "startTicks": "50387417",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 39678,
+        "startTicks": "50388849",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 39920,
+        "startTicks": "50390557",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 39966,
+        "startTicks": "50390791",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 40154,
+        "startTicks": "50391955",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 40359,
+        "startTicks": "50393314",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 43352,
+        "startTicks": "50421497",
+        "liveExactOwner": false
+      },
+      {
+        "pid": 44115,
+        "startTicks": "50428555",
+        "liveExactOwner": false
+      }
+    ],
+    "liveStageGroups": [],
+    "liveOwnedServers": [],
+    "remainingCaches": [],
+    "testCoverage": {
+      "semantic-focused": {
+        "passed": 92,
+        "notSelected": 407,
+        "files": [
+          "semantic.test.ts"
+        ]
+      },
+      "semantic-contracts": {
+        "passed": 296,
+        "notSelected": 0,
+        "files": [
+          "documented-callable-query-dependencies.test.ts",
+          "documented-callable-reuse.test.ts",
+          "extract-shared-bindings.test.ts",
+          "mixed-callable-recovery.test.ts",
+          "receiver-guard-argument-assertions.test.ts",
+          "value-call-binding.test.ts"
+        ]
+      },
+      "lsp-related": {
+        "passed": 4,
+        "notSelected": 0,
+        "files": [
+          "receiver-guard-argument-assertions-stdio.test.ts"
+        ]
+      }
+    },
+    "requestedButNonexistentTestFile": "packages/semantic/test/local-value-joins.test.ts",
+    "locatorDifferential": {
+      "passed": true,
+      "comparisons": 13994,
+      "realSources": 5,
+      "checks": [
+        "result identity and predicate order",
+        "cursor/nonempty/reversed/outside",
+        "changing predicates",
+        "physical owner separation",
+        "nested mutation invalidation and incremental edit",
+        "original depth/node limits",
+        "257 visit and 1024 entry caps"
+      ],
+      "productionChanged": false
+    },
+    "normalCoreSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+    "semanticSha256": "761e112d2e09292455ecb124ad527bfd175ab9893a58442c276d9ea7de6dacdc",
+    "benchmarkSha256": "e1ff8f7c8ba7e7c2217b28ef0faf1eb2d2fdbaacafea567f6fc91173161c40dd",
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "performanceAdmitted": false
+  },
+  "preservedHarnessErrors": [
+    {
+      "status": "exited",
+      "pid": 37879,
+      "startedAtUtc": "2026-10-13T01:32:06.110986+00:00",
+      "stages": [
+        {
+          "name": "prepare-clones",
+          "command": [
+            "node",
+            "/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/prepare-clones.mjs"
+          ],
+          "status": "exited",
+          "pid": 37989,
+          "processGroup": 37989,
+          "startTicks": "50375493",
+          "exitCode": 0,
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "prototype-syntax",
+          "command": [
+            "node",
+            "--check",
+            "/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/prepared-prototype.mjs"
+          ],
+          "status": "exited",
+          "pid": 38017,
+          "processGroup": 38017,
+          "startTicks": "50375648",
+          "exitCode": 0,
+          "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "name": "build-control",
+          "command": [
+            "node",
+            "/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/build-prototype.mjs",
+            "--production",
+            "control"
+          ],
+          "status": "running"
+        }
+      ],
+      "qualified": false,
+      "productionChanged": false,
+      "fullObjectiveComplete": false,
+      "error": "Traceback (most recent call last):\n  File \"/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/run-prevalidation.py\", line 29, in <module>\n    run('build-'+variant,['node',str(base/'build-prototype.mjs'),'--production',variant])\n  File \"/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/run-prevalidation.py\", line 17, in run\n    with (base/(name+'.log')).open('x') as log:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jason/.pyenv/versions/3.11.9/lib/python3.11/pathlib.py\", line 1044, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileExistsError: [Errno 17] File exists: '/var/www/node/php-companion/.vscode-test/argument-syntax-path-cost-2026-10-13/build-control.log'\n",
+      "exitCode": 1,
+      "finishedAtUtc": "2026-10-13T01:32:07.755774+00:00"
+    },
+    {
+      "passed": false,
+      "cause": "Private harness omitted required defaultPhpParserPaths argument before first lookup",
+      "productionChanged": false
+    }
+  ],
+  "notExecuted": [
+    "nonexistent local-value-joins.test.ts",
+    "completion resolve",
+    "prototype full regression",
+    "prototype editor qualification",
+    "prototype Windows qualification",
+    "human WSL"
+  ],
+  "nextPriority": "Independent reproducible stability defect or delivery qualification; feature expansion deferred; no equivalent retry",
+  "documentationVerification": {
+    "checkedLocalLinks": 3523,
+    "missing": [],
+    "lineSuffixesRecognized": true
+  }
+}

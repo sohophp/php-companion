@@ -1,0 +1,45 @@
+{
+  "qualifiedFourLinuxEditorFlows": true,
+  "stages": [
+    {
+      "name": "c1-onDemand",
+      "exitCode": 0,
+      "seconds": 107.8714994940674,
+      "generationBoundaryCases": null
+    },
+    {
+      "name": "c2-onDemand",
+      "exitCode": 0,
+      "seconds": 126.86458042101003,
+      "generationBoundaryCases": null
+    },
+    {
+      "name": "c3-onDemand",
+      "exitCode": 0,
+      "seconds": 261.1521335639991,
+      "generationBoundaryCases": 40
+    },
+    {
+      "name": "c3-progressive",
+      "exitCode": 0,
+      "seconds": 243.6862834399799,
+      "generationBoundaryCases": 40
+    }
+  ],
+  "frozenInputsUnchanged": 3187,
+  "compiledInputsUnchanged": 105,
+  "coreSHA256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+  "driverSourceUnchanged": true,
+  "allOwnedProcessGroupsEmpty": true,
+  "allStageAndDisplayProcessesGone": true,
+  "allAuthorityDirectoriesRemoved": true,
+  "observedFixtureDirectoriesRemoved": [
+    "/tmp/php-companion-extension-gJXUCz",
+    "/tmp/php-companion-extension-kiVxdn"
+  ],
+  "generationBoundaryCases": 80,
+  "humanWSLAcceptance": false,
+  "complexControllerBudgetPassed": false,
+  "fullObjectiveComplete": false,
+  "auditedAtUtc": "2026-10-13T21:31:02.801384+00:00"
+}

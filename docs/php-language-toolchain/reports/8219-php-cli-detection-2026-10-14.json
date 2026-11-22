@@ -1,0 +1,75 @@
+{
+  "qualified": true,
+  "actualOriginalCommandExitCode": 0,
+  "passed": 9,
+  "failed": 0,
+  "skipped": 0,
+  "runtimes": {
+    "7.2": {
+      "path": "/opt/remi/php72/root/usr/bin/php",
+      "sha256": "2eeb569cc5e3ee43fef500047a794bb9977572dca12f6fdb831574d0138f6c15",
+      "version": "7.2.34",
+      "actualVersionRechecked": "7.2.34"
+    },
+    "7.3": {
+      "path": "/var/www/node/php-companion/.vscode-test/d2313-php73-json-runtime/php73-with-json",
+      "sha256": "4b76eb7a322611d0c1d914b53d0ee20921b8f8741b7439d14ee8a14022559315",
+      "version": "7.3.33",
+      "actualVersionRechecked": "7.3.33"
+    },
+    "7.4": {
+      "path": "/opt/remi/php74/root/usr/bin/php",
+      "sha256": "f895f55456ab1a072a988a73bdc54048b42a3de9eaa13aa70930598c14092def",
+      "version": "7.4.33",
+      "actualVersionRechecked": "7.4.33"
+    },
+    "8.0": {
+      "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php80",
+      "sha256": "b1ee640fd8860a6d84e186d4944c3b0cc83b1ed66e2bc54a54b53be762cce958",
+      "version": "8.0.30",
+      "actualVersionRechecked": "8.0.30"
+    },
+    "8.1": {
+      "path": "/opt/remi/php81/root/usr/bin/php",
+      "sha256": "06352de1a28c4a6b73413d7eb87e30c8288d690557892ae6f64f2ea182f556a0",
+      "version": "8.1.34",
+      "actualVersionRechecked": "8.1.34"
+    },
+    "8.2": {
+      "path": "/opt/remi/php82/root/usr/bin/php",
+      "sha256": "4544945838f124c9d85f365c59c561225ac8fb6a6fd7184567a4c7c0c280790c",
+      "version": "8.2.32",
+      "actualVersionRechecked": "8.2.32"
+    },
+    "8.3": {
+      "path": "/var/www/node/php-companion/.vscode-test/sophp-php-cli-matrix-xeoet2l8/php83",
+      "sha256": "77002148474998c0965a7a6f17ad813a497fcb8f56626fc6c51df65e85e3faae",
+      "version": "8.3.35",
+      "actualVersionRechecked": "8.3.35"
+    },
+    "8.4": {
+      "path": "/opt/remi/php84/root/usr/bin/php",
+      "sha256": "205ab3bf66af38d8e5ec41cfd006abe9cf3ca69d44be76a7a451a905ab7eb819",
+      "version": "8.4.23",
+      "actualVersionRechecked": "8.4.23"
+    },
+    "8.5": {
+      "path": "/opt/remi/php85/root/usr/bin/php",
+      "sha256": "97bee8e6a26c14ac0d8321bd59323206534add15d05f75f797d8d960f97d94ed",
+      "version": "8.5.9",
+      "actualVersionRechecked": "8.5.9"
+    }
+  },
+  "frozenInputsUnchanged": 15,
+  "normalCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "ownedDriverChildAndGroupsGone": true,
+  "originalJsonWrapperAndSignedModuleUnchanged": true,
+  "productionChanged": false,
+  "systemPackagesInstalled": false,
+  "remoteCiExecuted": false,
+  "fullVersionSyntaxOrProtocolMatrixQualified": false,
+  "fullObjectiveComplete": false,
+  "scope": "Original real PHP executable integration: versions 7.2 through 8.5, CLI SAPI, runtime extension capabilities only",
+  "observedAtUtc": "2026-10-14T12:46:48.871140+00:00",
+  "originalArchivesVerified": 7
+}

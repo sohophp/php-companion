@@ -7,6 +7,7 @@ import type { IntegrationRegistry } from './integrationRegistry.js';
 import { t } from './localize.js';
 import { phpRuntimePayload, type PhpExtensionRuntimePayload } from './phpRuntimePayload.js';
 import { WorkspaceRestartQueue } from './workspaceRestartQueue.js';
+import type { BuiltinDocumentation } from './builtinDocumentation.js';
 
 interface PhpExtensionAvailabilityEntry {
   uri: string;
@@ -51,7 +52,7 @@ export function languageServerActivationDecision(): LanguageServerActivationDeci
   });
 }
 
-export async function startLanguageServer(context: vscode.ExtensionContext, output: vscode.LogOutputChannel, versions: VersionManager, integrations: IntegrationRegistry): Promise<LanguageClient | undefined> {
+export async function startLanguageServer(context: vscode.ExtensionContext, output: vscode.LogOutputChannel, versions: VersionManager, integrations: IntegrationRegistry, builtinDocumentation: BuiltinDocumentation): Promise<LanguageClient | undefined> {
   const configuration = vscode.workspace.getConfiguration('phpCompanion');
   const projectPhpVersions = (): Array<{ uri: string; version: string }> => {
     const entries = new Map<string, string>();
@@ -215,8 +216,14 @@ export async function startLanguageServer(context: vscode.ExtensionContext, outp
             vscode.window.setStatusBarMessage(t('definitionNotFound'), 5000);
           }
         }
-        return result;
+        return builtinDocumentation.mapDefinition(result);
       },
+      provideTypeDefinition: async (document, position, token, next) =>
+        builtinDocumentation.mapDefinition(await next(document, position, token)),
+      provideImplementation: async (document, position, token, next) =>
+        builtinDocumentation.mapDefinition(await next(document, position, token)),
+      provideReferences: async (document, position, referenceContext, token, next) =>
+        builtinDocumentation.mapReferences(await next(document, position, referenceContext, token)),
       provideCodeActions: async (document, range, context, token, next) => {
         const sourceVersion = document.version;
         const sourceText = document.getText();

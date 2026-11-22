@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-13",
+  "qualifiedCpuObservation": true,
+  "coreSHA256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+  "fullResultsEqualToUnprofiledFirstFour": true,
+  "frozenProductsUnchanged": 1012,
+  "frozenProjectUnchanged": 66079,
+  "ownedProcessesGone": true,
+  "cacheRemoved": true,
+  "profiles": 2,
+  "includesStartupAndFourEdits": true,
+  "performanceQualified": false,
+  "rawScopeTextInheritedFromNodeTypeHarness": true,
+  "actualCpuFlagsAndArtifactsVerified": true,
+  "fullObjectiveComplete": false,
+  "sourceInterpretationCorrected": true,
+  "actualTraversal": "firstLocalSyntax overlap search",
+  "deepestNonemptyAlreadyUsesNativePath": true
+}

@@ -1,0 +1,232 @@
+{
+  "date": "2026-10-20",
+  "sourceCommit": "71c7b40f16ca148a2d6e52787847054307a246cf",
+  "independentFailureAuditPassed": true,
+  "formalProductCliInstallationsPassed": 3,
+  "externalLocalPayloadCliInstallationsPassed": 9,
+  "externalArtifactOrigin": "Locally repacked exact prior frozen payloads; not Marketplace downloads",
+  "installedProductFilesCompared": 39,
+  "frozenInputsVerified": 7387,
+  "actualFullFlowExitCode": 1,
+  "durationSeconds": 95.24923419998959,
+  "fullInstalledFlowQualified": false,
+  "productDevelopmentPathUsed": false,
+  "neutralTestCarrierOnly": true,
+  "failure": "Original complete suite requires Test-mode pause hook; formal installed Core intentionally starts server with testMode=false",
+  "originalAssertionsAndTimeoutsPreserved": true,
+  "realDebug": {
+    "platform": "linux",
+    "debuggerVersion": "1.40.2",
+    "breakpointLine": 3,
+    "stepLine": 4,
+    "before": "40",
+    "after": "42",
+    "scopeVariable": true,
+    "programResult": 42,
+    "workingDirectoryMatches": true,
+    "sessionTerminated": true,
+    "scope": "Actual Xdebug breakpoint, step over, scopes and watch evaluation in an isolated editor host"
+  },
+  "phpunitTasks": {
+    "results": [
+      {
+        "scenario": "pass",
+        "exitCode": 0,
+        "processId": 2550385
+      },
+      {
+        "scenario": "assertion-failure",
+        "exitCode": 1,
+        "processId": 2550629
+      },
+      {
+        "scenario": "recovery",
+        "exitCode": 0,
+        "processId": 2550714
+      }
+    ],
+    "witnesses": [
+      {
+        "value": 42,
+        "cwd": "/tmp/php-companion-packaged-byJBRP/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 2550387
+      },
+      {
+        "value": 41,
+        "cwd": "/tmp/php-companion-packaged-byJBRP/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 2550657
+      },
+      {
+        "value": 42,
+        "cwd": "/tmp/php-companion-packaged-byJBRP/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 2550716
+      }
+    ],
+    "argumentPathWithSpaces": true,
+    "realProcessExecution": true,
+    "expectedAssertionFailureExitCode": 1,
+    "recoveryPassed": true,
+    "workingDirectoryAndRuntimeMatched": true,
+    "taskAndProcessEndObserved": true,
+    "noActiveOwnedTasks": true
+  },
+  "scalarFeedback": {
+    "noiseFiles": 9100,
+    "rounds": 50,
+    "presentExternalMembers": [
+      "sohophp.twig-plus",
+      "redhat.vscode-yaml",
+      "redhat.vscode-xml",
+      "xdebug.php-debug",
+      "junstyle.php-cs-fixer",
+      "EditorConfig.EditorConfig",
+      "eiminsasete.apacheconf-snippets",
+      "neilbrayfield.php-docblocker"
+    ],
+    "p50Ms": 68,
+    "p95Ms": 84,
+    "maxMs": 1379,
+    "declarationUnsaved": true,
+    "consumerVersion": 1,
+    "definitionWaitMs": [
+      7,
+      7,
+      8,
+      7,
+      6,
+      6
+    ],
+    "slowRounds": [
+      {
+        "round": 1,
+        "elapsedMs": 1379,
+        "applyEditMs": 5,
+        "diagnosticReadyMs": 1155,
+        "hoverReadyMs": 1379
+      }
+    ],
+    "firstCompositeHoverCallMs": 224,
+    "firstRoundServerTimings": {},
+    "nestedPhp72Verified": true
+  },
+  "unionShapeThirtyRoundFeedbackExecuted": false,
+  "runtimeProof": {
+    "platform": "linux",
+    "node": "v24.21.0",
+    "execPath": "/var/www/node/php-companion-rename-fix-20261015/.vscode-test/vscode-linux-x64-1.142.0/code",
+    "editor": "1.142.0",
+    "originalSuite": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-profile-2026-10-20/workspace/dist-test/suite/index.js",
+    "assets": [
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/php-companion-0.4.13.vsix!extension/dist/web-tree-sitter.wasm",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-0.4.13/dist/web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/php-companion-0.4.13.vsix!extension/dist/tree-sitter-php.wasm",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-0.4.13/dist/tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/php-companion-0.4.13.vsix!extension/dist/sourceStatWorker.js",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-0.4.13/dist/sourceStatWorker.js",
+        "sha256": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/php-companion-0.4.13.vsix!extension/dist/portableCandidateSearchWorker.js",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-0.4.13/dist/portableCandidateSearchWorker.js",
+        "sha256": "25488cd3ba4751e3e7a3e727aee8940b4fbc83ee2977880dac51f6c874fb0de6"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/php-companion-0.4.13.vsix!extension/dist/language-server.js",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-0.4.13/dist/language-server.js",
+        "sha256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/php-companion-0.4.13.vsix!extension/dist/extension.js",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-0.4.13/dist/extension.js",
+        "sha256": "863124cbe7a24ea05681cf46ad8d43ea73ff56a76386de3359888fd16ec1b2e4"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/php-companion-0.4.13.vsix!extension/dist/candidateWorker.js",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-0.4.13/dist/candidateWorker.js",
+        "sha256": "e798bc0b8d939ada28463a7512ebe71416ef92f45679347b0bd1216ebac922fc"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/php-companion-0.4.13.vsix!extension/dist/builtinSnapshotWorker.js",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-0.4.13/dist/builtinSnapshotWorker.js",
+        "sha256": "f7acddfd3c4f1ac04b3ad72daf34f883a6223a616166b3d07559fc049a8cda7c"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/php-companion-symfony-0.4.13.vsix!extension/dist/winstar-route-provider.js",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-symfony-0.4.13/dist/winstar-route-provider.js",
+        "sha256": "fa797276ccb92baff6d73343b23840c9c051acce265ae8be7504bd3681a8d977"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/php-companion-symfony-0.4.13.vsix!extension/dist/web-tree-sitter.wasm",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-symfony-0.4.13/dist/web-tree-sitter.wasm",
+        "sha256": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/php-companion-symfony-0.4.13.vsix!extension/dist/tree-sitter-php.wasm",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-symfony-0.4.13/dist/tree-sitter-php.wasm",
+        "sha256": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/php-companion-symfony-0.4.13.vsix!extension/dist/static-route-provider.js",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-symfony-0.4.13/dist/static-route-provider.js",
+        "sha256": "5c5db0f536d8529f0b5108faa5628eba74965bff4e39051411b0e8c9502c69eb"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/php-companion-symfony-0.4.13.vsix!extension/dist/service-provider.js",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-symfony-0.4.13/dist/service-provider.js",
+        "sha256": "85980c84a91960889fe974c13534b26c17baebb8f2ab6bb091f3c5ee26919529"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/php-companion-symfony-0.4.13.vsix!extension/dist/extension.js",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-symfony-0.4.13/dist/extension.js",
+        "sha256": "33129311d4ea45a076bb1d04fe5dbd38ed795715814e59a5bc29c4adfde5e43c"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/php-companion-symfony-0.4.13.vsix!extension/dist/event-provider.js",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-symfony-0.4.13/dist/event-provider.js",
+        "sha256": "f25156ef871067f05f93c913c3a6cb21c2577d4db45a11527269496cb1e4458d"
+      },
+      {
+        "source": "/var/www/node/php-companion-runtime-guard-20261020/packages/php-companion-symfony/php-companion-symfony-0.4.13.vsix!extension/dist/controller-context-provider.js",
+        "copy": "/var/www/node/php-companion/.vscode-test/runtime-file-guard-installed-2026-10-20/installed-extensions/sohophp.php-companion-symfony-0.4.13/dist/controller-context-provider.js",
+        "sha256": "eebf9eea8401d71e9c3daa710705571fd2859ccc187a801a6a2de6e6fa360f57"
+      }
+    ],
+    "formalCliInstalledProducts": true,
+    "productDevelopmentPathUsed": false,
+    "realDebugEnabled": true,
+    "realDebugRuntime": {
+      "version": "8.5.9",
+      "binary": "/opt/remi/php85/root/usr/bin/php",
+      "xdebugVersion": "3.5.3",
+      "mode": [
+        "debug"
+      ],
+      "extensionDir": "/opt/remi/php85/root/usr/lib64/php/modules",
+      "ini": "/etc/opt/remi/php85/php.ini",
+      "scannedIni": "/etc/opt/remi/php85/php.d/10-opcache.ini,\n/etc/opt/remi/php85/php.d/15-xdebug.ini,\n/etc/opt/remi/php85/php.d/20-bz2.ini,\n/etc/opt/remi/php85/php.d/20-calendar.ini,\n/etc/opt/remi/php85/php.d/20-ctype.ini,\n/etc/opt/remi/php85/php.d/20-curl.ini,\n/etc/opt/remi/php85/php.d/20-dom.ini,\n/etc/opt/remi/php85/php.d/20-exif.ini,\n/etc/opt/remi/php85/php.d/20-fileinfo.ini,\n/etc/opt/remi/php85/php.d/20-ftp.ini,\n/etc/opt/remi/php85/php.d/20-gd.ini,\n/etc/opt/remi/php85/php.d/20-gettext.ini,\n/etc/opt/remi/php85/php.d/20-iconv.ini,\n/etc/opt/remi/php85/php.d/20-intl.ini,\n/etc/opt/remi/php85/php.d/20-mbstring.ini,\n/etc/opt/remi/php85/php.d/20-mysqlnd.ini,\n/etc/opt/remi/php85/php.d/20-pdo.ini,\n/etc/opt/remi/php85/php.d/20-pgsql.ini,\n/etc/opt/remi/php85/php.d/20-phar.ini,\n/etc/opt/remi/php85/php.d/20-posix.ini,\n/etc/opt/remi/php85/php.d/20-shmop.ini,\n/etc/opt/remi/php85/php.d/20-simplexml.ini,\n/etc/opt/remi/php85/php.d/20-sodium.ini,\n/etc/opt/remi/php85/php.d/20-sqlite3.ini,\n/etc/opt/remi/php85/php.d/20-sysvmsg.ini,\n/etc/opt/remi/php85/php.d/20-sysvsem.ini,\n/etc/opt/remi/php85/php.d/20-sysvshm.ini,\n/etc/opt/remi/php85/php.d/20-tokenizer.ini,\n/etc/opt/remi/php85/php.d/20-xml.ini,\n/etc/opt/remi/php85/php.d/20-xmlwriter.ini,\n/etc/opt/remi/php85/php.d/20-xsl.ini,\n/etc/opt/remi/php85/php.d/30-mcrypt.ini,\n/etc/opt/remi/php85/php.d/30-mysqli.ini,\n/etc/opt/remi/php85/php.d/30-pdo_mysql.ini,\n/etc/opt/remi/php85/php.d/30-pdo_pgsql.ini,\n/etc/opt/remi/php85/php.d/30-pdo_sqlite.ini,\n/etc/opt/remi/php85/php.d/30-xmlreader.ini,\n/etc/opt/remi/php85/php.d/30-zip.ini,\n/etc/opt/remi/php85/php.d/40-apcu.ini,\n/etc/opt/remi/php85/php.d/40-igbinary.ini,\n/etc/opt/remi/php85/php.d/40-imagick.ini,\n/etc/opt/remi/php85/php.d/40-msgpack.ini,\n/etc/opt/remi/php85/php.d/40-yaml.ini,\n/etc/opt/remi/php85/php.d/50-redis.ini,\n/etc/opt/remi/php85/php.d/99-xdebug-switch.ini\n",
+      "extensionSha256": "88990f04bc0dc35950121e43c74953a7fd3eb73c1e083a4f657a5b8e83d6f78b"
+    },
+    "realWslAcceptance": false
+  },
+  "ownedProcessesAndFixtureDisplayRemoved": true,
+  "dailyProfileChanged": false,
+  "realWslAcceptance": false,
+  "complexControllerPerformanceQualified": false,
+  "fullObjectiveComplete": false
+}

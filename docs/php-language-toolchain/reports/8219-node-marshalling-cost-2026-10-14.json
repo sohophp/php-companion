@@ -1,0 +1,56 @@
+{
+  "qualifiedObservation": true,
+  "independentTerminalAuditPassed": true,
+  "prototypeInvestigationEligible": true,
+  "prototypeImplemented": false,
+  "scope": "Only original marshalNode inside incompatibleArguments; five i32 writes retained exactly, outermost marshalling duration only, bootstrap separate and four edits local+full summed; no direct heap writes, caching or algorithm replacement",
+  "samples": [
+    105.56507000017427,
+    101.5062309998666,
+    98.68268999954853,
+    105.76762300057453
+  ],
+  "medianMarshalMs": 103.53565050002044,
+  "marshalCallsPerEdit": [
+    619627,
+    619627,
+    619627,
+    619627
+  ],
+  "originalAlgorithmAndReturnUnchanged": true,
+  "SDKSourceUnchanged": true,
+  "completeResultsEqual": true,
+  "baselineFourStatesEqual": true,
+  "controlAssetsMatchNormal": 8,
+  "frozenProducts": 3316,
+  "frozenProject": 66079,
+  "frozenPrivate": 32,
+  "frozenSetup": 16,
+  "ownedActorsAndGroupsGone": true,
+  "checkedProcessIds": [
+    55779,
+    55780,
+    55812,
+    55851,
+    55889,
+    55900,
+    55967,
+    55979
+  ],
+  "actualOriginalCommandExitCode": 0,
+  "actualStageExitCodes": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "p95Qualification": false,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "observedAtUtc": "2026-10-14T11:34:21.799202+00:00",
+  "actualIndependentAuditorExitCode": 0,
+  "rawAuditSHA256": "85f1db833429ec7468c8b2f293a8765ffd8a263886f4fbdf3b3b1564cd719aa8",
+  "archivesVerified": 35,
+  "verifiedAtUtc": "2026-10-14T11:39:51.349439+00:00",
+  "currentCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea"
+}

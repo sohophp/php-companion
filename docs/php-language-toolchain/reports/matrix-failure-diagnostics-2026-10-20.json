@@ -1,0 +1,52 @@
+{
+  "sourceCommit": "53e85c8d55caabb2ffedf85f958072ca06e0ef5a",
+  "parentCommit": "bf9613d5445e8c0390dae1865e591c1d7a8901d6",
+  "branch": "work/stable-cold-cache-recovery-20261020",
+  "pushed": true,
+  "changedFiles": [
+    "scripts/benchmark/version-mode/run-matrix.mjs"
+  ],
+  "change": "Only prints caught matrix failure, last case and up to last12000 characters of json/stderr into job logs",
+  "successPathAndAllGateCriteriaUnchanged": true,
+  "productionRuntimeChanges": false,
+  "syntaxCheckActualExitCode": 0,
+  "changedFileLintActualExitCode": 0,
+  "localRuntimeTestNotExecutedDuringLongSession": true,
+  "workflowRuns": {
+    "ci": {
+      "run": 39361067355,
+      "status": "in_progress",
+      "conclusion": "",
+      "passed": 17,
+      "failed": []
+    },
+    "matrix": {
+      "run": 39361067391,
+      "status": "completed",
+      "conclusion": "failure",
+      "passed": 8,
+      "failed": [
+        "Editing (windows-latest, onDemand)"
+      ]
+    }
+  },
+  "fullObjectiveComplete": false,
+  "partialMatrixAudit": {
+    "actualExitCode": 0,
+    "successCohorts": 8,
+    "cases": 72,
+    "rawFiles": 360,
+    "wholeMatrixQualified": false
+  },
+  "failedCaseBudget": {
+    "phpVersion": "8.4",
+    "mode": "onDemand",
+    "platform": "win32",
+    "diagnosticP95Ms": 40.85199999999986,
+    "maxHotQueryP95Ms": 2.2173000000002503,
+    "cancellationMs": 4.176899999998568
+  },
+  "failedCaseLifecycleQualified": false,
+  "originalFailureEvidenceDirectory": "/var/www/node/php-companion/.vscode-test/matrix-diagnostics-53e85c8d-2026-10-20",
+  "followupCandidate": "44dbe64faec0fc734e8c298b6799881cfb0d20a9"
+}

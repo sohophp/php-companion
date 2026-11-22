@@ -1,0 +1,360 @@
+{
+  "recordedAtUtc": "2026-10-12T18:21:07.923490+00:00",
+  "change": "Bound semantic test concurrency by min(8, max(1, availableParallelism()-1)); preserve all tests, deadlines, assertions and normal runtime",
+  "normalBundleSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+  "configSha256": "f2079d027d3ebfda504feb6b1d3ed018b2e37150ffee54514db2927b9bcf464e",
+  "qualifiedDefaultSemantic": true,
+  "defaultValidation": {
+    "wrapperPid": 7980,
+    "status": "exited",
+    "startedAtUtc": "2026-10-12T18:13:25.945722+00:00",
+    "normalBundleSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+    "frozenInputs": 2087,
+    "onlyChangeSincePriorQualification": [
+      "/var/www/node/php-companion/packages/semantic/vitest.config.ts"
+    ],
+    "resolvedConfig": {
+      "parallelism": 18,
+      "maxWorkers": 8,
+      "testTimeout": 5000,
+      "include": [
+        "test/**/*.test.ts"
+      ],
+      "pool": "forks",
+      "isolate": true
+    },
+    "stages": [
+      {
+        "name": "default-semantic",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/semantic",
+          "test",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile.json=/var/www/node/php-companion/.vscode-test/semantic-worker-resource-2026-10-13/default-semantic.json"
+        ],
+        "status": "exited",
+        "pid": 9462,
+        "processGroup": 9462,
+        "exitCode": 0,
+        "seconds": 83.2000785410055,
+        "testFiles": 191,
+        "passed": 24143,
+        "failed": 0,
+        "pending": 0,
+        "total": 24143
+      },
+      {
+        "name": "config-typecheck",
+        "command": [
+          "pnpm",
+          "exec",
+          "tsc",
+          "--noEmit",
+          "--target",
+          "ES2022",
+          "--module",
+          "NodeNext",
+          "--moduleResolution",
+          "NodeNext",
+          "--skipLibCheck",
+          "--esModuleInterop",
+          "packages/semantic/vitest.config.ts"
+        ],
+        "status": "exited",
+        "pid": 15119,
+        "processGroup": 15119,
+        "exitCode": 0,
+        "seconds": 18.409207750984933
+      },
+      {
+        "name": "config-lint",
+        "command": [
+          "pnpm",
+          "exec",
+          "eslint",
+          "packages/semantic/vitest.config.ts"
+        ],
+        "status": "exited",
+        "pid": 16220,
+        "processGroup": 16220,
+        "exitCode": 0,
+        "seconds": 26.65045564295724
+      }
+    ],
+    "qualified": true,
+    "fullObjectiveComplete": false,
+    "allCaseIdentitiesAndCountsRetained": true,
+    "changedInputs": [],
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T18:15:35.395789+00:00"
+  },
+  "caseComparison": [
+    {
+      "name": "comments in return statements (deferred=false) preserves Generator contracts: 'block comment'",
+      "firstDefaultMs": 5302.269287000001,
+      "commandEightMs": 1790.4885809999996,
+      "newDefaultMs": 1910.1409919999996,
+      "newStatus": "passed"
+    },
+    {
+      "name": "Generator delegated results across expressions and contracts 'delegatedNoReturn' (deferred=false)",
+      "firstDefaultMs": 5079.607393,
+      "commandEightMs": 1860.0720969999993,
+      "newDefaultMs": 1580.175588,
+      "newStatus": "passed"
+    },
+    {
+      "name": "Delegated local identity across direct zero-argument member calls 'result' (deferred=false)",
+      "firstDefaultMs": 5099.343019999998,
+      "commandEightMs": 1797.3465969999997,
+      "newDefaultMs": 1752.5298119999998,
+      "newStatus": "passed"
+    },
+    {
+      "name": "Generator delegation result propagation 'inner' (deferred=false)",
+      "firstDefaultMs": 5306.806243000001,
+      "commandEightMs": 1675.2491189999992,
+      "newDefaultMs": 1686.7679660000001,
+      "newStatus": "passed"
+    },
+    {
+      "name": "Generator plain yield uses its own documented send contract 'parenthesized plain yield' (deferred=false)",
+      "firstDefaultMs": 5281.528977000002,
+      "commandEightMs": 1745.7362590000002,
+      "newDefaultMs": 1644.573464,
+      "newStatus": "passed"
+    }
+  ],
+  "focusedObservation": {
+    "focusedFiles": 5,
+    "focusedPassed": 142,
+    "focusedFailed": 0,
+    "builtinUpdates": 126,
+    "formerlyTimedOutCases": [
+      {
+        "name": "comments in return statements (deferred=false) preserves Generator contracts: 'block comment'",
+        "observedTestMs": 3071.1009019999983,
+        "builtinUpdateMs": 2963.8663940000006,
+        "builtinUpdateCpuMs": 3791.398,
+        "updateSharePercent": 96.50827141725746,
+        "sourceBytes": 687751
+      },
+      {
+        "name": "Generator delegated results across expressions and contracts 'delegatedNoReturn' (deferred=false)",
+        "observedTestMs": 3110.0747770000016,
+        "builtinUpdateMs": 2982.708412,
+        "builtinUpdateCpuMs": 3809.387,
+        "updateSharePercent": 95.90471695594212,
+        "sourceBytes": 687751
+      },
+      {
+        "name": "Delegated local identity across direct zero-argument member calls 'result' (deferred=false)",
+        "observedTestMs": 2938.9059879999986,
+        "builtinUpdateMs": 2713.1831779999993,
+        "builtinUpdateCpuMs": 3995.42,
+        "updateSharePercent": 92.31949538632198,
+        "sourceBytes": 687751
+      },
+      {
+        "name": "Generator delegation result propagation 'inner' (deferred=false)",
+        "observedTestMs": 2996.913810000002,
+        "builtinUpdateMs": 2863.226175,
+        "builtinUpdateCpuMs": 3783.26,
+        "updateSharePercent": 95.53915649646254,
+        "sourceBytes": 687751
+      },
+      {
+        "name": "Generator plain yield uses its own documented send contract 'parenthesized plain yield' (deferred=false)",
+        "observedTestMs": 2988.9328769999993,
+        "builtinUpdateMs": 2748.584967999999,
+        "builtinUpdateCpuMs": 3562.714,
+        "updateSharePercent": 91.95873848993095,
+        "sourceBytes": 687751
+      }
+    ],
+    "scope": "Private observer in five-file workload; isolates initialization share, not full-suite latency qualification"
+  },
+  "initialObservationCaveat": "Exit-time per-pid records incomplete; later focused collector appends per update",
+  "defaultSeventeenObservedPass": true,
+  "originalFailureRetained": true,
+  "inputAudit": {
+    "inputs": 2087,
+    "changedInputs": []
+  },
+  "candidateQualificationState": ".vscode-test/semantic-worker-resource-2026-10-13/candidate-qualification-state.json",
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "currentCandidateQualification": {
+    "recordedAtUtc": "2026-10-12T19:15:27.731139+00:00",
+    "qualifiedThisBatch": true,
+    "bundleSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+    "semanticPassed": 24143,
+    "semanticDefaultCommand": true,
+    "semanticMaxWorkers": 8,
+    "semanticOriginalTestTimeoutMs": 5000,
+    "rootPassed": 113,
+    "fullLsp": {
+      "recordedAtUtc": "2026-10-12T18:58:51.726432+00:00",
+      "qualifiedFullLsp": true,
+      "bundleSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+      "testFiles": 142,
+      "passed": 1652,
+      "oldConditionalSkipped": 1,
+      "oldCaseIdentitiesCountsAndStatusesRetained": true,
+      "addedCases": [
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/undefined-variable-scope-boundary-stdio.test.ts",
+          "name": "keeps closure diagnostics inside their scope at PHP '7.2' ('onDemand')",
+          "status": "passed",
+          "count": 1
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/undefined-variable-scope-boundary-stdio.test.ts",
+          "name": "keeps closure diagnostics inside their scope at PHP '7.2' ('progressive')",
+          "status": "passed",
+          "count": 1
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/undefined-variable-scope-boundary-stdio.test.ts",
+          "name": "keeps closure diagnostics inside their scope at PHP '8.5' ('onDemand')",
+          "status": "passed",
+          "count": 1
+        },
+        {
+          "file": "/var/www/node/php-companion/packages/language-server/test/undefined-variable-scope-boundary-stdio.test.ts",
+          "name": "keeps closure diagnostics inside their scope at PHP '8.5' ('progressive')",
+          "status": "passed",
+          "count": 1
+        }
+      ],
+      "frozenInputs": 2087,
+      "changedInputs": [],
+      "processGroup": 22249,
+      "processGroupEmpty": true,
+      "remainingEditorAndNativeStages": true,
+      "fullObjectiveComplete": false
+    },
+    "editors": [
+      {
+        "name": "editor-c1-onDemand",
+        "seconds": 146.81179785594577,
+        "generationBoundaryCases": null,
+        "displayCleaned": true
+      },
+      {
+        "name": "editor-c2-onDemand",
+        "seconds": 152.9779888719786,
+        "generationBoundaryCases": null,
+        "displayCleaned": true
+      },
+      {
+        "name": "editor-c3-onDemand",
+        "seconds": 307.3585900820326,
+        "generationBoundaryCases": 40,
+        "displayCleaned": true
+      },
+      {
+        "name": "editor-c3-progressive",
+        "seconds": 273.337565779977,
+        "generationBoundaryCases": 40,
+        "displayCleaned": true
+      }
+    ],
+    "nativeWindows": [
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "onDemand",
+        "serverPid": 24680,
+        "bundleSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "cancellationMs": 2.7234000000007654,
+        "correct": true,
+        "providerCalls": [
+          {
+            "pid": 29344,
+            "held": false
+          },
+          {
+            "pid": 25140,
+            "held": true
+          }
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      },
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "progressive",
+        "serverPid": 46964,
+        "bundleSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "cancellationMs": 1.8123999999988882,
+        "correct": true,
+        "providerCalls": [
+          {
+            "pid": 34200,
+            "held": false
+          },
+          {
+            "pid": 51548,
+            "held": true
+          }
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      },
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "progressive",
+        "serverPid": 37704,
+        "bundleSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "foregroundHeld": true,
+        "cancelPendingBeforeRequest": true,
+        "cancelReturnedWithin100ms": true,
+        "cancellationMs": 2.4463999999998123,
+        "foregroundStillHeld": true,
+        "survivingQueryRecovered": true,
+        "finalCancellationMs": 408.6483000000003,
+        "providerCalls": [
+          {
+            "pid": 31732,
+            "held": false
+          },
+          {
+            "providerVersion": "replacement",
+            "pid": 31264,
+            "held": true
+          }
+        ],
+        "correct": true,
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      }
+    ],
+    "frozenInputs": 2087,
+    "changedInputs": [],
+    "allStagesExited": true,
+    "allDisplaysCleaned": true,
+    "nativeTemporaryDirectoryRemoved": true,
+    "manifestAndPluginApiUnchanged": true,
+    "profileUpdated": false,
+    "fullObjectiveComplete": false
+  },
+  "candidateQualificationComplete": true
+}

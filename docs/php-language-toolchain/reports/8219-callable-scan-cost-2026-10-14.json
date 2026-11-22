@@ -1,0 +1,74 @@
+{
+  "qualifiedObservation": true,
+  "independentTerminalAuditPassed": true,
+  "prototypeInvestigationEligible": false,
+  "prototypeImplemented": false,
+  "scope": "Only original global fallback expansion inside callableDeclarationsForSignature during incompatibleArguments; bootstrap separate, four edits local+full summed; no caching or algorithm replacement",
+  "samples": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "medianGlobalScanMs": 0.0,
+  "globalScansPerEdit": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "expandedDeclarationsPerEdit": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "matchingDeclarationsPerEdit": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "exactDeclarationsPerEdit": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "originalAlgorithmAndReturnUnchanged": true,
+  "SDKUntouched": true,
+  "completeResultsEqual": true,
+  "baselineFourStatesEqual": true,
+  "controlAssetsMatchNormal": 8,
+  "frozenProducts": 3316,
+  "frozenProject": 66079,
+  "frozenPrivate": 31,
+  "frozenSetup": 15,
+  "ownedActorsAndGroupsGone": true,
+  "checkedProcessIds": [
+    47031,
+    47035,
+    47076,
+    47118,
+    47154,
+    47165,
+    47248,
+    47259
+  ],
+  "actualOriginalCommandExitCode": 0,
+  "actualStageExitCodes": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "p95Qualification": false,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "observedAtUtc": "2026-10-14T11:19:27.939346+00:00",
+  "actualIndependentAuditorExitCode": 0,
+  "originalAuditReportSHA256": "b8e95ac1dede29d18449ea33f346ad7998fd487f5b3343f761a27c5f0fa01270",
+  "archivesVerified": 34,
+  "verifiedAtUtc": "2026-10-14T11:22:07.644456+00:00",
+  "currentCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea"
+}

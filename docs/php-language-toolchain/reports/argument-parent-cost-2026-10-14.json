@@ -1,0 +1,58 @@
+{
+  "qualifiedObservation": true,
+  "prototypeAdmitted": true,
+  "prototypeImplemented": false,
+  "repeatedParentMsLocalPlusFull": [
+    128.71739700045782,
+    126.83573799981968,
+    117.16916700013098,
+    117.62516600014169
+  ],
+  "medianRepeatedParentMs": 122.23045199998069,
+  "callsPerEdit": [
+    95189,
+    95189,
+    95189,
+    95189
+  ],
+  "uniqueKeysPerEdit": [
+    3259,
+    3259,
+    3259,
+    3259
+  ],
+  "repeatedCallsPerEdit": [
+    91930,
+    91930,
+    91930,
+    91930
+  ],
+  "allParentMsPerEdit": [
+    135.0799090004557,
+    132.2845079997369,
+    122.6465410000892,
+    123.15875500017137
+  ],
+  "changedParentShapes": 0,
+  "capped": false,
+  "initialRows": 4,
+  "editRows": 8,
+  "resultsEqual": true,
+  "normalProductsUnchanged": true,
+  "fixedProjectUnchanged": true,
+  "p95Qualification": false,
+  "independentTerminalAuditPassed": true,
+  "actualNativeGetterCallsObserved": true,
+  "commandsExitCodes": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "frozenProducts": 3316,
+  "frozenProject": 66079,
+  "frozenPrivate": 25,
+  "ownedActorsAndGroupsGone": true,
+  "sourceResultIdentityQualification": false,
+  "recordedAtUtc": "2026-10-13T22:44:32.824600+00:00"
+}

@@ -1,0 +1,121 @@
+{
+  "qualified": true,
+  "normalSemanticSHA256": "33dd22e6a38bb00637d9b807dc21317bafbc36c46f75fe38ab40c5b22b7d5285",
+  "cases": [
+    {
+      "name": "callee signature changes in the same URI outside unchanged caller",
+      "exactOldObserverFingerprintUnchanged": true,
+      "sameUriMutationGuardPassed": true,
+      "diagnosticCounts": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "rows": [
+        {
+          "scopeId": "Demo\\run",
+          "scopeTextSHA256": "aa8eeff2b17c3eef56a9dfdae4c82d875923cee532eaa1db5baf6b1ef462e966",
+          "fingerprint": "0c8abf4d23a6f51266d5565b6ecc8d309fe237bfc08a5060f758999779947863",
+          "sourceSHA256": "ba09608c2a8f005eec9d1336f55f7e9242bab111b1fe10a7131806f7de3d27f8",
+          "sameUriMutationGuard": true,
+          "diagnostics": []
+        },
+        {
+          "scopeId": "Demo\\run",
+          "scopeTextSHA256": "aa8eeff2b17c3eef56a9dfdae4c82d875923cee532eaa1db5baf6b1ef462e966",
+          "fingerprint": "0c8abf4d23a6f51266d5565b6ecc8d309fe237bfc08a5060f758999779947863",
+          "sourceSHA256": "f3db1e374605efad48d20160928e9f542e39576e2d320c6d62f868e1347b2191",
+          "sameUriMutationGuard": true,
+          "diagnostics": [
+            {
+              "uri": "file:///Demo/Caller.php",
+              "start": 114,
+              "end": 119,
+              "callable": "Demo\\receive",
+              "parameter": "value",
+              "actualType": "string",
+              "expectedType": "int"
+            }
+          ]
+        },
+        {
+          "scopeId": "Demo\\run",
+          "scopeTextSHA256": "aa8eeff2b17c3eef56a9dfdae4c82d875923cee532eaa1db5baf6b1ef462e966",
+          "fingerprint": "0c8abf4d23a6f51266d5565b6ecc8d309fe237bfc08a5060f758999779947863",
+          "sourceSHA256": "ece78e4eaf5a1dcef8cec87089d1d481d0dd08524db700afff8fa14d31e7c144",
+          "sameUriMutationGuard": true,
+          "diagnostics": []
+        },
+        {
+          "scopeId": "Demo\\run",
+          "scopeTextSHA256": "aa8eeff2b17c3eef56a9dfdae4c82d875923cee532eaa1db5baf6b1ef462e966",
+          "fingerprint": "0c8abf4d23a6f51266d5565b6ecc8d309fe237bfc08a5060f758999779947863",
+          "sourceSHA256": "ba09608c2a8f005eec9d1336f55f7e9242bab111b1fe10a7131806f7de3d27f8",
+          "sameUriMutationGuard": true,
+          "diagnostics": []
+        }
+      ]
+    },
+    {
+      "name": "parent captured value changes outside unchanged closure",
+      "exactOldObserverFingerprintUnchanged": true,
+      "sameUriMutationGuardPassed": true,
+      "diagnosticCounts": [
+        1,
+        0,
+        1
+      ],
+      "rows": [
+        {
+          "scopeId": "closure@126",
+          "scopeTextSHA256": "6b742494b66204e18fc6824d119cd39991e4727376142f9a9f6c760c3012433b",
+          "fingerprint": "639d8a8aa3db4e4a3841bed887105ef71d81dc83cefb73aaeaf9994a392fc67a",
+          "sourceSHA256": "07d5c1cbe984383a233b14e471e7708cbb18ccbdcce09ef86e1032619ed12e6c",
+          "sameUriMutationGuard": true,
+          "diagnostics": [
+            {
+              "uri": "file:///Demo/Caller.php",
+              "start": 156,
+              "end": 162,
+              "callable": "Demo\\needInt",
+              "parameter": "value",
+              "actualType": "string",
+              "expectedType": "int"
+            }
+          ]
+        },
+        {
+          "scopeId": "closure@126",
+          "scopeTextSHA256": "6b742494b66204e18fc6824d119cd39991e4727376142f9a9f6c760c3012433b",
+          "fingerprint": "639d8a8aa3db4e4a3841bed887105ef71d81dc83cefb73aaeaf9994a392fc67a",
+          "sourceSHA256": "721ec1dbc58caccbc7b6ac80d83332d7f7e318ef160a381bc1905ecea32b87c7",
+          "sameUriMutationGuard": true,
+          "diagnostics": []
+        },
+        {
+          "scopeId": "closure@126",
+          "scopeTextSHA256": "6b742494b66204e18fc6824d119cd39991e4727376142f9a9f6c760c3012433b",
+          "fingerprint": "639d8a8aa3db4e4a3841bed887105ef71d81dc83cefb73aaeaf9994a392fc67a",
+          "sourceSHA256": "07d5c1cbe984383a233b14e471e7708cbb18ccbdcce09ef86e1032619ed12e6c",
+          "sameUriMutationGuard": true,
+          "diagnostics": [
+            {
+              "uri": "file:///Demo/Caller.php",
+              "start": 156,
+              "end": 162,
+              "callable": "Demo\\needInt",
+              "parameter": "value",
+              "actualType": "string",
+              "expectedType": "int"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "conclusion": "Textual call/scope/context fingerprint plus same-URI mutation history does not prove safe cross-edit result reuse",
+  "productionChanged": false,
+  "cachePrototypeImplemented": false,
+  "fullObjectiveComplete": false
+}

@@ -32,7 +32,7 @@ interface PcreRuntimeConstants { PCRE_VERSION?: string; PCRE_VERSION_MAJOR?: num
 
 export const DEFAULT_PHP_COMMANDS = [
   'php',
-  'php85', 'php8.5', 'php84', 'php8.4', 'php83', 'php8.3', 'php82', 'php8.2',
+  'php86', 'php8.6', 'php85', 'php8.5', 'php84', 'php8.4', 'php83', 'php8.3', 'php82', 'php8.2',
   'php81', 'php8.1', 'php80', 'php8.0', 'php74', 'php7.4', 'php73', 'php7.3',
   'php72', 'php7.2',
 ] as const;

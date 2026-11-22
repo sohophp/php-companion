@@ -1,0 +1,447 @@
+{
+  "observedAtUtc": "2026-10-20T06:40:44.570460+00:00",
+  "status": "closed-not-adopted-protocol-timeout",
+  "directory": "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20",
+  "baseCoreSHA256": "f0f5f73b352736a338c412fd7f7a0ae90ffc0c0fc50752f6ce0b8988b860dd66",
+  "priorFailureRetained": true,
+  "actualFocusedExitCode": 0,
+  "focusedStages": [
+    {
+      "name": "original-descriptor-regression",
+      "status": "exited",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/private-semantic.config.mjs",
+        "test/diagnostic-declaration-candidates.test.ts",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/descriptor-regression-results.json"
+      ],
+      "pid": 3552345,
+      "startTicks": "39816237",
+      "actualExitCode": 0
+    },
+    {
+      "name": "bounded-cache-boundaries",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/boundaries.mjs"
+      ],
+      "pid": 3552481,
+      "startTicks": "39816962",
+      "actualExitCode": 0
+    },
+    {
+      "name": "legacy-adjacent47",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/legacy-boundaries.mjs"
+      ],
+      "pid": 3552498,
+      "startTicks": "39817101",
+      "actualExitCode": 0
+    },
+    {
+      "name": "full-typescript",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/typecheck.mjs"
+      ],
+      "pid": 3552521,
+      "startTicks": "39817238",
+      "actualExitCode": 0
+    },
+    {
+      "name": "public-declarations",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/declarations.mjs"
+      ],
+      "pid": 3552618,
+      "startTicks": "39818326",
+      "actualExitCode": 0
+    },
+    {
+      "name": "original960-differential",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/semantic-differential.mjs"
+      ],
+      "pid": 3553220,
+      "startTicks": "39820399",
+      "actualExitCode": 0
+    }
+  ],
+  "originalDescriptorRegressionPassed": 28,
+  "newBoundaryChecksPassed": 30,
+  "legacyBoundaryChecksPassed": 47,
+  "fullTypeScriptPassed": true,
+  "publicDeclarationFilesByteEqual": 9,
+  "differentialStatesPassed": 960,
+  "focusedFrozenInputs": 4559,
+  "controlReuseProof": {
+    "reusedWithoutRerun": true,
+    "sourceExperiment": "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20",
+    "failureAuditReceiptSHA256": "44a1058266a57304424b8478524446ecdd3e98a1737f2454260866be507fb9f9",
+    "frozenBaselineInputsUnchanged": 9131,
+    "allEightControlAssetsByteEqual": true,
+    "controlCoreSHA256": "f0f5f73b352736a338c412fd7f7a0ae90ffc0c0fc50752f6ce0b8988b860dd66",
+    "groups": {
+      "semantic": {
+        "path": "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/control-semantic-results.json",
+        "sha256": "65e809a75162ffa712ac44ecfb9c07a380cacdc43561f975a0e44042b1b3af5a",
+        "passed": 24491,
+        "notSelectedOrSkipped": 0
+      },
+      "protocol": {
+        "path": "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/control-protocol-results.json",
+        "sha256": "52c03890ce3dd2705b493b3b193190efa79b1a40147a796944e9c8c83ff2ae54",
+        "passed": 122,
+        "notSelectedOrSkipped": 0,
+        "runtimeWitness": "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/control-protocol-witness.jsonl",
+        "runtimeWitnessSHA256": "7a11f21c8006dba897e6ed2e9951e6fd490a4797da91b4f97d6f39953f28ce57"
+      },
+      "version": {
+        "path": "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/control-version-results.json",
+        "sha256": "1d9c3c949c10f269a0c97930f25be6e3626f1a2137d3d65c67b1630fc5690c14",
+        "passed": 45,
+        "notSelectedOrSkipped": 522,
+        "runtimeWitness": "/var/www/node/php-companion/.vscode-test/required-signature-scope-prototype-2026-10-20/control-version-witness.jsonl",
+        "runtimeWitnessSHA256": "8e5f19096bfbee9cff714e43a4d888af1410b8be15cf1e5c9784d42e7c3fdd9c"
+      }
+    },
+    "newCopyIsNotClaimedAsASecondFunctionalRun": true
+  },
+  "newCandidateCoreSHA256": "a181fcfddf4cc7ecbb41982a70fddd39e3fc2e7afc4f3e168e87f43397865bcb",
+  "actualValidationLiveVerified": false,
+  "validationPid": 3556493,
+  "validationStartTicks": "39840217",
+  "validationToolSession": 94431,
+  "validationStateFile": "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20-supervision/validation-state.json",
+  "validationStages": [
+    {
+      "name": "prototype-build",
+      "status": "exited",
+      "command": [
+        "node",
+        "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/build.mjs",
+        "--production",
+        "prototype"
+      ],
+      "pid": 3556669,
+      "startTicks": "39840802",
+      "actualExitCode": 0
+    },
+    {
+      "name": "prototype-semantic",
+      "status": "exited",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/private-semantic.config.mjs",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/prototype-semantic-results.json"
+      ],
+      "pid": 3556715,
+      "startTicks": "39840964",
+      "actualExitCode": 0
+    },
+    {
+      "name": "prototype-protocol",
+      "status": "exited",
+      "command": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/private-lsp.config.mjs",
+        "--reporter=json",
+        "--outputFile=/var/www/node/php-companion/.vscode-test/required-signature-descriptor-guard-2026-10-20/prototype-protocol-results.json",
+        "--maxWorkers=2",
+        "test/ambiguous-function-argument-stdio.test.ts",
+        "test/canonical-construction-stdio.test.ts",
+        "test/class-relative-construction-stdio.test.ts",
+        "test/completion-prefix-refresh-stdio.test.ts",
+        "test/inherited-constructor-generics-stdio.test.ts",
+        "test/legacy-project-construction-stdio.test.ts",
+        "test/native-boundary-diagnostics-stdio.test.ts",
+        "test/phpdoc-callable-conditional-inputs-stdio.test.ts",
+        "test/phpdoc-method-parameters-stdio.test.ts",
+        "test/receiver-guard-argument-assertions-stdio.test.ts",
+        "test/reflection-construction-stdio.test.ts",
+        "test/symfony-container-provider-concurrency-stdio.test.ts",
+        "test/trait-adaptation-order-stdio.test.ts",
+        "test/trait-construction-stdio.test.ts",
+        "test/trait-constructor-phpdoc-stdio.test.ts",
+        "test/trait-precedence-names-stdio.test.ts",
+        "test/trait-use-generics-stdio.test.ts",
+        "test/undefined-variable-scope-boundary-stdio.test.ts"
+      ],
+      "pid": 3560165,
+      "startTicks": "39848291",
+      "actualExitCode": 1
+    }
+  ],
+  "performanceExecuted": false,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "actualValidationExitCode": 1,
+  "prototypeSemanticPassed": 24491,
+  "prototypeProtocolPassed": 98,
+  "prototypeProtocolFailed": 24,
+  "prototypeVersionExecuted": false,
+  "independentFailureAudit": {
+    "independentFailureAuditPassed": true,
+    "auditedAtUtc": "2026-10-20T06:36:38.650059+00:00",
+    "actualValidationExitCode": 1,
+    "actualStageExitCodes": [
+      0,
+      0,
+      1
+    ],
+    "frozenInputsVerified": 9184,
+    "originalControlInputsVerified": 9131,
+    "semanticAndProtocolCaseIdentitiesUnchanged": true,
+    "controlReusedWithoutRerun": true,
+    "controlPassed": {
+      "semantic": 24491,
+      "protocol": 122,
+      "mainVersion": 45
+    },
+    "prototypeSemanticPassed": 24491,
+    "prototypeProtocolPassed": 98,
+    "prototypeProtocolFailed": 24,
+    "failures": [
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/canonical-construction-stdio.test.ts",
+        "fullName": "proves canonical cross-file construction at PHP 7.2 (onDemand)",
+        "durationMs": 20021.992318,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/canonical-construction-stdio.test.ts:12:146\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/canonical-construction-stdio.test.ts",
+        "fullName": "proves canonical cross-file construction at PHP 7.2 (experimental)",
+        "durationMs": 20002.438675999998,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/canonical-construction-stdio.test.ts:12:146\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/canonical-construction-stdio.test.ts",
+        "fullName": "proves canonical cross-file construction at PHP 8.1 (onDemand)",
+        "durationMs": 20001.257683999997,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/canonical-construction-stdio.test.ts:12:146\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/canonical-construction-stdio.test.ts",
+        "fullName": "proves canonical cross-file construction at PHP 8.1 (experimental)",
+        "durationMs": 20003.302466999994,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/canonical-construction-stdio.test.ts:12:146\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/canonical-construction-stdio.test.ts",
+        "fullName": "proves canonical cross-file construction at PHP 8.5 (onDemand)",
+        "durationMs": 20001.69834199999,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/canonical-construction-stdio.test.ts:12:146\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/canonical-construction-stdio.test.ts",
+        "fullName": "proves canonical cross-file construction at PHP 8.5 (experimental)",
+        "durationMs": 20001.512854,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/canonical-construction-stdio.test.ts:12:146\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/inherited-constructor-generics-stdio.test.ts",
+        "fullName": "keeps inherited generic constructor contracts in an unsaved Composer document at PHP 7.2 (onDemand)",
+        "durationMs": 20009.772413,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/inherited-constructor-generics-stdio.test.ts:10:157\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/inherited-constructor-generics-stdio.test.ts",
+        "fullName": "keeps inherited generic constructor contracts in an unsaved Composer document at PHP 8.1 (onDemand)",
+        "durationMs": 20001.520193999997,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/inherited-constructor-generics-stdio.test.ts:10:157\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/inherited-constructor-generics-stdio.test.ts",
+        "fullName": "keeps inherited generic constructor contracts in an unsaved Composer document at PHP 8.5 (onDemand)",
+        "durationMs": 20002.622722,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/inherited-constructor-generics-stdio.test.ts:10:157\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/reflection-construction-stdio.test.ts",
+        "fullName": "keeps Reflection construction contracts in an unsaved Composer document at PHP 7.2 (onDemand)",
+        "durationMs": 20013.336091,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/reflection-construction-stdio.test.ts:10:111\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/reflection-construction-stdio.test.ts",
+        "fullName": "keeps Reflection construction contracts in an unsaved Composer document at PHP 8.5 (onDemand)",
+        "durationMs": 20003.806403000002,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/reflection-construction-stdio.test.ts:10:111\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/reflection-construction-stdio.test.ts",
+        "fullName": "keeps Reflection construction contracts in an unsaved Composer document at PHP 8.5 (experimental)",
+        "durationMs": 20001.922757,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/reflection-construction-stdio.test.ts:10:111\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-construction-stdio.test.ts",
+        "fullName": "keeps effective Trait construction contracts in an unsaved Composer document at PHP 8.5 (onDemand)",
+        "durationMs": 20011.028112999997,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-construction-stdio.test.ts:10:111\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-constructor-phpdoc-stdio.test.ts",
+        "fullName": "keeps Trait PHPDoc constructor contracts in an unsaved Composer document at PHP 7.2 (onDemand)",
+        "durationMs": 20012.598282,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-constructor-phpdoc-stdio.test.ts:10:111\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-constructor-phpdoc-stdio.test.ts",
+        "fullName": "keeps Trait PHPDoc constructor contracts in an unsaved Composer document at PHP 8.5 (onDemand)",
+        "durationMs": 20003.840612,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-constructor-phpdoc-stdio.test.ts:10:111\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-precedence-names-stdio.test.ts",
+        "fullName": "resolves qualified and multiple Trait exclusions at PHP 7.2 (onDemand)",
+        "durationMs": 20017.982707,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-precedence-names-stdio.test.ts:11:146\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-precedence-names-stdio.test.ts",
+        "fullName": "resolves qualified and multiple Trait exclusions at PHP 7.2 (experimental)",
+        "durationMs": 20004.968490000003,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-precedence-names-stdio.test.ts:11:146\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-precedence-names-stdio.test.ts",
+        "fullName": "resolves qualified and multiple Trait exclusions at PHP 8.1 (onDemand)",
+        "durationMs": 20003.887699,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-precedence-names-stdio.test.ts:11:146\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-precedence-names-stdio.test.ts",
+        "fullName": "resolves qualified and multiple Trait exclusions at PHP 8.1 (experimental)",
+        "durationMs": 20001.234368999998,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-precedence-names-stdio.test.ts:11:146\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-precedence-names-stdio.test.ts",
+        "fullName": "resolves qualified and multiple Trait exclusions at PHP 8.5 (onDemand)",
+        "durationMs": 20002.341952000002,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-precedence-names-stdio.test.ts:11:146\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-precedence-names-stdio.test.ts",
+        "fullName": "resolves qualified and multiple Trait exclusions at PHP 8.5 (experimental)",
+        "durationMs": 20003.22358199999,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-precedence-names-stdio.test.ts:11:146\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-use-generics-stdio.test.ts",
+        "fullName": "keeps Trait use generic constructor contracts in an unsaved Composer document at PHP 7.2 (onDemand)",
+        "durationMs": 20008.750591,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-use-generics-stdio.test.ts:10:157\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-use-generics-stdio.test.ts",
+        "fullName": "keeps Trait use generic constructor contracts in an unsaved Composer document at PHP 8.1 (onDemand)",
+        "durationMs": 20004.008064999995,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-use-generics-stdio.test.ts:10:157\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      },
+      {
+        "file": "/var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-use-generics-stdio.test.ts",
+        "fullName": "keeps Trait use generic constructor contracts in an unsaved Composer document at PHP 8.5 (onDemand)",
+        "durationMs": 20002.77195000001,
+        "failureMessages": [
+          "Error: STACK_TRACE_ERROR\n    at task (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at Object.chain (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2025:7\n    at Array.forEach (<anonymous>)\n    at file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/@vitest+runner@4.1.10/node_modules/@vitest/runner/dist/chunk-artifact.js:2021:10\n    at /var/www/node/php-companion-cold-cache-recovery-20261020/packages/language-server/test/trait-use-generics-stdio.test.ts:10:157\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///var/www/node/php-companion-cold-cache-recovery-20261020/node_modules/.pnpm/vitest@4.1.10_@types+node@22.20.1_vite@8.1.4_@types+node@22.20.1_esbuild@0.28.1_yaml@2.9.0_/node_modules/vitest/dist/module-evaluator.js:206:4)"
+        ]
+      }
+    ],
+    "failureClassification": "All original failed durations are 20.000-20.100s; raw messages show STACK_TRACE_ERROR only. Exact failure cause requires separate diagnostic evidence.",
+    "prototypeVersionExecuted": false,
+    "performanceExecuted": false,
+    "noPerformanceRetry": true,
+    "ownedTestGroupsAndRuntimeProcessesGone": true,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "failureArchivesVerified": 60,
+    "failureArchiveManifestSHA256": "5896d66849a2617148e426e59482eb9396fd611198dc26a9d250cdf9dd8e2f77"
+  },
+  "diagnosis": {
+    "directory": "/var/www/node/php-companion/.vscode-test/required-signature-timeout-diagnosis-2026-10-20",
+    "actualChildExitCodes": [
+      0,
+      1
+    ],
+    "selectedTestsEachSide": 1,
+    "unselectedTestsEachSide": 15,
+    "candidateFailure": "Test timed out in 20000ms.",
+    "diagnosticOnly": true,
+    "cpuCauseNotYetQualified": false,
+    "qualifiedFinding": "Periodic CPU samples identify repeated descriptor data-graph purity scan as the dominant sampled cost; diagnostic only, not performance qualification."
+  },
+  "diagnosticReport": "/var/www/node/php-companion/docs/php-language-toolchain/reports/required-signature-timeout-diagnosis-2026-10-20.json",
+  "diagnosticIndependentAuditPassed": true,
+  "investigationClosed": true,
+  "noEquivalentRetry": true
+}

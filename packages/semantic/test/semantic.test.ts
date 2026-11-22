@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { PhpSyntaxParser } from '@php-companion/parser';
+import { builtinDocumentUri, builtinPhpStub } from '@php-companion/language-spec';
 import { semanticFacts } from '@php-companion/semantic-provider';
 import { SemanticWorkspace, type ExtractMethodInfo, type SemanticCallableImplementationState, type SemanticLocation } from '../src/index.js';
 
@@ -671,6 +672,45 @@ TXT;
       expect(project.incompatibleArguments(uri).map((item) => [item.callable, item.actualType, item.expectedType]))
         .toEqual([['externalDocumented', 'string', 'object'], ['builtinDocumented', 'string', 'object']]);
       expect(project.incompatibleArguments(uri, true).map((item) => item.callable)).toEqual(['builtinDocumented']);
+    } finally { project.dispose(); }
+  });
+  it.each(['7.2', '8.5', '8.6'] as const)('checks callable argument values at PHP %s', (version) => {
+    const project = new SemanticWorkspace(parser);
+    const uri = 'file:///FormCallbacks.php';
+    const source = String.raw`<?php
+namespace App;
+function onlyLocal(int $value): int { return $value; }
+class Checker {
+    public static function keep($value): bool { return is_string($value); }
+    public function keepValue($value): bool { return is_string($value); }
+}
+/** @param list<array<string, mixed>> $rows */
+function formIds(array $rows, Checker $checker, string $runtimeCallback): array {
+    array_map('INTVAL', array_column($rows, 'id'));
+    ${version === '7.2' ? String.raw`array_map('App\\onlyLocal', [1]);`
+      : String.raw`array_map(callback: 'App\\onlyLocal', array: [1]);`}
+    array_map('onlyLocal', [1]);
+    array_map('not a callback', [1]);
+    array_map(42, [1]);
+    array_map(null, [1]);
+    array_filter(['x', 1], [Checker::class, 'keep']);
+    array_filter(['x', 1], [$checker, 'keepValue']);
+    array_filter(['x', 1], $runtimeCallback);
+    array_filter(['x', 1], [Checker::class, 'keepValue']);
+    array_filter(['x', 1], [1, 2]);
+    $invalid = 'not a callback';
+    array_filter(['x', 1], $invalid);
+    return array_map('intval', array_column($rows, 'id'));
+}
+`;
+    try {
+      project.setTargetPhpVersion(version);
+      project.update(builtinDocumentUri(version), builtinPhpStub(version));
+      project.update(uri, source);
+      for (const localOnly of [true, false]) {
+        expect(project.incompatibleArguments(uri, localOnly).map(({ start, end }) => source.slice(start, end).trim()))
+          .toEqual(["'onlyLocal'", "'not a callback'", '42', "[Checker::class, 'keepValue']", '[1, 2]', '$invalid']);
+      }
     } finally { project.dispose(); }
   });
   it('identifies an exact direct call with a native scalar return', () => {
@@ -12010,6 +12050,23 @@ class GlobalMoveRunner { public const TEXT = '?>'; }`;
     workspace.update('file:///WeakProperties.php', weak);
     expect(workspace.incompatibleAssignments('file:///WeakProperties.php').map((item) => [item.variable, item.actualType, item.expectedType])).toEqual([
       ['state->items', 'string', 'array'],
+    ]);
+  });
+  it('treats PHP 8.6 readonly defaults as already initialized', () => {
+    const uri = 'file:///ReadonlyDefaults.php';
+    const source = `<?php
+      readonly class Defaults {
+        public int $timeout = 30;
+        public int $retries;
+        public function __construct(public int $port = 80) {
+          $this->timeout = 10;
+          $this->retries = 3;
+        }
+      }
+    `;
+    workspace.update(uri, source);
+    expect(workspace.readonlyPropertyAssignments(uri)).toMatchObject([
+      { name: 'timeout', minimumPhpVersion: '8.6' },
     ]);
   });
   it('reports only definitely external writes to readonly properties', () => {

@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-20",
+  "sourceCommit": "bf9613d5445e8c0390dae1865e591c1d7a8901d6",
+  "coreSHA256": "8439eea8cbdec5fe8f0008b56fcd411c4517c433a018b8586b07bc6ccc6f3edc",
+  "workflowRun": 39359865811,
+  "workflowUrl": "https://github.com/sohophp/php-companion/actions/runs/39359865811",
+  "status": "completed",
+  "conclusion": "failure",
+  "jobsPassed": 7,
+  "jobsFailed": 2,
+  "failedJobs": [
+    "Editing (windows-latest, experimental)",
+    "Editing (windows-latest, progressive)"
+  ],
+  "failureDetailsUnavailableInOriginalCatchLogging": true,
+  "failureArtifactsMissing": true,
+  "artifactNames": [
+    "version-mode-Windows-X64-onDemand",
+    "version-mode-macOS-ARM64-experimental",
+    "version-mode-macOS-ARM64-onDemand",
+    "version-mode-Linux-X64-onDemand",
+    "version-mode-macOS-ARM64-progressive",
+    "version-mode-Linux-X64-experimental",
+    "version-mode-Linux-X64-progressive"
+  ],
+  "rawArchiveSHA256": "c341a6b37e2a9c45b9126932ff4df7a62d3a6f1f7236243ec604610b2d97cf74",
+  "failureProgressEvidence": [
+    {
+      "log": "0_Editing (windows-latest, progressive).txt",
+      "sha256": "81507dacac71306d078ff7dad8b032dd0782ba31a92bba6620072fc09ba285eb",
+      "caseProgressLines": [
+        "2026-10-20T02:39:38.3537271Z {\"controlledCasesPassed\":7,\"platform\":\"win32\",\"ownedProcessesGone\":true,\"temporaryDirectoriesRemoved\":true,\"realLanguageServersLaunched\":0}",
+        "2026-10-20T02:40:22.2376123Z {\"phpVersion\":\"7.2\",\"mode\":\"progressive\",\"qualified\":true}",
+        "2026-10-20T02:41:05.7121778Z {\"cohortQualified\":false,\"cases\":2,\"wholePlatformMatrixQualified\":false,\"fullObjectiveComplete\":false}"
+      ]
+    },
+    {
+      "log": "5_Editing (windows-latest, experimental).txt",
+      "sha256": "b712bfe3925c3944096dc9bfc281ab0c4bef149cd8565dba7643fecfbc468b7f",
+      "caseProgressLines": [
+        "2026-10-20T02:38:47.7056705Z {\"controlledCasesPassed\":7,\"platform\":\"win32\",\"ownedProcessesGone\":true,\"temporaryDirectoriesRemoved\":true,\"realLanguageServersLaunched\":0}",
+        "2026-10-20T02:39:29.0755135Z {\"phpVersion\":\"7.2\",\"mode\":\"experimental\",\"qualified\":true}",
+        "2026-10-20T02:40:09.7547387Z {\"phpVersion\":\"7.3\",\"mode\":\"experimental\",\"qualified\":true}",
+        "2026-10-20T02:40:50.1623048Z {\"phpVersion\":\"7.4\",\"mode\":\"experimental\",\"qualified\":true}",
+        "2026-10-20T02:41:33.1527849Z {\"phpVersion\":\"8.0\",\"mode\":\"experimental\",\"qualified\":true}",
+        "2026-10-20T02:42:13.8196175Z {\"phpVersion\":\"8.1\",\"mode\":\"experimental\",\"qualified\":true}",
+        "2026-10-20T02:42:54.5018743Z {\"phpVersion\":\"8.2\",\"mode\":\"experimental\",\"qualified\":true}",
+        "2026-10-20T02:43:39.5536697Z {\"phpVersion\":\"8.3\",\"mode\":\"experimental\",\"qualified\":true}",
+        "2026-10-20T02:44:20.3738430Z {\"phpVersion\":\"8.4\",\"mode\":\"experimental\",\"qualified\":true}",
+        "2026-10-20T02:45:04.9191435Z {\"cohortQualified\":false,\"cases\":9,\"wholePlatformMatrixQualified\":false,\"fullObjectiveComplete\":false}"
+      ]
+    }
+  ],
+  "successJobs": [
+    "Editing (windows-latest, onDemand)",
+    "Editing (ubuntu-latest, onDemand)",
+    "Editing (macos-latest, progressive)",
+    "Editing (macos-latest, experimental)",
+    "Editing (ubuntu-latest, progressive)",
+    "Editing (macos-latest, onDemand)",
+    "Editing (ubuntu-latest, experimental)"
+  ],
+  "diagnosticFollowupCommit": "53e85c8d55caabb2ffedf85f958072ca06e0ef5a",
+  "qualification": false,
+  "fullObjectiveComplete": false
+}

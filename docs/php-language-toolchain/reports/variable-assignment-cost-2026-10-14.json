@@ -1,0 +1,24 @@
+{
+  "qualifiedCostObservation": true,
+  "assignmentSelectionLocalCallsPerEdit": 442,
+  "assignmentSelectionFullCallsPerEdit": 424,
+  "localAndFullSelectionMsByEdit": [
+    6.952917999980855,
+    4.250868000024639,
+    3.873556999988068,
+    3.9926569999843196
+  ],
+  "selectionMedianMs": 4.121762500004479,
+  "requiredCostMs": 50,
+  "prototypeAdmitted": false,
+  "prototypeImplemented": false,
+  "productionChanged": false,
+  "fourEditsNotP95Qualification": true,
+  "fullResultsEqual": true,
+  "productInputsUnchanged": 3187,
+  "projectInputsUnchanged": 66079,
+  "driverAndServersGone": true,
+  "cacheDirectoriesRemoved": true,
+  "fullObjectiveComplete": false,
+  "auditedAtUtc": "2026-10-13T21:34:17.144088+00:00"
+}

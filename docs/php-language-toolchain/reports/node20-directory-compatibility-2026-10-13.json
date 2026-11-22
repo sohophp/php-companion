@@ -1,0 +1,569 @@
+{
+  "date": "2026-10-13",
+  "status": "compatibility-scope-passed",
+  "coreSHA256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+  "semanticUnchanged": true,
+  "node20Runtime": "v20.11.1",
+  "oldActualRegressionFailed": true,
+  "node20RegressionPassed": true,
+  "node22RegressionPassed": true,
+  "indexTestsPassed": 69,
+  "lintPassed": true,
+  "indexTypecheckPassed": true,
+  "node20PersistencePassed": true,
+  "node20EditingPassed": true,
+  "lspComplete": true,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "committed": false,
+  "pushed": false,
+  "node20EditingResult": {
+    "schema": 2,
+    "iterations": 500,
+    "warmupIterations": 50,
+    "completionNoiseFunctions": 0,
+    "fixtureLayout": "legacy",
+    "runtime": "v20.11.1",
+    "phpVersion": "8.5",
+    "indexingMode": "experimental",
+    "diagnosticsVersionMatched": true,
+    "platform": "linux",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "updateToDiagnosticsMs": {
+      "samples": 500,
+      "p50": 32.07134600000063,
+      "p95": 43.870695999998134,
+      "maximum": 72.22172099999807
+    },
+    "hotCompletionMs": {
+      "samples": 500,
+      "p50": 2.386030000001483,
+      "p95": 9.62404900000547,
+      "maximum": 37.727302999999665
+    },
+    "hotTypedArgumentCompletionMs": {
+      "samples": 500,
+      "p50": 5.017421000000468,
+      "p95": 19.78611699999965,
+      "maximum": 41.63846800000101
+    },
+    "hotBareArgumentCompletionMs": {
+      "samples": 500,
+      "p50": 5.015065999999933,
+      "p95": 22.61223400000017,
+      "maximum": 51.74925299999995
+    },
+    "hotTypedMemberCompletionMs": {
+      "samples": 500,
+      "p50": 3.923064999999042,
+      "p95": 20.761790000004112,
+      "maximum": 45.94793100000061
+    },
+    "hotHoverMs": {
+      "samples": 500,
+      "p50": 1.7486819999994623,
+      "p95": 12.480532999998104,
+      "maximum": 30.171228999999585
+    },
+    "hotDefinitionMs": {
+      "samples": 500,
+      "p50": 1.884501000000455,
+      "p95": 12.299426999999923,
+      "maximum": 45.32187999999951
+    },
+    "cancellationMs": 1.2900099999969825,
+    "cancellationOutcome": "cancelled",
+    "cancellationProbes": [
+      {
+        "query": "",
+        "controlSymbols": 100,
+        "durationMs": 1.2900099999969825,
+        "outcome": "cancelled"
+      },
+      {
+        "query": "Alpha",
+        "controlSymbols": 59,
+        "durationMs": 1.1862400000027264,
+        "outcome": "cancelled"
+      }
+    ],
+    "cancellationControlSymbols": 159,
+    "languageServerRssMb": {
+      "baseline": 221.2578125,
+      "sampledPeak": 317.75,
+      "final": 317.75,
+      "endMinusBaseline": 96.4921875,
+      "samples": 57,
+      "sampledEveryIterations": 10,
+      "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+    },
+    "persistentCache": {
+      "files": 1,
+      "rebuiltSchema": 2,
+      "verifiedRebuiltPayloads": 2,
+      "corruptedFile": "c93f87d9c104974e2572e327651feaa71c2ba0c8e7a9d4ba2b74161ef80d7c20.json",
+      "corruptCacheRecovered": true,
+      "rebuiltCacheValidated": true,
+      "corruptionWarningObserved": true,
+      "referencesRecoveredAfterRestart": null,
+      "completionRecoveredAfterRestart": true,
+      "hoverRecoveredAfterRestart": true,
+      "definitionRecoveredAfterRestart": true,
+      "unsavedReplayDiffersFromDisk": true
+    },
+    "staleCompletionFailures": 0,
+    "staleHoverFailures": 0,
+    "staleDefinitionFailures": 0,
+    "budgets": {
+      "hotCompletionP95Ms": 150,
+      "hotHoverP95Ms": 150,
+      "hotDefinitionP95Ms": 150,
+      "updateToDiagnosticsP95Ms": 500,
+      "cancellationMs": 100,
+      "rssEndMinusBaselineMb": 128
+    }
+  },
+  "node20PersistenceResult": {
+    "schema": 1,
+    "files": 1000,
+    "runtime": "v20.11.1",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "cold": {
+      "durationMs": 3032.41,
+      "parsed": 1000,
+      "restored": 0,
+      "doctrineParsed": 1
+    },
+    "warm": {
+      "durationMs": 1912.56,
+      "parsed": 0,
+      "restored": 1000,
+      "doctrineParsed": 0
+    },
+    "warmToColdRatio": 0.6307,
+    "cache": {
+      "cold": {
+        "files": 1002,
+        "bytes": 5742880,
+        "mebibytes": 5.48
+      },
+      "warm": {
+        "files": 1002,
+        "bytes": 5742880,
+        "mebibytes": 5.48
+      },
+      "frozenBudgetMb": 64
+    },
+    "coldIndexBudget": {
+      "milliseconds": 8000,
+      "passed": true
+    },
+    "loadMemory": {
+      "coldPeakRssMb": 117.27,
+      "warmPeakRssMb": 123.16,
+      "layerRecoveryPeakRssMb": 124.96,
+      "callableRecoveryPeakRssMb": 125.91,
+      "sampledIntervalMs": 10,
+      "frozenScalePeakRssMb": 384,
+      "processPeakRssMb": 125.91,
+      "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+      "processRssBudgetPassed": true
+    },
+    "exactness": {
+      "transitiveDependencyRestored": true,
+      "derivedFactInvalidated": true,
+      "doctrineFactsRestored": true,
+      "callableFactsRestored": 3,
+      "deferredImplementations": 1000,
+      "implementationsLoadedByQuery": 4,
+      "callableImplementationsLoadedByFocusedQuery": [
+        "benchmark\\consumer::inspect"
+      ],
+      "callableImplementationRecords": 1999,
+      "corruptLayerReparsedFiles": 1,
+      "corruptCallableReparsedFiles": 1,
+      "completionAfterLayerRecovery": true,
+      "completionAfterCallableRecovery": true,
+      "constructorFactsAfterRecovery": true
+    }
+  },
+  "node22EditingPassed": true,
+  "node22EditingResult": {
+    "schema": 2,
+    "iterations": 500,
+    "warmupIterations": 50,
+    "completionNoiseFunctions": 0,
+    "fixtureLayout": "legacy",
+    "runtime": "v22.14.0",
+    "phpVersion": "8.5",
+    "indexingMode": "experimental",
+    "diagnosticsVersionMatched": true,
+    "platform": "linux",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "updateToDiagnosticsMs": {
+      "samples": 500,
+      "p50": 30.691138999998657,
+      "p95": 40.89360499999748,
+      "maximum": 65.36698400000023
+    },
+    "hotCompletionMs": {
+      "samples": 500,
+      "p50": 2.359423000001698,
+      "p95": 7.402963999993517,
+      "maximum": 35.05673200000092
+    },
+    "hotTypedArgumentCompletionMs": {
+      "samples": 500,
+      "p50": 4.945907000001171,
+      "p95": 17.91519200000039,
+      "maximum": 40.55060699999922
+    },
+    "hotBareArgumentCompletionMs": {
+      "samples": 500,
+      "p50": 4.0738299999993615,
+      "p95": 21.272499999999127,
+      "maximum": 46.01455899999928
+    },
+    "hotTypedMemberCompletionMs": {
+      "samples": 500,
+      "p50": 3.314758000000438,
+      "p95": 19.1978280000003,
+      "maximum": 37.30612800000017
+    },
+    "hotHoverMs": {
+      "samples": 500,
+      "p50": 1.7122100000015053,
+      "p95": 10.795604999999341,
+      "maximum": 27.880936999998085
+    },
+    "hotDefinitionMs": {
+      "samples": 500,
+      "p50": 2.0601319999987027,
+      "p95": 14.3194739999999,
+      "maximum": 36.465878999999404
+    },
+    "cancellationMs": 4.179542000005313,
+    "cancellationOutcome": "cancelled",
+    "cancellationProbes": [
+      {
+        "query": "",
+        "controlSymbols": 100,
+        "durationMs": 1.524939999995695,
+        "outcome": "cancelled"
+      },
+      {
+        "query": "Alpha",
+        "controlSymbols": 59,
+        "durationMs": 4.179542000005313,
+        "outcome": "cancelled"
+      }
+    ],
+    "cancellationControlSymbols": 159,
+    "languageServerRssMb": {
+      "baseline": 224.24609375,
+      "sampledPeak": 260.9296875,
+      "final": 260.16796875,
+      "endMinusBaseline": 35.921875,
+      "samples": 57,
+      "sampledEveryIterations": 10,
+      "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+    },
+    "persistentCache": {
+      "files": 1,
+      "rebuiltSchema": 2,
+      "verifiedRebuiltPayloads": 2,
+      "corruptedFile": "73c580a0de11f3567af2607c047151bce66cfe789c0492f56f1dbac810ad926d.json",
+      "corruptCacheRecovered": true,
+      "rebuiltCacheValidated": true,
+      "corruptionWarningObserved": true,
+      "referencesRecoveredAfterRestart": null,
+      "completionRecoveredAfterRestart": true,
+      "hoverRecoveredAfterRestart": true,
+      "definitionRecoveredAfterRestart": true,
+      "unsavedReplayDiffersFromDisk": true
+    },
+    "staleCompletionFailures": 0,
+    "staleHoverFailures": 0,
+    "staleDefinitionFailures": 0,
+    "budgets": {
+      "hotCompletionP95Ms": 150,
+      "hotHoverP95Ms": 150,
+      "hotDefinitionP95Ms": 150,
+      "updateToDiagnosticsP95Ms": 500,
+      "cancellationMs": 100,
+      "rssEndMinusBaselineMb": 128
+    }
+  },
+  "rootTestsPassed": 121,
+  "rootTestFiles": 23,
+  "packageConsumerPassed": true,
+  "packageConsumerPrivateIndex": true,
+  "normalIndexUnchanged": true,
+  "node20MinimumRuntime": "v20.0.0",
+  "node20MinimumCurrentRegressionFailed": true,
+  "node20MinimumPrivatePrototypeRegressionPassed": true,
+  "node20MinimumProductionFixed": true,
+  "allDeclaredNode20Qualified": false,
+  "node20MinimumPrivateBoundaryPassed": 4,
+  "modernControlBoundaryPassed": 4,
+  "node20MinimumPrivatePersistencePassed": true,
+  "node20MinimumPrivatePersistenceResult": {
+    "schema": 1,
+    "files": 1000,
+    "runtime": "v20.0.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "cold": {
+      "durationMs": 3153.6,
+      "parsed": 1000,
+      "restored": 0,
+      "doctrineParsed": 1
+    },
+    "warm": {
+      "durationMs": 1893.13,
+      "parsed": 0,
+      "restored": 1000,
+      "doctrineParsed": 0
+    },
+    "warmToColdRatio": 0.6003,
+    "cache": {
+      "cold": {
+        "files": 1002,
+        "bytes": 5742380,
+        "mebibytes": 5.48
+      },
+      "warm": {
+        "files": 1002,
+        "bytes": 5742380,
+        "mebibytes": 5.48
+      },
+      "frozenBudgetMb": 64
+    },
+    "coldIndexBudget": {
+      "milliseconds": 8000,
+      "passed": true
+    },
+    "loadMemory": {
+      "coldPeakRssMb": 134.41,
+      "warmPeakRssMb": 147.18,
+      "layerRecoveryPeakRssMb": 143.53,
+      "callableRecoveryPeakRssMb": 143.31,
+      "sampledIntervalMs": 10,
+      "frozenScalePeakRssMb": 384,
+      "processPeakRssMb": 147.18,
+      "rssMeasurement": "process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately",
+      "processRssBudgetPassed": true
+    },
+    "exactness": {
+      "transitiveDependencyRestored": true,
+      "derivedFactInvalidated": true,
+      "doctrineFactsRestored": true,
+      "callableFactsRestored": 3,
+      "deferredImplementations": 1000,
+      "implementationsLoadedByQuery": 4,
+      "callableImplementationsLoadedByFocusedQuery": [
+        "benchmark\\consumer::inspect"
+      ],
+      "callableImplementationRecords": 1999,
+      "corruptLayerReparsedFiles": 1,
+      "corruptCallableReparsedFiles": 1,
+      "completionAfterLayerRecovery": true,
+      "completionAfterCallableRecovery": true,
+      "constructorFactsAfterRecovery": true
+    }
+  },
+  "minimumProductPatchPrepared": true,
+  "minimumPreparedTypecheckPassed": true,
+  "minimumPreparedLintPassed": true,
+  "minimumPreparedPatchDryRunPassed": true,
+  "node20MinimumPrivateEditingPassed": true,
+  "node20MinimumPrivateEditingResult": {
+    "schema": 2,
+    "iterations": 500,
+    "warmupIterations": 50,
+    "completionNoiseFunctions": 0,
+    "fixtureLayout": "legacy",
+    "runtime": "v20.0.0",
+    "phpVersion": "8.5",
+    "indexingMode": "experimental",
+    "diagnosticsVersionMatched": true,
+    "platform": "linux",
+    "architecture": "x64",
+    "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+    "updateToDiagnosticsMs": {
+      "samples": 500,
+      "p50": 30.41464602947235,
+      "p95": 33.05676794052124,
+      "maximum": 37.952808022499084
+    },
+    "hotCompletionMs": {
+      "samples": 500,
+      "p50": 1.8100169897079468,
+      "p95": 3.309360980987549,
+      "maximum": 5.6036540269851685
+    },
+    "hotTypedArgumentCompletionMs": {
+      "samples": 500,
+      "p50": 3.897081971168518,
+      "p95": 7.444507002830505,
+      "maximum": 14.967805027961731
+    },
+    "hotBareArgumentCompletionMs": {
+      "samples": 500,
+      "p50": 3.3226840496063232,
+      "p95": 6.242853045463562,
+      "maximum": 11.305925011634827
+    },
+    "hotTypedMemberCompletionMs": {
+      "samples": 500,
+      "p50": 2.668973922729492,
+      "p95": 5.13313901424408,
+      "maximum": 8.700764060020447
+    },
+    "hotHoverMs": {
+      "samples": 500,
+      "p50": 1.2501399517059326,
+      "p95": 2.477625012397766,
+      "maximum": 4.87992799282074
+    },
+    "hotDefinitionMs": {
+      "samples": 500,
+      "p50": 1.3304760456085205,
+      "p95": 2.3959180116653442,
+      "maximum": 5.013429045677185
+    },
+    "cancellationMs": 1.2616620063781738,
+    "cancellationOutcome": "cancelled",
+    "cancellationProbes": [
+      {
+        "query": "",
+        "controlSymbols": 100,
+        "durationMs": 0.9278030395507812,
+        "outcome": "cancelled"
+      },
+      {
+        "query": "Alpha",
+        "controlSymbols": 59,
+        "durationMs": 1.2616620063781738,
+        "outcome": "cancelled"
+      }
+    ],
+    "cancellationControlSymbols": 159,
+    "languageServerRssMb": {
+      "baseline": 212.7421875,
+      "sampledPeak": 327.98046875,
+      "final": 327.98046875,
+      "endMinusBaseline": 115.23828125,
+      "samples": 57,
+      "sampledEveryIterations": 10,
+      "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+    },
+    "persistentCache": {
+      "files": 1,
+      "rebuiltSchema": 2,
+      "verifiedRebuiltPayloads": 2,
+      "corruptedFile": "e9b56d04e186b531218f4110ab3b67f878e36fc7480f1c5375679659d8217bc0.json",
+      "corruptCacheRecovered": true,
+      "rebuiltCacheValidated": true,
+      "corruptionWarningObserved": true,
+      "referencesRecoveredAfterRestart": null,
+      "completionRecoveredAfterRestart": true,
+      "hoverRecoveredAfterRestart": true,
+      "definitionRecoveredAfterRestart": true,
+      "unsavedReplayDiffersFromDisk": true
+    },
+    "staleCompletionFailures": 0,
+    "staleHoverFailures": 0,
+    "staleDefinitionFailures": 0,
+    "budgets": {
+      "hotCompletionP95Ms": 150,
+      "hotHoverP95Ms": 150,
+      "hotDefinitionP95Ms": 150,
+      "updateToDiagnosticsP95Ms": 500,
+      "cancellationMs": 100,
+      "rssEndMinusBaselineMb": 128
+    }
+  },
+  "minimumPrivateServerSHA256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+  "lspExitCode": 0,
+  "lspPassed": 1652,
+  "lspFailed": 0,
+  "lspPending": 1,
+  "lspFiles": 142,
+  "firstCandidateInputsUnchanged": true,
+  "firstCandidateParentGone": true,
+  "previousCandidateTerminal": {
+    "date": "2026-10-13",
+    "status": "candidate-validation-running",
+    "coreSHA256": "8165c80994865e93d2a8a5fd09c756e7ac2b787995e3fa6585cd410c8ce1e8d4",
+    "semanticUnchanged": true,
+    "node20Runtime": "v20.11.1",
+    "oldActualRegressionFailed": true,
+    "node20RegressionPassed": true,
+    "node22RegressionPassed": true,
+    "indexTestsPassed": 69,
+    "lintPassed": true,
+    "indexTypecheckPassed": true,
+    "node20PersistencePassed": true,
+    "node20EditingPassed": true,
+    "lspSessionId": 66398,
+    "lspComplete": true,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "committed": false,
+    "pushed": false,
+    "node22EditingPassed": true,
+    "lspParentPid": 80476,
+    "lspParentStartTicks": "54829407",
+    "rootTestsPassed": 121,
+    "rootTestFiles": 23,
+    "packageConsumerPassed": true,
+    "packageConsumerPrivateIndex": true,
+    "normalIndexUnchanged": true,
+    "node20MinimumRuntime": "v20.0.0",
+    "node20MinimumCurrentRegressionFailed": true,
+    "node20MinimumPrivatePrototypeRegressionPassed": true,
+    "node20MinimumProductionFixed": false,
+    "allDeclaredNode20Qualified": false,
+    "node20MinimumPrivateBoundaryPassed": 4,
+    "modernControlBoundaryPassed": 4,
+    "node20MinimumPrivatePersistencePassed": true,
+    "minimumProductPatchPrepared": true,
+    "minimumPreparedTypecheckPassed": true,
+    "minimumPreparedLintPassed": true,
+    "minimumPreparedPatchDryRunPassed": true,
+    "node20MinimumPrivateEditingPassed": true,
+    "minimumPrivateServerSHA256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+    "lspExitCode": 0,
+    "lspPassed": 1652,
+    "lspFailed": 0,
+    "lspPending": 1,
+    "lspFiles": 142,
+    "firstCandidateInputsUnchanged": true,
+    "firstCandidateParentGone": true
+  },
+  "compatibilityScopeQualified": true,
+  "finalRootPassed": 121,
+  "finalRootFiles": 23,
+  "finalCandidateFullLspExecuted": true,
+  "previousCandidateFullLspPassed": 1652,
+  "previousCandidateFullLspPending": 1,
+  "finalMinimumPersistencePassed": true,
+  "finalNode22EditingPassed": true,
+  "finalPrivateRuntimeByteIdenticalAssets": 8,
+  "finalReferenceCacheComplete": true,
+  "finalReferenceCacheExitCode": 0,
+  "finalReferenceCachePassed": 1,
+  "finalReferenceCacheNotSelected": 567,
+  "finalPackageConsumerPassed": true,
+  "finalPackageConsumerPrivateIndex": true,
+  "finalInputsUnchanged": 14,
+  "finalCandidateFullLspPassed": 1652,
+  "finalCandidateFullLspSkipped": 1,
+  "finalCandidateFullLspQualified": true
+}

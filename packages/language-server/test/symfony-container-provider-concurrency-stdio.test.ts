@@ -116,6 +116,98 @@ async function until(check: () => Promise<boolean>): Promise<void> {
   }
 }
 
+it.each(['onDemand', 'progressive'])(
+  'waits for a watched service removal before returning member completion in %s', async indexingMode => {
+    const f = await fixture('8.5', indexingMode);
+    try {
+      const text = `<?php namespace Psr\\Container { interface ContainerInterface { public function get(string $id): mixed; } }
+namespace App { function run(\\Psr\\Container\\ContainerInterface $container): void { $container->get('app.mailer')->se; } }`;
+      await writeFile(join(f.root, 'src', 'Mailer.php'), '<?php namespace App; class Mailer { public function send(): void {} }');
+      const uri = pathToFileURL(join(f.root, 'src', 'Consumer.php')).toString();
+      const configPath = join(f.root, 'config', 'services.yaml');
+      await writeFile(configPath, 'services:\n  app.mailer: { class: App\\Mailer, public: true }\n');
+      f.client.send({ method: 'workspace/didChangeWatchedFiles', params: { changes: [
+        { uri: pathToFileURL(join(f.root, 'src', 'Mailer.php')).toString(), type: 2 },
+        { uri: pathToFileURL(configPath).toString(), type: 2 },
+      ] } });
+      f.client.send({ method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text } } });
+      const params = { textDocument: { uri }, position: position(text, text.lastIndexOf('->se') + 4) };
+      const items = (result: any): any[] => Array.isArray(result) ? result : result?.items ?? [];
+      // A real service Definition prepares the actual provider, not a test-only fact.
+      await f.client.request('phpCompanion/symfonyServiceDefinition', {
+        textDocument: { uri, version: 1 }, source: text, position: position(text, text.indexOf('app.mailer') + 4),
+      });
+      expect(items(await f.client.request('textDocument/completion', params))).toContainEqual(expect.objectContaining({ label: 'send' }));
+      await f.hold();
+      const before = (await f.calls()).length;
+      await writeFile(configPath, 'services: {}\n');
+      f.client.send({ method: 'workspace/didChangeWatchedFiles', params: {
+        changes: [{ uri: pathToFileURL(configPath).toString(), type: 2 }],
+      } });
+      await until(async () => (await f.calls()).length > before);
+      const query = f.client.start('textDocument/completion', params);
+      const cancel = f.client.start('textDocument/completion', params);
+      const cancelledAt = performance.now();
+      f.client.send({ method: '$/cancelRequest', params: { id: cancel.id } });
+      expect(items(await cancel.result)).toEqual([]);
+      expect(performance.now() - cancelledAt).toBeLessThanOrEqual(100);
+      let resolved = false;
+      void query.result.then(() => { resolved = true; }, () => { resolved = true; });
+      // The provider is deliberately held; this is a concurrency guard, not a performance budget.
+      await new Promise(done => setTimeout(done, 100));
+      expect(resolved, 'Completion returned before the watched service facts were refreshed').toBe(false);
+      await f.release();
+      expect(items(await query.result)).not.toContainEqual(expect.objectContaining({ label: 'send' }));
+    } finally { await f.stop(); }
+  },
+);
+
+it.each(['7.2', '8.5'])('cancels ordinary completion while a replacement provider rebuild is held at PHP %s', async phpVersion => {
+  const f = await fixture(phpVersion, 'progressive');
+  try {
+    const text = '<?php namespace App; class Consumer {}\nnew Mai';
+    const uri = pathToFileURL(join(f.root, 'src', 'Consumer.php')).toString();
+    const warmSource = `<?php namespace Psr\\Container { interface ContainerInterface { public function get(string $id); } }
+namespace App { class Consumer { public function run(\\Psr\\Container\\ContainerInterface $container): void { $container->get('app.mailer'); } } }`;
+    f.client.send({ method: 'textDocument/didOpen', params: { textDocument: { uri, languageId: 'php', version: 1, text: warmSource } } });
+    expect(await f.client.request('phpCompanion/symfonyServiceDefinition', {
+      textDocument: { uri, version: 1 }, source: warmSource, position: position(warmSource, warmSource.indexOf('app.mailer') + 4),
+    })).toHaveLength(1);
+    f.client.send({ method: 'textDocument/didChange', params: { textDocument: { uri, version: 2 }, contentChanges: [{ text }] } });
+    const params = { textDocument: { uri }, position: position(text, text.length) };
+    const items = (result: any): any[] => Array.isArray(result) ? result : result?.items ?? [];
+    expect(items(await f.client.request('textDocument/completion', params))).toContainEqual(expect.objectContaining({ label: 'Mailer' }));
+    await f.hold(); const before = (await f.calls()).length;
+    const wrapper = join(f.root, 'gated-provider.mjs'), replacement = join(f.root, 'replacement-provider.mjs');
+    const original = await readFile(wrapper, 'utf8');
+    expect(original).toContain('{pid:process.pid, held, request}');
+    await writeFile(replacement, original.replace('{pid:process.pid, held, request}', "{pid:process.pid, held, request, providerVersion:'reconciliation'}"));
+    f.client.send({ method: 'phpCompanion/bundledSemanticProviders', params: { providers: [{
+      providerId: 'php-companion.symfony.services', command: process.execPath, args: [replacement],
+      requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesContainerServices: true, timeoutMs: 10_000,
+    }] } });
+    await until(async () => (await f.calls()).slice(before).some(call => call.held && call.providerVersion === 'reconciliation'));
+    const query = f.client.start('textDocument/completion', params), cancel = f.client.start('textDocument/completion', params);
+    let finished = false, cancelFinished = false;
+    void query.result.then(() => { finished = true; }, () => { finished = true; });
+    void cancel.result.then(() => { cancelFinished = true; }, () => { cancelFinished = true; });
+    await new Promise(done => setTimeout(done, 25));
+    expect(finished).toBe(false); expect(cancelFinished).toBe(false);
+    const cancelledAt = performance.now(); f.client.send({ method: '$/cancelRequest', params: { id: cancel.id } });
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const response = await Promise.race([cancel.result.then(result => ({ result })),
+        new Promise<undefined>(done => { timer = setTimeout(() => done(undefined), 100); })]);
+      expect(response, 'Cancellation waited for provider reconciliation').toBeDefined();
+      expect(items(response!.result)).toEqual([]);
+      expect(performance.now() - cancelledAt).toBeLessThanOrEqual(100);
+    } finally { if (timer) clearTimeout(timer); }
+    expect(finished).toBe(false);
+    await f.release();
+    expect(items(await query.result)).toContainEqual(expect.objectContaining({ label: 'Mailer' }));
+  } finally { await f.stop(); }
+});
+
 it.each(['7.2', '8.5'].flatMap(phpVersion => ['onDemand', 'progressive'].map(indexingMode => ({phpVersion,indexingMode})) ))(
   'keeps first unsaved service navigation while foreground and background overlap at PHP $phpVersion in $indexingMode', async ({phpVersion,indexingMode}) => {
     const f = await fixture(phpVersion, indexingMode);

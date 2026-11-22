@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-20",
+  "currentCommit": "3b0b97245fcb23591c0183eacbd1a60a5162bc89",
+  "historicalCommit": "69033d761c793a77aecc9340454caaac3c56168b",
+  "boundedGitVersionsChecked": 2,
+  "maximumGitVersions": 32,
+  "historicalTestFileSHA256": "db97e1216102ca17f17c1274662e8afe7cd1be896e5b46ce3540c0575d2c69a3",
+  "currentTestFileSHA256": "8bffbc84362bbc7f1bb5e998761dba20ce098e11b5c36e9d878e5890f2ea0f5f",
+  "sourceScopeAuditPassed": true,
+  "matchedBindingLinks": 361,
+  "wholeHistoricalFileUnchangedLinks": 342,
+  "exactCaseSourceUnchangedLinks": 17,
+  "onlyCurrentSnapshotVersionUpdatedLinks": 2,
+  "snapshotVersionChanges": [
+    {
+      "id": "F05-TEMPLATE-01",
+      "fullName": "conservative semantic workspace uses declared PHPDoc template variance for generic parameter forwarding",
+      "changes": [
+        {
+          "line": 11019,
+          "old": "    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 89, declaration: { templates: expect.arrayContaining([",
+          "current": "    expect(workspace.snapshot('file:///VarianceDefinitions.php')).toMatchObject({ schema: 93, declaration: { templates: expect.arrayContaining(["
+        }
+      ]
+    },
+    {
+      "id": "F05-MIXIN-01",
+      "fullName": "conservative semantic workspace specializes generic mixin members only with complete valid type arguments",
+      "changes": [
+        {
+          "line": 2700,
+          "old": "    expect(snapshot).toMatchObject({ schema: 89, declaration: { mixins: expect.arrayContaining([",
+          "current": "    expect(snapshot).toMatchObject({ schema: 93, declaration: { mixins: expect.arrayContaining(["
+        }
+      ]
+    }
+  ],
+  "allEightChangedLinesConfinedToTests": true,
+  "noChangedModuleImportsOrSharedSetupOutsideTests": true,
+  "allDeclaredBindingExecutionProvenIds": [
+    "F06-DIAG-01",
+    "F06-DIAG-02",
+    "F06-DIAG-03",
+    "F07-GEN-01",
+    "F07-GEN-02",
+    "F07-GEN-03",
+    "F07-IMPORT-01",
+    "F14-CONFIG-01",
+    "F14-MANIFEST-01",
+    "F14-LOCALE-01",
+    "F05-TEMPLATE-01",
+    "F05-TEMPLATE-02",
+    "F05-SHAPE-01",
+    "F05-SHAPE-02",
+    "F05-SHAPE-03",
+    "F05-CALLABLE-01",
+    "F05-CONDITIONAL-01",
+    "F05-FLOW-01",
+    "F05-FLOW-02",
+    "F05-FLOW-03",
+    "F05-BOUND-01",
+    "F05-MIXIN-01",
+    "F05-GEN-03",
+    "F05-GEN-04",
+    "F05-GEN-06",
+    "F05-CALLABLE-02"
+  ],
+  "allDeclaredBindingExecutionProvenCount": 26,
+  "remainingUnprovenProtocolBindingLinks": 13,
+  "caseDriftArtifactSHA256": "0fdcfa3afc7a56ebb83f30f521b20e70fb6ef580872915e249a0ac93c3a9b3c0",
+  "historicalFileRecoveredByteSHA256": "db97e1216102ca17f17c1274662e8afe7cd1be896e5b46ce3540c0575d2c69a3",
+  "testRerunPerformed": false,
+  "fullOriginalWorkflowQualified": false,
+  "originalPhaseWorkItemsClosed": 0,
+  "fullObjectiveComplete": false
+}

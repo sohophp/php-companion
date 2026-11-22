@@ -1,0 +1,5298 @@
+{
+  "date": "2026-10-14",
+  "scope": "Windows x64 native Node24.16.0 ordinary protocol editing, nine existing PHP targets by three modes; no PHP CLI/full syntax, real complex project or human WSL qualification",
+  "state": {
+    "status": "exited",
+    "wrapperPid": 35715,
+    "wrapperStartTicks": "61780544",
+    "node": "v24.16.0",
+    "nativeDirectory": "/mnt/c/Users/sohop/AppData/Local/Temp/sophp-editing-recovery-n__jdx6d",
+    "nativeWindowsDirectory": "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+    "startedAtUtc": "2026-10-14T09:14:14.033517+00:00",
+    "inputCount": 3316,
+    "manifest": {
+      "runtime/tree-sitter-php.wasm": "d4df6a6ff08c87c3ec4f9cbb785fe09998a0cb570e03f57d7b19b3acfb146aa7",
+      "runtime/extension.js": "e69452f11955447f3d5d453d3a5536405b9dacc70686ecd670dc3c79778d0ac8",
+      "runtime/candidateWorker.js": "49e00f6068f134c4b422fc59617de0d46897e697722f4ba1d742c0061ee9ec87",
+      "runtime/portableCandidateSearchWorker.js": "25488cd3ba4751e3e7a3e727aee8940b4fbc83ee2977880dac51f6c874fb0de6",
+      "runtime/language-server.js": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+      "runtime/sourceStatWorker.js": "32d07c7d1f5da3fbd05ddb18a5edb525c4072fc0b3b7f2e95dfd84d6c80f9086",
+      "runtime/web-tree-sitter.wasm": "715cae35f31b7b03a13592bc5ac9039d5c6d2c2bda9f9e0c2b8abab77b3f64cc",
+      "runtime/builtinSnapshotWorker.js": "b4e2b84781fb17ecf80509c8aa02fa31bdd6551391dd5b646073b39f8e3c9627",
+      "scripts/benchmark-editing.mjs": "e1ff8f7c8ba7e7c2217b28ef0faf1eb2d2fdbaacafea567f6fc91173161c40dd",
+      "packages/testkit/dist/index.js": "3d5dfee5b9a83ed5c98ea0a10e6472c54fb49f37e4fa9f9c580d166f6d4f098f",
+      "packages/testkit/package.json": "fc80dc903e718ad9ac793e68c11b73f025a0e24311045fea29a209df26ac5fe1",
+      "launch.mjs": "d9c1084c942d00d7c2f624caaf17022bdbbd567293490c9420f598d544e466bd",
+      "probe-loaded-version.mjs": "4a1a7c25f69984ffbfbf1507c25a2747948f36638a056864dcab31eae78ab972"
+    },
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "stages": [
+      {
+        "name": "php-7.2-progressive",
+        "phpVersion": "7.2",
+        "mode": "progressive",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "progressive",
+          "7.2"
+        ],
+        "startedAtUtc": "2026-10-14T09:15:21.831085+00:00",
+        "interopPid": 40531,
+        "interopStartTicks": "61788193",
+        "lastObservedUtc": "2026-10-14T09:16:48.723580+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:16:49.724960+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 56512,
+          "mode": "progressive",
+          "phpVersion": "7.2",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+            "SOPHP_BENCHMARK_PHP_VERSION": "7.2"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "7.2",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.95300000000134,
+            "p95": 43.168900000000576,
+            "maximum": 45.71570000000065
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6629000000029919,
+            "p95": 2.8830999999991036,
+            "maximum": 4.172999999998865
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.2594000000099186,
+            "p95": 5.83179999999993,
+            "maximum": 7.203499999999622
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.462200000001758,
+            "p95": 4.299399999999878,
+            "maximum": 5.564800000000105
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.0434000000022934,
+            "p95": 3.577899999996589,
+            "maximum": 4.779599999999846
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1781000000009954,
+            "p95": 1.88289999999688,
+            "maximum": 3.077900000000227
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2709000000031665,
+            "p95": 2.059399999998277,
+            "maximum": 3.324300000000221
+          },
+          "cancellationMs": 1.1471999999921536,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.1471999999921536,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.7060000000055879,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 215.70703125,
+            "sampledPeak": 217.2890625,
+            "final": 188.4921875,
+            "endMinusBaseline": -27.21484375,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "1a40afda64f5a5d36595e59a8a3ffd4190e04fe937072d8e96a7f892e4f64031.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "2eacde14c87eb82f273eea932de694bd9ee26e4194ea23b24ac3e058324cb2e2",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-7.2-onDemand",
+        "phpVersion": "7.2",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "onDemand",
+          "7.2"
+        ],
+        "startedAtUtc": "2026-10-14T09:16:53.730264+00:00",
+        "interopPid": 43934,
+        "interopStartTicks": "61797384",
+        "lastObservedUtc": "2026-10-14T09:18:20.017901+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:18:21.019143+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 58104,
+          "mode": "onDemand",
+          "phpVersion": "7.2",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+            "SOPHP_BENCHMARK_PHP_VERSION": "7.2"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "7.2",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.99070000000211,
+            "p95": 43.708300000000236,
+            "maximum": 47.14879999999539
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.7490999999863561,
+            "p95": 2.9566999999988184,
+            "maximum": 5.334499999997206
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.5760000000009313,
+            "p95": 6.643200000002253,
+            "maximum": 7.821700000000419
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6972999999998137,
+            "p95": 4.758200000000215,
+            "maximum": 6.601800000000367
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.2818999999944936,
+            "p95": 3.854800000000978,
+            "maximum": 4.9597000000030675
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2698999999993248,
+            "p95": 2.0187999999980093,
+            "maximum": 2.760599999999613
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3542000000015832,
+            "p95": 2.195800000001327,
+            "maximum": 2.9593999999997322
+          },
+          "cancellationMs": 17.18949999999313,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 17.18949999999313,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 3.8298999999969965,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 193.484375,
+            "sampledPeak": 198.73828125,
+            "final": 179.4375,
+            "endMinusBaseline": -14.046875,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "28c3fb93827df254d0b0a6ab90801e5ce1dffa45a89248a5f02d46c99b77213e.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "54e658140edeed1ff6007cc33d7b7346a43f104a9ff3987b34b2725780ac9c0b",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-7.2-experimental",
+        "phpVersion": "7.2",
+        "mode": "experimental",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "experimental",
+          "7.2"
+        ],
+        "startedAtUtc": "2026-10-14T09:18:25.094526+00:00",
+        "interopPid": 45076,
+        "interopStartTicks": "61806521",
+        "lastObservedUtc": "2026-10-14T09:19:50.270438+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:19:51.273172+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 54772,
+          "mode": "experimental",
+          "phpVersion": "7.2",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_PHP_VERSION": "7.2"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v24.16.0",
+          "phpVersion": "7.2",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.65320000000065,
+            "p95": 42.57009999999718,
+            "maximum": 45.50119999999879
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.7285999999985506,
+            "p95": 2.9958999999998923,
+            "maximum": 4.6775999999990745
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.3971999999994296,
+            "p95": 6.167600000000675,
+            "maximum": 11.500299999999697
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.606100000004517,
+            "p95": 4.499300000003132,
+            "maximum": 6.499700000000303
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1222000000016124,
+            "p95": 3.750099999990198,
+            "maximum": 5.051599999991595
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2471999999979744,
+            "p95": 2.0076999999982945,
+            "maximum": 2.9245999999984633
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3595000000059372,
+            "p95": 2.2309000000022934,
+            "maximum": 3.6960999999992055
+          },
+          "cancellationMs": 1.0093000000051688,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.0093000000051688,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.7308000000048196,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 201.50390625,
+            "sampledPeak": 204.4921875,
+            "final": 123.0859375,
+            "endMinusBaseline": -78.41796875,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "78540214531cbafe72a8c45cd298c574f0b6f44077d2a007e14f018074bb69e4.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "da537dcca3eb878c80eafda5df14c694b3b1a9644133301b44148ad8d6295430",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-7.3-progressive",
+        "phpVersion": "7.3",
+        "mode": "progressive",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "progressive",
+          "7.3"
+        ],
+        "startedAtUtc": "2026-10-14T09:19:55.418026+00:00",
+        "interopPid": 45696,
+        "interopStartTicks": "61815554",
+        "lastObservedUtc": "2026-10-14T09:21:20.448038+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:21:21.450126+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 57660,
+          "mode": "progressive",
+          "phpVersion": "7.3",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+            "SOPHP_BENCHMARK_PHP_VERSION": "7.3"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "7.3",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 36.094199999999546,
+            "p95": 42.28360000000248,
+            "maximum": 45.97810000000027
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6431999999986147,
+            "p95": 2.758400000006077,
+            "maximum": 4.889799999997194
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.2229999999981374,
+            "p95": 5.787599999996019,
+            "maximum": 7.336900000000242
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.467499999998836,
+            "p95": 4.235599999999977,
+            "maximum": 5.277200000004086
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.01759999999922,
+            "p95": 3.485899999999674,
+            "maximum": 4.5745999999999185
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1833000000042375,
+            "p95": 1.8488000000033935,
+            "maximum": 3.2713000000003376
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.284299999999348,
+            "p95": 2.146099999999933,
+            "maximum": 3.0392999999967287
+          },
+          "cancellationMs": 1.0775999999896158,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.001799999998184,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.0775999999896158,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 216.16015625,
+            "sampledPeak": 217.90234375,
+            "final": 189.171875,
+            "endMinusBaseline": -26.98828125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "1e6a1690f2192f95cdb932dedc737d9bb451d204c0559ed9dbd82d7c715b0bb7.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "a534a1d9113b9b2c609dd99b90f9ceb2e0d6a8ae4d5dd95d70161b76142056e7",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-7.3-onDemand",
+        "phpVersion": "7.3",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "onDemand",
+          "7.3"
+        ],
+        "startedAtUtc": "2026-10-14T09:21:25.556251+00:00",
+        "interopPid": 46341,
+        "interopStartTicks": "61824569",
+        "lastObservedUtc": "2026-10-14T09:22:52.812140+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:22:53.816037+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 19096,
+          "mode": "onDemand",
+          "phpVersion": "7.3",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+            "SOPHP_BENCHMARK_PHP_VERSION": "7.3"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "7.3",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.7158999999956,
+            "p95": 43.44739999999911,
+            "maximum": 46.86819999999716
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.7597999999998137,
+            "p95": 3.051900000002206,
+            "maximum": 6.7590000000018335
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.579700000002049,
+            "p95": 6.570800000001327,
+            "maximum": 8.416799999999057
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6964000000007218,
+            "p95": 4.77270000000135,
+            "maximum": 6.353500000001077
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.26929999999993,
+            "p95": 3.7986000000018976,
+            "maximum": 5.177799999999479
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2848999999987427,
+            "p95": 1.9701999999961117,
+            "maximum": 2.617000000000189
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.38119999999617,
+            "p95": 2.2252000000007683,
+            "maximum": 3.530000000000655
+          },
+          "cancellationMs": 7.092300000003888,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.737200000003213,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 7.092300000003888,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 194.13671875,
+            "sampledPeak": 198.90625,
+            "final": 171.5859375,
+            "endMinusBaseline": -22.55078125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "0b0a759e726316be68d3d33afb060de03345856ffc7f55f4d5c8d3c274cddfa4.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "9c049c731afc1d9a0ddf774da154f4a0d55519675ca123654712a8f9128d905d",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-7.3-experimental",
+        "phpVersion": "7.3",
+        "mode": "experimental",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "experimental",
+          "7.3"
+        ],
+        "startedAtUtc": "2026-10-14T09:22:57.936472+00:00",
+        "interopPid": 47046,
+        "interopStartTicks": "61833808",
+        "lastObservedUtc": "2026-10-14T09:24:23.451359+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:24:24.455989+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 48008,
+          "mode": "experimental",
+          "phpVersion": "7.3",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_PHP_VERSION": "7.3"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v24.16.0",
+          "phpVersion": "7.3",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.68880000000354,
+            "p95": 43.39340000000084,
+            "maximum": 46.116400000000795
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.709900000001653,
+            "p95": 2.918599999997241,
+            "maximum": 4.095399999991059
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.3510000000023865,
+            "p95": 5.840800000001764,
+            "maximum": 7.112999999997555
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.5544000000008964,
+            "p95": 4.280899999997928,
+            "maximum": 6.229900000000271
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1203000000023167,
+            "p95": 3.6323000000047614,
+            "maximum": 4.688000000000102
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2485000000015134,
+            "p95": 1.9739000000045053,
+            "maximum": 2.9332999999969616
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3125,
+            "p95": 2.1719000000011874,
+            "maximum": 4.112100000002101
+          },
+          "cancellationMs": 1.0957999999955064,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.0957999999955064,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.6236000000062631,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 200.41015625,
+            "sampledPeak": 203.6171875,
+            "final": 174.609375,
+            "endMinusBaseline": -25.80078125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "fe0096d3bca5b65a3da54a2389635e5efbf64c10d87b0b93750e2839a7d37dd0.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "b74e92b2643039a255f7b4f463ac4b2be17700f6ab53515fe39b0c0fe82ecf61",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-7.4-progressive",
+        "phpVersion": "7.4",
+        "mode": "progressive",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "progressive",
+          "7.4"
+        ],
+        "startedAtUtc": "2026-10-14T09:24:28.476222+00:00",
+        "interopPid": 47700,
+        "interopStartTicks": "61842862",
+        "lastObservedUtc": "2026-10-14T09:25:53.939355+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:25:54.944254+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 56632,
+          "mode": "progressive",
+          "phpVersion": "7.4",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+            "SOPHP_BENCHMARK_PHP_VERSION": "7.4"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "7.4",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.72930000000633,
+            "p95": 42.67239999999583,
+            "maximum": 45.21429999999236
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6399000000019441,
+            "p95": 2.7789000000011583,
+            "maximum": 4.0636000000013155
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.233300000007148,
+            "p95": 5.6983000000000175,
+            "maximum": 6.810100000002421
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.513999999995576,
+            "p95": 4.206399999999121,
+            "maximum": 4.883700000000317
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.0560000000114087,
+            "p95": 3.5958000000100583,
+            "maximum": 4.838299999999435
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.189299999998184,
+            "p95": 1.8997000000017579,
+            "maximum": 2.779399999999441
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.298800000004121,
+            "p95": 2.127599999999802,
+            "maximum": 3.3804000000018277
+          },
+          "cancellationMs": 1.0256999999983236,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.0256999999983236,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.6255999999993946,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 216.3359375,
+            "sampledPeak": 218.21875,
+            "final": 188.890625,
+            "endMinusBaseline": -27.4453125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "50ca6b21d504b9b4d88922501488395751af4c7105bbe5ef2f658f63cdeabc4f.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "46da07a50679510d802752df44e9dd4cf12ae6fa38f63d3564f0bc5b322596ab",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-7.4-onDemand",
+        "phpVersion": "7.4",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "onDemand",
+          "7.4"
+        ],
+        "startedAtUtc": "2026-10-14T09:25:59.116706+00:00",
+        "interopPid": 48322,
+        "interopStartTicks": "61851927",
+        "lastObservedUtc": "2026-10-14T09:27:25.470516+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:27:26.476078+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 52596,
+          "mode": "onDemand",
+          "phpVersion": "7.4",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+            "SOPHP_BENCHMARK_PHP_VERSION": "7.4"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "7.4",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 34.912100000001374,
+            "p95": 43.21620000000257,
+            "maximum": 46.82720000000336
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.7639000000053784,
+            "p95": 3.0526000000027125,
+            "maximum": 5.979500000001281
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.6093000000037136,
+            "p95": 6.333200000000943,
+            "maximum": 10.822000000000116
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.7118000000045868,
+            "p95": 4.6938999999983935,
+            "maximum": 6.585100000000239
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.253499999998894,
+            "p95": 3.8377000000000407,
+            "maximum": 5.555200000002515
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2610999999960768,
+            "p95": 2.0406000000002678,
+            "maximum": 2.7317000000039116
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3885000000009313,
+            "p95": 2.28650000000016,
+            "maximum": 2.816399999996065
+          },
+          "cancellationMs": 9.5853000000061,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 9.5853000000061,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.850800000000163,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 193.17578125,
+            "sampledPeak": 198.10546875,
+            "final": 177.90625,
+            "endMinusBaseline": -15.26953125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "3c455360d17548db82bfb5aa7974388ea34aea50715f108bfbe13deb73dbd039.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "1f420bbae6ea09fa5810977cc3178f0b9b9102bd885dd0ca428f33ee0002d914",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-7.4-experimental",
+        "phpVersion": "7.4",
+        "mode": "experimental",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "experimental",
+          "7.4"
+        ],
+        "startedAtUtc": "2026-10-14T09:27:30.627663+00:00",
+        "interopPid": 49397,
+        "interopStartTicks": "61861079",
+        "lastObservedUtc": "2026-10-14T09:28:56.026104+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:28:57.032960+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 52968,
+          "mode": "experimental",
+          "phpVersion": "7.4",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_PHP_VERSION": "7.4"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v24.16.0",
+          "phpVersion": "7.4",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.47590000000491,
+            "p95": 43.009700000009616,
+            "maximum": 46.882799999999406
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6745999999984633,
+            "p95": 2.8122000000003027,
+            "maximum": 3.4924000000028173
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.322599999999511,
+            "p95": 5.7862999999997555,
+            "maximum": 8.295899999997346
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.490300000004936,
+            "p95": 4.289100000001781,
+            "maximum": 6.031199999997625
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.055100000005041,
+            "p95": 3.5213000000076136,
+            "maximum": 5.2850000000034925
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2010000000009313,
+            "p95": 1.9327999999950407,
+            "maximum": 3.296300000001793
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2985999999982596,
+            "p95": 2.13550000000032,
+            "maximum": 3.009200000000419
+          },
+          "cancellationMs": 0.93399999999383,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.93399999999383,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.574800000002142,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 200.03515625,
+            "sampledPeak": 203.0546875,
+            "final": 175.3046875,
+            "endMinusBaseline": -24.73046875,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "e52cb01fa7d139cc3ad9f2c6041dab90be7df84c68359fc946ec19cf635d5ba7.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "fe5916d263c1638a6f97cde70b4ed447c0c56272547c3520634c7fc419116e5d",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.0-progressive",
+        "phpVersion": "8.0",
+        "mode": "progressive",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "progressive",
+          "8.0"
+        ],
+        "startedAtUtc": "2026-10-14T09:29:01.103229+00:00",
+        "interopPid": 49977,
+        "interopStartTicks": "61870128",
+        "lastObservedUtc": "2026-10-14T09:30:27.535346+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:30:28.538618+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 55324,
+          "mode": "progressive",
+          "phpVersion": "8.0",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.0"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.0",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.46829999999318,
+            "p95": 43.078999999997905,
+            "maximum": 46.6646999999939
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.684900000000198,
+            "p95": 2.9310999999943306,
+            "maximum": 4.103299999998853
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.4406999999991967,
+            "p95": 6.117099999995844,
+            "maximum": 7.376699999993434
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6179000000011,
+            "p95": 4.50899999999092,
+            "maximum": 5.818199999997887
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1828999999997905,
+            "p95": 3.754899999999907,
+            "maximum": 4.551999999996042
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1823000000003958,
+            "p95": 1.86529999999766,
+            "maximum": 2.2128999999986263
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.278200000000652,
+            "p95": 2.0701000000044587,
+            "maximum": 2.34939999999915
+          },
+          "cancellationMs": 1.5264999999926658,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.5264999999926658,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.1019000000087544,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 218.96875,
+            "sampledPeak": 220.68359375,
+            "final": 186.9921875,
+            "endMinusBaseline": -31.9765625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "1b8e9181da9b7c147892589c1dc023ff76458f0ae4716f22725ef0503e32a411.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "37866e41139122fb764534a692cb3845f20bc3fbc48e5a66c6d1c4fa38ed26f8",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.0-onDemand",
+        "phpVersion": "8.0",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "onDemand",
+          "8.0"
+        ],
+        "startedAtUtc": "2026-10-14T09:30:32.490637+00:00",
+        "interopPid": 50577,
+        "interopStartTicks": "61879267",
+        "lastObservedUtc": "2026-10-14T09:31:58.079475+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:31:59.087549+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 20924,
+          "mode": "onDemand",
+          "phpVersion": "8.0",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.0"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.0",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 36.01259999998729,
+            "p95": 43.02479999999923,
+            "maximum": 46.19290000000001
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.7031000000024505,
+            "p95": 2.9090999999971245,
+            "maximum": 3.9948999999996886
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.3915000000015425,
+            "p95": 6.010600000001432,
+            "maximum": 7.295000000012806
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.680500000002212,
+            "p95": 4.715199999998731,
+            "maximum": 5.561899999996967
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.198000000003958,
+            "p95": 3.8334000000031665,
+            "maximum": 4.796299999999974
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1970999999975902,
+            "p95": 1.9064999999973224,
+            "maximum": 3.0987000000022817
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3051999999988766,
+            "p95": 2.1278000000020256,
+            "maximum": 2.742500000000291
+          },
+          "cancellationMs": 15.64999999999418,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 15.64999999999418,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 4.025599999993574,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 206.9609375,
+            "sampledPeak": 237.2421875,
+            "final": 237.2421875,
+            "endMinusBaseline": 30.28125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "2e4d6a78b0f98063d2677ee100e49a4e285098b9e0b30c799528bb8aeb6e7a40.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "8dcded8a3110fa0227ff36ac2ee37682fd7ca9609cf3a8f1c8bd2e5b8a0a78dc",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.0-experimental",
+        "phpVersion": "8.0",
+        "mode": "experimental",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "experimental",
+          "8.0"
+        ],
+        "startedAtUtc": "2026-10-14T09:32:03.198970+00:00",
+        "interopPid": 51275,
+        "interopStartTicks": "61888325",
+        "lastObservedUtc": "2026-10-14T09:33:27.678202+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:33:28.686578+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 44440,
+          "mode": "experimental",
+          "phpVersion": "8.0",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.0"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.0",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.689100000003236,
+            "p95": 43.01570000000356,
+            "maximum": 45.78089999999793
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.7616000000052736,
+            "p95": 3.045799999999872,
+            "maximum": 4.514100000000326
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.4842999999964377,
+            "p95": 6.1327000000001135,
+            "maximum": 6.8571999999985565
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.780399999999645,
+            "p95": 4.841699999997218,
+            "maximum": 6.141199999998207
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.241199999996752,
+            "p95": 3.95600000000195,
+            "maximum": 4.885099999999511
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1793999999936204,
+            "p95": 1.8934000000008382,
+            "maximum": 2.428200000000288
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2822999999916647,
+            "p95": 2.099000000001979,
+            "maximum": 2.367500000000291
+          },
+          "cancellationMs": 1.115700000009383,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.115700000009383,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.7528999999922235,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 206.5546875,
+            "sampledPeak": 211.578125,
+            "final": 170.609375,
+            "endMinusBaseline": -35.9453125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "f8bf22a3ee8492abd1e8ce4f2faca0d8817b8c7dc1e7501847d943a73effcb0d.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "ae1fb890a65a89097ee22ab3188c72089e38e06c5dd18d82d9214cde3176d390",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.1-progressive",
+        "phpVersion": "8.1",
+        "mode": "progressive",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "progressive",
+          "8.1"
+        ],
+        "startedAtUtc": "2026-10-14T09:33:32.700782+00:00",
+        "interopPid": 53096,
+        "interopStartTicks": "61897275",
+        "lastObservedUtc": "2026-10-14T09:34:59.159269+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:35:00.167839+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 51396,
+          "mode": "progressive",
+          "phpVersion": "8.1",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.1"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.1",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.70570000000589,
+            "p95": 43.15320000000065,
+            "maximum": 46.87870000000112
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.743000000002212,
+            "p95": 2.960900000005495,
+            "maximum": 4.750100000001112
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.5161000000007334,
+            "p95": 6.248800000001211,
+            "maximum": 11.555599999999686
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.7082999999984168,
+            "p95": 4.645100000001548,
+            "maximum": 6.061599999999089
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.2128999999986263,
+            "p95": 3.8660000000018044,
+            "maximum": 6.000999999996566
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.194999999999709,
+            "p95": 1.9521000000022468,
+            "maximum": 2.822599999999511
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.292200000003504,
+            "p95": 2.1319000000003143,
+            "maximum": 3.018499999998312
+          },
+          "cancellationMs": 0.7890000000043074,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.7890000000043074,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.5622000000003027,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 218.6640625,
+            "sampledPeak": 221.4453125,
+            "final": 189.03515625,
+            "endMinusBaseline": -29.62890625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "33b4a0cb3c42111e9dc2b15568ce7de0b25ce85126a24d2f79b39e9501898a11.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "c9a8429957e89865db72de95101b88641ceecfd4702b6aabb755220234e949bb",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.1-onDemand",
+        "phpVersion": "8.1",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "onDemand",
+          "8.1"
+        ],
+        "startedAtUtc": "2026-10-14T09:35:04.157657+00:00",
+        "interopPid": 56446,
+        "interopStartTicks": "61906421",
+        "lastObservedUtc": "2026-10-14T09:36:30.392125+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:36:31.401401+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 57348,
+          "mode": "onDemand",
+          "phpVersion": "8.1",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.1"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.1",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.529799999989336,
+            "p95": 42.23790000000008,
+            "maximum": 46.47360000000117
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6843000000008033,
+            "p95": 2.8800999999984924,
+            "maximum": 4.450100000001839
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.4632999999994354,
+            "p95": 6.099900000001071,
+            "maximum": 7.402399999999034
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6828999999997905,
+            "p95": 4.608899999999267,
+            "maximum": 5.866300000001502
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.18920000000071,
+            "p95": 3.8291000000026543,
+            "maximum": 4.9002999999993335
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2220000000015716,
+            "p95": 1.8925000000017462,
+            "maximum": 2.951999999997497
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2991000000038184,
+            "p95": 2.171699999998964,
+            "maximum": 4.552499999997963
+          },
+          "cancellationMs": 1.2858000000123866,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.2858000000123866,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.9633000000030734,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 194.7421875,
+            "sampledPeak": 237.66015625,
+            "final": 237.66015625,
+            "endMinusBaseline": 42.91796875,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "f3306341ee7847cf4a00a44945128c57a6d1c4597c0c96385d0ba89fef90207b.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "9c9b62bc8d2170e5ce74524dc5c2fec9f2ed8e0e83a5faed77ac16a8c0b80020",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.1-experimental",
+        "phpVersion": "8.1",
+        "mode": "experimental",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "experimental",
+          "8.1"
+        ],
+        "startedAtUtc": "2026-10-14T09:36:35.618722+00:00",
+        "interopPid": 58258,
+        "interopStartTicks": "61915568",
+        "lastObservedUtc": "2026-10-14T09:38:02.304488+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:38:03.310222+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 57792,
+          "mode": "experimental",
+          "phpVersion": "8.1",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.1"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.1",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 36.55189999999857,
+            "p95": 44.83569999999963,
+            "maximum": 49.313600000001315
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.7353000000002794,
+            "p95": 3.084599999987404,
+            "maximum": 4.913899999999558
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.354299999991781,
+            "p95": 6.183199999999488,
+            "maximum": 7.444000000003143
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6569000000017695,
+            "p95": 4.820099999997183,
+            "maximum": 7.132299999999304
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1400999999968917,
+            "p95": 3.8629000000000815,
+            "maximum": 5.27139999999963
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1853999999875668,
+            "p95": 2.002999999996973,
+            "maximum": 3.218699999997625
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2836999999999534,
+            "p95": 2.2302999999992608,
+            "maximum": 3.2365000000027067
+          },
+          "cancellationMs": 0.9005999999935739,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.9005999999935739,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.6195000000006985,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 220.30078125,
+            "sampledPeak": 222.46875,
+            "final": 178.40625,
+            "endMinusBaseline": -41.89453125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "f93fe462be180b010ba3bf9e5e70d5c151f7116061f9c06e6d080f5124875e48.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "9da4deffdc313fdf5455596d5b707fa011676348206fc7238e1585e9f456bc2e",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.2-progressive",
+        "phpVersion": "8.2",
+        "mode": "progressive",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "progressive",
+          "8.2"
+        ],
+        "startedAtUtc": "2026-10-14T09:38:07.743156+00:00",
+        "interopPid": 63331,
+        "interopStartTicks": "61924781",
+        "lastObservedUtc": "2026-10-14T09:39:34.358965+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:39:35.369645+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 57216,
+          "mode": "progressive",
+          "phpVersion": "8.2",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.2"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.2",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.39110000000073,
+            "p95": 43.164700000001176,
+            "maximum": 46.77669999999489
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.7651000000041677,
+            "p95": 3.0427999999992608,
+            "maximum": 4.31619999999748
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.4167000000015832,
+            "p95": 6.315600000001723,
+            "maximum": 8.453999999999724
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6561000000001513,
+            "p95": 4.733299999999872,
+            "maximum": 6.123600000000806
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.170799999999872,
+            "p95": 3.9237000000066473,
+            "maximum": 4.949800000000323
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.201600000000326,
+            "p95": 1.9812000000019907,
+            "maximum": 2.896099999998114
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2854000000006636,
+            "p95": 2.231500000001688,
+            "maximum": 3.0059999999975844
+          },
+          "cancellationMs": 1.2695999999996275,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.2695999999996275,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.7015000000101281,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 218.8828125,
+            "sampledPeak": 220.92578125,
+            "final": 188.78515625,
+            "endMinusBaseline": -30.09765625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "0d950a1fe5b7bd550d914d239aa795f57f5f24778e93e31eda46e288fd8fa4a8.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "8a8bbf43a67437a5afe230edd9bb380891335e41358f24044f0f2952821bc331",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.2-onDemand",
+        "phpVersion": "8.2",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "onDemand",
+          "8.2"
+        ],
+        "startedAtUtc": "2026-10-14T09:39:40.149294+00:00",
+        "interopPid": 67977,
+        "interopStartTicks": "61934023",
+        "lastObservedUtc": "2026-10-14T09:41:07.960664+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:41:08.972102+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 56756,
+          "mode": "onDemand",
+          "phpVersion": "8.2",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.2"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.2",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.39409999999771,
+            "p95": 43.64639999999781,
+            "maximum": 47.276599999997416
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.886399999999412,
+            "p95": 3.2421999999933178,
+            "maximum": 4.650099999998929
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.8004999999975553,
+            "p95": 6.929599999995844,
+            "maximum": 9.110399999997753
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.9992999999958556,
+            "p95": 5.146399999997811,
+            "maximum": 7.163400000004913
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.444599999995262,
+            "p95": 4.253599999996368,
+            "maximum": 5.348200000000361
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.3117000000056578,
+            "p95": 2.3130999999993946,
+            "maximum": 6.642299999999523
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3940000000002328,
+            "p95": 2.3647000000055414,
+            "maximum": 3.494699999999284
+          },
+          "cancellationMs": 1.8619000000035157,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.8619000000035157,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.2309000000095693,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 207.3203125,
+            "sampledPeak": 212.28515625,
+            "final": 172.703125,
+            "endMinusBaseline": -34.6171875,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "94074668f5d299d04d29fad84cc01c0b248f2d70eb7ae74721289f15610c6e62.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "9d96d40e782490ed37de7f2461a2d962a7cd75b08b491b1230fc281e593200a2",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.2-experimental",
+        "phpVersion": "8.2",
+        "mode": "experimental",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "experimental",
+          "8.2"
+        ],
+        "startedAtUtc": "2026-10-14T09:41:13.246933+00:00",
+        "interopPid": 69765,
+        "interopStartTicks": "61943334",
+        "lastObservedUtc": "2026-10-14T09:42:42.022171+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:42:43.033980+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 32764,
+          "mode": "experimental",
+          "phpVersion": "8.2",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.2"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.2",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.90559999999823,
+            "p95": 43.58090000000084,
+            "maximum": 46.53840000000491
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.7284999999974389,
+            "p95": 2.9697999999989406,
+            "maximum": 3.5716999999986
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.4892000000036205,
+            "p95": 6.276600000001054,
+            "maximum": 7.210300000002462
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.7379000000000815,
+            "p95": 4.816500000000815,
+            "maximum": 5.748100000004342
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.2272999999986496,
+            "p95": 3.9082999999991443,
+            "maximum": 5.480299999999261
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2222000000037951,
+            "p95": 1.9634000000005472,
+            "maximum": 2.56420000000071
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.328300000001036,
+            "p95": 2.216200000000754,
+            "maximum": 3.2880000000004657
+          },
+          "cancellationMs": 0.9956999999994878,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.9956999999994878,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.5348999999987427,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 202.6171875,
+            "sampledPeak": 205.90625,
+            "final": 183.734375,
+            "endMinusBaseline": -18.8828125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "f2faa8d655620718fb53f2987a78f30580f459ccb94eafcc225f9e7987ec33a6.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "1de523915c92eddbd220862adb16bc0fd1a3bc94280e364b2763748335eb208d",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.3-progressive",
+        "phpVersion": "8.3",
+        "mode": "progressive",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "progressive",
+          "8.3"
+        ],
+        "startedAtUtc": "2026-10-14T09:42:47.080738+00:00",
+        "interopPid": 72834,
+        "interopStartTicks": "61952718",
+        "lastObservedUtc": "2026-10-14T09:44:13.881038+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:44:14.887285+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 56508,
+          "mode": "progressive",
+          "phpVersion": "8.3",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.3"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.3",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.49699999999575,
+            "p95": 43.44940000000133,
+            "maximum": 45.9458999999988
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.796699999991688,
+            "p95": 3.112600000000384,
+            "maximum": 4.918700000001991
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.609199999998964,
+            "p95": 6.516900000002352,
+            "maximum": 9.937599999999293
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.75449999999546,
+            "p95": 4.858400000000984,
+            "maximum": 6.157999999999447
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.2700999999979103,
+            "p95": 3.966599999999744,
+            "maximum": 4.554199999998673
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2354000000050291,
+            "p95": 1.9413999999960652,
+            "maximum": 2.5632000000041444
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.341999999996915,
+            "p95": 2.217499999998836,
+            "maximum": 2.8413999999975204
+          },
+          "cancellationMs": 1.1180999999924097,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.1180999999924097,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.622399999992922,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 246.71484375,
+            "sampledPeak": 247.18359375,
+            "final": 189.6640625,
+            "endMinusBaseline": -57.05078125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "a0ed455bab082ee0b841af6463456725fc82ca5b72c3e2796fb9480a7e892ff9.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "341628b9e8060fd30ca14fcc0e50029130cb4ee0eb320717d41638e2b5c14c2c",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.3-onDemand",
+        "phpVersion": "8.3",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "onDemand",
+          "8.3"
+        ],
+        "startedAtUtc": "2026-10-14T09:44:19.242890+00:00",
+        "interopPid": 74318,
+        "interopStartTicks": "61961935",
+        "lastObservedUtc": "2026-10-14T09:45:45.025003+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:45:46.032233+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 56980,
+          "mode": "onDemand",
+          "phpVersion": "8.3",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.3"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.3",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.07390000000305,
+            "p95": 43.33970000000045,
+            "maximum": 46.868100000003324
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.7258999999976368,
+            "p95": 2.970900000000256,
+            "maximum": 7.498800000001211
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.382499999999709,
+            "p95": 6.120000000002619,
+            "maximum": 10.52730000000156
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6687000000001717,
+            "p95": 4.662100000001374,
+            "maximum": 9.506999999997788
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1964999999981956,
+            "p95": 3.8127000000094995,
+            "maximum": 5.0887000000002445
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1833000000005995,
+            "p95": 1.9063999999925727,
+            "maximum": 2.4030000000002474
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2906000000002678,
+            "p95": 2.114000000001397,
+            "maximum": 2.6300999999984924
+          },
+          "cancellationMs": 18.018700000000536,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 18.018700000000536,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.8578999999881489,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 207.07421875,
+            "sampledPeak": 238.75,
+            "final": 238.75,
+            "endMinusBaseline": 31.67578125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "b7fc50f7482655a2a9adacff287034b17afd007384f72a00e13dd74477a9dc51.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "898a46751dee78ee3dabdb253da03b7f151165d25c22b88b1be7cba6318ee0c2",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.3-experimental",
+        "phpVersion": "8.3",
+        "mode": "experimental",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "experimental",
+          "8.3"
+        ],
+        "startedAtUtc": "2026-10-14T09:45:50.240934+00:00",
+        "interopPid": 75829,
+        "interopStartTicks": "61971036",
+        "lastObservedUtc": "2026-10-14T09:47:15.121242+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:47:16.128653+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 57696,
+          "mode": "experimental",
+          "phpVersion": "8.3",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.3"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.3",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 36.048799999996845,
+            "p95": 43.51240000000689,
+            "maximum": 46.42059999999765
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6964000000007218,
+            "p95": 3.0547999999980675,
+            "maximum": 4.990300000001298
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.4231999999974505,
+            "p95": 6.311999999999898,
+            "maximum": 7.785299999988638
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.701600000000326,
+            "p95": 4.9487999999983,
+            "maximum": 6.344100000002072
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.185399999987567,
+            "p95": 3.971399999998539,
+            "maximum": 5.028000000000247
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.2026999999943655,
+            "p95": 1.9417000000030384,
+            "maximum": 2.960899999998219
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.3012999999991735,
+            "p95": 2.202100000002247,
+            "maximum": 3.432600000000093
+          },
+          "cancellationMs": 0.9466000000102213,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.9466000000102213,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.6468000000022585,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 223.6484375,
+            "sampledPeak": 227.04296875,
+            "final": 123.07421875,
+            "endMinusBaseline": -100.57421875,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "7a6e0bafaad51159d26f65d9ea900b2050c0dff4f21187fda8a7d2e09249600c.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "155618285ca60d51463dfdf89dfa9b606b53b328458cb199ead2a4001abf4d87",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.4-progressive",
+        "phpVersion": "8.4",
+        "mode": "progressive",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "progressive",
+          "8.4"
+        ],
+        "startedAtUtc": "2026-10-14T09:47:20.491701+00:00",
+        "interopPid": 77251,
+        "interopStartTicks": "61980062",
+        "lastObservedUtc": "2026-10-14T09:48:46.762613+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:48:47.770385+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 44176,
+          "mode": "progressive",
+          "phpVersion": "8.4",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "progressive",
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.4"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.4",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.912099999997736,
+            "p95": 42.550600000000486,
+            "maximum": 45.85719999999856
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.690099999999802,
+            "p95": 2.9659999999967113,
+            "maximum": 4.811000000001513
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.4343000000008033,
+            "p95": 6.297099999996135,
+            "maximum": 10.641499999999724
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.627200000002631,
+            "p95": 4.573899999999412,
+            "maximum": 5.54149999999936
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.127100000001519,
+            "p95": 3.78530000000319,
+            "maximum": 4.511100000003353
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1578000000008615,
+            "p95": 1.8400000000001455,
+            "maximum": 2.742600000001403
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2474999999976717,
+            "p95": 2.073499999998603,
+            "maximum": 2.6111999999993714
+          },
+          "cancellationMs": 1.0161000000080094,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.0161000000080094,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.6586000000097556,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 243.1328125,
+            "sampledPeak": 246.0546875,
+            "final": 193.06640625,
+            "endMinusBaseline": -50.06640625,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "e9805fd4d38fca08ff861f7cb2869131d9611318710a071d651756517c9a2281.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "86f5ace20e3bdfa837cd5865023a207760a006811f80c4c01ad7161545f293f2",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.4-onDemand",
+        "phpVersion": "8.4",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "onDemand",
+          "8.4"
+        ],
+        "startedAtUtc": "2026-10-14T09:48:51.830579+00:00",
+        "interopPid": 78040,
+        "interopStartTicks": "61989143",
+        "lastObservedUtc": "2026-10-14T09:50:17.803984+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:50:18.812116+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 55620,
+          "mode": "onDemand",
+          "phpVersion": "8.4",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand",
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.4"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.4",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 36.01549999999406,
+            "p95": 42.93660000000091,
+            "maximum": 46.23889999999665
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.733299999999872,
+            "p95": 3.0049999999901047,
+            "maximum": 3.9919000000008964
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.4710999999988417,
+            "p95": 6.316899999997986,
+            "maximum": 8.10229999999865
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6972999999998137,
+            "p95": 4.827000000001135,
+            "maximum": 6.219600000003993
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1877000000022235,
+            "p95": 3.999200000005658,
+            "maximum": 5.534599999999045
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1626000000032946,
+            "p95": 1.9017000000021653,
+            "maximum": 3.2242000000042026
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2554000000091037,
+            "p95": 2.1612999999997555,
+            "maximum": 4.099600000001374
+          },
+          "cancellationMs": 22.239399999991292,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 22.239399999991292,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.878100000001723,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 216.05078125,
+            "sampledPeak": 230.49609375,
+            "final": 230.49609375,
+            "endMinusBaseline": 14.4453125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "6acae09cc1ea3c34d00790eba0232419fb324bcce7e378b58aad861659e7c3cb.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "f93fa09b542f52c3037a4c5992899b5b2c815d829b790b5e5a055d13c91850da",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.4-experimental",
+        "phpVersion": "8.4",
+        "mode": "experimental",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "experimental",
+          "8.4"
+        ],
+        "startedAtUtc": "2026-10-14T09:50:23.163328+00:00",
+        "interopPid": 81828,
+        "interopStartTicks": "61998276",
+        "lastObservedUtc": "2026-10-14T09:51:48.128476+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:51:49.135742+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 57212,
+          "mode": "experimental",
+          "phpVersion": "8.4",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_PHP_VERSION": "8.4"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.4",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 36.02190000000337,
+            "p95": 43.24409999999625,
+            "maximum": 47.42449999999917
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.685300000001007,
+            "p95": 2.9253000000026077,
+            "maximum": 4.509399999999005
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.3571999999985565,
+            "p95": 6.098699999998644,
+            "maximum": 7.005900000000111
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.641199999998207,
+            "p95": 4.748500000001513,
+            "maximum": 8.05199999999968
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.1596000000135973,
+            "p95": 3.8715999999985797,
+            "maximum": 5.886100000003353
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1590000000014697,
+            "p95": 1.9035000000003492,
+            "maximum": 2.5970999999990454
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2571999999927357,
+            "p95": 2.134600000004866,
+            "maximum": 2.556800000000294
+          },
+          "cancellationMs": 1.5161999999982072,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.5161999999982072,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.022400000001653,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 223.04296875,
+            "sampledPeak": 225.26171875,
+            "final": 179.421875,
+            "endMinusBaseline": -43.62109375,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "f2add02704db772fe893cecbf373fa30746c1d78c62ca7278349b919f846e0d6.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "76fcd4568a660190dabd8ed50bce728944497ac5e0e7f0a991aa9fa93176e43f",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.5-progressive",
+        "phpVersion": "8.5",
+        "mode": "progressive",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "progressive",
+          "8.5"
+        ],
+        "startedAtUtc": "2026-10-14T09:51:53.594330+00:00",
+        "interopPid": 88113,
+        "interopStartTicks": "62007317",
+        "lastObservedUtc": "2026-10-14T09:53:20.630039+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:53:21.638572+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 57376,
+          "mode": "progressive",
+          "phpVersion": "8.5",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "progressive"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.5",
+          "indexingMode": "progressive",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.70820000000094,
+            "p95": 43.13920000000144,
+            "maximum": 46.695700000000215
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.7214999999996508,
+            "p95": 2.9693999999981315,
+            "maximum": 4.34900000000016
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.374499999998079,
+            "p95": 6.130600000000413,
+            "maximum": 7.157199999994191
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.6142999999974563,
+            "p95": 4.654099999999744,
+            "maximum": 6.271200000002864
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.128600000003644,
+            "p95": 3.768400000000838,
+            "maximum": 4.89259999999922
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.161999999996624,
+            "p95": 1.8911000000007334,
+            "maximum": 2.306799999998475
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2674999999944703,
+            "p95": 2.101700000006531,
+            "maximum": 2.862199999999575
+          },
+          "cancellationMs": 1.0480000000097789,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.0480000000097789,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.6330999999918276,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 249.34765625,
+            "sampledPeak": 251.84765625,
+            "final": 193.359375,
+            "endMinusBaseline": -55.98828125,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 4,
+            "corruptedFile": "6c76d7b947dfa450dfcafcc749abeb2ea0f83ca62465bebf8aa1d2ac75c69835.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "f2f13423d19d0248a67c92d588a5c89d4df9fe89ec08f7f70c760ad08664f945",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.5-onDemand",
+        "phpVersion": "8.5",
+        "mode": "onDemand",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "onDemand",
+          "8.5"
+        ],
+        "startedAtUtc": "2026-10-14T09:53:26.299229+00:00",
+        "interopPid": 94595,
+        "interopStartTicks": "62016589",
+        "lastObservedUtc": "2026-10-14T09:54:52.217555+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:54:53.234650+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 50820,
+          "mode": "onDemand",
+          "phpVersion": "8.5",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {
+            "SOPHP_BENCHMARK_COMPLETION_NOISE_FUNCTIONS": "500",
+            "SOPHP_BENCHMARK_FIXTURE_LAYOUT": "psr4",
+            "SOPHP_BENCHMARK_INDEXING_MODE": "onDemand"
+          },
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 500,
+          "fixtureLayout": "psr4",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.5",
+          "indexingMode": "onDemand",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 35.218699999997625,
+            "p95": 42.85190000000148,
+            "maximum": 46.243099999999686
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.748199999999997,
+            "p95": 3.01140000000305,
+            "maximum": 5.091899999999441
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.4720999999990454,
+            "p95": 6.304299999996147,
+            "maximum": 9.257300000001123
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.7030999999988126,
+            "p95": 4.789199999999255,
+            "maximum": 7.0063999999983935
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.2106999999996333,
+            "p95": 3.9409000000014203,
+            "maximum": 5.166000000004715
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.178699999989476,
+            "p95": 1.9146999999938998,
+            "maximum": 2.5697000000000116
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.268899999995483,
+            "p95": 2.128100000001723,
+            "maximum": 2.664600000003702
+          },
+          "cancellationMs": 1.1453000000037719,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 1.1115999999892665,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 1.1453000000037719,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 201.69921875,
+            "sampledPeak": 219.1953125,
+            "final": 219.1953125,
+            "endMinusBaseline": 17.49609375,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 1,
+            "corruptedFile": "c488c13b11a7612b2067c2cbf9f515b61f8cb0dfa78608f2c6a7197b87be1e2e.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": false,
+            "referencesRecoveredAfterRestart": true,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "9aafb03bf2c9f8523cccc0b96c0565a7b4bcc1b90af68d551cfee8a4cc104258",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "php-8.5-experimental",
+        "phpVersion": "8.5",
+        "mode": "experimental",
+        "status": "exited",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\launch.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+          "experimental",
+          "8.5"
+        ],
+        "startedAtUtc": "2026-10-14T09:54:57.669609+00:00",
+        "interopPid": 95470,
+        "interopStartTicks": "62025726",
+        "lastObservedUtc": "2026-10-14T09:56:22.599002+00:00",
+        "exitCode": 0,
+        "finishedAtUtc": "2026-10-14T09:56:23.607311+00:00",
+        "native": {
+          "platform": "win32",
+          "node": "v24.16.0",
+          "wrapperPid": 56884,
+          "mode": "experimental",
+          "phpVersion": "8.5",
+          "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+          "resourceManifestMatched": true,
+          "environment": {},
+          "remainingNewBenchmarkDirectories": [],
+          "exitCode": 0
+        },
+        "remainingNativeProcesses": [],
+        "report": {
+          "schema": 2,
+          "iterations": 500,
+          "warmupIterations": 50,
+          "completionNoiseFunctions": 0,
+          "fixtureLayout": "legacy",
+          "runtime": "v24.16.0",
+          "phpVersion": "8.5",
+          "indexingMode": "experimental",
+          "diagnosticsVersionMatched": true,
+          "platform": "win32",
+          "architecture": "x64",
+          "cpu": "Intel(R) Xeon(R) CPU E5-2696 v3 @ 2.30GHz",
+          "updateToDiagnosticsMs": {
+            "samples": 500,
+            "p50": 36.57839999999851,
+            "p95": 43.31790000000183,
+            "maximum": 48.448300000003655
+          },
+          "hotCompletionMs": {
+            "samples": 500,
+            "p50": 1.6753000000026077,
+            "p95": 2.961299999999028,
+            "maximum": 3.8300000000017462
+          },
+          "hotTypedArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 3.346799999999348,
+            "p95": 6.09400000000096,
+            "maximum": 7.665800000002491
+          },
+          "hotBareArgumentCompletionMs": {
+            "samples": 500,
+            "p50": 2.657900000005611,
+            "p95": 4.766199999998207,
+            "maximum": 6.493900000001304
+          },
+          "hotTypedMemberCompletionMs": {
+            "samples": 500,
+            "p50": 2.168599999989965,
+            "p95": 3.8488999999972293,
+            "maximum": 5.354500000001281
+          },
+          "hotHoverMs": {
+            "samples": 500,
+            "p50": 1.1635999999998603,
+            "p95": 1.9231999999974505,
+            "maximum": 2.449800000002142
+          },
+          "hotDefinitionMs": {
+            "samples": 500,
+            "p50": 1.2637000000013359,
+            "p95": 2.096299999997427,
+            "maximum": 3.300599999998667
+          },
+          "cancellationMs": 0.9263000000064494,
+          "cancellationOutcome": "cancelled",
+          "cancellationProbes": [
+            {
+              "query": "",
+              "controlSymbols": 100,
+              "durationMs": 0.9263000000064494,
+              "outcome": "cancelled"
+            },
+            {
+              "query": "Alpha",
+              "controlSymbols": 59,
+              "durationMs": 0.5470000000059372,
+              "outcome": "cancelled"
+            }
+          ],
+          "cancellationControlSymbols": 159,
+          "languageServerRssMb": {
+            "baseline": 231.35546875,
+            "sampledPeak": 233.79296875,
+            "final": 187.99609375,
+            "endMinusBaseline": -43.359375,
+            "samples": 57,
+            "sampledEveryIterations": 10,
+            "metric": "external process RSS; sampled peak is not true high water, end-minus-baseline is not retained heap"
+          },
+          "persistentCache": {
+            "files": 1,
+            "rebuiltSchema": 2,
+            "verifiedRebuiltPayloads": 2,
+            "corruptedFile": "47d4aa43c7d45ae3a9f593ced05033039a306a1062662bbdc6bd3f694a09609e.json",
+            "corruptCacheRecovered": true,
+            "rebuiltCacheValidated": true,
+            "corruptionWarningObserved": true,
+            "referencesRecoveredAfterRestart": null,
+            "completionRecoveredAfterRestart": true,
+            "hoverRecoveredAfterRestart": true,
+            "definitionRecoveredAfterRestart": true,
+            "unsavedReplayDiffersFromDisk": true
+          },
+          "staleCompletionFailures": 0,
+          "staleHoverFailures": 0,
+          "staleDefinitionFailures": 0,
+          "budgets": {
+            "hotCompletionP95Ms": 150,
+            "hotHoverP95Ms": 150,
+            "hotDefinitionP95Ms": 150,
+            "updateToDiagnosticsP95Ms": 500,
+            "cancellationMs": 100,
+            "rssEndMinusBaselineMb": 128
+          }
+        },
+        "qualified": true,
+        "stdoutSha256": "265b9ad6a8756ac5a5826c379d7cd055a000e74aa8072530b65674d88c0f5238",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "qualifiedThisBatch": true,
+    "loadedVersionProof": {
+      "status": "exited",
+      "command": [
+        "/mnt/c/nvm4w2/nodejs/node.exe",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\probe-loaded-version.mjs",
+        "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d"
+      ],
+      "interopPid": 35776,
+      "interopStartTicks": "61781413",
+      "exitCode": 0,
+      "remainingNativeProcesses": [],
+      "passed": true
+    },
+    "remainingNativeProcesses": [],
+    "copiedResourcesUnchanged": true,
+    "changedInputs": [],
+    "coreUnchanged": true,
+    "nativeDirectoryRemoved": true,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-14T09:56:29.687418+00:00"
+  },
+  "audit": {
+    "auditedAtUtc": "2026-10-14T09:56:34.129053+00:00",
+    "qualifiedThisBatch": true,
+    "productionChanged": false,
+    "normalCoreSha256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+    "stages": 27,
+    "measuredEdits": 13500,
+    "warmupEdits": 1350,
+    "normalServerLifecycles": 54,
+    "actualLoadedVersionControls": 27,
+    "independentVersionServerLifecycles": 27,
+    "productInputsUnchanged": 3316,
+    "copiedResourcesUnchanged": 13,
+    "remainingNativeProcesses": [],
+    "allTemporaryDirectoriesRemoved": true,
+    "fullObjectiveComplete": false,
+    "realPhpCliExecuted": false,
+    "summary": [
+      {
+        "phpVersion": "7.2",
+        "mode": "progressive",
+        "diagnosticP95Ms": 43.168900000000576,
+        "maxHotQueryP95Ms": 5.83179999999993,
+        "cancellationMs": 1.1471999999921536,
+        "workingSetEndMinusBaselineMiB": -27.21484375
+      },
+      {
+        "phpVersion": "7.2",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 43.708300000000236,
+        "maxHotQueryP95Ms": 6.643200000002253,
+        "cancellationMs": 17.18949999999313,
+        "workingSetEndMinusBaselineMiB": -14.046875
+      },
+      {
+        "phpVersion": "7.2",
+        "mode": "experimental",
+        "diagnosticP95Ms": 42.57009999999718,
+        "maxHotQueryP95Ms": 6.167600000000675,
+        "cancellationMs": 1.0093000000051688,
+        "workingSetEndMinusBaselineMiB": -78.41796875
+      },
+      {
+        "phpVersion": "7.3",
+        "mode": "progressive",
+        "diagnosticP95Ms": 42.28360000000248,
+        "maxHotQueryP95Ms": 5.787599999996019,
+        "cancellationMs": 1.0775999999896158,
+        "workingSetEndMinusBaselineMiB": -26.98828125
+      },
+      {
+        "phpVersion": "7.3",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 43.44739999999911,
+        "maxHotQueryP95Ms": 6.570800000001327,
+        "cancellationMs": 7.092300000003888,
+        "workingSetEndMinusBaselineMiB": -22.55078125
+      },
+      {
+        "phpVersion": "7.3",
+        "mode": "experimental",
+        "diagnosticP95Ms": 43.39340000000084,
+        "maxHotQueryP95Ms": 5.840800000001764,
+        "cancellationMs": 1.0957999999955064,
+        "workingSetEndMinusBaselineMiB": -25.80078125
+      },
+      {
+        "phpVersion": "7.4",
+        "mode": "progressive",
+        "diagnosticP95Ms": 42.67239999999583,
+        "maxHotQueryP95Ms": 5.6983000000000175,
+        "cancellationMs": 1.0256999999983236,
+        "workingSetEndMinusBaselineMiB": -27.4453125
+      },
+      {
+        "phpVersion": "7.4",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 43.21620000000257,
+        "maxHotQueryP95Ms": 6.333200000000943,
+        "cancellationMs": 9.5853000000061,
+        "workingSetEndMinusBaselineMiB": -15.26953125
+      },
+      {
+        "phpVersion": "7.4",
+        "mode": "experimental",
+        "diagnosticP95Ms": 43.009700000009616,
+        "maxHotQueryP95Ms": 5.7862999999997555,
+        "cancellationMs": 0.93399999999383,
+        "workingSetEndMinusBaselineMiB": -24.73046875
+      },
+      {
+        "phpVersion": "8.0",
+        "mode": "progressive",
+        "diagnosticP95Ms": 43.078999999997905,
+        "maxHotQueryP95Ms": 6.117099999995844,
+        "cancellationMs": 1.5264999999926658,
+        "workingSetEndMinusBaselineMiB": -31.9765625
+      },
+      {
+        "phpVersion": "8.0",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 43.02479999999923,
+        "maxHotQueryP95Ms": 6.010600000001432,
+        "cancellationMs": 15.64999999999418,
+        "workingSetEndMinusBaselineMiB": 30.28125
+      },
+      {
+        "phpVersion": "8.0",
+        "mode": "experimental",
+        "diagnosticP95Ms": 43.01570000000356,
+        "maxHotQueryP95Ms": 6.1327000000001135,
+        "cancellationMs": 1.115700000009383,
+        "workingSetEndMinusBaselineMiB": -35.9453125
+      },
+      {
+        "phpVersion": "8.1",
+        "mode": "progressive",
+        "diagnosticP95Ms": 43.15320000000065,
+        "maxHotQueryP95Ms": 6.248800000001211,
+        "cancellationMs": 0.7890000000043074,
+        "workingSetEndMinusBaselineMiB": -29.62890625
+      },
+      {
+        "phpVersion": "8.1",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 42.23790000000008,
+        "maxHotQueryP95Ms": 6.099900000001071,
+        "cancellationMs": 1.2858000000123866,
+        "workingSetEndMinusBaselineMiB": 42.91796875
+      },
+      {
+        "phpVersion": "8.1",
+        "mode": "experimental",
+        "diagnosticP95Ms": 44.83569999999963,
+        "maxHotQueryP95Ms": 6.183199999999488,
+        "cancellationMs": 0.9005999999935739,
+        "workingSetEndMinusBaselineMiB": -41.89453125
+      },
+      {
+        "phpVersion": "8.2",
+        "mode": "progressive",
+        "diagnosticP95Ms": 43.164700000001176,
+        "maxHotQueryP95Ms": 6.315600000001723,
+        "cancellationMs": 1.2695999999996275,
+        "workingSetEndMinusBaselineMiB": -30.09765625
+      },
+      {
+        "phpVersion": "8.2",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 43.64639999999781,
+        "maxHotQueryP95Ms": 6.929599999995844,
+        "cancellationMs": 1.8619000000035157,
+        "workingSetEndMinusBaselineMiB": -34.6171875
+      },
+      {
+        "phpVersion": "8.2",
+        "mode": "experimental",
+        "diagnosticP95Ms": 43.58090000000084,
+        "maxHotQueryP95Ms": 6.276600000001054,
+        "cancellationMs": 0.9956999999994878,
+        "workingSetEndMinusBaselineMiB": -18.8828125
+      },
+      {
+        "phpVersion": "8.3",
+        "mode": "progressive",
+        "diagnosticP95Ms": 43.44940000000133,
+        "maxHotQueryP95Ms": 6.516900000002352,
+        "cancellationMs": 1.1180999999924097,
+        "workingSetEndMinusBaselineMiB": -57.05078125
+      },
+      {
+        "phpVersion": "8.3",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 43.33970000000045,
+        "maxHotQueryP95Ms": 6.120000000002619,
+        "cancellationMs": 18.018700000000536,
+        "workingSetEndMinusBaselineMiB": 31.67578125
+      },
+      {
+        "phpVersion": "8.3",
+        "mode": "experimental",
+        "diagnosticP95Ms": 43.51240000000689,
+        "maxHotQueryP95Ms": 6.311999999999898,
+        "cancellationMs": 0.9466000000102213,
+        "workingSetEndMinusBaselineMiB": -100.57421875
+      },
+      {
+        "phpVersion": "8.4",
+        "mode": "progressive",
+        "diagnosticP95Ms": 42.550600000000486,
+        "maxHotQueryP95Ms": 6.297099999996135,
+        "cancellationMs": 1.0161000000080094,
+        "workingSetEndMinusBaselineMiB": -50.06640625
+      },
+      {
+        "phpVersion": "8.4",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 42.93660000000091,
+        "maxHotQueryP95Ms": 6.316899999997986,
+        "cancellationMs": 22.239399999991292,
+        "workingSetEndMinusBaselineMiB": 14.4453125
+      },
+      {
+        "phpVersion": "8.4",
+        "mode": "experimental",
+        "diagnosticP95Ms": 43.24409999999625,
+        "maxHotQueryP95Ms": 6.098699999998644,
+        "cancellationMs": 1.5161999999982072,
+        "workingSetEndMinusBaselineMiB": -43.62109375
+      },
+      {
+        "phpVersion": "8.5",
+        "mode": "progressive",
+        "diagnosticP95Ms": 43.13920000000144,
+        "maxHotQueryP95Ms": 6.130600000000413,
+        "cancellationMs": 1.0480000000097789,
+        "workingSetEndMinusBaselineMiB": -55.98828125
+      },
+      {
+        "phpVersion": "8.5",
+        "mode": "onDemand",
+        "diagnosticP95Ms": 42.85190000000148,
+        "maxHotQueryP95Ms": 6.304299999996147,
+        "cancellationMs": 1.1453000000037719,
+        "workingSetEndMinusBaselineMiB": 17.49609375
+      },
+      {
+        "phpVersion": "8.5",
+        "mode": "experimental",
+        "diagnosticP95Ms": 43.31790000000183,
+        "maxHotQueryP95Ms": 6.09400000000096,
+        "cancellationMs": 0.9263000000064494,
+        "workingSetEndMinusBaselineMiB": -43.359375
+      }
+    ]
+  },
+  "loadedVersionProof": {
+    "status": "exited",
+    "exitCode": 0,
+    "passed": true,
+    "coreHash": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+    "rows": [
+      {
+        "version": "7.2",
+        "mode": "progressive",
+        "serverPid": 37268,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=7.2",
+          "php-companion-builtin:/common-core.php?php=7.2",
+          "php-companion-builtin:/common-core.php?php=7.2",
+          "php-companion-builtin:/common-core.php?php=7.2"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": false,
+            "expected": false
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": false,
+            "expected": false
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "7.2",
+        "mode": "onDemand",
+        "serverPid": 41720,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=7.2",
+          "php-companion-builtin:/common-core.php?php=7.2",
+          "php-companion-builtin:/common-core.php?php=7.2",
+          "php-companion-builtin:/common-core.php?php=7.2"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": false,
+            "expected": false
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": false,
+            "expected": false
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "7.2",
+        "mode": "experimental",
+        "serverPid": 59084,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=7.2",
+          "php-companion-builtin:/common-core.php?php=7.2",
+          "php-companion-builtin:/common-core.php?php=7.2",
+          "php-companion-builtin:/common-core.php?php=7.2"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": false,
+            "expected": false
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": false,
+            "expected": false
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "7.3",
+        "mode": "progressive",
+        "serverPid": 53788,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=7.3",
+          "php-companion-builtin:/common-core.php?php=7.3",
+          "php-companion-builtin:/common-core.php?php=7.3",
+          "php-companion-builtin:/common-core.php?php=7.3"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": false,
+            "expected": false
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "7.3",
+        "mode": "onDemand",
+        "serverPid": 53224,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=7.3",
+          "php-companion-builtin:/common-core.php?php=7.3",
+          "php-companion-builtin:/common-core.php?php=7.3",
+          "php-companion-builtin:/common-core.php?php=7.3"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": false,
+            "expected": false
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "7.3",
+        "mode": "experimental",
+        "serverPid": 55352,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=7.3",
+          "php-companion-builtin:/common-core.php?php=7.3",
+          "php-companion-builtin:/common-core.php?php=7.3",
+          "php-companion-builtin:/common-core.php?php=7.3"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": false,
+            "expected": false
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "7.4",
+        "mode": "progressive",
+        "serverPid": 11904,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=7.4",
+          "php-companion-builtin:/common-core.php?php=7.4",
+          "php-companion-builtin:/common-core.php?php=7.4",
+          "php-companion-builtin:/common-core.php?php=7.4"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": false,
+            "expected": false
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "7.4",
+        "mode": "onDemand",
+        "serverPid": 53908,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=7.4",
+          "php-companion-builtin:/common-core.php?php=7.4",
+          "php-companion-builtin:/common-core.php?php=7.4",
+          "php-companion-builtin:/common-core.php?php=7.4"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": false,
+            "expected": false
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "7.4",
+        "mode": "experimental",
+        "serverPid": 58228,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=7.4",
+          "php-companion-builtin:/common-core.php?php=7.4",
+          "php-companion-builtin:/common-core.php?php=7.4",
+          "php-companion-builtin:/common-core.php?php=7.4"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": false,
+            "expected": false
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.0",
+        "mode": "progressive",
+        "serverPid": 41388,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.0",
+          "php-companion-builtin:/common-core.php?php=8.0",
+          "php-companion-builtin:/common-core.php?php=8.0",
+          "php-companion-builtin:/common-core.php?php=8.0"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.0",
+        "mode": "onDemand",
+        "serverPid": 57092,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.0",
+          "php-companion-builtin:/common-core.php?php=8.0",
+          "php-companion-builtin:/common-core.php?php=8.0",
+          "php-companion-builtin:/common-core.php?php=8.0"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.0",
+        "mode": "experimental",
+        "serverPid": 46208,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.0",
+          "php-companion-builtin:/common-core.php?php=8.0",
+          "php-companion-builtin:/common-core.php?php=8.0",
+          "php-companion-builtin:/common-core.php?php=8.0"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.1",
+        "mode": "progressive",
+        "serverPid": 59148,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.1",
+          "php-companion-builtin:/common-core.php?php=8.1",
+          "php-companion-builtin:/common-core.php?php=8.1",
+          "php-companion-builtin:/common-core.php?php=8.1"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.1",
+        "mode": "onDemand",
+        "serverPid": 59384,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.1",
+          "php-companion-builtin:/common-core.php?php=8.1",
+          "php-companion-builtin:/common-core.php?php=8.1",
+          "php-companion-builtin:/common-core.php?php=8.1"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.1",
+        "mode": "experimental",
+        "serverPid": 36932,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.1",
+          "php-companion-builtin:/common-core.php?php=8.1",
+          "php-companion-builtin:/common-core.php?php=8.1",
+          "php-companion-builtin:/common-core.php?php=8.1"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.2",
+        "mode": "progressive",
+        "serverPid": 57144,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.2",
+          "php-companion-builtin:/common-core.php?php=8.2",
+          "php-companion-builtin:/common-core.php?php=8.2",
+          "php-companion-builtin:/common-core.php?php=8.2"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.2",
+        "mode": "onDemand",
+        "serverPid": 5460,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.2",
+          "php-companion-builtin:/common-core.php?php=8.2",
+          "php-companion-builtin:/common-core.php?php=8.2",
+          "php-companion-builtin:/common-core.php?php=8.2"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.2",
+        "mode": "experimental",
+        "serverPid": 59156,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.2",
+          "php-companion-builtin:/common-core.php?php=8.2",
+          "php-companion-builtin:/common-core.php?php=8.2",
+          "php-companion-builtin:/common-core.php?php=8.2"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.3",
+        "mode": "progressive",
+        "serverPid": 58772,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.3",
+          "php-companion-builtin:/common-core.php?php=8.3",
+          "php-companion-builtin:/common-core.php?php=8.3",
+          "php-companion-builtin:/common-core.php?php=8.3"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.3",
+        "mode": "onDemand",
+        "serverPid": 55036,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.3",
+          "php-companion-builtin:/common-core.php?php=8.3",
+          "php-companion-builtin:/common-core.php?php=8.3",
+          "php-companion-builtin:/common-core.php?php=8.3"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.3",
+        "mode": "experimental",
+        "serverPid": 54648,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.3",
+          "php-companion-builtin:/common-core.php?php=8.3",
+          "php-companion-builtin:/common-core.php?php=8.3",
+          "php-companion-builtin:/common-core.php?php=8.3"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.4",
+        "mode": "progressive",
+        "serverPid": 57924,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.4",
+          "php-companion-builtin:/common-core.php?php=8.4",
+          "php-companion-builtin:/common-core.php?php=8.4",
+          "php-companion-builtin:/common-core.php?php=8.4"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.4",
+        "mode": "onDemand",
+        "serverPid": 55420,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.4",
+          "php-companion-builtin:/common-core.php?php=8.4",
+          "php-companion-builtin:/common-core.php?php=8.4",
+          "php-companion-builtin:/common-core.php?php=8.4"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.4",
+        "mode": "experimental",
+        "serverPid": 27772,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.4",
+          "php-companion-builtin:/common-core.php?php=8.4",
+          "php-companion-builtin:/common-core.php?php=8.4",
+          "php-companion-builtin:/common-core.php?php=8.4"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": false,
+            "expected": false
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.5",
+        "mode": "progressive",
+        "serverPid": 57848,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.5",
+          "php-companion-builtin:/common-core.php?php=8.5",
+          "php-companion-builtin:/common-core.php?php=8.5",
+          "php-companion-builtin:/common-core.php?php=8.5"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": true,
+            "expected": true
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.5",
+        "mode": "onDemand",
+        "serverPid": 56972,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.5",
+          "php-companion-builtin:/common-core.php?php=8.5",
+          "php-companion-builtin:/common-core.php?php=8.5",
+          "php-companion-builtin:/common-core.php?php=8.5"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": true,
+            "expected": true
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      },
+      {
+        "version": "8.5",
+        "mode": "experimental",
+        "serverPid": 26008,
+        "builtinSourceUris": [
+          "php-companion-builtin:/common-core.php?php=8.5",
+          "php-companion-builtin:/common-core.php?php=8.5",
+          "php-companion-builtin:/common-core.php?php=8.5",
+          "php-companion-builtin:/common-core.php?php=8.5"
+        ],
+        "availability": [
+          {
+            "name": "is_countable",
+            "since": "7.3",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "str_contains",
+            "since": "8.0",
+            "present": true,
+            "expected": true
+          },
+          {
+            "name": "array_first",
+            "since": "8.5",
+            "present": true,
+            "expected": true
+          }
+        ],
+        "exitCode": 0,
+        "passed": true,
+        "directoryRemoved": true
+      }
+    ]
+  },
+  "runningNativeProcessEvidence": {
+    "recordedAtUtc": "2026-10-14T09:14:18.404990+00:00",
+    "exitCode": 0,
+    "processes": [
+      {
+        "ProcessId": 56308,
+        "ParentProcessId": 28028,
+        "CommandLine": "node.exe C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\probe-loaded-version.mjs C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d",
+        "CreationDate": "/Date(1791969254084)/"
+      },
+      {
+        "ProcessId": 41720,
+        "ParentProcessId": 56308,
+        "CommandLine": "C:\\Users\\sohop\\AppData\\Local\\nvm\\v24.16.0\\node.exe C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\runtime\\language-server.js --stdio --parser-core-wasm C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\runtime\\web-tree-sitter.wasm --php-wasm C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-editing-recovery-n__jdx6d\\runtime\\tree-sitter-php.wasm",
+        "CreationDate": "/Date(1791969256336)/"
+      }
+    ],
+    "stderr": "",
+    "matrixStage": "loaded-version-proof",
+    "actualOwnedNativeProcessesObserved": true,
+    "supervisorPid": 35706,
+    "supervisorStartTicks": "61780396"
+  },
+  "terminalNativeProcessEvidence": {
+    "exitCode": 0,
+    "processes": [],
+    "stderr": ""
+  },
+  "artifactDigests": {
+    "prepare.py": "ae0f76c583d97e2eddf3f5eaccc23b049d2227c337a478cf7c0b7fa1d7c2c597",
+    "terminal-audit.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.3-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.1-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.5-progressive-native.json": "83160a58e54e3b054576925451d188a8020fb54b00698167c6dd947b5be4ff36",
+    "audit-supervision.py": "faa0ee94afe6329172e06e648ef532415f77f4bf86dc4623bcbeda51363f8e1f",
+    "preparation.json": "1ebc4b4315ba1d84eb9822b08689ba622ed67a5986f6125f394aa8a26b211166",
+    "php-8.4-progressive-native.json": "9cad4062c392f2ec8bb39a16b79666c00b59c6f7fbb09b5884651aedf4b3ece1",
+    "php-8.5-onDemand.json": "9aafb03bf2c9f8523cccc0b96c0565a7b4bcc1b90af68d551cfee8a4cc104258",
+    "supervise.py": "1766358e6f8c8c601a43f9bce29f9a2c8827bf4421def908db881cb582e62397",
+    "script-provenance.json": "bebcc46cc8030f317d2dce45baf17bb97ce78422eadbb0c5b3f3ba2cfb1bd405",
+    "php-8.0-progressive.json": "37866e41139122fb764534a692cb3845f20bc3fbc48e5a66c6d1c4fa38ed26f8",
+    "php-7.4-onDemand-native.json": "34dbc763f921137ddb8b2ae6360136ff91aa128c6dc67983f8015cf6c073b6f7",
+    "php-7.2-experimental-native.json": "56d386e81974d0d289a63e2a592793a1c1c8c2ca1325b7d9a1c3bd8ed357b8dd",
+    "php-8.5-onDemand-native.json": "1b0dd0bffa34a329f6b97127d3338f593f9838f58b8e19202de6ccd5ac7b27d7",
+    "php-7.3-progressive.json": "a534a1d9113b9b2c609dd99b90f9ceb2e0d6a8ae4d5dd95d70161b76142056e7",
+    "php-8.5-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.2-experimental.json": "da537dcca3eb878c80eafda5df14c694b3b1a9644133301b44148ad8d6295430",
+    "final-audit.py": "66118f69422fa1b838e9e0a86fb46864c65b2407fc02681516f780e9203d3c4e",
+    "native-running-audit.json": "56c865d6e7119366f59e5455b427515cf0eb2893978b1b3de1c991abc044f363",
+    "loaded-version-proof.json": "4cd33db00d3f86121328d756964a8fa4589f156f9032fbf4b7761ac824375fb4",
+    "php-8.0-progressive-native.json": "b2b2888e0d1a11fb1aded0db0f920a021f83631bceb74f447f0b1d1aa73a71fe",
+    "php-7.4-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.4-progressive.json": "86f5ace20e3bdfa837cd5865023a207760a006811f80c4c01ad7161545f293f2",
+    "php-8.4-experimental-native.json": "963fc86e154bf6f7b7810a1bd070b347fd4942dfaa3f28fcae599358c72544c3",
+    "php-8.0-experimental.json": "ae1fb890a65a89097ee22ab3188c72089e38e06c5dd18d82d9214cde3176d390",
+    "native-terminal-audit.json": "3c7592e8ad31c8f149e1215f86ea6c93e6304c48a1d0e6fad5bf68d5633e29d9",
+    "php-8.4-onDemand-native.json": "14d63a4be973746444beef2531c5a0e45e5377de7748f47ff0ec56e3a2e71173",
+    "php-8.1-progressive-native.json": "ecfc5de0077d5012e07f70be1376cd91f9191e023a59bc5ec8fa200095b636df",
+    "php-8.3-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.1-experimental-native.json": "d6f47c01a33dd82c67b42500a71d1d99641e34646cbe23b0cd3afdd6964db1e1",
+    "php-8.0-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.2-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.3-experimental-native.json": "bc61ae25b8c6c3d41e77a7fadbacea0b75ed280632f6ab461277d22835cd4706",
+    "php-8.1-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.3-progressive-native.json": "69126181eeb3e280ed67d6ca9acd7d2518cfbc88ce61db993d4a7dad10e5f653",
+    "php-8.2-onDemand.json": "9d96d40e782490ed37de7f2461a2d962a7cd75b08b491b1230fc281e593200a2",
+    "inputs.json": "e18c52370f5f0d7409025e44f4bb708a6e3164ef30da5bd4141009513e2847d3",
+    "php-8.2-progressive.json": "8a8bbf43a67437a5afe230edd9bb380891335e41358f24044f0f2952821bc331",
+    "php-7.2-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.2-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.5-experimental-native.json": "500e281df8aa289965de5d7d6329a807c82fb719b4b1034ca81f248cef3bfef9",
+    "matrix.log": "c95b3d7135689750ca98ec45716311d070216da21266d19e4290975c8649a33f",
+    "preparation-review.json": "0098d35e2038368230eba3f580d06dc7b3d7bd8eb2c36f6200bac41d2bcc2468",
+    "php-7.3-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.3-experimental.json": "b74e92b2643039a255f7b4f463ac4b2be17700f6ab53515fe39b0c0fe82ecf61",
+    "php-8.3-experimental.json": "155618285ca60d51463dfdf89dfa9b606b53b328458cb199ead2a4001abf4d87",
+    "php-8.3-onDemand-native.json": "122bd15d03b77e61984c537c61fdbdf32d7b55d10c13439a8a27702df569aa7f",
+    "php-8.2-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.2-onDemand.json": "54e658140edeed1ff6007cc33d7b7346a43f104a9ff3987b34b2725780ac9c0b",
+    "php-7.4-experimental.json": "fe5916d263c1638a6f97cde70b4ed447c0c56272547c3520634c7fc419116e5d",
+    "php-7.4-onDemand.json": "1f420bbae6ea09fa5810977cc3178f0b9b9102bd885dd0ca428f33ee0002d914",
+    "private-inputs.json": "5e7e8dcdd55d8a4c049e4fb5f104ab380705a9a69ea76991fccb5adf45c236e3",
+    "php-7.4-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.2-progressive.json": "2eacde14c87eb82f273eea932de694bd9ee26e4194ea23b24ac3e058324cb2e2",
+    "php-7.2-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.0-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.2-experimental.json": "1de523915c92eddbd220862adb16bc0fd1a3bc94280e364b2763748335eb208d",
+    "php-8.1-progressive.json": "c9a8429957e89865db72de95101b88641ceecfd4702b6aabb755220234e949bb",
+    "php-7.4-progressive.json": "46da07a50679510d802752df44e9dd4cf12ae6fa38f63d3564f0bc5b322596ab",
+    "php-8.3-onDemand.json": "898a46751dee78ee3dabdb253da03b7f151165d25c22b88b1be7cba6318ee0c2",
+    "php-8.0-experimental-native.json": "a2689be6ef121f9feb02a25dee8ba129fbbc00b2c827bff462f1dbf41904a005",
+    "php-7.4-progressive-native.json": "56e879ec5bc2fa55162ba0338f337bc7a90d49227fb2e2507df621e11998b545",
+    "php-8.1-onDemand-native.json": "90dcd00f5bfa4aa2848d3c5934dea16ee341579cda1b761f6e26528285fdeb42",
+    "php-8.5-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.2-onDemand-native.json": "9615882c1ab2ef54d92acaa5fe681a9d7666347918d9c6512265dd68f775e0b1",
+    "php-8.5-progressive.json": "f2f13423d19d0248a67c92d588a5c89d4df9fe89ec08f7f70c760ad08664f945",
+    "manifest.json": "4c2869b6644eede2c762bdbe9d6afa6b8392e2ea51c32ecebafee80bb985b0b7",
+    "php-7.3-progressive-native.json": "a2db1aa9421aa61b761223ab909f85bd434d91914fef1ef380c636e35d719e70",
+    "php-8.4-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "final-audit.json": "db60817079a989cc628678b0f306a1d22b1a70eafae4d20cda3c1e6904041a3a",
+    "php-7.3-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.4-onDemand.json": "f93fa09b542f52c3037a4c5992899b5b2c815d829b790b5e5a055d13c91850da",
+    "php-8.2-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "loaded-version-proof.log": "ea3794de08a589954debc57745c5b5d304fa6ce02bffa46bd8e5972f7a7280d0",
+    "observe-native.py": "70b40f77e1ab3f3c38f95d0f88f65381bdb4d4d6405b472d3a41d43509e905c5",
+    "launch.mjs": "d9c1084c942d00d7c2f624caaf17022bdbbd567293490c9420f598d544e466bd",
+    "launch.json": "98864d218b06cba581f5c437f3b00b42c0ac34063f12893a3124cc8e34f8e252",
+    "probe-loaded-version.mjs": "4a1a7c25f69984ffbfbf1507c25a2747948f36638a056864dcab31eae78ab972",
+    "php-7.2-progressive-native.json": "370dda67435b50bdddee4b0416b8aa24529cea0fc7243e7a9928f402b207d0a1",
+    "terminal-process-audit.ps1": "3809c69fd0216470dfe609b2cf9b9b5b6b8683053065d7df6d940af5d272c666",
+    "php-7.4-experimental-native.json": "d20987e5c5a8a1808018cd6cd1bd779794476b2c96023bf53105c8da6b6986de",
+    "php-8.3-experimental-native.json": "4eb6268e64a4a18a6b2ffe5ed247cbb8a1ae951707446c3ac4cc69e7838ea245",
+    "php-8.4-experimental.json": "76fcd4568a660190dabd8ed50bce728944497ac5e0e7f0a991aa9fa93176e43f",
+    "php-7.3-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.5-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "state.json": "372daa52e000b1047acdc7c788b8a26f4b9ad6a1c62a5a6223f0c9febedeb370",
+    "php-8.1-experimental.json": "9da4deffdc313fdf5455596d5b707fa011676348206fc7238e1585e9f456bc2e",
+    "php-8.2-onDemand-native.json": "442b085ec2b55c1086be14216ddfa70aa97d51e448723f16f7e467aaf9fa9de7",
+    "run-matrix.py": "76527987e37ea1f4288ffe5e235f927c3355556a32a519b4abf205b006194bf9",
+    "php-8.1-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-7.3-onDemand.json": "9c049c731afc1d9a0ddf774da154f4a0d55519675ca123654712a8f9128d905d",
+    "php-8.3-progressive.json": "341628b9e8060fd30ca14fcc0e50029130cb4ee0eb320717d41638e2b5c14c2c",
+    "php-8.3-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.2-experimental-native.json": "c62482ad86d1ac6b30e3f2389e8ff169131e1fa1329871182262fdd0a0213246",
+    "supervisor-state.json": "b4f44fc12c85fc6bb43fde2b9157d19fb72aa2fa455bffe2a5fc9eee9bf4767a",
+    "php-8.1-onDemand.json": "9c9b62bc8d2170e5ce74524dc5c2fec9f2ed8e0e83a5faed77ac16a8c0b80020",
+    "php-8.5-experimental.json": "265b9ad6a8756ac5a5826c379d7cd055a000e74aa8072530b65674d88c0f5238",
+    "php-8.0-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.0-onDemand-native.json": "99a27dea385526ac46b8f6fb7f1ff316ed3c41a82d60bb33b0717a4962b1e7a7",
+    "php-8.4-onDemand.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.4-experimental.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "queue-and-plan-checkpoint.json": "19c9255231d36776a8faff306e0546e12ddfae899f7e06e0fe7b3739c25ac1e4",
+    "php-7.3-onDemand-native.json": "e06ba310ef137df096452333843ef80b804e1acf71d580e712b8f7268c0eeee0",
+    "php-7.4-progressive.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "php-8.0-onDemand.json": "8dcded8a3110fa0227ff36ac2ee37682fd7ca9609cf3a8f1c8bd2e5b8a0a78dc",
+    "php-8.2-progressive-native.json": "783d93daa2aaa5d8eb29eae933a8bde8cec960179d0e8ab4233a2516bd9724df"
+  },
+  "actualMatrixCommandExitCode": 0,
+  "actualIndependentAuditorExitCode": 0,
+  "detachedSupervisionVerified": true,
+  "privateInputsVerified": 14,
+  "ownedLinuxProcessesAndGroupsGone": true,
+  "supervisorStateSHA256": "b4f44fc12c85fc6bb43fde2b9157d19fb72aa2fa455bffe2a5fc9eee9bf4767a",
+  "finalAuditSHA256": "db60817079a989cc628678b0f306a1d22b1a70eafae4d20cda3c1e6904041a3a"
+}

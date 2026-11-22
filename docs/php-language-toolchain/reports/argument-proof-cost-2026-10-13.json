@@ -1,0 +1,1207 @@
+{
+  "recordedAtUtc": "2026-10-12T22:33:12.922923+00:00",
+  "normalBundleSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+  "qualifiedObservation": true,
+  "mainRuns": 12,
+  "editRuns": 8,
+  "results": [
+    {
+      "localOnly": true,
+      "methodMedianMs": 475.92361750000055,
+      "uninstrumentedRootMedianMs": 27.766411499992955,
+      "helpers": {
+        "completedCallSignature": {
+          "calls": [
+            480,
+            480,
+            480,
+            480
+          ],
+          "medianInclusiveMs": 114.29633900001136,
+          "medianExclusiveMs": 0.6890525000053458,
+          "resultKinds": {
+            "undefined": 344,
+            "function": 85,
+            "method": 51
+          }
+        },
+        "completedCallSignatures": {
+          "calls": [
+            833,
+            833,
+            833,
+            833
+          ],
+          "medianInclusiveMs": 136.30168700000286,
+          "medianExclusiveMs": 4.997793500001535,
+          "resultKinds": {
+            "array": 833
+          }
+        },
+        "methodCandidatesForArguments": {
+          "calls": [
+            1304,
+            1304,
+            1304,
+            1304
+          ],
+          "medianInclusiveMs": 28.295317999989493,
+          "medianExclusiveMs": 7.978140999987772,
+          "resultKinds": {
+            "array": 1304
+          }
+        },
+        "nativeSourceType": {
+          "calls": [
+            188,
+            188,
+            188,
+            188
+          ],
+          "medianInclusiveMs": 1.7108639999933075,
+          "medianExclusiveMs": 1.7108639999933075,
+          "resultKinds": {
+            "primitive": 170,
+            "unknown": 6,
+            "union": 12
+          }
+        },
+        "phpDocDiagnosticType": {
+          "calls": [
+            384,
+            384,
+            384,
+            384
+          ],
+          "medianInclusiveMs": 4.676211499999681,
+          "medianExclusiveMs": 3.558767500002432,
+          "resultKinds": {
+            "primitive": 256,
+            "array": 35,
+            "undefined": 27,
+            "union": 47,
+            "literal": 15,
+            "list": 4
+          }
+        },
+        "provenArgumentType": {
+          "calls": [
+            724,
+            724,
+            724,
+            724
+          ],
+          "medianInclusiveMs": 550.7125230000079,
+          "medianExclusiveMs": 310.13133899999366,
+          "resultKinds": {
+            "undefined": 627,
+            "primitive": 77,
+            "named": 2,
+            "literal": 10,
+            "list": 8
+          }
+        },
+        "scalarArgumentFact": {
+          "calls": [
+            302,
+            302,
+            302,
+            302
+          ],
+          "medianInclusiveMs": 266.95053399999733,
+          "medianExclusiveMs": 13.851104499990015,
+          "resultKinds": {
+            "undefined": 219,
+            "object": 83
+          }
+        },
+        "signatures": {
+          "calls": [
+            1211,
+            1211,
+            1211,
+            1211
+          ],
+          "medianInclusiveMs": 109.14161700000113,
+          "medianExclusiveMs": 105.05699549998599,
+          "resultKinds": {
+            "array": 1211
+          }
+        }
+      },
+      "callers": {
+        "completedCallSignature -> completedCallSignatures": {
+          "calls": [
+            480,
+            480,
+            480,
+            480
+          ],
+          "medianInclusiveMs": 113.61933099998623,
+          "medianExclusiveMs": 2.2826889999951163,
+          "resultKinds": {
+            "array": 480
+          }
+        },
+        "completedCallSignatures -> methodCandidatesForArguments": {
+          "calls": [
+            823,
+            823,
+            823,
+            823
+          ],
+          "medianInclusiveMs": 27.2409929999867,
+          "medianExclusiveMs": 6.923815999984981,
+          "resultKinds": {
+            "array": 823
+          }
+        },
+        "completedCallSignatures -> signatures": {
+          "calls": [
+            823,
+            823,
+            823,
+            823
+          ],
+          "medianInclusiveMs": 103.93305550000423,
+          "medianExclusiveMs": 99.90863549998949,
+          "resultKinds": {
+            "array": 823
+          }
+        },
+        "incompatibleArguments -> completedCallSignature": {
+          "calls": [
+            480,
+            480,
+            480,
+            480
+          ],
+          "medianInclusiveMs": 114.29633900001136,
+          "medianExclusiveMs": 0.6890525000053458,
+          "resultKinds": {
+            "undefined": 344,
+            "function": 85,
+            "method": 51
+          }
+        },
+        "incompatibleArguments -> nativeSourceType": {
+          "calls": [
+            186,
+            186,
+            186,
+            186
+          ],
+          "medianInclusiveMs": 1.6979389999924024,
+          "medianExclusiveMs": 1.6979389999924024,
+          "resultKinds": {
+            "primitive": 168,
+            "unknown": 6,
+            "union": 12
+          }
+        },
+        "incompatibleArguments -> phpDocDiagnosticType": {
+          "calls": [
+            23,
+            23,
+            23,
+            23
+          ],
+          "medianInclusiveMs": 0.7234164999990753,
+          "medianExclusiveMs": 0.266849999995884,
+          "resultKinds": {
+            "array": 13,
+            "union": 4,
+            "undefined": 6
+          }
+        },
+        "incompatibleArguments -> provenArgumentType": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 147.58670849999953,
+          "medianExclusiveMs": 86.68874450000158,
+          "resultKinds": {
+            "undefined": 135,
+            "primitive": 59,
+            "named": 1,
+            "literal": 5,
+            "list": 3
+          }
+        },
+        "incompatibleArguments -> scalarArgumentFact": {
+          "calls": [
+            199,
+            199,
+            199,
+            199
+          ],
+          "medianInclusiveMs": 183.98842899999772,
+          "medianExclusiveMs": 9.820345499982523,
+          "resultKinds": {
+            "undefined": 133,
+            "object": 66
+          }
+        },
+        "methodCandidatesForArguments -> phpDocDiagnosticType": {
+          "calls": [
+            52,
+            52,
+            52,
+            52
+          ],
+          "medianInclusiveMs": 0.8826335000021572,
+          "medianExclusiveMs": 0.5209984999942208,
+          "resultKinds": {
+            "union": 39,
+            "primitive": 10,
+            "literal": 3
+          }
+        },
+        "methodCandidatesForArguments -> scalarArgumentFact": {
+          "calls": [
+            15,
+            15,
+            15,
+            15
+          ],
+          "medianInclusiveMs": 19.35733550000259,
+          "medianExclusiveMs": 0.7807100000022729,
+          "resultKinds": {
+            "undefined": 14,
+            "object": 1
+          }
+        },
+        "phpDocDiagnosticType -> phpDocDiagnosticType": {
+          "calls": [
+            182,
+            182,
+            182,
+            182
+          ],
+          "medianInclusiveMs": 1.0989874999972926,
+          "medianExclusiveMs": 1.0929234999971413,
+          "resultKinds": {
+            "primitive": 157,
+            "literal": 12,
+            "union": 4,
+            "undefined": 9
+          }
+        },
+        "provenArgumentType -> completedCallSignatures": {
+          "calls": [
+            347,
+            347,
+            347,
+            347
+          ],
+          "medianInclusiveMs": 22.79682149999826,
+          "medianExclusiveMs": 2.738588500010792,
+          "resultKinds": {
+            "array": 347
+          }
+        },
+        "provenArgumentType -> methodCandidatesForArguments": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.002650999999787018,
+          "medianExclusiveMs": 0.002650999999787018,
+          "resultKinds": {
+            "array": 2
+          }
+        },
+        "provenArgumentType -> nativeSourceType": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.014953500000046915,
+          "medianExclusiveMs": 0.014953500000046915,
+          "resultKinds": {
+            "primitive": 2
+          }
+        },
+        "provenArgumentType -> phpDocDiagnosticType": {
+          "calls": [
+            127,
+            127,
+            127,
+            127
+          ],
+          "medianInclusiveMs": 1.9826990000010483,
+          "medianExclusiveMs": 1.6646815000003699,
+          "resultKinds": {
+            "undefined": 12,
+            "primitive": 89,
+            "array": 22,
+            "list": 4
+          }
+        },
+        "provenArgumentType -> provenArgumentType": {
+          "calls": [
+            277,
+            277,
+            277,
+            277
+          ],
+          "medianInclusiveMs": 147.91601700000274,
+          "medianExclusiveMs": 66.28444900000159,
+          "resultKinds": {
+            "undefined": 267,
+            "primitive": 8,
+            "list": 2
+          }
+        },
+        "provenArgumentType -> scalarArgumentFact": {
+          "calls": [
+            88,
+            88,
+            88,
+            88
+          ],
+          "medianInclusiveMs": 65.67212000000109,
+          "medianExclusiveMs": 3.153947499995411,
+          "resultKinds": {
+            "undefined": 72,
+            "object": 16
+          }
+        },
+        "provenArgumentType -> signatures": {
+          "calls": [
+            378,
+            378,
+            378,
+            378
+          ],
+          "medianInclusiveMs": 5.084971999986919,
+          "medianExclusiveMs": 5.038787999984379,
+          "resultKinds": {
+            "array": 378
+          }
+        },
+        "scalarArgumentFact -> provenArgumentType": {
+          "calls": [
+            238,
+            238,
+            238,
+            238
+          ],
+          "medianInclusiveMs": 252.9257520000001,
+          "medianExclusiveMs": 155.1037075000031,
+          "resultKinds": {
+            "undefined": 219,
+            "named": 1,
+            "literal": 5,
+            "list": 3,
+            "primitive": 10
+          }
+        },
+        "signatures -> completedCallSignatures": {
+          "calls": [
+            6,
+            6,
+            6,
+            6
+          ],
+          "medianInclusiveMs": 0.08478249999916443,
+          "medianExclusiveMs": 0.03184799999871757,
+          "resultKinds": {
+            "array": 6
+          }
+        },
+        "signatures -> methodCandidatesForArguments": {
+          "calls": [
+            479,
+            479,
+            479,
+            479
+          ],
+          "medianInclusiveMs": 1.0513055000028544,
+          "medianExclusiveMs": 1.0513055000028544,
+          "resultKinds": {
+            "array": 479
+          }
+        },
+        "signatures -> provenArgumentType": {
+          "calls": [
+            6,
+            6,
+            6,
+            6
+          ],
+          "medianInclusiveMs": 2.6701689999995324,
+          "medianExclusiveMs": 2.6054925000007643,
+          "resultKinds": {
+            "undefined": 6
+          }
+        },
+        "signatures -> signatures": {
+          "calls": [
+            10,
+            10,
+            10,
+            10
+          ],
+          "medianInclusiveMs": 0.23266100000091683,
+          "medianExclusiveMs": 0.22754500000110056,
+          "resultKinds": {
+            "array": 10
+          }
+        }
+      },
+      "expressionKinds": {
+        "provenArgumentType / array-expression": {
+          "calls": [
+            4,
+            4,
+            4,
+            4
+          ],
+          "medianInclusiveMs": 0.07859300000109215,
+          "medianExclusiveMs": 0.07859300000109215,
+          "resultKinds": {
+            "list": 4
+          }
+        },
+        "provenArgumentType / member-expression": {
+          "calls": [
+            239,
+            239,
+            239,
+            239
+          ],
+          "medianInclusiveMs": 115.79702249999355,
+          "medianExclusiveMs": 52.23037299999578,
+          "resultKinds": {
+            "undefined": 239
+          }
+        },
+        "provenArgumentType / other-expression": {
+          "calls": [
+            202,
+            202,
+            202,
+            202
+          ],
+          "medianInclusiveMs": 79.5969515000088,
+          "medianExclusiveMs": 39.93316600000662,
+          "resultKinds": {
+            "primitive": 19,
+            "undefined": 169,
+            "literal": 10,
+            "list": 4
+          }
+        },
+        "provenArgumentType / quoted-expression": {
+          "calls": [
+            43,
+            43,
+            43,
+            43
+          ],
+          "medianInclusiveMs": 0.5618155000029219,
+          "medianExclusiveMs": 0.5618155000029219,
+          "resultKinds": {
+            "primitive": 43
+          }
+        },
+        "provenArgumentType / variable": {
+          "calls": [
+            236,
+            236,
+            236,
+            236
+          ],
+          "medianInclusiveMs": 353.78251199999795,
+          "medianExclusiveMs": 216.55390849999458,
+          "resultKinds": {
+            "undefined": 219,
+            "primitive": 15,
+            "named": 2
+          }
+        },
+        "scalarArgumentFact / array-expression": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.07451700000001438,
+          "medianExclusiveMs": 0.016222499999457796,
+          "resultKinds": {
+            "object": 2
+          }
+        },
+        "scalarArgumentFact / member-expression": {
+          "calls": [
+            36,
+            36,
+            36,
+            36
+          ],
+          "medianInclusiveMs": 15.021262999995088,
+          "medianExclusiveMs": 0.3595114999989164,
+          "resultKinds": {
+            "undefined": 36
+          }
+        },
+        "scalarArgumentFact / other-expression": {
+          "calls": [
+            86,
+            86,
+            86,
+            86
+          ],
+          "medianInclusiveMs": 20.871797999999217,
+          "medianExclusiveMs": 0.7317310000062207,
+          "resultKinds": {
+            "object": 24,
+            "undefined": 62
+          }
+        },
+        "scalarArgumentFact / quoted-expression": {
+          "calls": [
+            47,
+            47,
+            47,
+            47
+          ],
+          "medianInclusiveMs": 0.18432099999881757,
+          "medianExclusiveMs": 0.18432099999881757,
+          "resultKinds": {
+            "object": 47
+          }
+        },
+        "scalarArgumentFact / variable": {
+          "calls": [
+            131,
+            131,
+            131,
+            131
+          ],
+          "medianInclusiveMs": 227.02927749999526,
+          "medianExclusiveMs": 12.552430499999446,
+          "resultKinds": {
+            "undefined": 121,
+            "object": 10
+          }
+        }
+      }
+    },
+    {
+      "localOnly": false,
+      "methodMedianMs": 443.90274099999897,
+      "uninstrumentedRootMedianMs": 27.920535000006566,
+      "helpers": {
+        "completedCallSignature": {
+          "calls": [
+            480,
+            480,
+            480,
+            480
+          ],
+          "medianInclusiveMs": 112.58853049998743,
+          "medianExclusiveMs": 0.6916074999744524,
+          "resultKinds": {
+            "undefined": 344,
+            "function": 85,
+            "method": 51
+          }
+        },
+        "completedCallSignatures": {
+          "calls": [
+            833,
+            833,
+            833,
+            833
+          ],
+          "medianInclusiveMs": 133.60161100002006,
+          "medianExclusiveMs": 4.862767000007352,
+          "resultKinds": {
+            "array": 833
+          }
+        },
+        "methodCandidatesForArguments": {
+          "calls": [
+            1276,
+            1276,
+            1276,
+            1276
+          ],
+          "medianInclusiveMs": 27.81404100001373,
+          "medianExclusiveMs": 8.292339000018274,
+          "resultKinds": {
+            "array": 1276
+          }
+        },
+        "nativeSourceType": {
+          "calls": [
+            188,
+            188,
+            188,
+            188
+          ],
+          "medianInclusiveMs": 1.4993439999993825,
+          "medianExclusiveMs": 1.4993439999993825,
+          "resultKinds": {
+            "primitive": 170,
+            "unknown": 6,
+            "union": 12
+          }
+        },
+        "phpDocDiagnosticType": {
+          "calls": [
+            384,
+            384,
+            384,
+            384
+          ],
+          "medianInclusiveMs": 4.520216499999151,
+          "medianExclusiveMs": 3.497134000000642,
+          "resultKinds": {
+            "primitive": 256,
+            "array": 35,
+            "undefined": 27,
+            "union": 47,
+            "literal": 15,
+            "list": 4
+          }
+        },
+        "provenArgumentType": {
+          "calls": [
+            724,
+            724,
+            724,
+            724
+          ],
+          "medianInclusiveMs": 518.9177750000099,
+          "medianExclusiveMs": 287.90575350000745,
+          "resultKinds": {
+            "undefined": 627,
+            "primitive": 77,
+            "named": 2,
+            "literal": 10,
+            "list": 8
+          }
+        },
+        "scalarArgumentFact": {
+          "calls": [
+            302,
+            302,
+            302,
+            302
+          ],
+          "medianInclusiveMs": 246.09792150001522,
+          "medianExclusiveMs": 13.389293000005182,
+          "resultKinds": {
+            "undefined": 219,
+            "object": 83
+          }
+        },
+        "signatures": {
+          "calls": [
+            1181,
+            1181,
+            1181,
+            1181
+          ],
+          "medianInclusiveMs": 103.60819849998916,
+          "medianExclusiveMs": 100.00427899999022,
+          "resultKinds": {
+            "array": 1181
+          }
+        }
+      },
+      "callers": {
+        "completedCallSignature -> completedCallSignatures": {
+          "calls": [
+            480,
+            480,
+            480,
+            480
+          ],
+          "medianInclusiveMs": 111.89692300001298,
+          "medianExclusiveMs": 2.2144915000103538,
+          "resultKinds": {
+            "array": 480
+          }
+        },
+        "completedCallSignatures -> methodCandidatesForArguments": {
+          "calls": [
+            823,
+            823,
+            823,
+            823
+          ],
+          "medianInclusiveMs": 26.84843700001511,
+          "medianExclusiveMs": 7.326735000019653,
+          "resultKinds": {
+            "array": 823
+          }
+        },
+        "completedCallSignatures -> signatures": {
+          "calls": [
+            823,
+            823,
+            823,
+            823
+          ],
+          "medianInclusiveMs": 101.8904069999976,
+          "medianExclusiveMs": 98.30093749999924,
+          "resultKinds": {
+            "array": 823
+          }
+        },
+        "incompatibleArguments -> completedCallSignature": {
+          "calls": [
+            480,
+            480,
+            480,
+            480
+          ],
+          "medianInclusiveMs": 112.58853049998743,
+          "medianExclusiveMs": 0.6916074999744524,
+          "resultKinds": {
+            "undefined": 344,
+            "function": 85,
+            "method": 51
+          }
+        },
+        "incompatibleArguments -> nativeSourceType": {
+          "calls": [
+            186,
+            186,
+            186,
+            186
+          ],
+          "medianInclusiveMs": 1.4850514999989173,
+          "medianExclusiveMs": 1.4850514999989173,
+          "resultKinds": {
+            "primitive": 168,
+            "unknown": 6,
+            "union": 12
+          }
+        },
+        "incompatibleArguments -> phpDocDiagnosticType": {
+          "calls": [
+            23,
+            23,
+            23,
+            23
+          ],
+          "medianInclusiveMs": 0.7366295000001628,
+          "medianExclusiveMs": 0.30469600000014907,
+          "resultKinds": {
+            "array": 13,
+            "union": 4,
+            "undefined": 6
+          }
+        },
+        "incompatibleArguments -> provenArgumentType": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 144.7305200000119,
+          "medianExclusiveMs": 83.03088800001478,
+          "resultKinds": {
+            "undefined": 135,
+            "primitive": 59,
+            "named": 1,
+            "literal": 5,
+            "list": 3
+          }
+        },
+        "incompatibleArguments -> scalarArgumentFact": {
+          "calls": [
+            199,
+            199,
+            199,
+            199
+          ],
+          "medianInclusiveMs": 160.3058200000096,
+          "medianExclusiveMs": 9.628345500007072,
+          "resultKinds": {
+            "undefined": 133,
+            "object": 66
+          }
+        },
+        "methodCandidatesForArguments -> phpDocDiagnosticType": {
+          "calls": [
+            52,
+            52,
+            52,
+            52
+          ],
+          "medianInclusiveMs": 0.8464924999980212,
+          "medianExclusiveMs": 0.549214499997106,
+          "resultKinds": {
+            "union": 39,
+            "primitive": 10,
+            "literal": 3
+          }
+        },
+        "methodCandidatesForArguments -> scalarArgumentFact": {
+          "calls": [
+            15,
+            15,
+            15,
+            15
+          ],
+          "medianInclusiveMs": 18.675209499997436,
+          "medianExclusiveMs": 0.7463314999954491,
+          "resultKinds": {
+            "undefined": 14,
+            "object": 1
+          }
+        },
+        "phpDocDiagnosticType -> phpDocDiagnosticType": {
+          "calls": [
+            182,
+            182,
+            182,
+            182
+          ],
+          "medianInclusiveMs": 1.0230824999985089,
+          "medianExclusiveMs": 1.0170779999989463,
+          "resultKinds": {
+            "primitive": 157,
+            "literal": 12,
+            "union": 4,
+            "undefined": 9
+          }
+        },
+        "provenArgumentType -> completedCallSignatures": {
+          "calls": [
+            347,
+            347,
+            347,
+            347
+          ],
+          "medianInclusiveMs": 21.616069500006233,
+          "medianExclusiveMs": 2.678143999988606,
+          "resultKinds": {
+            "array": 347
+          }
+        },
+        "provenArgumentType -> methodCandidatesForArguments": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.0027854999998453422,
+          "medianExclusiveMs": 0.0027854999998453422,
+          "resultKinds": {
+            "array": 2
+          }
+        },
+        "provenArgumentType -> nativeSourceType": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.014292500000465225,
+          "medianExclusiveMs": 0.014292500000465225,
+          "resultKinds": {
+            "primitive": 2
+          }
+        },
+        "provenArgumentType -> phpDocDiagnosticType": {
+          "calls": [
+            127,
+            127,
+            127,
+            127
+          ],
+          "medianInclusiveMs": 1.914012000002458,
+          "medianExclusiveMs": 1.6072660000072574,
+          "resultKinds": {
+            "undefined": 12,
+            "primitive": 89,
+            "array": 22,
+            "list": 4
+          }
+        },
+        "provenArgumentType -> provenArgumentType": {
+          "calls": [
+            277,
+            277,
+            277,
+            277
+          ],
+          "medianInclusiveMs": 138.84177249999175,
+          "medianExclusiveMs": 61.30347099998744,
+          "resultKinds": {
+            "undefined": 267,
+            "primitive": 8,
+            "list": 2
+          }
+        },
+        "provenArgumentType -> scalarArgumentFact": {
+          "calls": [
+            88,
+            88,
+            88,
+            88
+          ],
+          "medianInclusiveMs": 68.11118500000703,
+          "medianExclusiveMs": 3.2405220000055124,
+          "resultKinds": {
+            "undefined": 72,
+            "object": 16
+          }
+        },
+        "provenArgumentType -> signatures": {
+          "calls": [
+            350,
+            350,
+            350,
+            350
+          ],
+          "medianInclusiveMs": 1.5386379999899873,
+          "medianExclusiveMs": 1.5271799999900395,
+          "resultKinds": {
+            "array": 350
+          }
+        },
+        "scalarArgumentFact -> provenArgumentType": {
+          "calls": [
+            238,
+            238,
+            238,
+            238
+          ],
+          "medianInclusiveMs": 232.99635250000756,
+          "medianExclusiveMs": 141.29064100000323,
+          "resultKinds": {
+            "undefined": 219,
+            "named": 1,
+            "literal": 5,
+            "list": 3,
+            "primitive": 10
+          }
+        },
+        "signatures -> completedCallSignatures": {
+          "calls": [
+            6,
+            6,
+            6,
+            6
+          ],
+          "medianInclusiveMs": 0.09843949999867618,
+          "medianExclusiveMs": 0.04805949999990844,
+          "resultKinds": {
+            "array": 6
+          }
+        },
+        "signatures -> methodCandidatesForArguments": {
+          "calls": [
+            451,
+            451,
+            451,
+            451
+          ],
+          "medianInclusiveMs": 0.9628939999988688,
+          "medianExclusiveMs": 0.9628939999988688,
+          "resultKinds": {
+            "array": 451
+          }
+        },
+        "signatures -> provenArgumentType": {
+          "calls": [
+            6,
+            6,
+            6,
+            6
+          ],
+          "medianInclusiveMs": 2.373253499997645,
+          "medianExclusiveMs": 2.3141104999990603,
+          "resultKinds": {
+            "undefined": 6
+          }
+        },
+        "signatures -> signatures": {
+          "calls": [
+            8,
+            8,
+            8,
+            8
+          ],
+          "medianInclusiveMs": 0.1802815000000919,
+          "medianExclusiveMs": 0.17705849999947532,
+          "resultKinds": {
+            "array": 8
+          }
+        }
+      },
+      "expressionKinds": {
+        "provenArgumentType / array-expression": {
+          "calls": [
+            4,
+            4,
+            4,
+            4
+          ],
+          "medianInclusiveMs": 0.0732295000002523,
+          "medianExclusiveMs": 0.0732295000002523,
+          "resultKinds": {
+            "list": 4
+          }
+        },
+        "provenArgumentType / member-expression": {
+          "calls": [
+            239,
+            239,
+            239,
+            239
+          ],
+          "medianInclusiveMs": 109.05096000000685,
+          "medianExclusiveMs": 49.475913000006585,
+          "resultKinds": {
+            "undefined": 239
+          }
+        },
+        "provenArgumentType / other-expression": {
+          "calls": [
+            202,
+            202,
+            202,
+            202
+          ],
+          "medianInclusiveMs": 78.16299249999383,
+          "medianExclusiveMs": 39.19969099999935,
+          "resultKinds": {
+            "primitive": 19,
+            "undefined": 169,
+            "literal": 10,
+            "list": 4
+          }
+        },
+        "provenArgumentType / quoted-expression": {
+          "calls": [
+            43,
+            43,
+            43,
+            43
+          ],
+          "medianInclusiveMs": 0.4589124999974956,
+          "medianExclusiveMs": 0.4589124999974956,
+          "resultKinds": {
+            "primitive": 43
+          }
+        },
+        "provenArgumentType / variable": {
+          "calls": [
+            236,
+            236,
+            236,
+            236
+          ],
+          "medianInclusiveMs": 336.5135780000155,
+          "medianExclusiveMs": 200.88397250000799,
+          "resultKinds": {
+            "undefined": 219,
+            "primitive": 15,
+            "named": 2
+          }
+        },
+        "scalarArgumentFact / array-expression": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.08181800000056683,
+          "medianExclusiveMs": 0.019612000000961416,
+          "resultKinds": {
+            "object": 2
+          }
+        },
+        "scalarArgumentFact / member-expression": {
+          "calls": [
+            36,
+            36,
+            36,
+            36
+          ],
+          "medianInclusiveMs": 13.248389499997757,
+          "medianExclusiveMs": 0.37519150000480295,
+          "resultKinds": {
+            "undefined": 36
+          }
+        },
+        "scalarArgumentFact / other-expression": {
+          "calls": [
+            86,
+            86,
+            86,
+            86
+          ],
+          "medianInclusiveMs": 20.751381999994464,
+          "medianExclusiveMs": 0.7516219999934037,
+          "resultKinds": {
+            "object": 24,
+            "undefined": 62
+          }
+        },
+        "scalarArgumentFact / quoted-expression": {
+          "calls": [
+            47,
+            47,
+            47,
+            47
+          ],
+          "medianInclusiveMs": 0.18000500000198372,
+          "medianExclusiveMs": 0.18000500000198372,
+          "resultKinds": {
+            "object": 47
+          }
+        },
+        "scalarArgumentFact / variable": {
+          "calls": [
+            131,
+            131,
+            131,
+            131
+          ],
+          "medianInclusiveMs": 213.25734400000965,
+          "medianExclusiveMs": 12.0531690000048,
+          "resultKinds": {
+            "undefined": 121,
+            "object": 10
+          }
+        }
+      }
+    }
+  ],
+  "completeVisibleResultEquality": true,
+  "products": 2087,
+  "projectInputs": 66079,
+  "changedProducts": [],
+  "changedProjectInputs": [],
+  "productionChanged": false,
+  "scope": "Nested observer times overlap and include overhead; four edits per mode are not P95 qualification",
+  "fullObjectiveComplete": false,
+  "initialClassificationInvalid": true,
+  "correctedVariableClassifierVerified": true,
+  "correctedObservationState": ".vscode-test/argument-proof-cost-2026-10-13/observation-corrected-state.json",
+  "priorProofReuseHypothesisRemainsRejected": true,
+  "nextScope": "Measure existing variable-proof substeps and traversal before one bounded algorithm change",
+  "newPrototypeImplemented": false
+}

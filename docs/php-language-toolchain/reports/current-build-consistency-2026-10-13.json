@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-13",
+  "qualifiedBuildConsistency": true,
+  "fullObjectiveComplete": false,
+  "normalTypecheckExitCode": 0,
+  "coreBuildExitCode": 0,
+  "symfonyBuildExitCode": 0,
+  "runtimeAssetsByteIdentical": 831,
+  "sourceInputsUnchanged": 237,
+  "runtimeAssetsAdded": 0,
+  "runtimeAssetsRemoved": 0,
+  "coreSHA256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+  "semanticSHA256": "761e112d2e09292455ecb124ad527bfd175ab9893a58442c276d9ea7de6dacdc",
+  "symfonyServiceProviderSHA256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+  "evidenceBoundary": "Byte identity retains prior exact runtime qualifications; does not add platform, performance or human acceptance",
+  "profileUpdated": false,
+  "committed": false,
+  "pushed": false
+}

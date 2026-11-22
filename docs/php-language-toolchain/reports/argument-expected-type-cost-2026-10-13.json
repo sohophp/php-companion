@@ -1,0 +1,264 @@
+{
+  "recordedAtUtc": "2026-10-12T22:24:54.569842+00:00",
+  "normalBundleSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+  "qualifiedObservation": true,
+  "mainRuns": 12,
+  "editRuns": 8,
+  "results": [
+    {
+      "localOnly": true,
+      "editRuns": 4,
+      "methodMedianMs": 500.82732450000003,
+      "parseCalls": [
+        1523,
+        1523,
+        1523,
+        1523
+      ],
+      "parseMedianMs": 5.827288000011322,
+      "uniqueInputs": [
+        55,
+        55,
+        55,
+        55
+      ],
+      "inputEntriesCapped": false,
+      "helpers": {
+        "documentedClassString": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 2.7238174999993134
+        },
+        "documentedList": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.6433379999898534
+        },
+        "documentedShape": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.5160585000094216
+        },
+        "documentedCallable": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.5799854999931995
+        },
+        "documentedGeneric": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.9351774999840927
+        }
+      },
+      "parseByHelper": {
+        "direct-or-signature": {
+          "calls": [
+            508,
+            508,
+            508,
+            508
+          ],
+          "medianInclusiveMs": 3.0917109999936656
+        },
+        "documentedCallable": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.2737020000058692
+        },
+        "documentedClassString": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 1.473524000008183
+        },
+        "documentedGeneric": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.3275740000017322
+        },
+        "documentedList": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.3920335000020714
+        },
+        "documentedShape": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.2978784999963864
+        }
+      }
+    },
+    {
+      "localOnly": false,
+      "editRuns": 4,
+      "methodMedianMs": 439.4874544999998,
+      "parseCalls": [
+        1523,
+        1523,
+        1523,
+        1523
+      ],
+      "parseMedianMs": 5.508881500003554,
+      "uniqueInputs": [
+        55,
+        55,
+        55,
+        55
+      ],
+      "inputEntriesCapped": false,
+      "helpers": {
+        "documentedClassString": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 2.4724200000068777
+        },
+        "documentedList": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.5937830000048052
+        },
+        "documentedShape": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.4357729999996991
+        },
+        "documentedCallable": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.5091945000017404
+        },
+        "documentedGeneric": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.8394199999979719
+        }
+      },
+      "parseByHelper": {
+        "direct-or-signature": {
+          "calls": [
+            508,
+            508,
+            508,
+            508
+          ],
+          "medianInclusiveMs": 2.9583325000053264
+        },
+        "documentedCallable": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.2609764999979234
+        },
+        "documentedClassString": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 1.3580769999975928
+        },
+        "documentedGeneric": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.26133349999872735
+        },
+        "documentedList": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.3850659999952768
+        },
+        "documentedShape": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 0.2730129999899873
+        }
+      }
+    }
+  ],
+  "completeVisibleResultEquality": true,
+  "products": 2087,
+  "projectInputs": 66079,
+  "changedProducts": [],
+  "changedProjectInputs": [],
+  "productionChanged": false,
+  "scope": "Observer overhead included; helper and parser times overlap; four edits per mode do not qualify P95",
+  "fullObjectiveComplete": false,
+  "decision": "Do not implement parsing reuse or cache from repetition alone; recorded parser cost is small",
+  "prototypeImplemented": false,
+  "observationStatePath": ".vscode-test/argument-expected-type-cost-2026-10-13/observation-state.json"
+}

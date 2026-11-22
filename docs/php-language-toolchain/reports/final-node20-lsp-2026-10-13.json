@@ -1,0 +1,17 @@
+{
+  "qualifiedFinalLsp": true,
+  "coreSHA256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+  "files": 142,
+  "passed": 1652,
+  "failed": 0,
+  "skipped": 1,
+  "skippedCase": "language server stdio restores proven references across processes and rejects changed query inputs",
+  "separateSameBundleReferencePassed": 1,
+  "separateReferenceNotSelected": 567,
+  "frozenInputsUnchanged": 1012,
+  "parentGone": true,
+  "childGone": true,
+  "ownedProcessGroupEmpty": true,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false
+}

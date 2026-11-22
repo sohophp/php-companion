@@ -61,12 +61,13 @@ function startServer() {
       }
     }
   });
-  child.once('exit', (code, signal) => {
+  const exited = new Promise((resolveExit) => child.once('exit', (code, signal) => {
     for (const waiter of waiters.splice(0)) {
       clearTimeout(waiter.timer);
       waiter.reject(new Error(`Language server exited code=${code} signal=${signal}: ${stderr}`));
     }
-  });
+    resolveExit();
+  }));
   const waitFor = (predicate, after, timeoutMs = 20_000) => {
     const found = messages.slice(after).find(predicate);
     if (found) return Promise.resolve(found);
@@ -87,10 +88,15 @@ function startServer() {
     return { result: response.result, elapsedMs: performance.now() - started };
   };
   return { child, messages, send, waitFor, request, async stop() {
-    if (child.exitCode !== null) return;
+    if (child.exitCode !== null || child.signalCode !== null) { await exited; return; }
     await request('shutdown', null);
     send({ method: 'exit', params: null });
-    await new Promise((done) => child.once('exit', done));
+    await exited;
+  }, async terminate() {
+    if (child.exitCode !== null || child.signalCode !== null) { await exited; return; }
+    child.kill('SIGTERM');
+    const timer = setTimeout(() => child.kill('SIGKILL'), 1000);
+    try { await exited; } finally { clearTimeout(timer); }
   } };
 }
 
@@ -203,6 +209,6 @@ try {
     timingsMs: Object.fromEntries(Object.entries(timings).map(([name, values]) => [name, durations(values)])),
     checkedResults: profileEditsOnly ? 0 : iterations * 5, staleResults: profileEditsOnly ? undefined : 0 }, null, 2)}\n`);
 } finally {
-  server?.child.kill();
-  await rm(root, { recursive: true, force: true });
+  try { await server?.terminate(); }
+  finally { await rm(root, { recursive: true, force: true }); }
 }

@@ -1,0 +1,149 @@
+{
+  "recordedAtUtc": "2026-10-12T19:34:51.697927+00:00",
+  "qualifiedObservation": true,
+  "normalProbe": {
+    "status": "exited",
+    "wrapperPid": 58647,
+    "startedAtUtc": "2026-10-12T19:27:59.542985+00:00",
+    "products": 2087,
+    "projectInputs": 66079,
+    "stages": [
+      {
+        "variant": "control",
+        "status": "exited",
+        "pid": 58836,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+          "rounds": 4,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": false,
+          "serverPid": 58847,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 4,
+          "completion": {
+            "count": 4,
+            "p95Ms": 780.8695829999997,
+            "maxMs": 780.8695829999997
+          },
+          "diagnostics": {
+            "count": 4,
+            "p95Ms": 2586.926426,
+            "maxMs": 2586.926426
+          },
+          "diskUnchanged": true,
+          "scope": "Private ancestor getter cost observer; four edits not performance qualification."
+        }
+      },
+      {
+        "variant": "instrumented",
+        "status": "exited",
+        "pid": 59000,
+        "exitCode": 0,
+        "result": {
+          "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+          "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+          "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+          "serverSha256": "53115d6c969942c32548b1b8967d700667a989b30dbbce41227970c52d315a9c",
+          "rounds": 4,
+          "indexingMode": "onDemand",
+          "phpVersion": "8.5",
+          "normalProtocol": true,
+          "profiled": false,
+          "instrumentedCounts": true,
+          "serverPid": 59011,
+          "exitCode": 0,
+          "signal": null,
+          "correctnessPassed": true,
+          "rows": 4,
+          "completion": {
+            "count": 4,
+            "p95Ms": 889.3531229999999,
+            "maxMs": 889.3531229999999
+          },
+          "diagnostics": {
+            "count": 4,
+            "p95Ms": 2604.1990160000005,
+            "maxMs": 2604.1990160000005
+          },
+          "diskUnchanged": true,
+          "scope": "Private ancestor getter cost observer; four edits not performance qualification."
+        }
+      }
+    ],
+    "qualifiedObservation": true,
+    "productionChanged": false,
+    "fullObjectiveComplete": false,
+    "fullVisibleResultEquality": true,
+    "changedProducts": [],
+    "changedProjectInputs": [],
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T19:28:45.552585+00:00"
+  },
+  "observedRuns": 6,
+  "startupRunsKeptSeparately": 2,
+  "editRuns": 4,
+  "summary": {
+    "calls": 10670.0,
+    "parentReads": 90643.0,
+    "repeatedParentReads": 87127.0,
+    "uniqueEdges": 3516.0,
+    "parentReadMs": 154.33216699967215,
+    "enclosingMs": 197.53579250011626,
+    "elapsedMs": 281.0851709999988,
+    "repeatedPercent": 96.1210463025275
+  },
+  "edits": [
+    {
+      "calls": 10670,
+      "parentReads": 90643,
+      "repeatedParentReads": 87127,
+      "uniqueEdges": 3516,
+      "parentReadMs": 163.71389400006956,
+      "enclosingMs": 208.71928200003367,
+      "elapsedMs": 313.4427660000001
+    },
+    {
+      "calls": 10670,
+      "parentReads": 90643,
+      "repeatedParentReads": 87127,
+      "uniqueEdges": 3516,
+      "parentReadMs": 130.86944500008394,
+      "enclosingMs": 168.6878609999203,
+      "elapsedMs": 247.0043740000001
+    },
+    {
+      "calls": 10670,
+      "parentReads": 90643,
+      "repeatedParentReads": 87127,
+      "uniqueEdges": 3516,
+      "parentReadMs": 159.9998370002195,
+      "enclosingMs": 206.3872580001098,
+      "elapsedMs": 295.1542499999996
+    },
+    {
+      "calls": 10670,
+      "parentReads": 90643,
+      "repeatedParentReads": 87127,
+      "uniqueEdges": 3516,
+      "parentReadMs": 148.66449699912482,
+      "enclosingMs": 188.68432700012272,
+      "elapsedMs": 267.016091999998
+    }
+  ],
+  "scope": "Private synchronous getter measurements include instrumentation overhead; not final performance qualification",
+  "firstObserverInvalid": true,
+  "invalidReason": "JS replacement string expanded $$; callback replacement now preserves original code bytes",
+  "normalBundleSha256": "4675a50cf6863b118e8d120b67a664e30e82526c2651e3db2e4e30d86e6242ec",
+  "productionChanged": false,
+  "nextHypothesis": "Bound parent reuse within one undefinedVariables invocation, preserving every predicate and scope boundary; admit only with stable normal-protocol latency and complete result equality",
+  "fullObjectiveComplete": false
+}

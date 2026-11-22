@@ -17,6 +17,8 @@
 | F02-VERSION-09 | [参数及闭包捕获尾随逗号](../../packages/language-spec/test/version-boundary-fixtures.ts) | 函数、方法、闭包、箭头函数参数及引用/普通捕获列表的实际尾随逗号要求 PHP 8.0；注释与普通分隔逗号不误报，调用尾随逗号继续要求 7.3 | 完整规范/分析/九版本两模式生产协议和实际 CLI；[验证](reports/remaining-version-boundaries-2026-10-12.md) |
 | F02-VERSION-10 | [无异常变量的 catch](../../packages/language-spec/test/version-boundary-fixtures.ts) | 无异常变量的单/联合类型 catch 要求 PHP 8.0；catch 体内变量不当作捕获，保留异常变量的旧语法接受；头部未完成不猜测版本，完整关键字范围准确 | 完整规范/分析/生产协议与真实 CLI；[验证](reports/remaining-version-boundaries-2026-10-12.md) |
 | F02-OCTAL-01 | [无效显式八进制的应用错误事实](../../packages/parser/test/invalid-octal-literals.test.ts) | 裸前缀/首位分隔符发布精确 syntax 错误，相邻原生错误合并；Unicode、增量恢复和独立未完成输入保持，参数顺序信息拒绝并在修正后恢复，旧 v82 缓存重建 | 完整 Parser254/Semantic24122、相关LSP173、九真实CLI108组及当前暖缓存；[验证](reports/invalid-octal-literal-errors-2026-10-12.md) |
+| F03-WATCH-01 | [服务刷新并发测试](../../packages/language-server/test/symfony-container-provider-concurrency-stdio.test.ts)：PHP 8.5、onDemand/progressive 的已知服务删除与受控 Provider 等待 | 刷新前有真实 send 补全；服务删除后查询等待本次刷新，不能返回旧成员；等待期间取消请求仍在原 100 ms 内返回 | [计划实施报告](reports/plan-execution-watchers-diagnostics-2026-10-12.md)；正常 Linux 协议范围，完整新构建回归、其它平台和真人 WSL 分别验收。 |
+| F03-PROVIDER-CANCEL-01 | [服务并发测试](../../packages/language-server/test/symfony-container-provider-concurrency-stdio.test.ts)：PHP 7.2/8.5、progressive，替换真实服务 Provider 并阻塞重建 | 正向类型补全存在；普通补全等待重建时，取消在原100毫秒内返回；另一查询继续等待、释放后恢复；正常退出及清理 | [取消修复记录](reports/provider-reconciliation-cancellation-2026-10-13.md)；30项服务并发与正常Linux打包协议已通过，当前完整LSP/编辑器/Windows待终态 |
 | F03-BUILTIN-01 | [pathinfo 合同](../../packages/semantic/test/pathinfo-contract.test.ts)：省略／15、具体 flags、未知 flags、同名常量和用户函数遮蔽 | 仅确定为数组时给出 basename／dirname／extension／filename；dirname 与 extension 可选；具体 flags 返回 string；未知 flags 不猜选分支；PHP 7 不暴露 PATHINFO_ALL | PHP 7.2／8.5 语义、主 stdio 与 `pathinfoCompletion.ts`；[证据](reports/phpstorm-stubs-pathinfo-contract-2026-10-02.md) |
 | F03-BUILTIN-02 | [stat／lstat 合同](../../packages/semantic/test/stat-contract.test.ts)：成功保护、无保护、is_array 保护 | 返回保留 false；成功保护后建议 size，删除保护后撤回，数组保护后恢复 | PHP 7.2／8.5 语义、主 stdio 与 `statCompletion.ts`；[证据](reports/phpstorm-stubs-stat-failure-shape-2026-10-02.md) |
 | F03-BUILTIN-03 | [SimpleXML 工厂合同](../../packages/semantic/test/simplexml-factory-contract.test.ts)：默认、显式 null、自定义子类及失败 | 三入口保留各自 false／null 失败；有效 class-string 子类决定结果成员；默认类不受调用位置同名类误导 | 语义、主 stdio 与 `simplexmlFactoryCompletion.ts`；[证据](reports/phpstorm-stubs-simplexml-factory-2026-10-02.md) |
@@ -95,7 +97,7 @@
 | F08-RP-03 | [未完成的方法调用](../../packages/semantic/test/fixtures/acceptance/f08-remove-parameter-incomplete.php) | 同文件含语法错误，拒绝操作 | 同上 |
 | F08-RP-04 | [方法家族的有副作用/嵌套/可选缺口实参](../../packages/semantic/test/reorder-effectful-method-arguments.test.ts)、[正常 stdio](../../packages/language-server/test/reorder-effectful-arguments-stdio.test.ts)与[实际编辑器流程](../../test/extension/suite/reorderEffects.ts) | 明确 PHP8.0–8.5 且参数名稳定时补名称而不移动表达式；PHP7/未知目标及名称不稳定拒绝，六真实 PHP 版本结果/副作用一致；三文件预览/并发输入保护/应用及一次 UndoRedo | [48语义/14协议/60真实PHP对照和两Linux模式定向编辑器](reports/reorder-effectful-arguments-2026-10-11.md)，新bundle a1730fb9；新完整LSP/C3/其它平台尚未执行 |
 | F08-RP-05 | [默认值求值与行号](../../packages/semantic/test/reorder-default-evaluation.test.ts)、[正常 stdio](../../packages/language-server/test/reorder-default-evaluation-stdio.test.ts)、[编辑器流程](../../test/extension/suite/reorderDefaults.ts) | 拒绝省略的对象默认值倒序及行号默认值换行；保留多行声明/实参分隔符；核对可能实现，安全默认值与显式提供继续支持 | [63语义/20协议/九版本90真实PHP场景](reports/reorder-default-evaluation-2026-10-11.md)，正常bundle76236252；新增完整C3覆盖接入，当前完整验收待执行 |
-| F08-MOVE-01 | 当前完整C3 onDemand的三文件Move Member；取消、新调用者、预览用户输入、实际验证响应延迟中的caller/target/disk修改及最终应用 | 前六次拒绝且保留原文/并发输入，末次移动三个文件；一次Undo/Redo精确恢复，磁盘未自动保存；第三次preview/beforeApply确实出现，输入保留于实际编辑器快照 | [原完整场景](../../test/extension/suite/c3.ts:309)及[当前完整C3 onDemand验收](reports/current-full-c3-ondemand-observed-2026-10-11.md)；Linux被动观测宿主，原progressive失败未证明修复，全平台/模式仍开放。 另见[progressive完整C3守卫/协议观测](reports/c3-progressive-guard-protocol-observation-2026-10-11.md)：原完整progressive断言通过并捕获真实帧/参与者取消路径，仅私有内存诊断资格，原失败根因及无观测资格未证明。 |
+| F08-MOVE-01 | 当前完整C3 onDemand的三文件Move Member；取消、新调用者、预览用户输入、实际验证响应延迟中的caller/target/disk修改及最终应用 | 前六次拒绝且保留原文/并发输入，末次移动三个文件；一次Undo/Redo精确恢复，磁盘未自动保存；第三次preview/beforeApply确实出现，输入保留于实际编辑器快照 | [原完整场景](../../test/extension/suite/c3.ts#L313)及[当前完整C3 onDemand验收](reports/current-full-c3-ondemand-observed-2026-10-11.md)；Linux被动观测宿主，原progressive失败未证明修复，全平台/模式仍开放。 另见[progressive完整C3守卫/协议观测](reports/c3-progressive-guard-protocol-observation-2026-10-11.md)：原完整progressive断言通过并捕获真实帧/参与者取消路径，仅私有内存诊断资格，原失败根因及无观测资格未证明。 |
 | F09-SVC-01 | [有效服务声明与引用](../../packages/framework-symfony/test/fixtures/acceptance/f09-service-valid.yaml) | `@app.mailer` 的精确 ID 范围对应唯一 `app.mailer` 声明 | `acceptance-f09-services.test.ts` |
 | F09-SVC-02 | [合法的转义与表达式字面量](../../packages/framework-symfony/test/fixtures/acceptance/f09-service-literal-counterexample.yaml) | YAML 仍有效，但 `@@app.mailer` 和 `@=service(...)` 不发布精确服务 ID 引用 | 同上 |
 | F09-SVC-03 | [未完成的服务 YAML](../../packages/framework-symfony/test/fixtures/acceptance/f09-service-incomplete.yaml) | 配置图标记不完整，不发布服务事实或引用 | 同上 |
@@ -135,6 +137,7 @@ Winstar 当前 Symfony 7.4.17 的运行时路由另由 `pnpm check:f09:winstar-r
 | F06-DIAG-02 | 同一个构造器矩阵中的类内 private 调用、合法 protected 类族调用、重复类身份 | 合法调用及歧义身份不混入不可访问构造诊断 | [semantic.test.ts](../../packages/semantic/test/semantic.test.ts)；与 F06-DIAG-01 绑定同一案例，不增加测试案例数。 |
 | F06-DIAG-03 | 构造器调用者继承尚未加载的 MissingParent | 继承覆盖不足时不猜测当前作用域的构造访问权限 | [semantic.test.ts](../../packages/semantic/test/semantic.test.ts)；缺失层级证据；不能代替未完成 PHP 输入。 |
 | F06-DIAG-04 | 嵌套 (void) 表达式后有未完成的 function unfinished( | 语法诊断范围只保留未完成声明；8.4／8.5 版本诊断分别按四项／零项检查 | [analysis.test.ts](../../packages/language-server/test/analysis.test.ts)；只覆盖固定恢复输入及两个版本，不替代全部错误恢复。 |
+| F06-DIAG-05 | 外层 `??`／`empty` 包裹闭包或箭头函数；内部未定义变量、合法捕获与局部安全读取；未保存修改、恢复及关闭重开 | 外层安全读取不能抑制函数内部诊断；内部 `??`／`empty`／`isset`、合法捕获及精确 UTF-16 范围保持 | [语义测试](../../packages/semantic/test/undefined-variable-scope-boundary.test.ts)、[正常协议测试](../../packages/language-server/test/undefined-variable-scope-boundary-stdio.test.ts)；PHP 7.2/8.5、onDemand/progressive 的 Linux/Windows 协议；不替代全部版本、编辑器或真人验收。 |
 | F07-GEN-01 | 具名 Plain 类的未初始化 name／owner 属性及已初始化／static 属性 | 构造生成只选择 name 与 owner，类型分别为 string 与 ?User | [semantic.test.ts](../../packages/semantic/test/semantic.test.ts)；语义候选；应用／选区／UndoRedo 仍由原完整 C3 证明。 |
 | F07-GEN-02 | 合法 Child、已有构造器 Existing、带 hook 的 Hooked 类 | 三种不适用上下文均拒绝生成构造器 | [semantic.test.ts](../../packages/semantic/test/semantic.test.ts)；与 F07-GEN-01 共享一个真实案例；不将保守拒绝视为通用生成完成。 |
 | F07-GEN-03 | 有普通、final、private、魔术及已重写方法的父类；另有缺失父类的 Broken | 仅提供 label 的精确签名；不提供被禁止或已实现的方法，Broken 无建议 | [semantic.test.ts](../../packages/semantic/test/semantic.test.ts)；该编号同时记录不完整父类反例；未完成语法的生成仍待专项编号。 |
@@ -251,22 +254,22 @@ Winstar 当前 Symfony 7.4.17 的运行时路由另由 `pnpm check:f09:winstar-r
 
 | 编号 | 输入 | 预期 | 自动验证 |
 | --- | --- | --- | --- |
-| F01-PACK-01 | 冻结Open Source Pack、Core默认启用、无Intelephense的干净源码Profile | 十个默认成员保持；内置PHP补全关闭，Core按onDemand启动，真实Definition/References可用 | [源码](../../test/unit/extension-pack.test.ts:46)；源码宿主与manifest证据；不能代替当前VSIX、真实WSL或长期编码验收。 |
-| F01-ACTIVATION-01 | 仅安装SoPHP且未显式改语言服务器设置 | 默认启动，不标记竞争服务器阻止 | [源码](../../test/unit/language-server-policy.test.ts:25)；注入状态的策略单元；实际启动由完整Profile另证。 |
-| F01-ACTIVATION-02 | Intelephense已安装、显式启用或显式关闭SoPHP | 未作选择时保留旧工作流；显式启用/关闭分别生效 | [源码](../../test/unit/language-server-policy.test.ts:30)；策略单元；不声称竞争Profile真实UI或所有第三方LS均完成。 |
-| F01-LIFECYCLE-01 | 一分钟内连续四次关闭及超过窗口后的再次关闭 | 前三次重启，第四次拒绝循环；窗口结束后重新允许 | [源码](../../test/unit/language-server-policy.test.ts:5)；注入时钟与状态，不替代真实崩溃、恢复或多小时会话。 |
+| F01-PACK-01 | 冻结Open Source Pack、Core默认启用、无Intelephense的干净源码Profile | 十个默认成员保持；内置PHP补全关闭，Core按onDemand启动，真实Definition/References可用 | [源码](../../test/unit/extension-pack.test.ts#L65)；源码宿主与manifest证据；不能代替当前VSIX、真实WSL或长期编码验收。 |
+| F01-ACTIVATION-01 | 仅安装SoPHP且未显式改语言服务器设置 | 默认启动，不标记竞争服务器阻止 | [源码](../../test/unit/language-server-policy.test.ts#L25)；注入状态的策略单元；实际启动由完整Profile另证。 |
+| F01-ACTIVATION-02 | Intelephense已安装、显式启用或显式关闭SoPHP | 未作选择时保留旧工作流；显式启用/关闭分别生效 | [源码](../../test/unit/language-server-policy.test.ts#L30)；策略单元；不声称竞争Profile真实UI或所有第三方LS均完成。 |
+| F01-LIFECYCLE-01 | 一分钟内连续四次关闭及超过窗口后的再次关闭 | 前三次重启，第四次拒绝循环；窗口结束后重新允许 | [源码](../../test/unit/language-server-policy.test.ts#L5)；注入时钟与状态，不替代真实崩溃、恢复或多小时会话。 |
 
 ## Unicode方法token与语法恢复
 
 | 编号 | 场景/源码 | 预期 | 验证范围 |
 | --- | --- | --- | --- |
 | F02-UTF8-01 | [补充平面语法恢复](../../packages/parser/test/supplementary-identifiers.test.ts)及[方法token](../../packages/semantic/test/unicode-method-reference-tokens.test.ts) | 原名字、UTF-16范围、缓存树与后续编辑保持；字符串/注释及其它语法错误不被掩盖；Definition和移除后的References精确 | 3项Parser、6项Semantic；九版本36次独立实际PHP调用，[报告](reports/prepared-reference-identifier-normal-2026-10-11.md)；[当前完整Parser/Semantic/LSP](reports/prepared-reference-identifier-full-qualification-2026-10-11.md)通过；不代表完整Unicode语言支持 |
-| F10-CONTEXT-01 | named render/renderView、compact、局部/多变量/assigned参数及Template属性 | 完整上下文提供真实变量类型和PHP来源；各模板与属性路径保持独立 | [源码](../../test/extension/suite/index.ts:9)；当前Core/Symfony/Twig源码组合；其它框架版本和所有上下文仍待验证。 |
-| F10-CONTEXT-02 | assigned参数的未保存key编辑及Undo | Twig补全和Definition刷新并在Undo后恢复 | [源码](../../test/extension/suite/index.ts:9)；同一完整Profile流程，不重复算测试；未运行的route Rename分支不计为通过。 |
-| F10-CONTRACT-01 | 有效上下文、无来源、空union及反向valueLocation范围 | 接受有效结构，拒绝缺失或损坏结构 | [源码](../../packages/interop/test/interop.test.ts:11)；包级协议合同，不替代真实跨仓UI或全部恶意输入。 |
-| F10-CONTRACT-02 | 共有能力、错误协议版本与未知capability | 只协商共有能力；错误版本和未知能力拒绝 | [源码](../../packages/interop/test/interop.test.ts:22)；仅记录此案例实际断言，不扩展为所有project/snapshot协商已验收。 |
-| F10-CONTRACT-03 | 多个控制器、条件变量、unknown/incomplete与不同模板 | 合并保留可选性及来源；未知不猜测；不同模板拒绝合并 | [源码](../../packages/interop/test/interop.test.ts:29)；合同级已有四项，不替代全F10或受限跨语言Rename。 |
-| F11-FORMAT-01 | PHP8.5 wrapper、项目PSR12配置及有空格错误的PHP类 | PHP CS Fixer真实提供并应用编辑；一次Undo恢复原文 | [源码](../../test/extension/suite/index.ts:610)；该场景只验应用/Undo，失败恢复另见F11-FORMAT-03；保存/Undo/Redo另见F11-FORMAT-04，版本/平台矩阵仍开放。 |
+| F10-CONTEXT-01 | named render/renderView、compact、局部/多变量/assigned参数及Template属性 | 完整上下文提供真实变量类型和PHP来源；各模板与属性路径保持独立 | [源码](../../test/extension/suite/index.ts#L14)；当前Core/Symfony/Twig源码组合；其它框架版本和所有上下文仍待验证。 |
+| F10-CONTEXT-02 | assigned参数的未保存key编辑及Undo | Twig补全和Definition刷新并在Undo后恢复 | [源码](../../test/extension/suite/index.ts#L179)；同一完整Profile流程，不重复算测试；未运行的route Rename分支不计为通过。 |
+| F10-CONTRACT-01 | 有效上下文、无来源、空union及反向valueLocation范围 | 接受有效结构，拒绝缺失或损坏结构 | [源码](../../packages/interop/test/interop.test.ts#L11)；包级协议合同，不替代真实跨仓UI或全部恶意输入。 |
+| F10-CONTRACT-02 | 共有能力、错误协议版本与未知capability | 只协商共有能力；错误版本和未知能力拒绝 | [源码](../../packages/interop/test/interop.test.ts#L22)；仅记录此案例实际断言，不扩展为所有project/snapshot协商已验收。 |
+| F10-CONTRACT-03 | 多个控制器、条件变量、unknown/incomplete与不同模板 | 合并保留可选性及来源；未知不猜测；不同模板拒绝合并 | [源码](../../packages/interop/test/interop.test.ts#L29)；合同级已有四项，不替代全F10或受限跨语言Rename。 |
+| F11-FORMAT-01 | PHP8.5 wrapper、项目PSR12配置及有空格错误的PHP类 | PHP CS Fixer真实提供并应用编辑；一次Undo恢复原文 | [源码](../../test/extension/suite/index.ts#L826)；该场景只验应用/Undo，失败恢复另见F11-FORMAT-03；保存/Undo/Redo另见F11-FORMAT-04，版本/平台矩阵仍开放。 |
 | F11-FORMAT-02 | 同一组合中的Profile.html.twig及PHP默认formatter | PHP选择junstyle.php-cs-fixer；Twig格式化入口返回编辑 | [源码](../../test/extension/suite/index.ts)；本场景只验入口返回编辑，实际应用/Save/Undo/Redo见F11-FORMAT-05；Twig失败恢复见F11-FORMAT-09，全部Provider唯一性仍开放。 |
 | F11-FORMAT-03 | 同一完整12扩展源码Profile中的真实PHP8.5.9、抛异常的项目formatter配置、独有PHP执行见证及恢复配置 | CLI实际失败、零编辑；缓冲区/版本/dirty/磁盘不变；逐字恢复配置后真实格式化应用并单步Undo精确恢复，磁盘保持 | [持久场景](../../test/extension/suite/formatterFailure.ts)及[完整宿主报告](reports/formatter-failure-recovery-2026-10-11.md)；Linux/VSCode1.140.0，本场景只验PHP失败恢复，保存/重做见F11-FORMAT-04/05；保存中PHP失败恢复见F11-FORMAT-08，Twig失败恢复见F11-FORMAT-09；全矩阵仍开放。 |
 | F11-FORMAT-04 | 同一完整12扩展源码Profile中的未格式化PHP与PHP CS Fixer默认formatter | 实际Format Document改变缓冲区不写磁盘；Save逐字保存；一次Undo恢复原文并dirty，磁盘保持格式化内容；一次Redo恢复格式化缓冲区并清除dirty | [持久场景](../../test/extension/suite/formatterSave.ts)及[完整宿主报告](reports/formatter-save-undo-redo-2026-10-11.md)；PHP8.5.9/Linux/VSCode1.140.0，自动保存另见F11-FORMAT-06；全版本/平台矩阵继续。 |
@@ -280,11 +283,11 @@ Winstar 当前 Symfony 7.4.17 的运行时路由另由 `pnpm check:f09:winstar-r
 | F11-FORMAT-12 | 同一隔离候选的后台文件变更与第二项目禁用自动修复 | 背景输入或禁用目录不调用实际CLI、不格式化别的文档、不移动其他光标；原两项目设置分别生效 | [既有控制](../../test/extension/suite/formatterAutoFixAcceptance.ts)及[完整套件实测](reports/formatter-dual-runtime-project-config-2026-10-11.md)；不推断所有Provider注册唯一性或默认安装支持域。 |
 | F12-DEBUG-01 | php类型launch会话，真实项目PHP执行路径及debug-profile.php | 启动事件出现、会话在原期限内结束，清除active session | [源码](../../test/extension/suite/index.ts)；本场景只验入口/会话生命周期；实际断点/变量/step另见F12-DEBUG-02，Remote及全矩阵仍开放。 |
 | F12-DEBUG-02 | 原完整12扩展源码Profile中启用既有真实debugBreakpoints；PHP8.5.9/Xdebug3.5.3/PHP Debug1.40.1，带空格程序路径与独立端口 | 第3行breakpoint/调用栈路径正确，scope变量和watch为40；next后第4行step、watch为42；continue实际结果42/cwd正确、会话和自有断点清理 | [既有完整场景](../../test/extension/suite/debugBreakpoints.ts)及[完整组合实测](reports/profile-real-xdebug-breakpoints-2026-10-11.md)；显式PROFILE_REAL_DEBUG=1、SOPHP_DEBUG_PHP/PORT；仅Linux自动宿主范围，真人/全版本/平台/Remote继续。 |
-| F12-PHPUNIT-01 | PHP CLI执行真实ProfileTest及未认证PHPUnit扩展命令 | 真实测试写入passed；默认Pack无phpunit.run-all命令 | [源码](../../test/extension/suite/index.ts:607)；CLI入口与真实结果，不替代编辑器Test Explorer或所有运行时矩阵。 |
+| F12-PHPUNIT-01 | PHP CLI执行真实ProfileTest及未认证PHPUnit扩展命令 | 真实测试写入passed；默认Pack无phpunit.run-all命令 | [源码](../../test/extension/suite/index.ts#L933)；CLI入口与真实结果，不替代编辑器Test Explorer或所有运行时矩阵。 |
 | F12-PHPUNIT-02 | 原完整12扩展源码Profile中的真实ProcessExecution Tasks；PHP8.5.9/PHPUnit11.5.56、带空格测试路径、环境值42/41/42 | 通过/真实断言失败/恢复退出码0/1/0；实际进程见证cwd/PHP_BINARY/version/SAPI，task与process事件结束，无遗留任务/子进程 | [持久场景](../../test/extension/suite/phpunitTasks.ts)及[PHPUnit编辑器任务验收](reports/profile-phpunit-editor-tasks-2026-10-11.md)；Linux自动编辑器Tasks范围，不替代Test Explorer/Core runner或全版本平台/Remote。 |
-| F12-RUNTIME-01 | 注入进程依赖的php72/81/82/84/85版本输出 | 返回对应minor及完整版本 | [源码](../../test/unit/executables.test.ts:6)；五个已有参数化单元；实际CLI仅由其它原运行时证据证明。 |
-| F12-RUNTIME-02 | 不存在命令、坏输出、相同可执行文件、Composer目标、PATH优先与缺失PATH | 无效结果忽略，路径去重；Composer已确定目标不启动PHP；优先PATH并支持版本命令回退 | [源码](../../test/unit/executables.test.ts:23)；注入进程依赖的单元，不声称真实环境所有发现路径。 |
-| F12-PAYLOAD-01 | 带扩展事实的PhpRuntime及command/path/minor客户端字段 | 扩展事实传到LS；客户端专有字段不进入payload | [源码](../../test/unit/php-runtime-payload.test.ts:6)；序列化边界单元，不代替全部扩展启用矩阵。 |
+| F12-RUNTIME-01 | 注入进程依赖的php72/81/82/84/85版本输出 | 返回对应minor及完整版本 | [源码](../../test/unit/executables.test.ts#L6)；五个已有参数化单元；实际CLI仅由其它原运行时证据证明。 |
+| F12-RUNTIME-02 | 不存在命令、坏输出、相同可执行文件、Composer目标、PATH优先与缺失PATH | 无效结果忽略，路径去重；Composer已确定目标不启动PHP；优先PATH并支持版本命令回退 | [源码](../../test/unit/executables.test.ts#L23)；注入进程依赖的单元，不声称真实环境所有发现路径。 |
+| F12-PAYLOAD-01 | 带扩展事实的PhpRuntime及command/path/minor客户端字段 | 扩展事实传到LS；客户端专有字段不进入payload | [源码](../../test/unit/php-runtime-payload.test.ts#L6)；序列化边界单元，不代替全部扩展启用矩阵。 |
 
 2026-10-11 [持久缓存进程验收脚本修正](reports/persistent-process-rss-measurement-2026-10-11.md)：schema2不可变blob损坏注入及清理后整worker RSS修正；1k五轮/20进程通过，最大151.11/384 MiB。完整三规模五轮矩阵尚未终态，与两小时LS会话同期；只计包API范围，原失败及完整F13/P9/R4继续，正常资产/Profile保持，166编号/14家族、未完成大项26。
 

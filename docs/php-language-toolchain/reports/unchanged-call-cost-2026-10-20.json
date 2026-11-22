@@ -1,0 +1,208 @@
+{
+  "date": "2026-10-20",
+  "status": "passed-cost-observation",
+  "normalCoreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+  "independentAuditPassed": true,
+  "actualBuildExitCodes": [
+    0,
+    0
+  ],
+  "actualControlAndObservedExitCodes": [
+    0,
+    0
+  ],
+  "actualIndependentAuditExitCode": 0,
+  "longSessionActualTerminalAuditPassedBeforeMeasurement": true,
+  "longSessionAuditSHA256": "fde389659375143767e27c5b32239cbbfde3e2097bd0853ade9d2ffb0aeff6e8",
+  "frozenInputsVerified": 69809,
+  "projectInputsVerified": 66079,
+  "completeFourStateResultsEqual": true,
+  "startupRowsSeparate": true,
+  "nestedInvocationRows": 0,
+  "distinctStableCallSites": 477,
+  "distinctStableScopes": 23,
+  "editedCosts": [
+    {
+      "round": 0,
+      "parts": [
+        {
+          "localOnly": true,
+          "stableCalls": 477,
+          "stableMs": 425.7613270000029,
+          "allCalls": 480,
+          "allMs": 426.8082170000034
+        },
+        {
+          "localOnly": false,
+          "stableCalls": 477,
+          "stableMs": 416.80999600000723,
+          "allCalls": 480,
+          "allMs": 417.58499800000754
+        }
+      ],
+      "totalStableMs": 842.5713230000101
+    },
+    {
+      "round": 1,
+      "parts": [
+        {
+          "localOnly": true,
+          "stableCalls": 477,
+          "stableMs": 413.3718020000342,
+          "allCalls": 480,
+          "allMs": 414.2007140000351
+        },
+        {
+          "localOnly": false,
+          "stableCalls": 477,
+          "stableMs": 375.3722399999788,
+          "allCalls": 480,
+          "allMs": 376.2106099999801
+        }
+      ],
+      "totalStableMs": 788.744042000013
+    },
+    {
+      "round": 2,
+      "parts": [
+        {
+          "localOnly": true,
+          "stableCalls": 477,
+          "stableMs": 370.8106169999992,
+          "allCalls": 480,
+          "allMs": 371.57493700000305
+        },
+        {
+          "localOnly": false,
+          "stableCalls": 477,
+          "stableMs": 410.07046300001093,
+          "allCalls": 480,
+          "allMs": 410.95751800001017
+        }
+      ],
+      "totalStableMs": 780.8810800000101
+    },
+    {
+      "round": 3,
+      "parts": [
+        {
+          "localOnly": true,
+          "stableCalls": 477,
+          "stableMs": 413.2349229999927,
+          "allCalls": 480,
+          "allMs": 413.9436209999949
+        },
+        {
+          "localOnly": false,
+          "stableCalls": 477,
+          "stableMs": 317.9200109999965,
+          "allCalls": 480,
+          "allMs": 318.5948389999958
+        }
+      ],
+      "totalStableMs": 731.1549339999892
+    }
+  ],
+  "medianStableScopeMsPerEdit": 784.8125610000116,
+  "minimumInvestigationMs": 50,
+  "admitted": true,
+  "topScopesFromSameRows": [
+    {
+      "scopeId": "App\\Modules\\MediaComponents\\Admin\\Controller\\ComponentImagesController::edit",
+      "perEditMs": [
+        170.56078200000957,
+        166.61919199997828,
+        164.46365900000455,
+        165.26431800000864
+      ],
+      "medianMs": 165.94175499999346
+    },
+    {
+      "scopeId": "App\\Modules\\MediaComponents\\Admin\\Controller\\ComponentImagesController::crop",
+      "perEditMs": [
+        170.21413399999437,
+        162.8273890000055,
+        163.866463999997,
+        153.29896600001302
+      ],
+      "medianMs": 163.34692650000125
+    },
+    {
+      "scopeId": "App\\Modules\\MediaComponents\\Admin\\Controller\\ComponentImagesController::replace",
+      "perEditMs": [
+        111.29927000000589,
+        107.90701600000102,
+        123.69269400001212,
+        109.69487800000388
+      ],
+      "medianMs": 110.49707400000489
+    },
+    {
+      "scopeId": "App\\Modules\\MediaComponents\\Admin\\Controller\\ComponentImagesController::addExternal",
+      "perEditMs": [
+        116.01290000000608,
+        109.20116999999846,
+        99.82579800000713,
+        98.45765900001243
+      ],
+      "medianMs": 104.51348400000279
+    },
+    {
+      "scopeId": "App\\Modules\\MediaComponents\\Admin\\Controller\\ComponentImagesController::upload",
+      "perEditMs": [
+        103.00750999999309,
+        90.93252000000211,
+        82.13758899999448,
+        73.26771399997415
+      ],
+      "medianMs": 86.5350544999983
+    },
+    {
+      "scopeId": "App\\Modules\\MediaComponents\\Admin\\Controller\\ComponentImagesController::editSubmit",
+      "perEditMs": [
+        20.904633000000103,
+        20.21996400000171,
+        22.9787829999932,
+        17.956381999993027
+      ],
+      "medianMs": 20.562298500000907
+    },
+    {
+      "scopeId": "App\\Modules\\MediaComponents\\Admin\\Controller\\ComponentImagesController::importFromSource",
+      "perEditMs": [
+        20.272244000001592,
+        18.696814000002632,
+        17.015527999998085,
+        14.98001999999542
+      ],
+      "medianMs": 17.85617100000036
+    },
+    {
+      "scopeId": "App\\Modules\\MediaComponents\\Admin\\Controller\\ComponentImagesController::regenerateThumbnails",
+      "perEditMs": [
+        15.333883000000242,
+        14.627066000013656,
+        13.509791000000405,
+        11.137548999995488
+      ],
+      "medianMs": 14.06842850000703
+    }
+  ],
+  "normalEightControlAssetsMatch": true,
+  "syntheticObserverControlChecksPassed": 13,
+  "sourceTransformationByteReversible": true,
+  "sourceFileSHA256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+  "ownedServersAndDriversAndQueueGone": true,
+  "cachesRemoved": true,
+  "textualGroupingProvesCacheSafety": false,
+  "prototypeImplemented": false,
+  "productionChanged": false,
+  "performanceQualified": false,
+  "fullObjectiveComplete": false,
+  "nextRequired": "Prove cross-edit dependency and invalidation boundaries before implementing one bounded prototype; preserve original 25 rounds and 500/150ms gates",
+  "measurementSourceWorkspace": "/var/www/node/php-companion-stable-20261020",
+  "measurementSourceCommit": "193cda547dc8f7a1b7a365719e8d6635b84eeb71",
+  "engineMatchesCurrentProductBuild": true,
+  "currentProductBuildSourceCommit": "a7e9166ae2cbfabb1516e480d19d98a5a490a8aa",
+  "qualifiesCurrentClientBundle": false
+}

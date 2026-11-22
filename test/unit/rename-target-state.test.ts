@@ -1,4 +1,3 @@
-import { resolve } from 'node:path';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const state = vi.hoisted(() => ({ stat: vi.fn(), readDirectory: vi.fn(), operations: [] as string[] }));
@@ -39,10 +38,7 @@ import { buildRenameEdit } from '../../src/refactor/rename.js';
 describe('Rename target filesystem preflight', () => {
   let parser: PhpSyntaxParser;
   beforeAll(async () => {
-    parser = await PhpSyntaxParser.create({
-      coreWasmPath: resolve('node_modules/web-tree-sitter/web-tree-sitter.wasm'),
-      phpWasmPath: resolve('node_modules/tree-sitter-php/tree-sitter-php.wasm'),
-    });
+    parser = await PhpSyntaxParser.createDefault();
   });
   afterAll(() => parser.dispose());
   beforeEach(() => { state.stat.mockReset(); state.readDirectory.mockReset(); state.operations.length = 0; });

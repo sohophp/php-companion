@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-13",
+  "qualifiedForPrivateIndexDeliveryGate": true,
+  "fullObjectiveComplete": false,
+  "normalWorktreeChangesetStatusPassed": false,
+  "privateIndexChangesetStatusPassed": true,
+  "privateIndexConsumerGatePassed": true,
+  "componentBoundaryViolations": 0,
+  "publicContractViolations": 0,
+  "fullLintPassed": true,
+  "componentTarballs": 24,
+  "runtimeAssetsUnchanged": 817,
+  "normalIndexUnchanged": true,
+  "versionsChanged": false,
+  "committed": false,
+  "pushed": false,
+  "coreSHA256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+  "failedAttemptsRetained": 2
+}

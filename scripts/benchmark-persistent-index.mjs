@@ -17,7 +17,7 @@ import { generatePhpComposerProject, R1_PERFORMANCE_BUDGETS } from '../packages/
 
 const arguments_ = process.argv.slice(2).filter((argument) => argument !== '--');
 const files = Number(arguments_[0] ?? 1_000);
-if (!Number.isInteger(files) || files < 4) throw new Error('Usage: benchmark-persistent-index.mjs [files >= 4]');
+if (!Number.isInteger(files) || files < 5) throw new Error('Usage: benchmark-persistent-index.mjs [files >= 5; four dependency files plus one deferred file]');
 if ((arguments_[1] === undefined) !== (arguments_[2] === undefined))
   throw new Error('Provide both core WASM and PHP WASM paths, or neither.');
 
@@ -42,6 +42,7 @@ async function cacheVolume(directory) {
 }
 
 const cacheBudgetMb = R1_PERFORMANCE_BUDGETS.warmCacheMb[`files${files}`];
+const coldIndexBudgetMs = R1_PERFORMANCE_BUDGETS.coldIndexMs[`files${files}`];
 
 async function load(workspace) {
   let parsed = 0; let doctrineParsed = 0; let doctrineProperties = 0; const started = performance.now();
@@ -96,10 +97,11 @@ async function mutateCacheFile(cacheFile, mutate) {
   await writeFile(cacheFile, JSON.stringify(persisted));
 }
 
-const parser = arguments_[1] === undefined ? await PhpSyntaxParser.createDefault()
-  : await PhpSyntaxParser.create({ coreWasmPath: arguments_[1], phpWasmPath: arguments_[2] });
+let parser;
 let report;
 try {
+  parser = arguments_[1] === undefined ? await PhpSyntaxParser.createDefault()
+    : await PhpSyntaxParser.create({ coreWasmPath: arguments_[1], phpWasmPath: arguments_[2] });
   await generatePhpComposerProject(root, files);
   await Promise.all([writeFile(sourcePath(0), base(true)), writeFile(sourcePath(1), middle), writeFile(sourcePath(2), child), writeFile(sourcePath(3), consumer)]);
   const coldWorkspace = new SemanticWorkspace(parser); const cold = await load(coldWorkspace);
@@ -125,8 +127,8 @@ try {
   const restoredCallableFacts = warmCallableCache.restore(warmWorkspace);
   if (restoredCallableFacts !== 3) throw new Error(`Warm callable facts were not restored exactly: ${restoredCallableFacts}`);
   const warmCache = await cacheVolume(cacheDirectory);
-  if (cacheBudgetMb !== undefined && warmCache.mebibytes > cacheBudgetMb) {
-    throw new Error(`Warm cache exceeded its frozen budget: ${warmCache.mebibytes} MiB > ${cacheBudgetMb} MiB.`);
+  if (cacheBudgetMb !== undefined && warmCache.bytes > cacheBudgetMb * 1024 * 1024) {
+    throw new Error(`Warm cache exceeded its frozen budget: ${warmCache.bytes} bytes > ${cacheBudgetMb * 1024 * 1024} bytes.`);
   }
   const completionOffset = consumer.indexOf('$child->childM') + '$child->childM'.length;
   if (!warmWorkspace.completeMembers(uri(3), completionOffset).some((member) => member.name === 'childMethod'))
@@ -181,6 +183,8 @@ try {
     warm: { durationMs: Math.round(warm.durationMs * 100) / 100, parsed: warm.parsed, restored: warm.result.cached, doctrineParsed: warm.doctrineParsed },
     warmToColdRatio: Math.round(warm.durationMs / cold.durationMs * 10_000) / 10_000,
     cache: { cold: coldCache, warm: warmCache, frozenBudgetMb: cacheBudgetMb ?? null },
+    coldIndexBudget: { milliseconds: coldIndexBudgetMs ?? null,
+      passed: coldIndexBudgetMs === undefined ? null : cold.durationMs <= coldIndexBudgetMs },
     loadMemory: { coldPeakRssMb: cold.peakRssMb, warmPeakRssMb: warm.peakRssMb,
       layerRecoveryPeakRssMb: recovered.peakRssMb, callableRecoveryPeakRssMb: callableRecovered.peakRssMb,
       sampledIntervalMs: 10, frozenScalePeakRssMb: R1_PERFORMANCE_BUDGETS.peakRssMb[`files${files}`] ?? null },
@@ -193,12 +197,13 @@ try {
       constructorFactsAfterRecovery: true },
   };
 } finally {
-  parser.dispose(); await rm(root, { recursive: true, force: true });
+  try { parser?.dispose(); }
+  finally { await rm(root, { recursive: true, force: true }); }
 }
 const processPeakRssMb = process.resourceUsage().maxRSS / 1024;
 report.loadMemory.processPeakRssMb = Math.round(processPeakRssMb * 100) / 100;
 report.loadMemory.rssMeasurement = 'process.resourceUsage().maxRSS after cleanup; includes fixture setup, all four loads and cache mutations; interval samples reported separately';
 report.loadMemory.processRssBudgetPassed = report.loadMemory.frozenScalePeakRssMb === null ? null
   : processPeakRssMb <= report.loadMemory.frozenScalePeakRssMb;
-if (report.loadMemory.processRssBudgetPassed === false) process.exitCode = 1;
+if (report.loadMemory.processRssBudgetPassed === false || report.coldIndexBudget.passed === false) process.exitCode = 1;
 process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);

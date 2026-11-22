@@ -1,0 +1,128 @@
+{
+  "sourceCommit": "3b0b97245fcb23591c0183eacbd1a60a5162bc89",
+  "latestSameRuntimeCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+  "coreSHA256": "8439eea8cbdec5fe8f0008b56fcd411c4517c433a018b8586b07bc6ccc6f3edc",
+  "status": "exited",
+  "qualified": true,
+  "actualRunExitCode": 0,
+  "actualIndependentAuditorExitCode": 0,
+  "originalTerminalAudit": {
+    "verified": true,
+    "qualified": true,
+    "mode": "two-hour",
+    "scope": "Linux normal bundled LSP, 1k synthetic continuous unsaved edits/close recovery, actual process exit/cache manifest corruption; excludes editor UI, real project, cancellation, Remote and other modes/platforms",
+    "multiHourQualified": true,
+    "actualElapsedMs": 7200725.451178,
+    "cycles": 23526,
+    "checkedResults": 117630,
+    "staleResults": 0,
+    "windows": 235,
+    "allTimings": {
+      "change": {
+        "samples": 23516,
+        "p50": 29.289758999831975,
+        "p95": 31.325265000021318,
+        "maximum": 37.69509799964726
+      },
+      "betaCompletion": {
+        "samples": 23516,
+        "p50": 2.158997000195086,
+        "p95": 3.700544999912381,
+        "maximum": 33.34402900002897
+      },
+      "betaHover": {
+        "samples": 23516,
+        "p50": 1.7528800000436604,
+        "p95": 3.0435840003192425,
+        "maximum": 10.239753999747336
+      },
+      "betaDefinition": {
+        "samples": 23516,
+        "p50": 1.7755860006436706,
+        "p95": 3.1109700000379235,
+        "maximum": 13.177937000058591
+      },
+      "alphaCompletion": {
+        "samples": 23516,
+        "p50": 1.956368999555707,
+        "p95": 3.3400710001587868,
+        "maximum": 15.098758999723941
+      },
+      "alphaDefinition": {
+        "samples": 23516,
+        "p50": 3.6716740000993013,
+        "p95": 6.325931999999739,
+        "maximum": 31.08920000027865
+      }
+    },
+    "peakHighWaterMiB": 303.3671875,
+    "peakCacheMiB": 3.764777183532715,
+    "recoveryWitnesses": [
+      {
+        "kind": "forced-process-exit",
+        "previousPid": 2966693,
+        "replacementPid": 3043195,
+        "recoveryMs": 4467.1314540002495,
+        "unsavedBufferReopenedExactly": true,
+        "firstQueryCorrect": true,
+        "diskUnchanged": true
+      },
+      {
+        "kind": "cache-manifest-corruption",
+        "path": "/tmp/sophp-final-long-7vcapyd5/sophp-long-session-N8Udkx/.cache/903fb74edd1ad05ad305dcded67a2c53b1b39d2550e1b8c33d6694af121678ed.json",
+        "originalSha256": "43641647df52cd8815254d7ee60cb61416d9cbf6217d8b3ed423214332fa0c7b",
+        "corruptedSha256": "be302461cda285db3ed2d45fb767b23e08ca8808b35a638009937df22b332d73",
+        "recoveryProbe": {
+          "uri": "file:///tmp/sophp-final-long-7vcapyd5/sophp-long-session-N8Udkx/src/Noise997.php",
+          "method": "textDocument/references",
+          "declarationReturned": true
+        },
+        "rebuiltSha256": "ec7f1cb4d87f6254bf15bf97eed3f0072524715c498cd3fa3617e5463add2aa3",
+        "replacementPid": 3132729,
+        "recoveryMs": 5012.541242000647,
+        "unsavedBufferReopenedExactly": true,
+        "firstQueryCorrect": true,
+        "diskUnchanged": true
+      }
+    ],
+    "recoveryMsHasNoSeparateHardBudget": true,
+    "rebuiltManifestBytesNotRetained": true,
+    "rebuiltManifestHashFromActualRunnerRead": true,
+    "driverAndRunnerAndServersGone": true,
+    "privateInputsUnchanged": 12,
+    "ownedFixtureRemoved": true,
+    "ownedTemporaryParentRemoved": true,
+    "ownedProcessGroupEmpty": true,
+    "frozenSnapshotInputsUnchanged": 22,
+    "normalAssetsUnchanged": 8,
+    "runnerSha256": "f16a24a67e32c070436f15b78f827e157c715f0081b9dc43fd0b91f250dd6aee",
+    "engineSha256": "8439eea8cbdec5fe8f0008b56fcd411c4517c433a018b8586b07bc6ccc6f3edc",
+    "reportSha256": "ae60a13807ca2cd18f8f0271f692226d5f21902179deb7ce886458f88677e28f",
+    "auditorSha256": "c77c1fd53b59b00204860515cbaaecdf3e42bdebb39a53a6ac3cf36121bc772b",
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "openMajorItems": 26,
+    "auditedAtUtc": "2026-10-20T03:54:27.792237+00:00"
+  },
+  "terminalSupplement": {
+    "verifiedAtUtc": "2026-10-20T03:55:23.080581+00:00",
+    "originalIndependentAuditorActualExitCode": 0,
+    "originalRunActualExitCode": 0,
+    "finalReportSHA256": "ae60a13807ca2cd18f8f0271f692226d5f21902179deb7ce886458f88677e28f",
+    "all34FrozenInputsMatch": true,
+    "allSevenOriginalPidsActuallyGone": true,
+    "originalProcessGroupActuallyEmpty": true,
+    "originalTemporaryParentActuallyRemoved": true,
+    "rebuiltManifestSupplementBytes": 320745,
+    "rebuiltManifestSupplementSHA256": "ec7f1cb4d87f6254bf15bf97eed3f0072524715c498cd3fa3617e5463add2aa3",
+    "exactMatchToOriginalFaultAndCapturedRun": true,
+    "originalAuditorWasNotEditedToAddSupplement": true,
+    "fullObjectiveComplete": false
+  },
+  "originalArchiveFilesVerified": 15,
+  "supplementalArchiveFilesVerified": 8,
+  "allOriginal34FrozenInputsMatch": true,
+  "completeOriginalDriverRunnerObserversServersGone": true,
+  "scope": "Linux normal bundled LSP, 1k synthetic continuous unsaved edits/close recovery, actual process exit/cache manifest corruption; excludes editor UI, real project, cancellation, Remote and other modes/platforms",
+  "fullObjectiveComplete": false
+}

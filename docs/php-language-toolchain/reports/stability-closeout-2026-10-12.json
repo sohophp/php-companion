@@ -1,0 +1,533 @@
+{
+  "recordedAtUtc": "2026-10-12T14:13:52.976386+00:00",
+  "scopeAudit": {
+    "recordedAtUtc": "2026-10-12T14:13:52.976386+00:00",
+    "productionChanges": [
+      "packages/language-server/src/server.ts"
+    ],
+    "unchangedSurface": [
+      {
+        "path": "package.json",
+        "matchesHead": true,
+        "sha256": "a113b57ce7741d7d707ab147963f16ae537f8cffb4410d9eba52387baba57389"
+      },
+      {
+        "path": "packages/php-companion-symfony/package.json",
+        "matchesHead": true,
+        "sha256": "45ed607d5679066d93429d8a74c1cdcf864c790f6335268716937c54d5158cbd"
+      },
+      {
+        "path": "packages/php-companion-extension-pack/package.json",
+        "matchesHead": true,
+        "sha256": "eb700a1442c8135dd055f9adef6490c20d7f1ed36362bb79fbdd355d401de18e"
+      },
+      {
+        "path": "packages/plugin-api/src/index.ts",
+        "matchesHead": true,
+        "sha256": "da8ad66ed177fb7e74f8c85312b9ced114a46ce12c0c3d4b7015adc1381aad3b"
+      },
+      {
+        "path": "packages/semantic/src/index.ts",
+        "matchesHead": true,
+        "sha256": "3333df4dfa316e8dba4cdab36b0fc0fd1545e3ad0d2db086548f9bc535ace840"
+      }
+    ],
+    "frozenInputs": 2085,
+    "changedInputs": [],
+    "stableBundleSha256": "4506941926dd157b2786e03b343f1cf49ec67ad4190001fd4f4572cc5eada366",
+    "stableLspProcessGroupEmpty": true,
+    "editorDisplaysCleaned": true,
+    "nativeTemporaryDirectoryRemoved": true,
+    "roadmapOpenItems": 26,
+    "newPublicCommands": false,
+    "newPublicSettings": false,
+    "semanticExpansion": false,
+    "fullObjectiveComplete": false
+  },
+  "initialCloseout": {
+    "status": "exited",
+    "pid": 5672,
+    "upstreamPid": 69413,
+    "upstreamIdentity": "45782428",
+    "stages": [
+      {
+        "name": "semantic-build",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/semantic",
+          "build"
+        ],
+        "status": "exited",
+        "pid": 15577,
+        "startTicks": "46004242",
+        "exitCode": 0,
+        "seconds": 11.747890021011699,
+        "logSha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+      },
+      {
+        "name": "language-server-build",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/language-server",
+          "build"
+        ],
+        "status": "exited",
+        "pid": 15676,
+        "startTicks": "46005417",
+        "exitCode": 0,
+        "seconds": 8.85711415996775,
+        "logSha256": "29c5ee0f6b0b20dbb259b99d01276198c3d28190090706394608d4deda6d2c0b"
+      },
+      {
+        "name": "production-build",
+        "command": [
+          "node",
+          "esbuild.mjs",
+          "--production"
+        ],
+        "status": "exited",
+        "pid": 15768,
+        "startTicks": "46006303",
+        "exitCode": 0,
+        "seconds": 0.6764018880203366,
+        "logSha256": "d483b55e425cede930f5a9d776620a1a9159c98f1f74711494b0820abd076c6d"
+      },
+      {
+        "name": "semantic-full",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/semantic",
+          "test"
+        ],
+        "status": "exited",
+        "pid": 15808,
+        "startTicks": "46006373",
+        "exitCode": 0,
+        "seconds": 62.89315252401866,
+        "logSha256": "9634c2698b0c15cadb93e2d4f7f428c520a2d92e27bdcbb1a7e01c1bf1b2d026"
+      },
+      {
+        "name": "root-tests",
+        "command": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run"
+        ],
+        "status": "exited",
+        "pid": 18236,
+        "startTicks": "46012663",
+        "exitCode": 0,
+        "seconds": 7.3734089260105975,
+        "logSha256": "1d378cb47d3295e0bdeed25b677e3119bf5897a7a1cfb63cca755c5988113fe2"
+      },
+      {
+        "name": "root-typecheck",
+        "command": [
+          "pnpm",
+          "exec",
+          "tsc",
+          "--noEmit"
+        ],
+        "status": "exited",
+        "pid": 18575,
+        "startTicks": "46013400",
+        "exitCode": 0,
+        "seconds": 5.4363266180153005,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "scoped-lint",
+        "command": [
+          "pnpm",
+          "exec",
+          "eslint",
+          "packages/language-server/src/server.ts",
+          "packages/language-server/test/stdio.test.ts",
+          "packages/language-server/test/symfony-container-provider-concurrency-stdio.test.ts",
+          "packages/index/test/index.test.ts"
+        ],
+        "status": "exited",
+        "pid": 18640,
+        "startTicks": "46013944",
+        "exitCode": 0,
+        "seconds": 11.46977056300966,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "public-contracts",
+        "command": [
+          "pnpm",
+          "check:public-contracts"
+        ],
+        "status": "exited",
+        "pid": 18727,
+        "startTicks": "46015091",
+        "exitCode": 0,
+        "seconds": 2.3664103359915316,
+        "logSha256": "96d5257ecf7cb0a9b38d9d2e32388b62d812e3cb76f1353ace084d1feec976d3"
+      },
+      {
+        "name": "component-boundaries",
+        "command": [
+          "pnpm",
+          "check:component-boundaries"
+        ],
+        "status": "exited",
+        "pid": 18759,
+        "startTicks": "46015328",
+        "exitCode": 0,
+        "seconds": 3.9588042350369506,
+        "logSha256": "0319798450e2f1e97e65ed8a6af638b1a08c3e8d6c50649dbe2db3eae3c6f01d"
+      },
+      {
+        "name": "stable-full-lsp",
+        "command": [
+          "python3",
+          "/var/www/node/php-companion/.vscode-test/plan-stability-closeout-2026-10-12/run-stable-lsp.py"
+        ],
+        "status": "exited",
+        "pid": 18799,
+        "startTicks": "46015724",
+        "exitCode": 0,
+        "seconds": 2045.659241189016,
+        "logSha256": "45b203553d9a01b5ccdaf249066ad7bddada25de2dda02e2b6b62455fae92b8e"
+      },
+      {
+        "name": "editor-compile",
+        "command": [
+          "pnpm",
+          "exec",
+          "tsc",
+          "-p",
+          "test/extension/tsconfig.json"
+        ],
+        "status": "running"
+      }
+    ],
+    "startedAtUtc": "2026-10-12T13:10:10.484093+00:00",
+    "qualified": false,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "prototypeRegression": {
+      "status": "exited",
+      "wrapperPid": 69413,
+      "command": [
+        "pnpm",
+        "--filter",
+        "@php-companion/language-server",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile.json=/var/www/node/php-companion/.vscode-test/plan-completion-2026-10-12/full-lsp-results.json"
+      ],
+      "baseCommit": "a919d53f997ac462d2758a1968a3e4bc9c0ce959",
+      "bundleSha256": "6736669471b6d5dd66ffefe2e5255f10837a315b42e3011c43170f72c2fa0d95",
+      "inputs": 2085,
+      "startedAtUtc": "2026-10-12T12:46:52.740468+00:00",
+      "fullObjectiveComplete": false,
+      "childPid": 69589,
+      "processGroup": 69589,
+      "exitCode": 0,
+      "changedInputs": [],
+      "finishedAtUtc": "2026-10-12T13:23:27.860466+00:00",
+      "testFiles": 141,
+      "total": 1647,
+      "passed": 1646,
+      "failed": 0,
+      "pending": 1,
+      "success": true,
+      "qualified": true
+    },
+    "prototypeInputAudit": {
+      "inputs": 2085,
+      "changed": []
+    },
+    "prototypeWithdrawn": {
+      "path": "/var/www/node/php-companion/packages/semantic/src/index.ts",
+      "beforeSha256": "f8e8666a8cd10d51231e31888c8968ada617f0725c05c3948dee7ff4541c92bc",
+      "afterSha256": "3333df4dfa316e8dba4cdab36b0fc0fd1545e3ad0d2db086548f9bc535ace840",
+      "originalHeadBytesRestored": true
+    },
+    "stableBundleSha256": "4506941926dd157b2786e03b343f1cf49ec67ad4190001fd4f4572cc5eada366",
+    "stableRegression": {
+      "status": "exited",
+      "wrapperPid": 18799,
+      "command": [
+        "pnpm",
+        "--filter",
+        "@php-companion/language-server",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile.json=/var/www/node/php-companion/.vscode-test/plan-stability-closeout-2026-10-12/full-lsp-results.json"
+      ],
+      "baseCommit": "a919d53f997ac462d2758a1968a3e4bc9c0ce959",
+      "bundleSha256": "4506941926dd157b2786e03b343f1cf49ec67ad4190001fd4f4572cc5eada366",
+      "inputs": 2085,
+      "startedAtUtc": "2026-10-12T13:25:26.831881+00:00",
+      "fullObjectiveComplete": false,
+      "childPid": 18802,
+      "processGroup": 18802,
+      "exitCode": 0,
+      "changedInputs": [],
+      "finishedAtUtc": "2026-10-12T13:59:31.921125+00:00",
+      "testFiles": 141,
+      "total": 1647,
+      "passed": 1646,
+      "failed": 0,
+      "pending": 1,
+      "success": true,
+      "qualified": true
+    },
+    "error": "Traceback (most recent call last):\n  File \"/var/www/node/php-companion/.vscode-test/plan-stability-closeout-2026-10-12/run-closeout.py\", line 55, in <module>\n    run('editor-compile',['pnpm','exec','tsc','-p','test/extension/tsconfig.json'])\n  File \"/var/www/node/php-companion/.vscode-test/plan-stability-closeout-2026-10-12/run-closeout.py\", line 19, in run\n    with (base/(name+'.log')).open('x') as log:\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/jason/.pyenv/versions/3.11.9/lib/python3.11/pathlib.py\", line 1044, in open\n    return io.open(self, mode, buffering, encoding, errors, newline)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileExistsError: [Errno 17] File exists: '/var/www/node/php-companion/.vscode-test/plan-stability-closeout-2026-10-12/editor-compile.log'\n",
+    "exitCode": 1,
+    "finishedAtUtc": "2026-10-12T13:59:31.979518+00:00"
+  },
+  "currentCloseout": {
+    "status": "exited",
+    "pid": 63389,
+    "stages": [
+      {
+        "name": "index-full-resume-1",
+        "command": [
+          "pnpm",
+          "--filter",
+          "@php-companion/index",
+          "test"
+        ],
+        "status": "exited",
+        "pid": 63442,
+        "startTicks": "46224647",
+        "exitCode": 0,
+        "seconds": 4.496543487010058,
+        "logSha256": "d1a72c67ffd414cd06c7ae7fc5b3872f6fcbdf362d20bca27fb9555ba223d5ce"
+      },
+      {
+        "name": "editor-compile-resume-1",
+        "command": [
+          "pnpm",
+          "exec",
+          "tsc",
+          "-p",
+          "test/extension/tsconfig.json"
+        ],
+        "status": "exited",
+        "pid": 63579,
+        "startTicks": "46225098",
+        "exitCode": 0,
+        "seconds": 14.190215456997976,
+        "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "editor-c1-onDemand-resume-1",
+        "command": [
+          "python3",
+          "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/plan-stability-closeout-2026-10-12/editor-c1-onDemand-resume-1-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "status": "exited",
+        "pid": 63730,
+        "startTicks": "46226519",
+        "exitCode": 0,
+        "seconds": 98.42833687696839,
+        "logSha256": "bbcce4b4aa368842828799858282d31f5d60019b5580ba51d86893197d5c6f3a",
+        "inputDrift": [],
+        "editorSha256": "281399f7f9079213ec3fa9c46de38360cf1c749d4d9330584673ed0dae72ee31",
+        "displayCleaned": true,
+        "generationBoundaryCases": null
+      },
+      {
+        "name": "editor-c2-onDemand-resume-1",
+        "command": [
+          "python3",
+          "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/plan-stability-closeout-2026-10-12/editor-c2-onDemand-resume-1-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "status": "exited",
+        "pid": 66675,
+        "startTicks": "46236634",
+        "exitCode": 0,
+        "seconds": 134.4707390080439,
+        "logSha256": "b412b44bd30449f7807fe5230ae7ffb86ba656ff9a3c30e8a876363c750b467f",
+        "inputDrift": [],
+        "editorSha256": "281399f7f9079213ec3fa9c46de38360cf1c749d4d9330584673ed0dae72ee31",
+        "displayCleaned": true,
+        "generationBoundaryCases": null
+      },
+      {
+        "name": "editor-c3-onDemand-resume-1",
+        "command": [
+          "python3",
+          "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/plan-stability-closeout-2026-10-12/editor-c3-onDemand-resume-1-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "status": "exited",
+        "pid": 68487,
+        "startTicks": "46250201",
+        "exitCode": 0,
+        "seconds": 265.9282041330007,
+        "logSha256": "d817066a11d321b0b119b8fdeed9a410a3d5da13698f4125944e8f8298281ec3",
+        "inputDrift": [],
+        "editorSha256": "281399f7f9079213ec3fa9c46de38360cf1c749d4d9330584673ed0dae72ee31",
+        "displayCleaned": true,
+        "generationBoundaryCases": 40
+      },
+      {
+        "name": "editor-c3-progressive-resume-1",
+        "command": [
+          "python3",
+          "/var/www/node/php-companion/scripts/benchmark-editor-activation/owned-display.py",
+          "--evidence",
+          "/var/www/node/php-companion/.vscode-test/plan-stability-closeout-2026-10-12/editor-c3-progressive-resume-1-display",
+          "--",
+          "/home/jason/.nvm/versions/node/v22.14.0/bin/node",
+          "/var/www/node/php-companion/dist-test/runTest.js"
+        ],
+        "status": "exited",
+        "pid": 76005,
+        "startTicks": "46276913",
+        "exitCode": 0,
+        "seconds": 239.87984276696807,
+        "logSha256": "623fbcc63676757d0017605e041b930c1325f8c573f0d62899e9e36905cc8c51",
+        "inputDrift": [],
+        "editorSha256": "281399f7f9079213ec3fa9c46de38360cf1c749d4d9330584673ed0dae72ee31",
+        "displayCleaned": true,
+        "generationBoundaryCases": 40
+      },
+      {
+        "name": "native-windows-service-refresh-resume-1",
+        "command": [
+          "/mnt/c/nvm4w2/nodejs/node.exe",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-stability-closeout-uvtxk6oq\\verify.mjs",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-stability-closeout-uvtxk6oq\\runtime",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-stability-closeout-uvtxk6oq\\service-provider.js",
+          "C:\\Users\\sohop\\AppData\\Local\\Temp\\sophp-stability-closeout-uvtxk6oq\\evidence"
+        ],
+        "status": "exited",
+        "pid": 83341,
+        "startTicks": "46301054",
+        "exitCode": 0,
+        "seconds": 11.091483032039832,
+        "logSha256": "a31c5918f103166ad6188afdf7dac97e4d2a1cc17ba6f4f9389afeae7ef00209"
+      }
+    ],
+    "startedAtUtc": "2026-10-12T14:00:15.492680+00:00",
+    "qualified": true,
+    "fullObjectiveComplete": false,
+    "profileUpdated": false,
+    "stableBundleSha256": "4506941926dd157b2786e03b343f1cf49ec67ad4190001fd4f4572cc5eada366",
+    "stableRegression": {
+      "status": "exited",
+      "wrapperPid": 18799,
+      "command": [
+        "pnpm",
+        "--filter",
+        "@php-companion/language-server",
+        "exec",
+        "vitest",
+        "run",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile.json=/var/www/node/php-companion/.vscode-test/plan-stability-closeout-2026-10-12/full-lsp-results.json"
+      ],
+      "baseCommit": "a919d53f997ac462d2758a1968a3e4bc9c0ce959",
+      "bundleSha256": "4506941926dd157b2786e03b343f1cf49ec67ad4190001fd4f4572cc5eada366",
+      "inputs": 2085,
+      "startedAtUtc": "2026-10-12T13:25:26.831881+00:00",
+      "fullObjectiveComplete": false,
+      "childPid": 18802,
+      "processGroup": 18802,
+      "exitCode": 0,
+      "changedInputs": [],
+      "finishedAtUtc": "2026-10-12T13:59:31.921125+00:00",
+      "testFiles": 141,
+      "total": 1647,
+      "passed": 1646,
+      "failed": 0,
+      "pending": 1,
+      "success": true,
+      "qualified": true
+    },
+    "resumesFailedDriver": "closeout-state.json",
+    "resumeReason": "Existing editor-compile.log blocked exclusive log creation; product regression passed.",
+    "nativeWindows": [
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "onDemand",
+        "serverPid": 43796,
+        "bundleSha256": "4506941926dd157b2786e03b343f1cf49ec67ad4190001fd4f4572cc5eada366",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "cancellationMs": 4.193199999999706,
+        "correct": true,
+        "providerCalls": [
+          {
+            "pid": 21856,
+            "held": false
+          },
+          {
+            "pid": 11876,
+            "held": true
+          }
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      },
+      {
+        "platform": "win32",
+        "node": "v24.16.0",
+        "indexingMode": "progressive",
+        "serverPid": 7944,
+        "bundleSha256": "4506941926dd157b2786e03b343f1cf49ec67ad4190001fd4f4572cc5eada366",
+        "providerSha256": "300281d41474f041ceb9b3dd8ceea6c1658b7bd04ff6114d6c497f8422372ecf",
+        "cancellationMs": 2.9501000000000204,
+        "correct": true,
+        "providerCalls": [
+          {
+            "pid": 26312,
+            "held": false
+          },
+          {
+            "pid": 9548,
+            "held": true
+          }
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "stderr": "",
+        "directoryRemoved": true,
+        "passed": true
+      }
+    ],
+    "nativeTemporaryDirectoryRemoved": true,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-12T14:13:10.424669+00:00"
+  },
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "committed": false,
+  "pushed": false
+}

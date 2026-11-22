@@ -1,0 +1,360 @@
+{
+  "qualified": true,
+  "functionalQualified": true,
+  "engineSha256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+  "full12ExtensionProfileRetained": true,
+  "formatterSaveProofs": [
+    {
+      "language": "php",
+      "formatterId": "junstyle.php-cs-fixer",
+      "originalText": "<?php\nclass  ProfileFormat{public function run( ):void{}}\n",
+      "formattedText": "<?php\n\nclass ProfileFormat\n{\n    public function run(): void\n    {\n    }\n}\n",
+      "actualFormatDocumentCommand": true,
+      "savePersistedExactBuffer": true,
+      "undoRestoredExactSource": true,
+      "redoRestoredExactFormat": true,
+      "undoAndRedoKeptSavedDisk": true,
+      "dirtyStates": [
+        false,
+        true,
+        false,
+        true,
+        false
+      ]
+    },
+    {
+      "language": "twig",
+      "formatterId": "sohophp.twig-plus",
+      "originalText": "{%if true%}{{ value }}{%endif%}\n",
+      "formattedText": "{% if true %}\n  {{ value }}{% endif %}\n",
+      "actualFormatDocumentCommand": true,
+      "savePersistedExactBuffer": true,
+      "undoRestoredExactSource": true,
+      "redoRestoredExactFormat": true,
+      "undoAndRedoKeptSavedDisk": true,
+      "dirtyStates": [
+        false,
+        true,
+        false,
+        true,
+        false
+      ]
+    }
+  ],
+  "formatOnSaveProofs": [
+    {
+      "language": "php",
+      "uri": "file:///tmp/php-companion-packaged-x6lkyF/workspace/src/ProfileAutoSave.php",
+      "formatter": "junstyle.php-cs-fixer",
+      "raw": "<?php\nclass  ProfileAutoSave{public function run( ):void{}}\n\n",
+      "formatted": "<?php\n\nclass ProfileAutoSave\n{\n    public function run(): void\n    {\n    }\n}\n",
+      "saveAutomaticallyFormatted": true,
+      "undoRestoredPreSaveBuffer": true,
+      "redoRestoredSavedBuffer": true,
+      "undoAndRedoKeptDisk": true
+    },
+    {
+      "language": "twig",
+      "uri": "file:///tmp/php-companion-packaged-x6lkyF/workspace/ProfileAutoSave.html.twig",
+      "formatter": "sohophp.twig-plus",
+      "raw": "{%if true%}{{ value }}{%endif%}\n\n",
+      "formatted": "{% if true %}\n  {{ value }}{% endif %}\n\n",
+      "saveAutomaticallyFormatted": true,
+      "undoRestoredPreSaveBuffer": true,
+      "redoRestoredSavedBuffer": true,
+      "undoAndRedoKeptDisk": true
+    }
+  ],
+  "failedFormatOnSaveRecoveryProofs": [
+    {
+      "language": "php",
+      "uri": "file:///tmp/php-companion-packaged-x6lkyF/workspace/src/ProfileFailedSave.php",
+      "raw": "<?php\nclass  ProfileFailedSave{public function run( ):void{}}\n// user edit before failed save\n",
+      "recovered": "<?php\n\nclass ProfileRecoveredSave\n{\n    public function run(): void\n    {\n    }\n}\n",
+      "witness": {
+        "message": "SoPHP intentional format-on-save failure",
+        "config": "/tmp/php-companion-packaged-x6lkyF/workspace/.php-cs-fixer.dist.php",
+        "phpVersion": "8.5.9",
+        "phpBinary": "/opt/remi/php85/root/usr/bin/php"
+      },
+      "failedFormatterSaveKeptBufferAndVersion": true,
+      "userInputSavedExactly": true,
+      "recoveredSaveAutomaticallyFormatted": true
+    },
+    {
+      "language": "twig",
+      "uri": "file:///tmp/php-companion-packaged-x6lkyF/workspace/ProfileFailedSave.html.twig",
+      "raw": "<script>for (let i, i < 3; i++) {}</script>\n{# user edit before failed save #}\n",
+      "recovered": "{% if true %}\n  {{ recovered }}{% endif %}\n",
+      "failedFormatterSaveKeptBufferAndVersion": true,
+      "userInputSavedExactly": true,
+      "recoveredSaveAutomaticallyFormatted": true
+    }
+  ],
+  "twigServerRejectedAndRecovered": {
+    "uri": "file:///tmp/php-companion-packaged-x6lkyF/workspace/ProfileFailedSave.html.twig",
+    "outputLog": "/var/www/node/php-companion/.vscode-test/current-packaged-profile-runtime2-2026-10-14/evidence/host-logs/20261014T060910/window1/exthost/output_logging_20261014T060914/4-TwigPlus.log",
+    "logSha256": "206d8ef4f699e1b77fb3c70208788277ff3243b9bae9882afee11174d56729d9",
+    "failed": "[format 82487-4] complete failed 29.1ms: TwigPlus did not modify this document: embedded JavaScript syntax error at 1:23. ',' expected. (file:///tmp/php-companion-packaged-x6lkyF/workspace/ProfileFailedSave.html.twig)",
+    "recoveryNotifications": [
+      "[format 82487-5] complete completed 0.7ms (file:///tmp/php-companion-packaged-x6lkyF/workspace/ProfileFailedSave.html.twig)",
+      "[format 82487-5] complete completed 1.2ms (file:///tmp/php-companion-packaged-x6lkyF/workspace/ProfileFailedSave.html.twig)"
+    ],
+    "failedRequestIds": [
+      "82487-4"
+    ],
+    "recoveredRequestIds": [
+      "82487-5"
+    ]
+  },
+  "realXdebugProof": {
+    "platform": "linux",
+    "debuggerVersion": "1.40.1",
+    "breakpointLine": 3,
+    "stepLine": 4,
+    "before": "40",
+    "after": "42",
+    "scopeVariable": true,
+    "programResult": 42,
+    "workingDirectoryMatches": true,
+    "sessionTerminated": true,
+    "scope": "Actual Xdebug breakpoint, step over, scopes and watch evaluation in an isolated editor host"
+  },
+  "phpunitEditorTasksProof": {
+    "results": [
+      {
+        "scenario": "pass",
+        "exitCode": 0,
+        "processId": 83175
+      },
+      {
+        "scenario": "assertion-failure",
+        "exitCode": 1,
+        "processId": 83208
+      },
+      {
+        "scenario": "recovery",
+        "exitCode": 0,
+        "processId": 83227
+      }
+    ],
+    "witnesses": [
+      {
+        "value": 42,
+        "cwd": "/tmp/php-companion-packaged-x6lkyF/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 83177
+      },
+      {
+        "value": 41,
+        "cwd": "/tmp/php-companion-packaged-x6lkyF/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 83210
+      },
+      {
+        "value": 42,
+        "cwd": "/tmp/php-companion-packaged-x6lkyF/workspace",
+        "version": "8.5.9",
+        "binary": "/opt/remi/php85/root/usr/bin/php",
+        "sapi": "cli",
+        "pid": 83229
+      }
+    ],
+    "argumentPathWithSpaces": true,
+    "realProcessExecution": true,
+    "expectedAssertionFailureExitCode": 1,
+    "recoveryPassed": true,
+    "workingDirectoryAndRuntimeMatched": true,
+    "taskAndProcessEndObserved": true,
+    "noActiveOwnedTasks": true
+  },
+  "feedbackMetrics": {
+    "scalar": {
+      "noiseFiles": 9100,
+      "rounds": 50,
+      "presentExternalMembers": [
+        "sohophp.twig-plus",
+        "redhat.vscode-yaml",
+        "redhat.vscode-xml",
+        "xdebug.php-debug",
+        "junstyle.php-cs-fixer",
+        "EditorConfig.EditorConfig",
+        "eiminsasete.apacheconf-snippets",
+        "neilbrayfield.php-docblocker"
+      ],
+      "p50Ms": 60,
+      "p95Ms": 77,
+      "maxMs": 1037,
+      "declarationUnsaved": true,
+      "consumerVersion": 1,
+      "definitionWaitMs": [
+        73,
+        21,
+        11,
+        7,
+        6,
+        6
+      ],
+      "slowRounds": [
+        {
+          "round": 1,
+          "elapsedMs": 1037,
+          "applyEditMs": 4,
+          "diagnosticReadyMs": 105,
+          "hoverReadyMs": 1037
+        }
+      ],
+      "firstCompositeHoverCallMs": 932,
+      "firstRoundServerTimings": {
+        "candidateInvalidatedOpen": {
+          "count": 1,
+          "maxMs": 0,
+          "firstMs": [
+            0
+          ]
+        },
+        "generationDiskRefresh": {
+          "count": 2,
+          "maxMs": 96,
+          "firstMs": [
+            85,
+            96
+          ]
+        },
+        "generationDiskRefreshEpochRetry": {
+          "count": 1,
+          "maxMs": 86,
+          "firstMs": [
+            86
+          ]
+        },
+        "diagnostics": {
+          "count": 4,
+          "maxMs": 78,
+          "firstMs": [
+            8,
+            78,
+            14,
+            14
+          ]
+        },
+        "documentChangeDiagnostics": {
+          "count": 1,
+          "maxMs": 81,
+          "firstMs": [
+            81
+          ]
+        },
+        "hoverWorkspace": {
+          "count": 1,
+          "maxMs": 884,
+          "firstMs": [
+            884
+          ]
+        },
+        "hoverFrameworkContext": {
+          "count": 1,
+          "maxMs": 1,
+          "firstMs": [
+            1
+          ]
+        },
+        "hoverMemberLookup": {
+          "count": 1,
+          "maxMs": 1,
+          "firstMs": [
+            1
+          ]
+        },
+        "hover": {
+          "count": 1,
+          "maxMs": 890,
+          "firstMs": [
+            890
+          ]
+        }
+      },
+      "nestedPhp72Verified": true
+    },
+    "union-shape": {
+      "rounds": 30,
+      "p50Ms": 79,
+      "p95Ms": 103,
+      "maxMs": 458,
+      "declarationUnsaved": true,
+      "consumerVersion": 3,
+      "hostRssMiB": [
+        220,
+        220,
+        220,
+        220,
+        221,
+        220,
+        220
+      ],
+      "watcherBufferPriority": true,
+      "watcherChanges": 3,
+      "pausedHoverEditWatcher": true
+    }
+  },
+  "compositeP95BudgetMs": 150,
+  "frozenInputsChecked": 34736,
+  "frozenLinksChecked": 10,
+  "inputsAndRepositoriesUnchanged": true,
+  "actualOwnedProcessesGone": true,
+  "checkedProcessIds": [
+    80942,
+    80962,
+    80970,
+    80974,
+    82001,
+    82487,
+    81548,
+    81548,
+    83175,
+    83208,
+    83227,
+    83177,
+    83210,
+    83229
+  ],
+  "qualifiedCompiledTests": 104,
+  "privateRunnerAdaptationSha256": "3c88ea383ad9c9912e6aff5dbdecdbff6615c1512dbc4c242967ef5c85973283",
+  "copiedInputsChecked": 94,
+  "packagedCoreSymfonyPack": true,
+  "packageSha256": [
+    "b6d569edbe10a162428b551249c035f60f25e51866d46d06d3faf6a20a9605fc",
+    "84bae583f1c3bdb67b29df3c17d0f6b3a1a155861dd7b30f2b6d466dc271eaa5",
+    "caea16405ee050d8fb1a9385de267a1e864f08c5307ed248c6026f5fbeb9c1c3"
+  ],
+  "fullCurrentLinuxEditorFlowsQualified": true,
+  "realWslAcceptance": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "sourceRealVendorProfile": false,
+  "recordedAtUtc": "2026-10-13T22:11:00.806281+00:00",
+  "stageExitCode": 0,
+  "durationSeconds": 93.64675920200534,
+  "archiveFilesVerified": 73,
+  "firstFailure": {
+    "qualified": false,
+    "exitCode": 1,
+    "cause": "Isolated Twig dependency omitted: vscode-html-languageservice",
+    "frozenInputsUnchanged": 34636,
+    "actorsAndOwnedFixtureGone": true,
+    "authorityDirectoryRemoved": true,
+    "logSha256": "82fe4b2719441d8b8dd0d42cd0312c85e06f37eefb497a5203b7e6e024d0423c",
+    "activationFailureLog": "/var/www/node/php-companion/.vscode-test/current-packaged-profile-2026-10-14/evidence/host-logs/20261014T060613/window1/exthost/exthost.log",
+    "activationFailureLogSha256": "cb9f6d0fb01f83a7aa6709744d01464f37b9bdfe6a2607b1de90e4ad8be46723",
+    "finishedAtUtc": "2026-10-13T22:07:06.748163+00:00"
+  },
+  "manualWslAcceptanceExecuted": false,
+  "cleanCommitAlphaCandidate": false,
+  "installedInDailyProfile": false,
+  "published": false
+}

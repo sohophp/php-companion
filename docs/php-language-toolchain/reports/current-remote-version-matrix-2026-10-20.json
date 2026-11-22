@@ -1,0 +1,1722 @@
+{
+  "date": "2026-10-20",
+  "sourceCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+  "coreSHA256": "8439eea8cbdec5fe8f0008b56fcd411c4517c433a018b8586b07bc6ccc6f3edc",
+  "workflowRun": 39363787111,
+  "workflowUrl": "https://github.com/sohophp/php-companion/actions/runs/39363787111",
+  "independentArtifactAuditPassed": true,
+  "lifecycleControls": "Original seven controls on POSIX; Windows ten controls with actual kernel membership, orphan child/grandchild detection and unrelated sentinel survival",
+  "kernelOwnershipAudited": true,
+  "checkoutLineEndingsVerified": true,
+  "initialAuditorMismatch": "The audit control is bound by Git commit rather than matrix manifest. Runtime helpers are exact Git LF bytes or exact Windows LF-to-CRLF checkout bytes; verified all six helpers in all nine cohorts. Raw Core and result files are never normalized.",
+  "runnerHelperSourceHashesMatched": true,
+  "lifecycleControlBoundByGitCommit": true,
+  "jobsPassed": 9,
+  "platforms": 3,
+  "modes": 3,
+  "cases": 81,
+  "formalEdits": 40500,
+  "loadedVersionProbes": 81,
+  "rawEvidenceFilesVerified": 405,
+  "cohorts": [
+    {
+      "platform": "linux",
+      "mode": "experimental",
+      "runtime": "v22.23.3",
+      "cases": 9,
+      "maximumDiagnosticP95Ms": 28.053042000000005,
+      "maximumHotQueryP95Ms": 2.4540960000003906
+    },
+    {
+      "platform": "linux",
+      "mode": "onDemand",
+      "runtime": "v22.23.3",
+      "cases": 9,
+      "maximumDiagnosticP95Ms": 28.270094999999856,
+      "maximumHotQueryP95Ms": 2.5793290000001434
+    },
+    {
+      "platform": "linux",
+      "mode": "progressive",
+      "runtime": "v22.23.3",
+      "cases": 9,
+      "maximumDiagnosticP95Ms": 28.04746999999952,
+      "maximumHotQueryP95Ms": 2.590763000000152
+    },
+    {
+      "platform": "win32",
+      "mode": "experimental",
+      "runtime": "v22.23.3",
+      "cases": 9,
+      "maximumDiagnosticP95Ms": 40.6987999999983,
+      "maximumHotQueryP95Ms": 3.6195000000006985
+    },
+    {
+      "platform": "win32",
+      "mode": "onDemand",
+      "runtime": "v22.23.3",
+      "cases": 9,
+      "maximumDiagnosticP95Ms": 40.889900000001944,
+      "maximumHotQueryP95Ms": 3.7004999999990105
+    },
+    {
+      "platform": "win32",
+      "mode": "progressive",
+      "runtime": "v22.23.3",
+      "cases": 9,
+      "maximumDiagnosticP95Ms": 40.208199999997305,
+      "maximumHotQueryP95Ms": 3.5508000000045286
+    },
+    {
+      "platform": "darwin",
+      "mode": "experimental",
+      "runtime": "v22.23.3",
+      "cases": 9,
+      "maximumDiagnosticP95Ms": 40.51599999999962,
+      "maximumHotQueryP95Ms": 5.212332999999489
+    },
+    {
+      "platform": "darwin",
+      "mode": "onDemand",
+      "runtime": "v22.23.3",
+      "cases": 9,
+      "maximumDiagnosticP95Ms": 40.34008400000312,
+      "maximumHotQueryP95Ms": 5.315166999999747
+    },
+    {
+      "platform": "darwin",
+      "mode": "progressive",
+      "runtime": "v22.23.3",
+      "cases": 9,
+      "maximumDiagnosticP95Ms": 40.497542000000976,
+      "maximumHotQueryP95Ms": 5.52179199999955
+    }
+  ],
+  "files": [
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.2-experimental.json",
+      "sha256": "75a4b971782e5273dce2a1a443266450b31940fdb3774a14862a2fabd4f56700"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.2-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.2-experimental.loaded-version.json",
+      "sha256": "a12146ea3f5ea1bceed1ac084ebeccfdbb18ca6211332903a9f552e88ffaa33d"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.2-experimental.probe.stdout",
+      "sha256": "75d682cbb4fe6c947559dec87aab85e7e8cf3852413d9cc5b52b767f0c6e6a41"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.2-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.3-experimental.json",
+      "sha256": "ef0792d1a6b0da7d2f8006e52b571c9ca1e62267b07b4d169f3728e0ffdd8161"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.3-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.3-experimental.loaded-version.json",
+      "sha256": "2bf1dc6e3939a90c41f9665c4fe631f4e7277c1a0f8b5b085de79843b9336683"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.3-experimental.probe.stdout",
+      "sha256": "a5a3c86749658c2de4ed5aeedc9b31a3a5dd378d379a4961a0942509f7266d34"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.3-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.4-experimental.json",
+      "sha256": "63af97511d74719a0caa0e2cd218f017b25eb580714f20322ab47c91e0081530"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.4-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.4-experimental.loaded-version.json",
+      "sha256": "e240e85e52755d48da718b1ad40546ff857579b84861c506e1630368ed9197b7"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.4-experimental.probe.stdout",
+      "sha256": "5099d02bbf582fccef55f50e8cf3b70140a0a74094f261ca2ede5d2f90f6738c"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-7.4-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.0-experimental.json",
+      "sha256": "8389cd25dcf49dcb7099160f33ac29f4be0d24f3fda3d9e49d23c28702404604"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.0-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.0-experimental.loaded-version.json",
+      "sha256": "ebb7baa55a900197a981e98da77f91aaaf34790c67dcd26522fb916c79410971"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.0-experimental.probe.stdout",
+      "sha256": "5286b4674757c5dd23ebe3eb64f7e63f626c862e584fe0cfddf6b2064acdbd3a"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.0-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.1-experimental.json",
+      "sha256": "2710f1d9c3a1657b4d4f7bcb47e584e4e8c7833bc41cf098c67d920651d7dfe3"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.1-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.1-experimental.loaded-version.json",
+      "sha256": "d5924e7b81c911407d600f9a8e53cd21016c8e339dd25c2b9ef8993098c1c3ba"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.1-experimental.probe.stdout",
+      "sha256": "bc0efff524ba8d5f0b97e6287dbeeda8b38df1efa5452d7f8c079eb4c947300d"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.1-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.2-experimental.json",
+      "sha256": "4f3cf9870cc68eba63a2ebf1e9e65d5dc694c9785075f4af23533052ba7518fc"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.2-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.2-experimental.loaded-version.json",
+      "sha256": "d373a7b699112dcfd238a0bdd7d21d9e7f10ea0e1a5fdcb5e4344d55272bef57"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.2-experimental.probe.stdout",
+      "sha256": "f0797327e118094d2ba1bc9cbc82de9a38cb054f680d5ebd0d2d696f7f28bd4b"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.2-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.3-experimental.json",
+      "sha256": "258478ac2682a1703f04b15dd56e78b3487beedf39f0de164388cf3c3f8daf1d"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.3-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.3-experimental.loaded-version.json",
+      "sha256": "a93e41f791f8f52f475fafac3b36d2e25438184237b73ca768d0f271b2e47df2"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.3-experimental.probe.stdout",
+      "sha256": "748cce194f9197f575d90cc1ed50ce00a6163b9b9f30bbf313b2e4faa1e7437d"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.3-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.4-experimental.json",
+      "sha256": "4fccc73da4e95f51bf8a934c31d470289393fa59da1d43014bfa9cf52f4913fc"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.4-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.4-experimental.loaded-version.json",
+      "sha256": "2bfef4f09b5082e64d843c44e87c90169d853437fbf6865d4a669611ed501c3f"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.4-experimental.probe.stdout",
+      "sha256": "563a87fcf792f2ecbbc45721036e378b7221450be3e9e9e8b7146a9f39b0f6c5"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.4-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.5-experimental.json",
+      "sha256": "9c0a9a70f3930324298224ade51ca0c66e97ee81a51bb470ced16e55d3a83429"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.5-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.5-experimental.loaded-version.json",
+      "sha256": "e6e2e4017badbdd42c7f33cdab6529d83039d7e5927b0e2ebf675de5a4d2da80"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.5-experimental.probe.stdout",
+      "sha256": "c7406ee75303e61d988d71252d4ab179957f8e78fe510ce3a6a002c473648722"
+    },
+    {
+      "file": "version-mode-Linux-X64-experimental/version-mode-matrix-experimental/php-8.5-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.json",
+      "sha256": "2d13fa9058fdca9def6700fd9d9ed488e7d76044993963ac10e981fe2352776f"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.loaded-version.json",
+      "sha256": "1b4db3f90ddc26971503970c5e02b144c0915793c782fb8dbbbcc7b841e82042"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.probe.stdout",
+      "sha256": "8c2faaa7ca2e07764b1d3dab79a20438f35870cb6dc83e5ca2eaccc2c59e4e7b"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.json",
+      "sha256": "e9e99b3396d89e9994a874e1d8c0c366f0e8c1b95d4c31bc29579df331c90a53"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.loaded-version.json",
+      "sha256": "3837569353391cd095dead44254ef7fddef5f4e61a4fe73525275054ef953e0d"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.probe.stdout",
+      "sha256": "d08bd7170913eb2158d53f204b4646a4f9c5d2ac26eac6ecfa34b59bc2dc69d0"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.json",
+      "sha256": "6b66c1cb588442dd52785d1445f31767af88347976edc291ac67e7202d16d6a6"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.loaded-version.json",
+      "sha256": "0a8fb6fd964bc8669849c971dab9d433b001a798c3a147e10062eb3cf099b8c2"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.probe.stdout",
+      "sha256": "f73e946025434e12e44b14a8036f5fde12be6048317632aa0bd87cac0eb8e29e"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.json",
+      "sha256": "513ada8d9ab3ac6d42f71609a50a10635261d105749bbe12c0d19f0b36a6fdbf"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.loaded-version.json",
+      "sha256": "9b414c2d24d88664c1e8167e16409ec4bd09af212325f30955877bd5b633c1c0"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.probe.stdout",
+      "sha256": "8afd61ad4e99c17cc4f6cd44fb7c5f7271827752ad7376e14c0a2d16dfa0e95f"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.json",
+      "sha256": "91f7af734d2673936d24123b57d6c9e7eb1204b8ea0dc09979a67c424b849306"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.loaded-version.json",
+      "sha256": "cb58756ff5c48a5a8ab48d682244670c35c1bb93c3ef464f041f5a2ad6b7bace"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.probe.stdout",
+      "sha256": "5fd79d4c12b8da5db7f081bdd733503bea50d093f8f1624da0f76c3cf1c10bfc"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.json",
+      "sha256": "d2f57f30458c9aec0b735ef78c65cc0b27f1694c60218fa8526e8a70a8880b8f"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.loaded-version.json",
+      "sha256": "53cffecb81f67cd27922ae4b0d0f92d881eccc8eb7a93213c034bc1af3fcf21c"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.probe.stdout",
+      "sha256": "1d69c721fb45feb6b8a7dc9fc4634db1039daaed3bbf8a0b747958786e2734cf"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.json",
+      "sha256": "cf8797fe41cf8003874860e3f7fc280594b84289ef4b27e6f31bac7312049d40"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.loaded-version.json",
+      "sha256": "7bf7dafbdb8fa5952ae49c510f08bf456fbdf82f1eea075c961d178738ec984d"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.probe.stdout",
+      "sha256": "e13caee64ab544ee8a6ee9f9295c665f47e98156ac0e5c6af411158092a41a73"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.json",
+      "sha256": "eeef721672edad69965e7f153e80c6fa3225cbcb6c0b8626ff4193320047d47e"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.loaded-version.json",
+      "sha256": "8cea1fe68f79b75c9bea48d2a4a7d31d386e7f0966a802767c330cebfe2c11a4"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.probe.stdout",
+      "sha256": "973830707ae5a8f2466c515c07fc3f8e05400b26e39e98f856a9111d249482f9"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.json",
+      "sha256": "ed1542bd8978f69aaebd2b30778e8fa539aede4f42437e0582963d5950c648ac"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.loaded-version.json",
+      "sha256": "5ed1357b8cfd770071ce674f2b6d20999af9beaa893d16206d31ab763f5f3a39"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.probe.stdout",
+      "sha256": "7e92ad26c34ff032616ded5f9d6ca317738c5f93c7eff4d1b8be0a838f519d16"
+    },
+    {
+      "file": "version-mode-Linux-X64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.2-progressive.json",
+      "sha256": "55baeb66fffc6de767c88009983cee7ad1a3c3c3240dd1ec7785931ab53c6a32"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.2-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.2-progressive.loaded-version.json",
+      "sha256": "9741981d1a7888c1a4ef8e1fc72a0bdf434923e9f1ba21ad9527508abe07fe92"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.2-progressive.probe.stdout",
+      "sha256": "8fc556d5e013cdfee7757d8d89c51beafa9e3993f696276f080faec09b502585"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.2-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.3-progressive.json",
+      "sha256": "4ef6d07bf95cb402e64f87fe90e3115931cfdbd4b6cd0e0c49c9e69333f823d8"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.3-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.3-progressive.loaded-version.json",
+      "sha256": "3b803a425bb6befaf3728cee0113f4abfe46f6268a8ce575f3f6a88a3df9e053"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.3-progressive.probe.stdout",
+      "sha256": "e32638e6d5a4fd42368133720525d5f9bf24278713446947aac6fbd48175a5eb"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.3-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.4-progressive.json",
+      "sha256": "c6c86d8d073eb65db2bb64855f42d2cb1b63aa6be8ce579d7770711720e1ce8d"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.4-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.4-progressive.loaded-version.json",
+      "sha256": "b15e15cb71e40c0c87ceb0fdd45c5fe7069518f368ab7e3ecd2f616b4d9e1a03"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.4-progressive.probe.stdout",
+      "sha256": "d8055b6e02750991d498b81527fd12e8bf7b47ba0f0f58e2e89859c098a44457"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-7.4-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.0-progressive.json",
+      "sha256": "1c09c26fa75c8364e7c2832a49864438f59e51e931380ca8a872b5174468c8d2"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.0-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.0-progressive.loaded-version.json",
+      "sha256": "2391ef085972feeaf1c407298dbe6fc668a4651bc3e337993ceec8d6cfcb5446"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.0-progressive.probe.stdout",
+      "sha256": "ce42dd02430705fe22840be33d5925ee1ef93d482953027089ef2875d5fd7e5d"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.0-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.1-progressive.json",
+      "sha256": "42a273345b63ccf0e3ad207f2c71252e39cdce8ec4efcc6893609443bf4f3c78"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.1-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.1-progressive.loaded-version.json",
+      "sha256": "8773e136d9cc55cb8fba247e75a02e35589fa7dfded3ec6349bdd40b920d92dc"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.1-progressive.probe.stdout",
+      "sha256": "9914b881a5803bb203e1e70378a084e1b27ad8ab32d14086e7d54a54231447b2"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.1-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.2-progressive.json",
+      "sha256": "ca1ec23019052b4468d207a0e68366f94af7c6c99e0efb8261da25dd71cf9b5b"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.2-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.2-progressive.loaded-version.json",
+      "sha256": "0ecf3d5465c57bc67e49692aa5223875704666c3bf1163b26b1590692f6537e1"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.2-progressive.probe.stdout",
+      "sha256": "3bdec28d3c48e5c4cd20b310445b499a846b08a6376dbc48ecb5a302541cfd16"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.2-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.3-progressive.json",
+      "sha256": "a52436babb774eb103c3e3429554807a4491f89f460aaebb03b2e7f9eea2efbd"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.3-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.3-progressive.loaded-version.json",
+      "sha256": "37e58531eaac9a58a3d63436ef71f74d5ff4e62e67573d142a47486c3035755a"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.3-progressive.probe.stdout",
+      "sha256": "a2a4f2c3043c9796afdba7c31ac59f6f36d1c3f49cc9b10f2f2149a89eb7d5c1"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.3-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.4-progressive.json",
+      "sha256": "b82edc7d618a59156a24eceba971449103fde2e65b9e4f10b15cf8fcf53dd159"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.4-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.4-progressive.loaded-version.json",
+      "sha256": "3a0246ab4163911ad7a43dd0884ed16e5371ec028fb89bcf8fc7bad992271ee4"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.4-progressive.probe.stdout",
+      "sha256": "15679f0a81a1cebed9eb33c710d644ddbaa27d0169392578fd7eb7cde22ba696"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.4-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.5-progressive.json",
+      "sha256": "aa3bd70475c00f6ae4bfc60431738e4af2a51e857c64b8988eabe277f8c8be3b"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.5-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.5-progressive.loaded-version.json",
+      "sha256": "62922106f60666a2502b5f14f397992ed8872033e5ac645dcaf161f0bed23dc6"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.5-progressive.probe.stdout",
+      "sha256": "3ae561f91f2503a651f75a4e9b7c74c21917948281b94df22ec46e26179c19de"
+    },
+    {
+      "file": "version-mode-Linux-X64-progressive/version-mode-matrix-progressive/php-8.5-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.2-experimental.json",
+      "sha256": "c987e5405b448ed9791ae7c12a2298c1a567ec4fbfde8fc46b153d1c2eda3711"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.2-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.2-experimental.loaded-version.json",
+      "sha256": "9c1ecc4eb01b1787ecf35276070ccb86858150aea3bca27ed1ad6752921ef57b"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.2-experimental.probe.stdout",
+      "sha256": "75d682cbb4fe6c947559dec87aab85e7e8cf3852413d9cc5b52b767f0c6e6a41"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.2-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.3-experimental.json",
+      "sha256": "cb7438e5af6be5272c584165990d6df2788f78ab6c92291c40503c9142e8a301"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.3-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.3-experimental.loaded-version.json",
+      "sha256": "50750a05f9ae1d4a00dfb2598fa708d6955261787a1456b181e5a2c2e45e229d"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.3-experimental.probe.stdout",
+      "sha256": "a5a3c86749658c2de4ed5aeedc9b31a3a5dd378d379a4961a0942509f7266d34"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.3-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.4-experimental.json",
+      "sha256": "24052b68b0994e5a54d5a4c621f2af9893b388ae836dc516d678a7a5c01af85b"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.4-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.4-experimental.loaded-version.json",
+      "sha256": "52b99b9dc43562ddab00eb0b8dc5ac17dde6721d15c3e8f843cf14de4cb31d28"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.4-experimental.probe.stdout",
+      "sha256": "5099d02bbf582fccef55f50e8cf3b70140a0a74094f261ca2ede5d2f90f6738c"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-7.4-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.0-experimental.json",
+      "sha256": "573d19e51b5c7ce4fa979923691a8a8f2ffed5c1377075e34f1e2d8eab7fab05"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.0-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.0-experimental.loaded-version.json",
+      "sha256": "9005ee2b017b8a0863b30eb47b6d1394d5fddea3852110986fa490ae2d2214db"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.0-experimental.probe.stdout",
+      "sha256": "5286b4674757c5dd23ebe3eb64f7e63f626c862e584fe0cfddf6b2064acdbd3a"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.0-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.1-experimental.json",
+      "sha256": "69191f867ea4342fada371c853e5cfad76a1c28daeab9832e1ee8d0e858b2aff"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.1-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.1-experimental.loaded-version.json",
+      "sha256": "c5f755cf18c82263bcbdae6fb25bac936a371885d95f2cc9d2025a9eb494864a"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.1-experimental.probe.stdout",
+      "sha256": "bc0efff524ba8d5f0b97e6287dbeeda8b38df1efa5452d7f8c079eb4c947300d"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.1-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.2-experimental.json",
+      "sha256": "71c786c5bb39cd06d54be292f836d6e31ef9447e43cac5dbe514f1c99c152904"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.2-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.2-experimental.loaded-version.json",
+      "sha256": "05ad5a8a99e9ad2f1088e159855ca09786b72d0f893383d4e7b8efa7aeb9b90c"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.2-experimental.probe.stdout",
+      "sha256": "f0797327e118094d2ba1bc9cbc82de9a38cb054f680d5ebd0d2d696f7f28bd4b"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.2-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.3-experimental.json",
+      "sha256": "45d8f534db4c044d665fe825079428285cbe36dbc3645e68dd17e1cf038bd78c"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.3-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.3-experimental.loaded-version.json",
+      "sha256": "de3025e0cd7cb678fb20502267b3a3c7a3a2c3d78f0e04f03e3712aa6ad512d0"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.3-experimental.probe.stdout",
+      "sha256": "748cce194f9197f575d90cc1ed50ce00a6163b9b9f30bbf313b2e4faa1e7437d"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.3-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.4-experimental.json",
+      "sha256": "af03ca18c2fd6ee9cf926b71e9a303851f80845ba34a4e05a1e761be9ca0ebfe"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.4-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.4-experimental.loaded-version.json",
+      "sha256": "bf9fd14f9cfe8f02888a20ddfc766002341043c7cc705a432b536a21c14138dc"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.4-experimental.probe.stdout",
+      "sha256": "563a87fcf792f2ecbbc45721036e378b7221450be3e9e9e8b7146a9f39b0f6c5"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.4-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.5-experimental.json",
+      "sha256": "8fd71907551dd0e35f4a19bdae8bdb3ab1895fc728ca3dff3a8824fedc9495b5"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.5-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.5-experimental.loaded-version.json",
+      "sha256": "26031232761568bc25426db5cba981584659a61136f2fc4644b5cfe3f6bfa852"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.5-experimental.probe.stdout",
+      "sha256": "c7406ee75303e61d988d71252d4ab179957f8e78fe510ce3a6a002c473648722"
+    },
+    {
+      "file": "version-mode-Windows-X64-experimental/version-mode-matrix-experimental/php-8.5-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.json",
+      "sha256": "04126d77d7f0225918f2101e9edbe1c1f027b099aebc6baba5d0897fe80d72f4"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.loaded-version.json",
+      "sha256": "993c3156ba3ec3b1155075f7b02ab5d22ad545428470dd615456fa94ff09f9d3"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.probe.stdout",
+      "sha256": "8c2faaa7ca2e07764b1d3dab79a20438f35870cb6dc83e5ca2eaccc2c59e4e7b"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.json",
+      "sha256": "38231de193231d0969db1f498e6cf11a15b4ed979cd58eb326e5a24455cf6f12"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.loaded-version.json",
+      "sha256": "2eb59d184a6549f586e8b47ea08fd385c2c8f115583cfce4e65ce4be501c3934"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.probe.stdout",
+      "sha256": "d08bd7170913eb2158d53f204b4646a4f9c5d2ac26eac6ecfa34b59bc2dc69d0"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.json",
+      "sha256": "5abfaf0d2ca82b7d1efe1c287444277762e79e20b411b038204b44914dcc0830"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.loaded-version.json",
+      "sha256": "7d2105489fa55178a69066f1243d1b4799d28aa06e65598ba53ef955228485df"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.probe.stdout",
+      "sha256": "f73e946025434e12e44b14a8036f5fde12be6048317632aa0bd87cac0eb8e29e"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.json",
+      "sha256": "73ebb0fa386e1c6e6ef15ae2ca0ca692247acf744023b62915bbf5a6bdfa20e2"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.loaded-version.json",
+      "sha256": "ee2a38c71e3f39705a7abe23b00b70c8036d764dae9ac4534525c1dfb3e994fa"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.probe.stdout",
+      "sha256": "8afd61ad4e99c17cc4f6cd44fb7c5f7271827752ad7376e14c0a2d16dfa0e95f"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.json",
+      "sha256": "4ae7630a83b34fab1d04d9bae60b0576dda9cbb690aebbf98ecb412aaba1dd77"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.loaded-version.json",
+      "sha256": "a4ce72f482334d481fd7cd4089b8c2af7cbd88334679fd2437b2c8f8e5089cf2"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.probe.stdout",
+      "sha256": "5fd79d4c12b8da5db7f081bdd733503bea50d093f8f1624da0f76c3cf1c10bfc"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.json",
+      "sha256": "546d0ccec29cd8367aa2d2cf0bfcb699502803b93804a64f0e91593ce4822df3"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.loaded-version.json",
+      "sha256": "386460bfc96f181bb2ade2d6193c221df6e8c1a6e56c6a928135bd94dc54b95c"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.probe.stdout",
+      "sha256": "1d69c721fb45feb6b8a7dc9fc4634db1039daaed3bbf8a0b747958786e2734cf"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.json",
+      "sha256": "3364cb2f5c4be3dac8b2a587681ae49fcd4c4180e43703313037f1158a244682"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.loaded-version.json",
+      "sha256": "b640adc03ed85618b4eb2659aa4170bc5fac0d1cb3b47403f18147409bb57df2"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.probe.stdout",
+      "sha256": "e13caee64ab544ee8a6ee9f9295c665f47e98156ac0e5c6af411158092a41a73"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.json",
+      "sha256": "24a5833e4fc8dc2d59beadb1756895e08bc59a21a09d25790505f90013a089eb"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.loaded-version.json",
+      "sha256": "756ef39f51fc5a9c1428b706e270516506e84dffff8a5076a639d00994653e76"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.probe.stdout",
+      "sha256": "973830707ae5a8f2466c515c07fc3f8e05400b26e39e98f856a9111d249482f9"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.json",
+      "sha256": "0f90214cd81aa996668b26702a577df03df348170f326fe5931a36fe09f5d5a1"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.loaded-version.json",
+      "sha256": "e802dc82774e91a42ac83e9e05c2d48b61f4820709218a4600847a7d0170d639"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.probe.stdout",
+      "sha256": "7e92ad26c34ff032616ded5f9d6ca317738c5f93c7eff4d1b8be0a838f519d16"
+    },
+    {
+      "file": "version-mode-Windows-X64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.2-progressive.json",
+      "sha256": "907c33d33f00a9ef26c6cc7cad44ee24c32448bb17e3d634dfbc8ee838d3b0f1"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.2-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.2-progressive.loaded-version.json",
+      "sha256": "25a332cddeb5b9f2f5bb930d3fac083c1f546a88b25e34537c28b5c1b152a5b6"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.2-progressive.probe.stdout",
+      "sha256": "8fc556d5e013cdfee7757d8d89c51beafa9e3993f696276f080faec09b502585"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.2-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.3-progressive.json",
+      "sha256": "812248f4f43918d116a4bfd6b550602d522a05ce550c593e9b404f998f2c99a2"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.3-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.3-progressive.loaded-version.json",
+      "sha256": "a2953cd2af0db120cef5575247b7dbfdea03a6de3b83dd69ed86f8ef1d35bc25"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.3-progressive.probe.stdout",
+      "sha256": "e32638e6d5a4fd42368133720525d5f9bf24278713446947aac6fbd48175a5eb"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.3-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.4-progressive.json",
+      "sha256": "aabf7b78a2adc327d61fe7a2999133bcbb067ac6f1da3ae08af466b4f950b09d"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.4-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.4-progressive.loaded-version.json",
+      "sha256": "32b4502d6caa418e178f59cc70b0ffdb6f794b1bee48157768f23448da4e32f2"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.4-progressive.probe.stdout",
+      "sha256": "d8055b6e02750991d498b81527fd12e8bf7b47ba0f0f58e2e89859c098a44457"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-7.4-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.0-progressive.json",
+      "sha256": "eaecffe75641f5cfb09542a25b62224676477189d30a0506ebd305400e92f57b"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.0-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.0-progressive.loaded-version.json",
+      "sha256": "4b9d07e5d72f75dc22043c334d8712204b64b0d5f953aaf05010e43fd46c2ea7"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.0-progressive.probe.stdout",
+      "sha256": "ce42dd02430705fe22840be33d5925ee1ef93d482953027089ef2875d5fd7e5d"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.0-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.1-progressive.json",
+      "sha256": "f55cb980f1478868076bddd6d058cb3d6b1489c5653fbe16f82bb98af98103fc"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.1-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.1-progressive.loaded-version.json",
+      "sha256": "9e7b9a4fc5f07231d9e57f447bbf7775c18894581e888c5055106b8505cd6031"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.1-progressive.probe.stdout",
+      "sha256": "9914b881a5803bb203e1e70378a084e1b27ad8ab32d14086e7d54a54231447b2"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.1-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.2-progressive.json",
+      "sha256": "7c676f72bc41ced0ed42f3c5e33954f793feba5f1020ba7715e5540cb4fe9a2f"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.2-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.2-progressive.loaded-version.json",
+      "sha256": "d6de404db2df3660d26675ed5e746f200dc01c483a6969b8e84db65003b1f1e0"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.2-progressive.probe.stdout",
+      "sha256": "3bdec28d3c48e5c4cd20b310445b499a846b08a6376dbc48ecb5a302541cfd16"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.2-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.3-progressive.json",
+      "sha256": "e032e2658994300750846ff26ba9e3b92a25fbb468292f578f72fddde111072b"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.3-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.3-progressive.loaded-version.json",
+      "sha256": "3ff5f3f13474bced0e236c0e8ccae6749fb1145eaf5dade8ffc1e7d093654584"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.3-progressive.probe.stdout",
+      "sha256": "a2a4f2c3043c9796afdba7c31ac59f6f36d1c3f49cc9b10f2f2149a89eb7d5c1"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.3-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.4-progressive.json",
+      "sha256": "0b27c8278cd7a469da3a52a18de857762c933f8ef2f7013f5b1342659b6b7956"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.4-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.4-progressive.loaded-version.json",
+      "sha256": "3538db96d35d2fc48bdccd9edf736ab811211b75aeb0a84ac140267286e70c93"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.4-progressive.probe.stdout",
+      "sha256": "15679f0a81a1cebed9eb33c710d644ddbaa27d0169392578fd7eb7cde22ba696"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.4-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.5-progressive.json",
+      "sha256": "a50d1a5469e47d534cb585376b73fc72f891d723318d7ea6cf06e5a744ec51d6"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.5-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.5-progressive.loaded-version.json",
+      "sha256": "e6a3c4a3e5b0bdd96d3ed5c24c208818692bfddf98a7fabd83f0fe98db3d5994"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.5-progressive.probe.stdout",
+      "sha256": "3ae561f91f2503a651f75a4e9b7c74c21917948281b94df22ec46e26179c19de"
+    },
+    {
+      "file": "version-mode-Windows-X64-progressive/version-mode-matrix-progressive/php-8.5-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.2-experimental.json",
+      "sha256": "2ed98e2b11c447adaccf76c1f0efab47cdc5a600aa7ea660ffca4c5ffb677241"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.2-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.2-experimental.loaded-version.json",
+      "sha256": "2dfd3bb278b1980f3f70ab8e1b5a3ba6bd587851b4b1c60e3fb0ff670fb0f43b"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.2-experimental.probe.stdout",
+      "sha256": "75d682cbb4fe6c947559dec87aab85e7e8cf3852413d9cc5b52b767f0c6e6a41"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.2-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.3-experimental.json",
+      "sha256": "d20103f0bc0f210020645a8f505cd846f82f6bc693a718691975ceadf3d4c14c"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.3-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.3-experimental.loaded-version.json",
+      "sha256": "b0ea64357f0d6df1eb29e85a9e2dac567b347ecadce971c4f14f037224c789ea"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.3-experimental.probe.stdout",
+      "sha256": "a5a3c86749658c2de4ed5aeedc9b31a3a5dd378d379a4961a0942509f7266d34"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.3-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.4-experimental.json",
+      "sha256": "9b50073beb7eca480cad05771455c783379f6aa19b6acec89e0a4b45391e46c5"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.4-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.4-experimental.loaded-version.json",
+      "sha256": "58bd75f9e73991f66b5a4119bb6f316692ea649ffbfacb4841c6c04c1e91be42"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.4-experimental.probe.stdout",
+      "sha256": "5099d02bbf582fccef55f50e8cf3b70140a0a74094f261ca2ede5d2f90f6738c"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-7.4-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.0-experimental.json",
+      "sha256": "ba09673022e92ff85cff48fdbe384eec80d6bc98bc496793890fd5394e45454d"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.0-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.0-experimental.loaded-version.json",
+      "sha256": "3ec3178b7164459d6910b522ab2c4efc45c34b4cfae18951ce877857bbd148cc"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.0-experimental.probe.stdout",
+      "sha256": "5286b4674757c5dd23ebe3eb64f7e63f626c862e584fe0cfddf6b2064acdbd3a"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.0-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.1-experimental.json",
+      "sha256": "4d535e6e1bc9f27f8e73f67bdf6edac368499b7500cf43e5308fcf47ee1ea8d2"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.1-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.1-experimental.loaded-version.json",
+      "sha256": "36d3142f7600284b7705dcdda6dd0ed342b02285fe1e240b24ce941572ece135"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.1-experimental.probe.stdout",
+      "sha256": "bc0efff524ba8d5f0b97e6287dbeeda8b38df1efa5452d7f8c079eb4c947300d"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.1-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.2-experimental.json",
+      "sha256": "9e430d814cdd63552b14d49773a8de9c137249c874df1b20a63660bba6f8942e"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.2-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.2-experimental.loaded-version.json",
+      "sha256": "eb9d49eceebf313b9c24434a67609d8cc2820c0f365a2978e0f2e570155eff73"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.2-experimental.probe.stdout",
+      "sha256": "f0797327e118094d2ba1bc9cbc82de9a38cb054f680d5ebd0d2d696f7f28bd4b"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.2-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.3-experimental.json",
+      "sha256": "055a487c7e6efbff03c5459f6bc53c8ee1a65eae0c23060430df2ee31cb95ce1"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.3-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.3-experimental.loaded-version.json",
+      "sha256": "9efaa9941abb06af251b1f9e37cb0caf0f9526ce8e14bb5690b1d0e0a085606e"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.3-experimental.probe.stdout",
+      "sha256": "748cce194f9197f575d90cc1ed50ce00a6163b9b9f30bbf313b2e4faa1e7437d"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.3-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.4-experimental.json",
+      "sha256": "f95c7fbacb15a0aa86ab0fa209e8943b6ea35ce47967617221c3eedbe7a708ee"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.4-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.4-experimental.loaded-version.json",
+      "sha256": "dc5e038a4cca8b1557d44c3a812c395e847df181b9a46eb18983ae4896fdf347"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.4-experimental.probe.stdout",
+      "sha256": "563a87fcf792f2ecbbc45721036e378b7221450be3e9e9e8b7146a9f39b0f6c5"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.4-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.5-experimental.json",
+      "sha256": "02e18224a8ef15e22c88e79c47c6de8c6d766d2ab3af517113ead98c67dd1172"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.5-experimental.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.5-experimental.loaded-version.json",
+      "sha256": "69c2e790de554a89091572f23de8eaa83281b0a19983f92929d12692085c2302"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.5-experimental.probe.stdout",
+      "sha256": "c7406ee75303e61d988d71252d4ab179957f8e78fe510ce3a6a002c473648722"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-experimental/version-mode-matrix-experimental/php-8.5-experimental.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.json",
+      "sha256": "8a892cfa8b41a456e9d6a26be5632ea1fa316f9b3ede24f523330bf28ec42ef3"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.loaded-version.json",
+      "sha256": "f29ac19ddad3ff8dcee174c1075cf4b7232201b4440718066496b3320146a4bd"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.probe.stdout",
+      "sha256": "8c2faaa7ca2e07764b1d3dab79a20438f35870cb6dc83e5ca2eaccc2c59e4e7b"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.2-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.json",
+      "sha256": "10d6016a3ddac837b2241a37e549d00c64c95bc96525057088e975055a4c1dfc"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.loaded-version.json",
+      "sha256": "73fc46f13487902e54f2cd31cd726df0398950d6a8448ef1ca92d7a9a7c8b719"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.probe.stdout",
+      "sha256": "d08bd7170913eb2158d53f204b4646a4f9c5d2ac26eac6ecfa34b59bc2dc69d0"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.3-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.json",
+      "sha256": "8631c75b2ebb7491dc2655ebf41c4a96d26287231c13e7aff55437a2712d4c86"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.loaded-version.json",
+      "sha256": "fa35e8c8bd3a2b232e4c21fb45e081aeebba218a7e748e852d0e05136a7cb6ad"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.probe.stdout",
+      "sha256": "f73e946025434e12e44b14a8036f5fde12be6048317632aa0bd87cac0eb8e29e"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-7.4-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.json",
+      "sha256": "4e99f527ba870cfde86dde6ea78a5f612099de3377460f33b4ccd98dc7e7bb98"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.loaded-version.json",
+      "sha256": "5ab281027ce9c1c7b5c237609672b1bcb0aed48be975d55bf54cda24ffe65f75"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.probe.stdout",
+      "sha256": "8afd61ad4e99c17cc4f6cd44fb7c5f7271827752ad7376e14c0a2d16dfa0e95f"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.0-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.json",
+      "sha256": "4e54908197a8c38a8b61dc991429363671a0c7f685ac1ac3b063fb77e0f52556"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.loaded-version.json",
+      "sha256": "2bd97b918b6fcf040520d23686dc18b0f11736ef8d109be686657f96efb2ab03"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.probe.stdout",
+      "sha256": "5fd79d4c12b8da5db7f081bdd733503bea50d093f8f1624da0f76c3cf1c10bfc"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.1-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.json",
+      "sha256": "9eb96837fbb36cf3e34bf06663ea2c3432e3f7a48c483abbb85e7a40bdff36dc"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.loaded-version.json",
+      "sha256": "9a39cf6bcb97756423db100aa7632969325ff1533a22a7b09f5492aad7e8f4d7"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.probe.stdout",
+      "sha256": "1d69c721fb45feb6b8a7dc9fc4634db1039daaed3bbf8a0b747958786e2734cf"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.2-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.json",
+      "sha256": "d586d8dbd2c6ba124a6a88da43fad2e05d2b96bc4df8fdccf191837fdaa096a1"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.loaded-version.json",
+      "sha256": "c3573b01471638f1ba1222a86988badca379841fd576d5f27e47ba6d15da1bcc"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.probe.stdout",
+      "sha256": "e13caee64ab544ee8a6ee9f9295c665f47e98156ac0e5c6af411158092a41a73"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.3-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.json",
+      "sha256": "a59b3649c5eadf6f5abbb5ae80d5db3bc04397b81c527d8c2dec665bdc5ecdb0"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.loaded-version.json",
+      "sha256": "8a4fade0c019f2ea3682901759a9d57064de8aed6092dc6d1170b8c159abfc9f"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.probe.stdout",
+      "sha256": "973830707ae5a8f2466c515c07fc3f8e05400b26e39e98f856a9111d249482f9"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.4-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.json",
+      "sha256": "ce34e587f896b002b34a5c575a08368b766bd04112f6cd2dad9452f7a5199c4e"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.loaded-version.json",
+      "sha256": "6a40a0d8e83a0ff2e03e791f67b356abbf68a79e347bdcde8e6252f6ddae1729"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.probe.stdout",
+      "sha256": "7e92ad26c34ff032616ded5f9d6ca317738c5f93c7eff4d1b8be0a838f519d16"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-onDemand/version-mode-matrix-onDemand/php-8.5-onDemand.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.2-progressive.json",
+      "sha256": "98295ad41c2bf80c4a6b193ebc49a7e29945dcfc0c9b6b59a236f33d695975af"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.2-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.2-progressive.loaded-version.json",
+      "sha256": "94908b271ba32b8a7db18980dba167800ebb20d825e118393c2136822316f8ea"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.2-progressive.probe.stdout",
+      "sha256": "8fc556d5e013cdfee7757d8d89c51beafa9e3993f696276f080faec09b502585"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.2-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.3-progressive.json",
+      "sha256": "e926fdac458d9ed837bf5002818939c567f27d12a9d96d9df94aadcf2a59887f"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.3-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.3-progressive.loaded-version.json",
+      "sha256": "285bb0ef70fc5264848796912139bf32698d83b86cc29a2032b9c8856a88dd5b"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.3-progressive.probe.stdout",
+      "sha256": "e32638e6d5a4fd42368133720525d5f9bf24278713446947aac6fbd48175a5eb"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.3-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.4-progressive.json",
+      "sha256": "a18066b2c1680dd214dcdf0ddc2cc1a6c81668986d4cb2e72ec1a4117956b61e"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.4-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.4-progressive.loaded-version.json",
+      "sha256": "256f086c2a9f666240303f8677226d68b1486e35dff138e174b7273872a6ef63"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.4-progressive.probe.stdout",
+      "sha256": "d8055b6e02750991d498b81527fd12e8bf7b47ba0f0f58e2e89859c098a44457"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-7.4-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.0-progressive.json",
+      "sha256": "e607db85cc5bf630aa0b997edeac85d8ebec658a229748d946b9b41e9a397ae5"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.0-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.0-progressive.loaded-version.json",
+      "sha256": "add77438f765b4be5f1fc25c9c1b671e42d8c5d1847c6aa0fea0554d9ce3ceb1"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.0-progressive.probe.stdout",
+      "sha256": "ce42dd02430705fe22840be33d5925ee1ef93d482953027089ef2875d5fd7e5d"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.0-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.1-progressive.json",
+      "sha256": "ac20f490e6e40c5f213ebfe391998b7620cf0d5eefd5c8b5b6dff8a573478633"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.1-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.1-progressive.loaded-version.json",
+      "sha256": "c8e4a3df5fe0a0e29626d02022fcde192d4cb5dccaf90bc28cdf267b91d44d7d"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.1-progressive.probe.stdout",
+      "sha256": "9914b881a5803bb203e1e70378a084e1b27ad8ab32d14086e7d54a54231447b2"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.1-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.2-progressive.json",
+      "sha256": "e5084b8612cad3dfebbe25a6236b21f371165a859a465abb379b80f832d1c59e"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.2-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.2-progressive.loaded-version.json",
+      "sha256": "e5b7fdf907d992b96bb5d9683a3b5f3cd986ceadf1c77eb6f4a46eb450d1c474"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.2-progressive.probe.stdout",
+      "sha256": "3bdec28d3c48e5c4cd20b310445b499a846b08a6376dbc48ecb5a302541cfd16"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.2-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.3-progressive.json",
+      "sha256": "f5644077cb8bc86902b3efe11c3b4232925911ea57ccb32665a6ccd909e3b771"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.3-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.3-progressive.loaded-version.json",
+      "sha256": "552512ea4d082412b9fd68cbf081c33a58745f04fd852e8e1e0e401e3b6864a8"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.3-progressive.probe.stdout",
+      "sha256": "a2a4f2c3043c9796afdba7c31ac59f6f36d1c3f49cc9b10f2f2149a89eb7d5c1"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.3-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.4-progressive.json",
+      "sha256": "472e908e8468b5905fa442d83e80975a13fd95969f99f062afb575e0a36c31b9"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.4-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.4-progressive.loaded-version.json",
+      "sha256": "dddd77f60f5216ec3e530ed0f682762ea7eb4ba48c0977d677ad760a42b62fd6"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.4-progressive.probe.stdout",
+      "sha256": "15679f0a81a1cebed9eb33c710d644ddbaa27d0169392578fd7eb7cde22ba696"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.4-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.5-progressive.json",
+      "sha256": "564a5535a23249deca28a7218827dec9b6684b53e288985bd4d4ed5ad1c0e99b"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.5-progressive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.5-progressive.loaded-version.json",
+      "sha256": "77de5edae286f4e6d670c276b8e2ef507be5a19e2c8514a174f6d660f60eb40c"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.5-progressive.probe.stdout",
+      "sha256": "3ae561f91f2503a651f75a4e9b7c74c21917948281b94df22ec46e26179c19de"
+    },
+    {
+      "file": "version-mode-macOS-ARM64-progressive/version-mode-matrix-progressive/php-8.5-progressive.probe.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "fullObjectiveComplete": false,
+  "new8439OrdinaryMatrixQualified": true,
+  "complexControllerBudgetQualified": false,
+  "realWslAcceptance": false,
+  "processCleanupEvidence": "Remote owned-process receipts and successful original jobs; no local /proc claim for remote PIDs"
+}

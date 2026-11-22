@@ -1,0 +1,310 @@
+{
+  "recordedAtUtc": "2026-10-12T12:53:07.956122+00:00",
+  "baseCommit": "a919d53f997ac462d2758a1968a3e4bc9c0ce959",
+  "sourceFiles": {
+    "packages/language-server/src/server.ts": "9038987a7d28a27c9e29ddb4dd71cf4675d46c0ce8d47393083f9b447e897652",
+    "packages/semantic/src/index.ts": "f8e8666a8cd10d51231e31888c8968ada617f0725c05c3948dee7ff4541c92bc",
+    "packages/index/test/index.test.ts": "9d48f1529ff3d4d283597c81d1b6161dc2c38d28a6821533db59dbc062356e2e",
+    "packages/language-server/test/stdio.test.ts": "bbed0f8ae08af4234dc5ca7a9593ef6664ac2d0cbff3763fb270c25c81bb2393",
+    "packages/language-server/test/symfony-container-provider-concurrency-stdio.test.ts": "602fb855c3ce06cc500f4c6123bce96b159419785c1238630bb256918afc5940"
+  },
+  "currentBundleSha256": "6736669471b6d5dd66ffefe2e5255f10837a315b42e3011c43170f72c2fa0d95",
+  "semanticFinal": {
+    "files": 190,
+    "passed": 24133,
+    "failed": 0,
+    "log": ".vscode-test/plan-completion-2026-10-12/semantic-final-full.log"
+  },
+  "rootFinal": {
+    "files": 21,
+    "passed": 113,
+    "failed": 0,
+    "log": ".vscode-test/plan-completion-2026-10-12/root-final-tests.log"
+  },
+  "index": {
+    "files": 4,
+    "passed": 69,
+    "failed": 0,
+    "log": ".vscode-test/plan-completion-2026-10-12/index-after.log"
+  },
+  "serviceConcurrencyEarlierSnapshot": {
+    "passed": 28,
+    "log": ".vscode-test/plan-completion-2026-10-12/watched-service-after.log"
+  },
+  "watchedServiceFinalFastPath": {
+    "passed": 2,
+    "selectedOut": 26,
+    "log": ".vscode-test/plan-completion-2026-10-12/final-watcher-focused.log"
+  },
+  "xml": {
+    "passed": 1,
+    "selectedOut": 567,
+    "log": ".vscode-test/plan-completion-2026-10-12/xml-after.log"
+  },
+  "fullLsp": {
+    "status": "running",
+    "wrapperPid": 69413,
+    "command": [
+      "pnpm",
+      "--filter",
+      "@php-companion/language-server",
+      "exec",
+      "vitest",
+      "run",
+      "--reporter=default",
+      "--reporter=json",
+      "--outputFile.json=/var/www/node/php-companion/.vscode-test/plan-completion-2026-10-12/full-lsp-results.json"
+    ],
+    "baseCommit": "a919d53f997ac462d2758a1968a3e4bc9c0ce959",
+    "bundleSha256": "6736669471b6d5dd66ffefe2e5255f10837a315b42e3011c43170f72c2fa0d95",
+    "inputs": 2085,
+    "startedAtUtc": "2026-10-12T12:46:52.740468+00:00",
+    "fullObjectiveComplete": false,
+    "childPid": 69589,
+    "processGroup": 69589
+  },
+  "fullLspProcessesLiveAtRecord": {
+    "69413": true,
+    "69589": true
+  },
+  "controllerProfiles": {
+    "controller-profile": {
+      "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+      "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "serverSha256": "cb7b69733676f719cda46454397fe18ea0792cbc4bfec7907b6b7d1fb06751f8",
+      "rounds": 25,
+      "indexingMode": "onDemand",
+      "phpVersion": "8.5",
+      "normalProtocol": true,
+      "profiled": true,
+      "exitCode": 0,
+      "signal": null,
+      "correctnessPassed": true,
+      "rows": 25,
+      "completion": {
+        "count": 25,
+        "p95Ms": 831.9880090000006,
+        "maxMs": 836.2229650000008
+      },
+      "diagnostics": {
+        "count": 25,
+        "p95Ms": 2189.623642999999,
+        "maxMs": 3669.335357
+      },
+      "diskUnchanged": true,
+      "scope": "Profiled normal stdio in a frozen real-project copy; includes debounce; not real editor or final performance qualification."
+    },
+    "controller-formal-profile": {
+      "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+      "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "serverSha256": "5c23154249f54545b4d04356a05eb82f5bea51698fe91a945acc2e4ee1527e60",
+      "rounds": 25,
+      "indexingMode": "onDemand",
+      "phpVersion": "8.5",
+      "normalProtocol": true,
+      "profiled": true,
+      "exitCode": 0,
+      "signal": null,
+      "correctnessPassed": true,
+      "rows": 25,
+      "completion": {
+        "count": 25,
+        "p95Ms": 145.29804799999692,
+        "maxMs": 764.9999760000001
+      },
+      "diagnostics": {
+        "count": 25,
+        "p95Ms": 2199.4717569999993,
+        "maxMs": 2941.204812000001
+      },
+      "diskUnchanged": true,
+      "scope": "Profiled normal stdio in a frozen real-project copy; includes debounce; not real editor or final performance qualification."
+    },
+    "controller-candidate-profile": {
+      "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+      "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "serverSha256": "1cb375315d60dd99d6ed61cb3ae56a1b4d08d7afa776a58b28224eee5ae0a58a",
+      "rounds": 25,
+      "indexingMode": "onDemand",
+      "phpVersion": "8.5",
+      "normalProtocol": true,
+      "profiled": true,
+      "exitCode": 0,
+      "signal": null,
+      "correctnessPassed": true,
+      "rows": 25,
+      "completion": {
+        "count": 25,
+        "p95Ms": 798.676649,
+        "maxMs": 2029.7133250000043
+      },
+      "diagnostics": {
+        "count": 25,
+        "p95Ms": 2099.7126590000007,
+        "maxMs": 2590.5531730000002
+      },
+      "diskUnchanged": true,
+      "scope": "Profiled normal stdio in a frozen real-project copy; includes debounce; not real editor or final performance qualification."
+    },
+    "controller-fast-profile": {
+      "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+      "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+      "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+      "serverSha256": "b6dafed35ceb59148976e6cd23148237082574095a92225dc3e7cb3ab5135b65",
+      "rounds": 25,
+      "indexingMode": "onDemand",
+      "phpVersion": "8.5",
+      "normalProtocol": true,
+      "profiled": true,
+      "exitCode": 0,
+      "signal": null,
+      "correctnessPassed": true,
+      "rows": 25,
+      "completion": {
+        "count": 25,
+        "p95Ms": 828.7740750000012,
+        "maxMs": 861.6413359999988
+      },
+      "diagnostics": {
+        "count": 25,
+        "p95Ms": 2290.5871499999994,
+        "maxMs": 2557.3239510000003
+      },
+      "diskUnchanged": true,
+      "scope": "Profiled normal stdio in a frozen real-project copy; includes debounce; not real editor or final performance qualification."
+    }
+  },
+  "nativeWindowsNodeVersion": "24.16.0",
+  "nativeIndexRounds": [
+    {
+      "run": 0,
+      "concurrency": 1000,
+      "exitCode": 0,
+      "preparedMs": 548.1812,
+      "indexMs": 117.03199999999993,
+      "totalMs": 665.2184,
+      "inspected": 1000,
+      "files": 999,
+      "complete": false,
+      "projectComplete": false
+    },
+    {
+      "run": 0,
+      "concurrency": 32,
+      "exitCode": 0,
+      "preparedMs": 460.73859999999996,
+      "indexMs": 95.4026,
+      "totalMs": 556.1465000000001,
+      "inspected": 1000,
+      "files": 999,
+      "complete": false,
+      "projectComplete": false
+    },
+    {
+      "run": 1,
+      "concurrency": 1000,
+      "exitCode": 0,
+      "preparedMs": 485.25660000000005,
+      "indexMs": 116.49669999999992,
+      "totalMs": 601.7601,
+      "inspected": 1000,
+      "files": 999,
+      "complete": false,
+      "projectComplete": false
+    },
+    {
+      "run": 1,
+      "concurrency": 32,
+      "exitCode": 0,
+      "preparedMs": 473.6354,
+      "indexMs": 89.93830000000003,
+      "totalMs": 563.5856,
+      "inspected": 1000,
+      "files": 999,
+      "complete": false,
+      "projectComplete": false
+    },
+    {
+      "run": 2,
+      "concurrency": 1000,
+      "exitCode": 0,
+      "preparedMs": 493.6368,
+      "indexMs": 101.15919999999994,
+      "totalMs": 594.8022,
+      "inspected": 1000,
+      "files": 999,
+      "complete": false,
+      "projectComplete": false
+    },
+    {
+      "run": 2,
+      "concurrency": 32,
+      "exitCode": 0,
+      "preparedMs": 479.2327,
+      "indexMs": 86.09449999999993,
+      "totalMs": 565.3319,
+      "inspected": 1000,
+      "files": 999,
+      "complete": false,
+      "projectComplete": false
+    },
+    {
+      "run": 3,
+      "concurrency": 1000,
+      "exitCode": 0,
+      "preparedMs": 484.2332,
+      "indexMs": 112.34259999999995,
+      "totalMs": 596.582,
+      "inspected": 1000,
+      "files": 999,
+      "complete": false,
+      "projectComplete": false
+    },
+    {
+      "run": 3,
+      "concurrency": 32,
+      "exitCode": 0,
+      "preparedMs": 469.7282,
+      "indexMs": 88.81119999999999,
+      "totalMs": 558.5559,
+      "inspected": 1000,
+      "files": 999,
+      "complete": false,
+      "projectComplete": false
+    },
+    {
+      "run": 4,
+      "concurrency": 1000,
+      "exitCode": 0,
+      "preparedMs": 464.5971,
+      "indexMs": 106.20769999999993,
+      "totalMs": 570.8103000000001,
+      "inspected": 1000,
+      "files": 999,
+      "complete": false,
+      "projectComplete": false
+    },
+    {
+      "run": 4,
+      "concurrency": 32,
+      "exitCode": 0,
+      "preparedMs": 465.92499999999995,
+      "indexMs": 91.84640000000002,
+      "totalMs": 557.7836,
+      "inspected": 1000,
+      "files": 999,
+      "complete": false,
+      "projectComplete": false
+    }
+  ],
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "realWslAcceptance": false,
+  "performanceQualified": false,
+  "roadmapOpenItems": 26,
+  "numberedScenarios": 186,
+  "controllerProfileScope": "The staged cb7b run is not formal evidence. 5c231542 is the formal control. Candidate profiles precede the final lazy-fact invalidation guard and do not qualify the final bundle. No input or budget was reduced."
+}

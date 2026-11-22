@@ -1,0 +1,35 @@
+{
+  "independentAuditPassed": true,
+  "auditedAtUtc": "2026-10-20T07:32:55.787318+00:00",
+  "actualPerformanceExitCode": 0,
+  "frozenInputsVerified": 69823,
+  "rounds": 25,
+  "commit": "cb14ce44287f2d8092ef57240a670d38293dfcfc",
+  "coreSHA256": "4a71f296580820ebcf68e5e0dd88b3eb3a68108fef145e740582e9ca2ca424f4",
+  "metrics": {
+    "diagnosticMs": {
+      "p95Ms": 1666.9345669999966,
+      "medianMs": 1523.2214370000002,
+      "maxMs": 2185.3509510000004
+    },
+    "completionMs": {
+      "p95Ms": 818.8740399999951,
+      "medianMs": 691.641638000001,
+      "maxMs": 853.6087720000069
+    }
+  },
+  "diagnosticBudgetMs": 500,
+  "queryBudgetMs": 150,
+  "diagnosticBudgetPassed": false,
+  "queryBudgetPassed": false,
+  "originalProbeByteUnchanged": true,
+  "normalProtocolWithoutProfilingOrCountInstrumentation": true,
+  "all25VisibleCompletionAndDiagnosticDigestsEqualPreviousPrivateF0": true,
+  "previousReferenceIsNotFreshPairedTimingControl": true,
+  "noCausalSpeedComparisonClaim": true,
+  "ownedActorsGroupsAndCacheGone": true,
+  "productionCandidateChanged": false,
+  "fullObjectiveComplete": false,
+  "archivesVerified": 11,
+  "archiveManifestSHA256": "3e578489c95387d272c425b7ef24171ac7a94c840684554d6b6b0cb205eeb7f9"
+}

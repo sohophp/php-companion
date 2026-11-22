@@ -1,0 +1,244 @@
+{
+  "observedAtUtc": "2026-10-14T06:22:50.627950+00:00",
+  "qualifiedDefaultExecution": true,
+  "fullObjectiveComplete": false,
+  "originalCommand": [
+    "pnpm",
+    "test"
+  ],
+  "coreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "frozenInputsUnchanged": 3316,
+  "vitestStages": [
+    {
+      "path": "/var/www/node/php-companion/packages/runtime-probe",
+      "counts": {
+        "passed": 34
+      },
+      "fileSummary": "2 passed (2)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/language-spec",
+      "counts": {
+        "passed": 360
+      },
+      "fileSummary": "19 passed (19)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/phpdoc",
+      "counts": {
+        "passed": 86
+      },
+      "fileSummary": "4 passed (4)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/parser",
+      "counts": {
+        "passed": 254
+      },
+      "fileSummary": "16 passed (16)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/project",
+      "counts": {
+        "passed": 14
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/index",
+      "counts": {
+        "passed": 69
+      },
+      "fileSummary": "4 passed (4)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/type-system",
+      "counts": {
+        "passed": 18
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/interop",
+      "counts": {
+        "passed": 4
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/semantic-provider",
+      "counts": {
+        "passed": 14
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/semantic-provider-host",
+      "counts": {
+        "passed": 16
+      },
+      "fileSummary": "2 passed (2)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/route-provider",
+      "counts": {
+        "passed": 3
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/route-provider-host",
+      "counts": {
+        "passed": 2
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/plugin-api",
+      "counts": {
+        "passed": 2
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/provider-winstar-routes",
+      "counts": {
+        "passed": 6
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/framework-symfony",
+      "counts": {
+        "passed": 72
+      },
+      "fileSummary": "6 passed (6)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/provider-symfony-routes",
+      "counts": {
+        "passed": 14
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/provider-symfony-services",
+      "counts": {
+        "passed": 14
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/provider-symfony-events",
+      "counts": {
+        "passed": 5
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/provider-symfony-controller-contexts",
+      "counts": {
+        "passed": 12
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/framework-doctrine",
+      "counts": {
+        "passed": 9
+      },
+      "fileSummary": "2 passed (2)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/semantic",
+      "counts": {
+        "passed": 24145
+      },
+      "fileSummary": "191 passed (191)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/refactor",
+      "counts": {
+        "passed": 6
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/language-server",
+      "counts": {
+        "passed": 1652,
+        "skipped": 1
+      },
+      "fileSummary": "142 passed (142)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/testkit",
+      "counts": {
+        "passed": 5
+      },
+      "fileSummary": "1 passed (1)"
+    },
+    {
+      "path": "/var/www/node/php-companion/packages/php-companion-symfony",
+      "counts": {
+        "passed": 13
+      },
+      "fileSummary": "3 passed (3)"
+    },
+    {
+      "path": "/var/www/node/php-companion",
+      "counts": {
+        "passed": 121
+      },
+      "fileSummary": "23 passed (23)"
+    }
+  ],
+  "vitestPassed": 26950,
+  "vitestSkipped": 1,
+  "nativePassed": 7,
+  "nativeFailures": 0,
+  "nativeSkipped": 0,
+  "ownedProcessGroupEmpty": true,
+  "driverGone": true,
+  "commandGone": true,
+  "temporaryDirectoryEvidence": "Native cleanup and runtime tests passed their original resource lifecycle assertions; no exhaustive global temporary directory claim",
+  "humanWslAcceptance": false,
+  "remoteCiExecuted": false,
+  "archiveFiles": 24,
+  "originalDefaultActualExitCode": 0,
+  "originalDefaultSeconds": 2359.954332729918,
+  "independentAuditActualExitCode": 0,
+  "normalBuildTypecheckAndLintActualExitCodes": [
+    0,
+    0,
+    0
+  ],
+  "publicDeclarationsUnchanged": 9,
+  "installedOrReleased": false,
+  "editorC1OnDemandActualExitCode": 0,
+  "editorC2OnDemandActualExitCode": 0,
+  "editorC3OnDemandStatus": "passed",
+  "longSessionSequencingStarted": true,
+  "actual7200SecondBenchmarkStarted": true,
+  "editorC3OnDemandActualExitCode": 0,
+  "editorC3OnDemandGenerationCases": 40,
+  "editorC3ProgressiveStatus": "passed",
+  "editorFourFlowsQualified": true,
+  "editorFourFlowsActualExitCodes": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "editorIndependentAuditActualExitCode": 0,
+  "editorGenerationBoundaryCases": 80,
+  "editorArchiveFiles": 32,
+  "current8219LongSessionStarted": true,
+  "current8219LongSessionQualified": false,
+  "current8219LongSessionPrepared": true,
+  "editorC3ProgressiveActualExitCode": 0,
+  "editorC3ProgressiveGenerationCases": 40,
+  "current8219Full12ExtensionPreparationScriptsVerified": true,
+  "current8219Full12ExtensionEnvironmentCopied": false,
+  "current8219Full12ExtensionStarted": false
+}

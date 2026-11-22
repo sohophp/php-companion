@@ -1,0 +1,1296 @@
+{
+  "auditedAtUtc": "2026-10-20T04:58:26.203653+00:00",
+  "independentBindingAuditPassed": true,
+  "currentSourceCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+  "workflowRun": 39363787201,
+  "workflowConclusion": "success",
+  "canonicalLogArchiveSHA256": "e7a7feb33ef2678fb231ff217b22f4737c3dce2d3b7d3cf67ddb6d5959371614",
+  "localActualResultSHA256": "ecf2a62235aa83c71ad9f7c64077468562946b820b466e8a13bee38ed9a73d59",
+  "originalPerformanceInputManifestSHA256": "c48db8687a18a80931e414fe3bb42baed64f2f50e586ef47b0bc09f90c77b5b4",
+  "localResultsAndSourcesMatchFrozenRunDigests": true,
+  "localControlRuntimeSHA256": "8439eea8cbdec5fe8f0008b56fcd411c4517c433a018b8586b07bc6ccc6f3edc",
+  "testRerunPerformed": false,
+  "sourceFiles": [
+    {
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "sha256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "caseCount": 13,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/extract-method-branch-outputs.test.ts",
+            "cases": 13,
+            "passed": 13,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 988
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/extract-method-branch-outputs.test.ts",
+            "cases": 13,
+            "passed": 13,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1077
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/extract-method-branch-outputs.test.ts",
+            "cases": 13,
+            "passed": 13,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 1047
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    },
+    {
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "sha256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "caseCount": 27,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/extract-method-local-chain.test.ts",
+            "cases": 27,
+            "passed": 27,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 839
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/extract-method-local-chain.test.ts",
+            "cases": 27,
+            "passed": 27,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 862
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/extract-method-local-chain.test.ts",
+            "cases": 27,
+            "passed": 27,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 839
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    },
+    {
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "sha256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "caseCount": 18,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/extract-method-local-return.test.ts",
+            "cases": 18,
+            "passed": 18,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 921
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/extract-method-local-return.test.ts",
+            "cases": 18,
+            "passed": 18,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 984
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/extract-method-local-return.test.ts",
+            "cases": 18,
+            "passed": 18,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 956
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    },
+    {
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "sha256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "caseCount": 23,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/reorder-effectful-method-arguments.test.ts",
+            "cases": 23,
+            "passed": 23,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 806
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/reorder-effectful-method-arguments.test.ts",
+            "cases": 23,
+            "passed": 23,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 790
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/reorder-effectful-method-arguments.test.ts",
+            "cases": 23,
+            "passed": 23,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 774
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    },
+    {
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "sha256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "caseCount": 15,
+      "platforms": [
+        {
+          "job": "13_Quality (macos-latest).txt",
+          "logSHA256": "f4e5d3f65d424b6b6b35f279abc09073f8f3033107b4af88c40a7e820cdf0c04",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/reorder-default-evaluation.test.ts",
+            "cases": 15,
+            "passed": 15,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 856
+          }
+        },
+        {
+          "job": "14_Quality (ubuntu-latest).txt",
+          "logSHA256": "5fe4cec34c79796d8ea312f42bfff17223c067827d4b3b2e8043155dcb65af32",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/reorder-default-evaluation.test.ts",
+            "cases": 15,
+            "passed": 15,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 870
+          }
+        },
+        {
+          "job": "19_Quality (windows-latest).txt",
+          "logSHA256": "385539f0f576247e44c3d5a3118f5a70d327e84dc8de0d85bb4bfee8fcc1dd81",
+          "wholeFilePassedZeroSkips": {
+            "relativeFile": "test/reorder-default-evaluation.test.ts",
+            "cases": 15,
+            "passed": 15,
+            "failed": 0,
+            "skipped": 0,
+            "logLine": 846
+          }
+        }
+      ],
+      "scope": "semantic only; excludes native PHP, stdio, editor and full scenario requirements"
+    }
+  ],
+  "rows": [
+    {
+      "id": "F08-EM-04",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "extracts 3 complete branch outputs without losing order or types",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 89.30742099999998,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-04",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "extracts 4 complete branch outputs without losing order or types",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 18.83405099999993,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-04",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "extracts 8 complete branch outputs without losing order or types",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 19.918802000000028,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-04",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "extracts 32 complete branch outputs without losing order or types",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 35.78509199999996,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-05",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "rejects unsafe or unsupported branch outputs: duplicate",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 2.823158000000035,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-05",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "rejects unsafe or unsupported branch outputs: missing",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 1.753321000000028,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-05",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "rejects unsafe or unsupported branch outputs: order",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 1.6169629999999415,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-05",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "rejects unsafe or unsupported branch outputs: type",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 2.240854000000013,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-05",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "rejects unsafe or unsupported branch outputs: dependency",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 2.568113999999923,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-05",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "rejects unsafe or unsupported branch outputs: reference",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 2.076402999999914,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-05",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "rejects unsafe or unsupported branch outputs: existing",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 2.182515999999964,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-05",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "rejects unsafe or unsupported branch outputs: no else",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 1.6917680000000246,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-05",
+      "file": "packages/semantic/test/extract-method-branch-outputs.test.ts",
+      "fullName": "rejects unsafe or unsupported branch outputs: budget",
+      "status": "passed",
+      "sourceSHA256": "8eab95e33a1a830cb7e90dc3c07fc84f65f0c71d57aedd13145b852eb826808f",
+      "localDurationMs": 5.739453000000026,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "proves straight-line scalar chain: temporary",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 41.619894000000045,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "proves straight-line scalar chain: both outputs",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 6.300224999999955,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "proves straight-line scalar chain: literal",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 3.640942999999993,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "proves straight-line scalar chain: float",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 5.160337000000027,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "proves straight-line scalar chain: parenthesized",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 5.117833000000019,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "proves straight-line scalar chain: string",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 4.684467000000041,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "proves straight-line scalar chain: three stages",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 4.572573000000034,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects unproved scalar chain: undefined",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 2.657826,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects unproved scalar chain: reference",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 13.915403999999967,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects unproved scalar chain: duplicate",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 3.0082869999999957,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects unproved scalar chain: division",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 5.303496999999993,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects unproved scalar chain: unknown parameter",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 2.1419049999999515,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects unproved scalar chain: numeric string",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 2.201404000000025,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects unproved scalar chain: dynamic observer",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 4.952328999999963,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects unproved scalar chain: compact observer",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 4.588930000000005,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects unproved scalar chain: include observer",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 6.45115300000009,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects unproved scalar chain: eval observer",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 3.183155000000056,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects unproved scalar chain: dynamic reader",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 1.5986729999999625,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects unproved scalar chain: no live output",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 1.6469690000000128,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "rejects an existing output name",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 2.0255560000000514,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "returns a local used by a later callback: explicit capture",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 2.7471199999999953,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "returns a local used by a later callback: reference capture",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 2.377997999999934,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "returns a local used by a later callback: arrow capture",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 1.9988499999999476,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "returns a local used by a later callback: nested arrow capture",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 1.9832679999999527,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "refuses a local reference captured before selection",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 1.678068000000053,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "keeps an unrelated nested name out of outputs: independent closure local",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 2.2041209999999865,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-06",
+      "file": "packages/semantic/test/extract-method-local-chain.test.ts",
+      "fullName": "keeps an unrelated nested name out of outputs: arrow parameter shadow",
+      "status": "passed",
+      "sourceSHA256": "77f4ca0701a24f3897f581edcc868480236aa2f3f6b9ec8dc9ed4d2b693ab51c",
+      "localDurationMs": 2.1318410000000085,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "extracts assignments ending in a scalar return: numeric",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 40.302580000000034,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "extracts assignments ending in a scalar return: typed int caller",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 6.229767999999979,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "extracts assignments ending in a scalar return: typed float caller",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 4.784227000000044,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "extracts assignments ending in a scalar return: literal",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 2.792141000000015,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "extracts assignments ending in a scalar return: string",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 4.447443999999962,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "extracts assignments ending in a scalar return: bool",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 2.768322000000012,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "extracts assignments ending in a scalar return: int parameter",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 3.583931000000007,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "extracts assignments ending in a scalar return: float",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 4.030300000000011,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "extracts assignments ending in a scalar return: nested arithmetic",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 5.036332000000016,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "rejects unproved assignment return: unknown",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 2.07808,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "rejects unproved assignment return: reference",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 6.895185000000083,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "rejects unproved assignment return: division",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 1.5819990000001098,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "rejects unproved assignment return: read before write",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 1.0389229999999543,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "rejects unproved assignment return: repeat write",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 1.042870999999991,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "rejects unproved assignment return: numeric string",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 1.327258000000029,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "rejects unproved assignment return: scope observer",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 1.6510869999999613,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "rejects unproved assignment return: void caller",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 1.328952000000072,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-EM-07",
+      "file": "packages/semantic/test/extract-method-local-return.test.ts",
+      "fullName": "rejects unproved assignment return: incompatible caller",
+      "status": "passed",
+      "sourceSHA256": "7bca57925af10bec53eb114bee32c0427add22090085b23dc64bd5f949906dc4",
+      "localDurationMs": 1.2125710000000254,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation keeps function-call arguments in their original order at PHP 8.0",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 53.93365299999999,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation keeps function-call arguments in their original order at PHP 8.1",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 7.914093999999977,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation keeps function-call arguments in their original order at PHP 8.2",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 5.537413000000015,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation keeps function-call arguments in their original order at PHP 8.3",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 4.652014000000008,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation keeps function-call arguments in their original order at PHP 8.4",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 5.845340999999962,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation keeps function-call arguments in their original order at PHP 8.5",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 4.8863039999999955,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation does not introduce named syntax at an unsupported or unknown PHP 7.2 target",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 1.647244999999998,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation does not introduce named syntax at an unsupported or unknown PHP 7.3 target",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 1.3973770000000059,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation does not introduce named syntax at an unsupported or unknown PHP 7.4 target",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 2.340865000000008,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation does not introduce named syntax at an unsupported or unknown PHP undefined target",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 1.7097410000000082,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation preserves nested calls, comments and a trailing comma in a closed source",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 10.627857000000063,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation preserves post-increment order without creating temporary variables",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 5.126056999999946,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation keeps mixed argument expressions in order when names are stable",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 5.264188999999988,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation does not name an interface call whose override uses different parameter names",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 8.401177999999959,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation uses the final receiver parameter names even when the interface names differ",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 5.204311999999959,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation preserves a supplied optional argument when its new position leaves an omitted gap",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 5.615419999999972,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation preserves nested expressions in static calls",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 4.977763999999979,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation preserves the nullsafe receiver and argument expressions",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 6.227608000000032,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation withdraws and restores named conversion after changing the project target",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 5.194614999999999,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation retains rejection for unpacking, references, argument introspection and missing required values",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 2.520334999999932,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation retains rejection for unpacking, references, argument introspection and missing required values",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 1.9680819999999812,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation retains rejection for unpacking, references, argument introspection and missing required values",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 1.9119880000000649,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-04",
+      "file": "packages/semantic/test/reorder-effectful-method-arguments.test.ts",
+      "fullName": "method parameter reordering with preserved argument evaluation retains rejection for unpacking, references, argument introspection and missing required values",
+      "status": "passed",
+      "sourceSHA256": "620c5f288033f5345b0f73ec3293ab264ab6907d4d9dabb807ff9afc29b19d76",
+      "localDurationMs": 2.3973809999999958,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines rejects reversed object defaults omitted by 1",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 39.02107000000001,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines rejects reversed object defaults omitted by tick('head')",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 5.985861,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines rejects reversed object defaults omitted by head: tick('head')",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 4.844716999999946,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines keeps object defaults when no omitted effects change order at 1, new Mark('explicit-mode'), new Mark('explicit-count')",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 9.759533000000033,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines keeps object defaults when no omitted effects change order at head: 1, mode: new Mark('explicit-mode'), count: new Mark('explicit-count')",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 5.750220000000013,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines keeps object defaults when no omitted effects change order at 1, new Mark('explicit-mode')",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 4.041651000000002,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines keeps object defaults when no omitted effects change order at head: 1, count: new Mark('explicit-count')",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 3.122637999999938,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines allows an observable default to move past a literal default",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 3.109809999999925,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines allows literal parameters to move without reversing the remaining object defaults",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 4.552757000000042,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines checks defaults of a possible override through an interface receiver",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 14.38590099999999,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines uses only the fixed implementation defaults for a final receiver",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 16.190823999999907,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines preserves declaration and call separators and the lines after them",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 10.653241999999977,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines rejects an omitted line-sensitive default whose source line would move",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 2.1425799999999526,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines allows line defaults that stay on the same line",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 3.3948560000000043,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    },
+    {
+      "id": "F08-RP-05",
+      "file": "packages/semantic/test/reorder-default-evaluation.test.ts",
+      "fullName": "reorder default evaluation and source lines allows shifted line defaults when every affected default is supplied",
+      "status": "passed",
+      "sourceSHA256": "2d8afc8a0e5f946c11624721699e8b161ebc79862779d84d12489f4e20261f0d",
+      "localDurationMs": 2.407542000000035,
+      "currentThreePlatformWholeFileProof": true,
+      "fullScenarioQualified": false
+    }
+  ],
+  "additionalNumberedIds": [
+    "F08-EM-04",
+    "F08-EM-05",
+    "F08-EM-06",
+    "F08-EM-07",
+    "F08-RP-04",
+    "F08-RP-05"
+  ],
+  "additionalNumberedIdCount": 6,
+  "semanticAssertionRecordsWithCurrentThreePlatformFileProof": 96,
+  "distinctNamedAssertionIdentities": 93,
+  "repeatedFullNamesConservativelyDeduplicated": 3,
+  "actualThreePlatformExecutions": 288,
+  "overlappingPriorAssertionIdentities": 0,
+  "combinedIds": [
+    "F02-VERSION-01",
+    "F04-NAV-01",
+    "F04-NAV-04",
+    "F04-NAV-05",
+    "F04-NAV-07",
+    "F04-NAV-08",
+    "F04-NAV-10",
+    "F04-NAV-11",
+    "F04-NAV-12",
+    "F04-NAV-13",
+    "F04-NAV-14",
+    "F04-NAV-15",
+    "F04-NAV-16",
+    "F04-NAV-17",
+    "F04-NAV-18",
+    "F04-NAV-19",
+    "F04-REF-01",
+    "F04-REF-02",
+    "F04-REF-03",
+    "F04-REF-04",
+    "F05-BOUND-01",
+    "F05-CALLABLE-01",
+    "F05-CALLABLE-02",
+    "F05-CONDITIONAL-01",
+    "F05-FLOW-01",
+    "F05-FLOW-02",
+    "F05-FLOW-03",
+    "F05-GEN-03",
+    "F05-GEN-04",
+    "F05-GEN-05",
+    "F05-GEN-06",
+    "F05-MIXIN-01",
+    "F05-SHAPE-01",
+    "F05-SHAPE-02",
+    "F05-SHAPE-03",
+    "F05-TEMPLATE-01",
+    "F05-TEMPLATE-02",
+    "F06-DIAG-01",
+    "F06-DIAG-02",
+    "F06-DIAG-03",
+    "F06-DIAG-04",
+    "F07-GEN-01",
+    "F07-GEN-02",
+    "F07-GEN-03",
+    "F07-GEN-BODY-01",
+    "F07-GEN-BODY-02",
+    "F07-GEN-BODY-03",
+    "F07-IMPORT-01",
+    "F08-EI-01",
+    "F08-EI-02",
+    "F08-EI-03",
+    "F08-EM-01",
+    "F08-EM-02",
+    "F08-EM-03",
+    "F08-EM-04",
+    "F08-EM-05",
+    "F08-EM-06",
+    "F08-EM-07",
+    "F08-RP-01",
+    "F08-RP-02",
+    "F08-RP-03",
+    "F08-RP-04",
+    "F08-RP-05",
+    "F09-DOC-01",
+    "F09-DOC-02",
+    "F09-DOC-03",
+    "F09-ROUTE-01",
+    "F09-ROUTE-02",
+    "F09-ROUTE-03",
+    "F09-SVC-01",
+    "F09-SVC-02",
+    "F09-SVC-03",
+    "F13-REF-LIFETIME-01",
+    "F13-REF-LIFETIME-02",
+    "F14-CONFIG-01",
+    "F14-LOCALE-01",
+    "F14-MANIFEST-01"
+  ],
+  "combinedPartialExecutionIds": 77,
+  "combinedPartialExecutionAssertions": 345,
+  "allCombinedIdentitiesIndependentlyDeduplicated": true,
+  "wholeF08Qualified": false,
+  "originalPhaseWorkItemsClosed": 0,
+  "fullObjectiveComplete": false
+}

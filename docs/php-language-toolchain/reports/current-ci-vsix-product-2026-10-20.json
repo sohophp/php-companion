@@ -1,0 +1,38 @@
+{
+  "sourceCommit": "44dbe64faec0fc734e8c298b6799881cfb0d20a9",
+  "originalPackagedProductBuildCommit": "3b0b97245fcb23591c0183eacbd1a60a5162bc89",
+  "workflowRun": 39363787201,
+  "workflowConclusion": "success",
+  "independentPayloadAuditPassed": true,
+  "all39PayloadFilesByteEqualToQualified3b": true,
+  "coreSHA256": "8439eea8cbdec5fe8f0008b56fcd411c4517c433a018b8586b07bc6ccc6f3edc",
+  "files": [
+    {
+      "role": "core",
+      "file": "php-companion-0.4.13.vsix",
+      "ciSHA256": "410c7df4490030d1b6ac10b9ec9cce2f54e8e888733a020f3b93b11769d6f3dc",
+      "local3bSHA256": "801b44af19c7554243db920a1ae9c35393baba6cb21ebfc471042875e74a4834",
+      "payloadFilesCompared": 18,
+      "allPayloadBytesEqual": true
+    },
+    {
+      "role": "symfony",
+      "file": "packages/php-companion-symfony/php-companion-symfony-0.4.13.vsix",
+      "ciSHA256": "be5e97a8ec0c4af70a0eb61d4f85f9a12b42d090b026035d37e56992807236e6",
+      "local3bSHA256": "c231faeeb0ba5cb78ac4acd9676fa99c65f1fec7a50264f01392ee364b3373ce",
+      "payloadFilesCompared": 15,
+      "allPayloadBytesEqual": true
+    },
+    {
+      "role": "open-source-pack",
+      "file": "packages/php-companion-extension-pack/php-companion-open-source-pack-0.4.13.vsix",
+      "ciSHA256": "c72a7bbb593e30b3d03c2c6b69530fc32c526493afb5f5dba88ff42fd4dae600",
+      "local3bSHA256": "f30d6dfb767952c350c357dedf996cd8b71d65d430ee4f28a5cb2953e4c33174",
+      "payloadFilesCompared": 6,
+      "allPayloadBytesEqual": true
+    }
+  ],
+  "archiveMetadataMayDiffer": true,
+  "editorReinstallationPerformed": false,
+  "fullObjectiveComplete": false
+}

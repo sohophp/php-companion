@@ -1,0 +1,69 @@
+{
+  "verifiedComparison": true,
+  "admitted": false,
+  "rejection": "query median regression exceeds original 5 percent",
+  "queryMedianRegressionPercent": 5.281864922971535,
+  "comparison": {
+    "control": {
+      "completionMs": {
+        "p95Ms": 640.5236899999982,
+        "medianMs": 120.94131699999707,
+        "maxMs": 654.7216500000004
+      },
+      "diagnosticMs": {
+        "p95Ms": 1716.910410999999,
+        "medianMs": 1488.038327999995,
+        "maxMs": 2209.8295940000007
+      }
+    },
+    "prototype": {
+      "completionMs": {
+        "p95Ms": 148.20504999999685,
+        "medianMs": 127.32927399999971,
+        "maxMs": 149.0066740000002
+      },
+      "diagnosticMs": {
+        "p95Ms": 1271.5394029999952,
+        "medianMs": 1098.217482,
+        "maxMs": 1585.7334900000005
+      }
+    }
+  },
+  "paired": {
+    "completionMs": {
+      "improvedSamples": 11,
+      "medianImprovementPercent": -4.350780393865629
+    },
+    "diagnosticMs": {
+      "improvedSamples": 25,
+      "medianImprovementPercent": 26.17376790507376
+    }
+  },
+  "admissionChecks": {
+    "diagnosticImprovedSamples": true,
+    "diagnosticMedianImprovement": true,
+    "diagnosticP95Improved": true,
+    "queryP95RegressionBound": true,
+    "completeResultsAndInputsUnchanged": true,
+    "queryOriginalP95Budget": true,
+    "queryP95Improvement": true,
+    "queryMedianRegressionBound": false,
+    "diagnosticP95RegressionBound": true
+  },
+  "productInputsUnchanged": 3187,
+  "projectInputsUnchanged": 66079,
+  "privateInputsUnchanged": 25,
+  "allResultsEqual": true,
+  "protocolPassedEachSide": 58,
+  "selectedPassedEachSide": 36,
+  "selectedNotExecutedEachSide": 532,
+  "semanticStatesCompared": 480,
+  "actorsGone": true,
+  "ownedGroupsEmpty": true,
+  "cacheDirectoriesRemoved": true,
+  "originalDiagnosticBudgetPassed": false,
+  "originalQueryBudgetPassed": true,
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "auditedAtUtc": "2026-10-13T21:51:19.262115+00:00"
+}

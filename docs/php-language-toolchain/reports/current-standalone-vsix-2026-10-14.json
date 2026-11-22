@@ -1,0 +1,52 @@
+{
+  "qualifiedCompleteStandalonePackagedFlow": true,
+  "actualCommandExitCode": 0,
+  "durationSeconds": 421.18760997999925,
+  "engineBuildId": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+  "frozenInputsChecked": 3316,
+  "compiledJavaScriptCount": 105,
+  "packageSha256": [
+    "b6d569edbe10a162428b551249c035f60f25e51866d46d06d3faf6a20a9605fc",
+    "84bae583f1c3bdb67b29df3c17d0f6b3a1a155861dd7b30f2b6d466dc271eaa5"
+  ],
+  "packagedRuntimeEntriesVerified": 16,
+  "originalCompleteEntryRetained": true,
+  "originalAssertionsAndTimeoutsPreserved": true,
+  "originalInjectedCrashAndRecoveryRetained": true,
+  "lifecycle": {
+    "unexpectedCloses": 1,
+    "restartFailures": 0,
+    "pendingVersionRefreshes": 0,
+    "restarting": false,
+    "scheduled": false
+  },
+  "checkedProcessIds": [
+    91483,
+    91490,
+    91492,
+    91495,
+    91999,
+    93448
+  ],
+  "ownedProcessesGroupsFixtureAndDisplayGone": true,
+  "realWslAcceptance": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "recordedAtUtc": "2026-10-13T22:32:09.602953+00:00",
+  "archiveFilesVerified": 50,
+  "originalFailure": {
+    "qualifiedCompleteStandalonePackagedFlow": false,
+    "actualCommandExitCode": 1,
+    "durationSeconds": 394.48886544501875,
+    "frozenInputsChecked": 3316,
+    "inputsUnchangedAtFailureAudit": true,
+    "ownedProcessesGroupsFixtureAndDisplayGone": true,
+    "failure": "Rename preparation rejected; renderer TextModelPart is disposed",
+    "failureSourceInference": "Original declaration F2 preparation loop opens documents without displaying them; VS Code existing-model command path does not retain a model reference during the await. Closed model versus changed version was not separately logged.",
+    "recordedAtUtc": "2026-10-13T22:23:43.628087+00:00"
+  },
+  "testFlowAdjustmentOnly": true,
+  "manualWslExecuted": false,
+  "remoteCiExecuted": false
+}

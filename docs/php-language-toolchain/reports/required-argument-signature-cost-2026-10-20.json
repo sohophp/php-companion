@@ -1,0 +1,129 @@
+{
+  "independentAuditPassed": true,
+  "originalFourStateCompleteResultsEqual": true,
+  "frozenInputsVerified": 70652,
+  "buildActualExitCodes": [
+    0,
+    0
+  ],
+  "runActualExitCodes": [
+    0,
+    0
+  ],
+  "baseControlMatchesFrozenPrivatePrototypeEightAssets": true,
+  "baseCoreSHA256": "f0f5f73b352736a338c412fd7f7a0ae90ffc0c0fc50752f6ce0b8988b860dd66",
+  "originalFourEditCosts": [
+    {
+      "round": 0,
+      "parts": [
+        {
+          "localOnly": true,
+          "observedSignatureCalls": 606,
+          "stableCalls": 588,
+          "repeatedEqualStableCalls": 194,
+          "repeatedIntervalUnionMs": 32.63940399999683,
+          "inclusiveRepeatedSumMsNotUsedForAdmission": 33.68795699999646,
+          "unequalStableResults": 0
+        },
+        {
+          "localOnly": false,
+          "observedSignatureCalls": 589,
+          "stableCalls": 588,
+          "repeatedEqualStableCalls": 194,
+          "repeatedIntervalUnionMs": 29.89560200000051,
+          "inclusiveRepeatedSumMsNotUsedForAdmission": 30.878359000000273,
+          "unequalStableResults": 0
+        }
+      ],
+      "repeatedSignatureUnionMs": 62.53500599999734
+    },
+    {
+      "round": 1,
+      "parts": [
+        {
+          "localOnly": true,
+          "observedSignatureCalls": 606,
+          "stableCalls": 588,
+          "repeatedEqualStableCalls": 194,
+          "repeatedIntervalUnionMs": 37.22485600001346,
+          "inclusiveRepeatedSumMsNotUsedForAdmission": 38.400302000010925,
+          "unequalStableResults": 0
+        },
+        {
+          "localOnly": false,
+          "observedSignatureCalls": 589,
+          "stableCalls": 588,
+          "repeatedEqualStableCalls": 194,
+          "repeatedIntervalUnionMs": 31.602848000013182,
+          "inclusiveRepeatedSumMsNotUsedForAdmission": 32.68422700001611,
+          "unequalStableResults": 0
+        }
+      ],
+      "repeatedSignatureUnionMs": 68.82770400002664
+    },
+    {
+      "round": 2,
+      "parts": [
+        {
+          "localOnly": true,
+          "observedSignatureCalls": 606,
+          "stableCalls": 588,
+          "repeatedEqualStableCalls": 194,
+          "repeatedIntervalUnionMs": 32.89861099999689,
+          "inclusiveRepeatedSumMsNotUsedForAdmission": 33.97923899999478,
+          "unequalStableResults": 0
+        },
+        {
+          "localOnly": false,
+          "observedSignatureCalls": 589,
+          "stableCalls": 588,
+          "repeatedEqualStableCalls": 194,
+          "repeatedIntervalUnionMs": 29.75394900000356,
+          "inclusiveRepeatedSumMsNotUsedForAdmission": 30.713378000002194,
+          "unequalStableResults": 0
+        }
+      ],
+      "repeatedSignatureUnionMs": 62.65256000000045
+    },
+    {
+      "round": 3,
+      "parts": [
+        {
+          "localOnly": true,
+          "observedSignatureCalls": 606,
+          "stableCalls": 588,
+          "repeatedEqualStableCalls": 194,
+          "repeatedIntervalUnionMs": 40.60270500000115,
+          "inclusiveRepeatedSumMsNotUsedForAdmission": 42.34195700000237,
+          "unequalStableResults": 0
+        },
+        {
+          "localOnly": false,
+          "observedSignatureCalls": 589,
+          "stableCalls": 588,
+          "repeatedEqualStableCalls": 194,
+          "repeatedIntervalUnionMs": 34.73268700001063,
+          "inclusiveRepeatedSumMsNotUsedForAdmission": 35.86093900001106,
+          "unequalStableResults": 0
+        }
+      ],
+      "repeatedSignatureUnionMs": 75.33539200001178
+    }
+  ],
+  "medianRepeatedStableSignatureMsPerEdit": 65.74013200001355,
+  "minimumInvestigationMs": 50,
+  "stableUnequalResults": [],
+  "admittedForDependencyBoundaryWork": true,
+  "lifetime": "one synchronous missingRequiredArguments invocation only",
+  "startupRowsExcludedFromAdmission": 4,
+  "noNestedDoubleCounting": true,
+  "cacheSafetyProven": false,
+  "prototypeImplemented": false,
+  "productionChanged": false,
+  "performanceQualified": false,
+  "fullObjectiveComplete": false,
+  "terminalArchivesVerified": 24,
+  "terminalArchiveManifestSHA256": "5abb102fc3de036c441d137af6e2bf54003a6fa6a76b9b13df26895cf3388f01",
+  "originalAuditResultSHA256": "b84bb80cb6d9ce1489835a1637b6e3e6aa6fb5cda63e06aea4f41fa3608636d5",
+  "observerControlsPassed": 14
+}

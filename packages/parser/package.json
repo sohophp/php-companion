@@ -11,6 +11,7 @@
   },
   "files": [
     "dist",
+    "vendor",
     "README.md",
     "LICENSE",
     "CHANGELOG.md"
@@ -27,7 +28,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "tree-sitter-php": "^0.24.2",
     "web-tree-sitter": "^0.26.11"
   },
   "devDependencies": {

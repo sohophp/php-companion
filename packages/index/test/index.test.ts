@@ -142,8 +142,11 @@ describe('bounded project source index', () => {
   it('uses a batch inspector for large inventories and rejects missing metadata', async () => {
     root = await mkdtemp(join(tmpdir(), 'php-companion-candidate-inspector-')); await mkdir(join(root, 'src'));
     await writeFile(join(root, 'composer.json'), JSON.stringify({ autoload: { 'psr-4': { 'App\\': 'src/' } } }));
-    await Promise.all(Array.from({ length: 1_000 }, (_, index) =>
-      writeFile(join(root!, 'src', `Noise${index}.php`), '<?php class Noise {}')));
+    // Keep the full inventory without opening a thousand writable handles at once.
+    for (let start = 0; start < 1_000; start += 32) {
+      await Promise.all(Array.from({ length: Math.min(32, 1_000 - start) }, (_, offset) =>
+        writeFile(join(root!, 'src', `Noise${start + offset}.php`), '<?php class Noise {}')));
+    }
     const inspected: string[] = [];
     const result = await indexComposerSources(root, { readConcurrency: 128, skipSourceOutsideBudget: true,
       skipSource: () => true,

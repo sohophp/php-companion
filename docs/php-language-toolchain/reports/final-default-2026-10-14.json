@@ -1,0 +1,25 @@
+{
+  "observedAtUtc": "2026-10-13T17:04:10.983032+00:00",
+  "qualifiedDefaultExecution": true,
+  "fullObjectiveComplete": false,
+  "originalCommand": [
+    "pnpm",
+    "test"
+  ],
+  "coreSHA256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+  "frozenInputsUnchanged": 3186,
+  "vitestPassed": 26950,
+  "vitestSkipped": 1,
+  "nativePassed": 6,
+  "nativeFailures": 0,
+  "nativeSkipped": 0,
+  "ownedProcessGroupEmpty": true,
+  "driverGone": true,
+  "commandGone": true,
+  "temporaryDirectoryEvidence": "Native cleanup and runtime tests passed their original resource lifecycle assertions; no exhaustive global temporary directory claim",
+  "humanWslAcceptance": false,
+  "remoteCiExecuted": false,
+  "date": "2026-10-14",
+  "vitestStageCount": 26,
+  "archiveFiles": 26
+}

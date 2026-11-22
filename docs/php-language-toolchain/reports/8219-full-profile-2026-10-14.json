@@ -1,0 +1,37 @@
+{
+  "recordedAtUtc": "2026-10-14T08:50:36.220249+00:00",
+  "actualOriginalCommandExitCode": 0,
+  "actualIndependentAuditorExitCode": 0,
+  "qualifiedSourceComplete12ExtensionFlow": true,
+  "currentCoreSHA256": "8219f6c6f816422e36ac0f4543aaefb2ee04cdb8337bbcdb37c8bc5aa3d14bea",
+  "durationSeconds": 112.499331766041,
+  "feedbackMetrics": {
+    "scalar": {
+      "rounds": 50,
+      "p50Ms": 70,
+      "p95Ms": 82,
+      "maxMs": 1316
+    },
+    "union-shape": {
+      "rounds": 30,
+      "p50Ms": 79,
+      "p95Ms": 100,
+      "maxMs": 465
+    }
+  },
+  "originalCompositeP95BudgetMs": 150,
+  "frozenInputsCheckedDuringExecution": 34346,
+  "frozenLinksCheckedDuringExecution": 186,
+  "qualifiedCompiledTests": 105,
+  "copiedInputsChecked": 2482,
+  "archivesOriginalsAndCopiesVerified": 68,
+  "actualOwnedProcessesGone": true,
+  "runtimeStateAliasesPreserved": true,
+  "terminalAudit": "/var/www/node/php-companion/.vscode-test/8219-full-profile-2026-10-14/final-audit.json",
+  "terminalAuditSHA256": "092a9c3f06dc6e8276e7eb8a74497650a3638a25318f0652249ff13b3446ded8",
+  "realWslAcceptance": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "scope": "Linux isolated complete12 source extension Profile; full formatter/debug/PHPUnit flow and original scalar/union feedback; excludes packaged Profile, human WSL and complex Controller qualification"
+}

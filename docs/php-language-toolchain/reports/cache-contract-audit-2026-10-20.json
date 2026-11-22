@@ -1,0 +1,583 @@
+{
+  "date": "2026-10-20",
+  "recordedAtUtc": "2026-10-19T22:18:24.265668+00:00",
+  "auditPassed": true,
+  "baselineSourceCommit": "1f096ff102cb26b5cdcbd9e53872dbcceacfaf2a",
+  "currentProductCandidate": "a7e9166ae2cbfabb1516e480d19d98a5a490a8aa",
+  "currentTestCommit": "b2ccc332c7f0b4ead09b768e00d2da3f65e5338f",
+  "currentCacheSourcesAndTestsByteIdentical": true,
+  "packageDependencyAndBuildInputsUnchanged": true,
+  "inputSHA256": {
+    "packages/language-server/src/cacheVersion.ts": "a66f09840634ed6215e3365179cb4a44290884f7ab55cee3d7df901bbecd40aa",
+    "packages/semantic/src/index.ts": "ad396306cfa1922e343c6db1779fdfca576038d46b65324a874c0401939a5794",
+    "packages/language-server/src/projectFacts.ts": "8d9e6aa890f9483720cabb066e528a0e832705cdf71d9da1e8fb52662d8225cb",
+    "packages/index/src/index.ts": "afa629e89df43a81300bbf863ff2f7f6ee079e2bd6980feb03e557fa7e83554c",
+    "packages/index/src/entry-store.ts": "e0fbe216a02aca327a3f5bef10ac99b17262fdaa07014627adf2bcf01d68f71f",
+    "packages/language-server/src/callableFactsCache.ts": "8b3c9ee0bf80411a7ce57ead53a04cc712c719a09c1665907c8b8b903a04e90a",
+    "packages/language-server/src/referenceResultStore.ts": "e791e2f71100d02b96ba2d32afa883b177b5adaaaeed7c7529156fee789cf61f",
+    "packages/language-server/src/referenceEngineIdentity.ts": "f25171ecc1dc681a310c3e1414381c423030f83aa128c54fb1e973c7e398420a",
+    "packages/index/test/entry-store.test.ts": "ae6801d7d0073808de676b8195e347873e93c55f99c90196c68f725044f2a4c9",
+    "packages/language-server/test/loop-exit-cache-stdio.test.ts": "5a99bbb0fb2dbdcf166b88ffb0070c9fe80efafe014ad3073a6e6add8cf23231",
+    "packages/language-server/test/project-facts.test.ts": "f534fbe574c48c65d076f9db7ed1341507f07e7070d83238b07b7ab8f87c3cc7",
+    "packages/language-server/test/callable-facts-cache.test.ts": "0c8dbcaa6064ce04f10f9a10f8f04d3c9558f372d67045942369a6e46202c91b",
+    "packages/semantic/test/restored-signature-cache.test.ts": "ef2e944487f4640c64d4ac3479d65672b564bad936702f958914dc1fa7056174",
+    "packages/language-server/test/reference-input-snapshot.test.ts": "a071f5ac082d2c4e54e8595a6e2376215639a4128ddf6c8b333eb42005b1f87a",
+    "packages/language-server/test/reference-result-store.test.ts": "8cac29674d91db0cabb378e7f5fc3f33734dcd94e1f2b37662ba5d8b3db3d0bd",
+    "packages/language-server/test/reference-engine-identity.test.ts": "6e15ebaf9bb1e779b7cd63ac6f52b1afccfdbd70638dccb10f1bc707bd023f93"
+  },
+  "versions": {
+    "SemanticSnapshot": 93,
+    "SemanticSourceDeclarationSnapshot": 10,
+    "ProjectPhpFileFacts": 7,
+    "CachedProjectPhpFile": 13,
+    "compressionEnvelope": 1,
+    "entryStoreWrites": 2,
+    "entryStoreReads": [
+      1,
+      2
+    ],
+    "callableFactsEnvelope": 1,
+    "callableFactsFile": 1,
+    "callableFactsNamespace": "callable-facts-v1",
+    "referenceResultRecord": 1,
+    "referenceEngineContext": 2,
+    "semanticNamespace": "semantic-v83-php-${phpVersion}"
+  },
+  "versionSourceLines": {
+    "packages/index/src/entry-store.ts": [
+      {
+        "line": 44,
+        "text": "if (!record(data) || ![1, 2].includes(data.schema as number) || data.root !== root || data.version !== version"
+      },
+      {
+        "line": 129,
+        "text": "let batch = `{\"schema\":2,\"version\":${JSON.stringify(this.version)},\"root\":${JSON.stringify(this.root)},\"generation\":${JSON.stringify(this.generation)},\"entries\":{`;"
+      }
+    ],
+    "packages/language-server/src/callableFactsCache.ts": [
+      {
+        "line": 6,
+        "text": "interface FactEnvelope { schema: 1; uri: string; facts: CallableConstructionFact[]; checksum: string; }"
+      },
+      {
+        "line": 8,
+        "text": "interface CacheFile { schema: 1; version: string; root: string; entries: Record<string, CacheEntry>; }"
+      },
+      {
+        "line": 11,
+        "text": "const CACHE_VERSION = 'callable-facts-v1';"
+      }
+    ],
+    "packages/language-server/src/referenceResultStore.ts": [
+      {
+        "line": 8,
+        "text": "schema: 1;"
+      }
+    ],
+    "packages/language-server/src/referenceEngineIdentity.ts": [
+      {
+        "line": 19,
+        "text": "context: JSON.stringify({ schema: 2, buildId: inputs.buildId, runtime: inputs.runtime, paths }),"
+      }
+    ],
+    "packages/language-server/src/projectFacts.ts": [
+      {
+        "line": 43,
+        "text": "return { schema: 1, bytes: source.length, data: compressed.toString('base64') };"
+      }
+    ]
+  },
+  "publicDefinitionContractsVerified": 43,
+  "publicDefinitionSourceFiles": 12,
+  "namespaceRuntime": {
+    "passed": true,
+    "executedPhpTargets": [
+      {
+        "phpVersion": "7.2",
+        "result": "semantic-v83-php-7.2"
+      },
+      {
+        "phpVersion": "7.3",
+        "result": "semantic-v83-php-7.3"
+      },
+      {
+        "phpVersion": "7.4",
+        "result": "semantic-v83-php-7.4"
+      },
+      {
+        "phpVersion": "8.0",
+        "result": "semantic-v83-php-8.0"
+      },
+      {
+        "phpVersion": "8.1",
+        "result": "semantic-v83-php-8.1"
+      },
+      {
+        "phpVersion": "8.2",
+        "result": "semantic-v83-php-8.2"
+      },
+      {
+        "phpVersion": "8.3",
+        "result": "semantic-v83-php-8.3"
+      },
+      {
+        "phpVersion": "8.4",
+        "result": "semantic-v83-php-8.4"
+      },
+      {
+        "phpVersion": "8.5",
+        "result": "semantic-v83-php-8.5"
+      }
+    ],
+    "module": "/var/www/node/php-companion-production-tests-20261020/packages/language-server/dist/cacheVersion.js",
+    "moduleSHA256": "cda9a08fbea2afe22cf8eb1dbb599457f1af37a54a1ab7d8aba84a1c2e05dc18",
+    "scope": "Namespace selection only; not nine PHP CLI or full migration flows"
+  },
+  "baselineCIArchiveSHA256": "fafe95988adc9309eb5261cd72652e2cf589a1735be061436a56d2c2b6ad1b3b",
+  "baselineCIWorkflowRun": 39277517219,
+  "baselineCIWorkflowUrl": "https://github.com/sohophp/php-companion/actions/runs/39277517219",
+  "selectedExistingCIProof": {
+    "macos-latest": {
+      "archiveEntry": "9_Quality (macos-latest).txt",
+      "selectedTestFiles": [
+        {
+          "source": "packages/index/test/entry-store.test.ts",
+          "tests": 17,
+          "passed": 17,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:28:23.3891970Z  ✓ test/entry-store.test.ts (17 tests) 901ms"
+        },
+        {
+          "source": "packages/language-server/test/loop-exit-cache-stdio.test.ts",
+          "tests": 2,
+          "passed": 2,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:56:11.4393700Z  ✓  lsp  test/loop-exit-cache-stdio.test.ts (2 tests) 9672ms"
+        },
+        {
+          "source": "packages/language-server/test/project-facts.test.ts",
+          "tests": 4,
+          "passed": 4,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:41:44.6479510Z  ✓  lsp  test/project-facts.test.ts (4 tests) 157ms"
+        },
+        {
+          "source": "packages/language-server/test/callable-facts-cache.test.ts",
+          "tests": 1,
+          "passed": 1,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:58:33.4175410Z  ✓  lsp  test/callable-facts-cache.test.ts (1 test) 108ms"
+        },
+        {
+          "source": "packages/semantic/test/restored-signature-cache.test.ts",
+          "tests": 2,
+          "passed": 2,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:30:58.9343650Z  ✓ test/restored-signature-cache.test.ts (2 tests) 160ms"
+        },
+        {
+          "source": "packages/language-server/test/reference-input-snapshot.test.ts",
+          "tests": 15,
+          "passed": 15,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:40:05.4235950Z  ✓  lsp  test/reference-input-snapshot.test.ts (15 tests) 317ms"
+        },
+        {
+          "source": "packages/language-server/test/reference-result-store.test.ts",
+          "tests": 4,
+          "passed": 4,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:58:33.5975930Z  ✓  lsp  test/reference-result-store.test.ts (4 tests) 32ms"
+        },
+        {
+          "source": "packages/language-server/test/reference-engine-identity.test.ts",
+          "tests": 2,
+          "passed": 2,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:58:34.0449210Z  ✓  lsp  test/reference-engine-identity.test.ts (2 tests) 74ms"
+        }
+      ],
+      "passed": 47,
+      "skipped": 0
+    },
+    "windows-latest": {
+      "archiveEntry": "12_Quality (windows-latest).txt",
+      "selectedTestFiles": [
+        {
+          "source": "packages/index/test/entry-store.test.ts",
+          "tests": 17,
+          "passed": 16,
+          "skipped": 1,
+          "rawLine": "2026-10-19T15:28:33.2499727Z  ✓ test/entry-store.test.ts (17 tests | 1 skipped) 551ms"
+        },
+        {
+          "source": "packages/language-server/test/loop-exit-cache-stdio.test.ts",
+          "tests": 2,
+          "passed": 2,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:49:51.4506673Z  ✓  lsp  test/loop-exit-cache-stdio.test.ts (2 tests) 11177ms"
+        },
+        {
+          "source": "packages/language-server/test/project-facts.test.ts",
+          "tests": 4,
+          "passed": 4,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:36:45.2987952Z  ✓  lsp  test/project-facts.test.ts (4 tests) 142ms"
+        },
+        {
+          "source": "packages/language-server/test/callable-facts-cache.test.ts",
+          "tests": 1,
+          "passed": 1,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:52:50.1428970Z  ✓  lsp  test/callable-facts-cache.test.ts (1 test) 113ms"
+        },
+        {
+          "source": "packages/semantic/test/restored-signature-cache.test.ts",
+          "tests": 2,
+          "passed": 2,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:30:29.9505805Z  ✓ test/restored-signature-cache.test.ts (2 tests) 216ms"
+        },
+        {
+          "source": "packages/language-server/test/reference-input-snapshot.test.ts",
+          "tests": 15,
+          "passed": 15,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:35:42.7739936Z  ✓  lsp  test/reference-input-snapshot.test.ts (15 tests) 590ms"
+        },
+        {
+          "source": "packages/language-server/test/reference-result-store.test.ts",
+          "tests": 4,
+          "passed": 4,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:52:50.3847930Z  ✓  lsp  test/reference-result-store.test.ts (4 tests) 37ms"
+        },
+        {
+          "source": "packages/language-server/test/reference-engine-identity.test.ts",
+          "tests": 2,
+          "passed": 2,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:52:50.9142825Z  ✓  lsp  test/reference-engine-identity.test.ts (2 tests) 73ms"
+        }
+      ],
+      "passed": 46,
+      "skipped": 1
+    },
+    "ubuntu-latest": {
+      "archiveEntry": "15_Quality (ubuntu-latest).txt",
+      "selectedTestFiles": [
+        {
+          "source": "packages/index/test/entry-store.test.ts",
+          "tests": 17,
+          "passed": 17,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:28:10.4177157Z  ✓ test/entry-store.test.ts (17 tests) 322ms"
+        },
+        {
+          "source": "packages/language-server/test/loop-exit-cache-stdio.test.ts",
+          "tests": 2,
+          "passed": 2,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:57:17.7306089Z  ✓  lsp  test/loop-exit-cache-stdio.test.ts (2 tests) 16349ms"
+        },
+        {
+          "source": "packages/language-server/test/project-facts.test.ts",
+          "tests": 4,
+          "passed": 4,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:39:23.3496643Z  ✓  lsp  test/project-facts.test.ts (4 tests) 219ms"
+        },
+        {
+          "source": "packages/language-server/test/callable-facts-cache.test.ts",
+          "tests": 1,
+          "passed": 1,
+          "skipped": 0,
+          "rawLine": "2026-10-19T16:01:26.7042063Z  ✓  lsp  test/callable-facts-cache.test.ts (1 test) 221ms"
+        },
+        {
+          "source": "packages/semantic/test/restored-signature-cache.test.ts",
+          "tests": 2,
+          "passed": 2,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:30:51.7252696Z  ✓ test/restored-signature-cache.test.ts (2 tests) 336ms"
+        },
+        {
+          "source": "packages/language-server/test/reference-input-snapshot.test.ts",
+          "tests": 15,
+          "passed": 15,
+          "skipped": 0,
+          "rawLine": "2026-10-19T15:37:52.5585216Z  ✓  lsp  test/reference-input-snapshot.test.ts (15 tests) 386ms"
+        },
+        {
+          "source": "packages/language-server/test/reference-result-store.test.ts",
+          "tests": 4,
+          "passed": 4,
+          "skipped": 0,
+          "rawLine": "2026-10-19T16:01:27.0270191Z  ✓  lsp  test/reference-result-store.test.ts (4 tests) 43ms"
+        },
+        {
+          "source": "packages/language-server/test/reference-engine-identity.test.ts",
+          "tests": 2,
+          "passed": 2,
+          "skipped": 0,
+          "rawLine": "2026-10-19T16:01:27.6140203Z  ✓  lsp  test/reference-engine-identity.test.ts (2 tests) 158ms"
+        }
+      ],
+      "passed": 47,
+      "skipped": 0
+    }
+  },
+  "newRuntimeMigrationTestsExecuted": false,
+  "windowsSkip": "cleanup removes a symlink without touching its target",
+  "staticSchemasAreNotMigrationProof": true,
+  "fullDataContractAuditComplete": false,
+  "fullMigrationAcceptanceComplete": false,
+  "fullP0ContractGateComplete": false,
+  "profileChanged": false,
+  "productChanged": false,
+  "fullObjectiveComplete": false,
+  "inspectedSourceRoot": "/var/www/node/php-companion-contract-docs-20261020",
+  "publicDefinitionReport": {
+    "qualified": true,
+    "contractCount": 43,
+    "sourceFileCount": 12,
+    "violations": [],
+    "inputs": {
+      "docs/php-language-toolchain/reports/public-contract-baseline-mixed-html-2026-10-10.json": "52160056f3125808c8ef3a532b745a1ab1600cff822edf313bf25074b0b803f9",
+      "packages/parser/src/index.ts": "12472e570695eb0f82742bfec3ef792913dc41a037589076dfd5e7eb5c05add5",
+      "packages/refactor/src/index.ts": "9fe9c0e71b195caffdda74cccf2c43c90475b10d5a2ccb2abd6255947f5a802b",
+      "packages/semantic/src/index.ts": "ad396306cfa1922e343c6db1779fdfca576038d46b65324a874c0401939a5794",
+      "packages/index/src/index.ts": "afa629e89df43a81300bbf863ff2f7f6ee079e2bd6980feb03e557fa7e83554c",
+      "packages/type-system/src/index.ts": "35a10f684d46a7cbacf9397843d24c04c7da64885509f5666a4a4c1ba4b34532",
+      "packages/runtime-probe/src/index.ts": "2ba87f17bec48bb2180bac1b8f0c29d447723a521248e4af699e2387c090d778",
+      "packages/semantic-provider/src/index.ts": "9ce3092b9feb0b64453348d7c17fdc903a3bd51bfc189501aa2925a160185103",
+      "packages/route-provider/src/index.ts": "824ed3d8d8010c03e11aaa2bf6ba37b37dfd7d93faf47ad5debe2a16f963c8f7",
+      "packages/plugin-api/src/index.ts": "da8ad66ed177fb7e74f8c85312b9ced114a46ce12c0c3d4b7015adc1381aad3b",
+      "packages/interop/src/index.ts": "86e1026f00ff6f3299cad389fa10031e3bf1ae7237635990707147baf6c36802",
+      "packages/phpdoc/src/index.ts": "25a62f076879173a8a09b0b088705169ee42b042d1bae337c7eb96071e9a932b",
+      "packages/language-server/src/projectFacts.ts": "8d9e6aa890f9483720cabb066e528a0e832705cdf71d9da1e8fb52662d8225cb"
+    },
+    "contracts": [
+      {
+        "file": "packages/parser/src/index.ts",
+        "name": "SourceRange",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/parser/src/index.ts",
+        "name": "ParsedDeclaration",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/parser/src/index.ts",
+        "name": "ParsedCallableDeclaration",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/parser/src/index.ts",
+        "name": "ParsedPhpDocument",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/parser/src/index.ts",
+        "name": "ParsedPhpDeclarationDocument",
+        "kind": "type"
+      },
+      {
+        "file": "packages/parser/src/index.ts",
+        "name": "PreparedPhpDocument",
+        "kind": "type"
+      },
+      {
+        "file": "packages/refactor/src/index.ts",
+        "name": "DocumentSnapshot",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/refactor/src/index.ts",
+        "name": "PlannedTextEdit",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/refactor/src/index.ts",
+        "name": "PlannedFileOperation",
+        "kind": "type"
+      },
+      {
+        "file": "packages/refactor/src/index.ts",
+        "name": "EditPlan",
+        "kind": "interface",
+        "schema": 1
+      },
+      {
+        "file": "packages/refactor/src/index.ts",
+        "name": "EditPlanIssue",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/semantic/src/index.ts",
+        "name": "SemanticFileSnapshot",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/semantic/src/index.ts",
+        "name": "SemanticDeclarationSnapshot",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/semantic/src/index.ts",
+        "name": "SemanticSourceDeclarationSnapshot",
+        "kind": "interface",
+        "schema": 10
+      },
+      {
+        "file": "packages/semantic/src/index.ts",
+        "name": "SemanticImplementationSnapshot",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/semantic/src/index.ts",
+        "name": "SemanticSnapshot",
+        "kind": "interface",
+        "schema": 93
+      },
+      {
+        "file": "packages/semantic/src/index.ts",
+        "name": "SemanticUpdateResult",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/index/src/index.ts",
+        "name": "ProjectIndexResult",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/index/src/index.ts",
+        "name": "IndexedSource",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/index/src/index.ts",
+        "name": "ProjectIndexCacheOptions",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/index/src/index.ts",
+        "name": "ProjectIndexOptions",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/type-system/src/index.ts",
+        "name": "PhpType",
+        "kind": "type"
+      },
+      {
+        "file": "packages/runtime-probe/src/index.ts",
+        "name": "PhpRuntime",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/semantic-provider/src/index.ts",
+        "name": "SemanticProviderDescriptor",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/semantic-provider/src/index.ts",
+        "name": "SemanticProviderRequest",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/semantic-provider/src/index.ts",
+        "name": "SemanticProviderResponse",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/semantic-provider/src/index.ts",
+        "name": "SemanticFactsContribution",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/route-provider/src/index.ts",
+        "name": "RouteProviderRequest",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/route-provider/src/index.ts",
+        "name": "RouteFactsContribution",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/route-provider/src/index.ts",
+        "name": "RouteProviderResponse",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/plugin-api/src/index.ts",
+        "name": "PhpCompanionIntegrationContribution",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/plugin-api/src/index.ts",
+        "name": "PhpCompanionPluginRegistration",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/plugin-api/src/index.ts",
+        "name": "PhpCompanionPluginApi",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/interop/src/index.ts",
+        "name": "InteropHello",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/interop/src/index.ts",
+        "name": "SerializedPhpType",
+        "kind": "type"
+      },
+      {
+        "file": "packages/phpdoc/src/index.ts",
+        "name": "PhpDocType",
+        "kind": "type"
+      },
+      {
+        "file": "packages/phpdoc/src/index.ts",
+        "name": "PhpDocTag",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/phpdoc/src/index.ts",
+        "name": "PhpDocCallableParameter",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/phpdoc/src/index.ts",
+        "name": "PhpDocShapeField",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/phpdoc/src/index.ts",
+        "name": "PhpDocMethodTemplate",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/phpdoc/src/index.ts",
+        "name": "ParsedPhpDoc",
+        "kind": "interface"
+      },
+      {
+        "file": "packages/language-server/src/projectFacts.ts",
+        "name": "ProjectPhpFileFacts",
+        "kind": "interface",
+        "schema": 7
+      },
+      {
+        "file": "packages/language-server/src/projectFacts.ts",
+        "name": "CachedProjectPhpFile",
+        "kind": "interface",
+        "schema": 13
+      }
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-14",
+  "accepted": false,
+  "diagnosticFasterSamples": 18,
+  "medianDiagnosticImprovementPercent": 6.629849658164912,
+  "control": {
+    "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+    "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+    "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+    "serverSha256": "f60765a40ed94dbe9a85d9692203af9c986c971ba3c834108b1ef1d8abc93375",
+    "rounds": 25,
+    "indexingMode": "onDemand",
+    "phpVersion": "8.5",
+    "normalProtocol": true,
+    "profiled": false,
+    "instrumentedCounts": false,
+    "cacheDirectory": "/tmp/sophp-controller-profile-MyCVKV",
+    "cacheDirectoryRemoved": true,
+    "serverPid": 57880,
+    "exitCode": 0,
+    "signal": null,
+    "correctnessPassed": true,
+    "rows": 25,
+    "completion": {
+      "count": 25,
+      "p95Ms": 651.6268539999983,
+      "maxMs": 740.0314579999995
+    },
+    "diagnostics": {
+      "count": 25,
+      "p95Ms": 1807.9015,
+      "maxMs": 2364.1453950000005
+    },
+    "diskUnchanged": true,
+    "scope": "Private Node type getter cost observer; four edits not performance qualification."
+  },
+  "prototype": {
+    "project": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project",
+    "file": "/var/www/node/php-companion/.vscode-test/d1774-fixed-real-project/src/Modules/MediaComponents/Admin/Controller/ComponentImagesController.php",
+    "sourceSha256": "44d76c3c8d12a07948538f23f0502a893cb59f42067aba617d2ea55be5e7c05f",
+    "serverSha256": "8c725e1d3d4cd82c459427ece11b9edd45953155bbc385f849f2f17e69d99fef",
+    "rounds": 25,
+    "indexingMode": "onDemand",
+    "phpVersion": "8.5",
+    "normalProtocol": true,
+    "profiled": false,
+    "instrumentedCounts": false,
+    "cacheDirectory": "/tmp/sophp-controller-profile-UXXEgN",
+    "cacheDirectoryRemoved": true,
+    "serverPid": 58313,
+    "exitCode": 0,
+    "signal": null,
+    "correctnessPassed": true,
+    "rows": 25,
+    "completion": {
+      "count": 25,
+      "p95Ms": 655.0971989999998,
+      "maxMs": 702.694219
+    },
+    "diagnostics": {
+      "count": 25,
+      "p95Ms": 1612.154294,
+      "maxMs": 2212.6360829999994
+    },
+    "diskUnchanged": true,
+    "scope": "Private Node type getter cost observer; four edits not performance qualification."
+  },
+  "productionChanged": false,
+  "fullObjectiveComplete": false
+}

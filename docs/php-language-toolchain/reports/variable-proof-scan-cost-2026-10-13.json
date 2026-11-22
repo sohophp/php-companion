@@ -1,0 +1,2380 @@
+{
+  "atUtc": "2026-10-12T22:40:05.405868+00:00",
+  "normalBundleSha256": "8e1a08c7e9917ee05a5504ce8536b1e7686eae1d5aae5a8891f4db2ecf27ebdb",
+  "qualifiedObservation": true,
+  "editRuns": 8,
+  "mainRuns": 12,
+  "results": [
+    {
+      "localOnly": true,
+      "methodMedianMs": 530.2516420000002,
+      "unattributedRootMedianMs": 28.916242500001317,
+      "helpers": {
+        "callResultType": {
+          "calls": [
+            757,
+            757,
+            757,
+            757
+          ],
+          "medianInclusiveMs": 128.75524300000734,
+          "medianExclusiveMs": 27.15256400000453,
+          "resultKinds": {
+            "undefined": 751,
+            "primitive": 2,
+            "list": 4
+          }
+        },
+        "callableVariableResultType": {
+          "calls": [
+            751,
+            751,
+            751,
+            751
+          ],
+          "medianInclusiveMs": 76.3188919999834,
+          "medianExclusiveMs": 76.3188919999834,
+          "resultKinds": {
+            "undefined": 751
+          }
+        },
+        "closureLiteralType": {
+          "calls": [
+            648,
+            648,
+            648,
+            648
+          ],
+          "medianInclusiveMs": 4.464234999994915,
+          "medianExclusiveMs": 2.1946259999940594,
+          "resultKinds": {
+            "undefined": 648
+          }
+        },
+        "completedCallSignature": {
+          "calls": [
+            480,
+            480,
+            480,
+            480
+          ],
+          "medianInclusiveMs": 130.30857450000985,
+          "medianExclusiveMs": 0.6184000000184824,
+          "resultKinds": {
+            "undefined": 344,
+            "function": 85,
+            "method": 51
+          }
+        },
+        "completedCallSignatures": {
+          "calls": [
+            833,
+            833,
+            833,
+            833
+          ],
+          "medianInclusiveMs": 153.98840400000972,
+          "medianExclusiveMs": 4.4783709999919665,
+          "resultKinds": {
+            "array": 833
+          }
+        },
+        "containingScope": {
+          "calls": [
+            17971,
+            17971,
+            17971,
+            17971
+          ],
+          "medianInclusiveMs": 15.352886000127455,
+          "medianExclusiveMs": 15.352886000127455,
+          "resultKinds": {
+            "method": 17833,
+            "arrow": 129,
+            "function": 9
+          }
+        },
+        "dynamicClassConstantType": {
+          "calls": [
+            701,
+            701,
+            701,
+            701
+          ],
+          "medianInclusiveMs": 1.0145494999833318,
+          "medianExclusiveMs": 1.0145494999833318,
+          "resultKinds": {
+            "undefined": 701
+          }
+        },
+        "expressionSyntax": {
+          "calls": [
+            208,
+            208,
+            208,
+            208
+          ],
+          "medianInclusiveMs": 4.8071580000014364,
+          "medianExclusiveMs": 4.8071580000014364,
+          "resultKinds": {
+            "undefined": 182,
+            "object": 26
+          }
+        },
+        "linearLocalValueType": {
+          "calls": [
+            521,
+            521,
+            521,
+            521
+          ],
+          "medianInclusiveMs": 209.6955519999965,
+          "medianExclusiveMs": 81.65763199998719,
+          "resultKinds": {
+            "undefined": 521
+          }
+        },
+        "memberChainResultType": {
+          "calls": [
+            638,
+            638,
+            638,
+            638
+          ],
+          "medianInclusiveMs": 22.593130000014753,
+          "medianExclusiveMs": 22.427179000013894,
+          "resultKinds": {
+            "undefined": 638
+          }
+        },
+        "methodCandidatesForArguments": {
+          "calls": [
+            1304,
+            1304,
+            1304,
+            1304
+          ],
+          "medianInclusiveMs": 30.058015500030706,
+          "medianExclusiveMs": 7.802352000027895,
+          "resultKinds": {
+            "array": 1304
+          }
+        },
+        "nativeSourceType": {
+          "calls": [
+            188,
+            188,
+            188,
+            188
+          ],
+          "medianInclusiveMs": 1.8157354999939344,
+          "medianExclusiveMs": 1.8157354999939344,
+          "resultKinds": {
+            "primitive": 170,
+            "unknown": 6,
+            "union": 12
+          }
+        },
+        "phpDocDiagnosticType": {
+          "calls": [
+            384,
+            384,
+            384,
+            384
+          ],
+          "medianInclusiveMs": 5.252572500008682,
+          "medianExclusiveMs": 3.955188500005079,
+          "resultKinds": {
+            "primitive": 256,
+            "array": 35,
+            "undefined": 27,
+            "union": 47,
+            "literal": 15,
+            "list": 4
+          }
+        },
+        "provenArgumentType": {
+          "calls": [
+            724,
+            724,
+            724,
+            724
+          ],
+          "medianInclusiveMs": 599.3651595000042,
+          "medianExclusiveMs": 33.523681000009674,
+          "resultKinds": {
+            "undefined": 627,
+            "primitive": 77,
+            "named": 2,
+            "literal": 10,
+            "list": 8
+          }
+        },
+        "scalarArgumentFact": {
+          "calls": [
+            302,
+            302,
+            302,
+            302
+          ],
+          "medianInclusiveMs": 286.2923354999957,
+          "medianExclusiveMs": 13.635133500000848,
+          "resultKinds": {
+            "undefined": 219,
+            "object": 83
+          }
+        },
+        "signatures": {
+          "calls": [
+            1211,
+            1211,
+            1211,
+            1211
+          ],
+          "medianInclusiveMs": 124.5798670000122,
+          "medianExclusiveMs": 82.73456849999911,
+          "resultKinds": {
+            "array": 1211
+          }
+        },
+        "standaloneLocalVariableAnnotationType": {
+          "calls": [
+            680,
+            680,
+            680,
+            680
+          ],
+          "medianInclusiveMs": 7.6239095000109955,
+          "medianExclusiveMs": 7.6239095000109955,
+          "resultKinds": {
+            "undefined": 680
+          }
+        },
+        "structuredArrayLiteralType": {
+          "calls": [
+            644,
+            644,
+            644,
+            644
+          ],
+          "medianInclusiveMs": 3.472630500033574,
+          "medianExclusiveMs": 3.472630500033574,
+          "resultKinds": {
+            "undefined": 644
+          }
+        },
+        "unknownCallMayMutateVariable": {
+          "calls": [
+            388,
+            388,
+            388,
+            388
+          ],
+          "medianInclusiveMs": 26.894961999993484,
+          "medianExclusiveMs": 20.99992250001833,
+          "resultKinds": {
+            "boolean": 388
+          }
+        },
+        "variableClass": {
+          "calls": [
+            604,
+            604,
+            604,
+            604
+          ],
+          "medianInclusiveMs": 249.62411849997397,
+          "medianExclusiveMs": 82.93749749992185,
+          "resultKinds": {
+            "undefined": 351,
+            "object": 253
+          }
+        }
+      },
+      "callers": {
+        "callResultType -> completedCallSignatures": {
+          "calls": [
+            353,
+            353,
+            353,
+            353
+          ],
+          "medianInclusiveMs": 22.737105500007146,
+          "medianExclusiveMs": 1.8919889999929183,
+          "resultKinds": {
+            "array": 353
+          }
+        },
+        "callResultType -> containingScope": {
+          "calls": [
+            22,
+            22,
+            22,
+            22
+          ],
+          "medianInclusiveMs": 0.037945500003843335,
+          "medianExclusiveMs": 0.037945500003843335,
+          "resultKinds": {
+            "method": 22
+          }
+        },
+        "callResultType -> phpDocDiagnosticType": {
+          "calls": [
+            100,
+            100,
+            100,
+            100
+          ],
+          "medianInclusiveMs": 1.391913999998451,
+          "medianExclusiveMs": 1.0500339999998687,
+          "resultKinds": {
+            "primitive": 74,
+            "array": 22,
+            "list": 4
+          }
+        },
+        "callResultType -> provenArgumentType": {
+          "calls": [
+            8,
+            8,
+            8,
+            8
+          ],
+          "medianInclusiveMs": 6.122731999999814,
+          "medianExclusiveMs": 0.24303099999860933,
+          "resultKinds": {
+            "primitive": 2,
+            "undefined": 4,
+            "list": 2
+          }
+        },
+        "callResultType -> scalarArgumentFact": {
+          "calls": [
+            88,
+            88,
+            88,
+            88
+          ],
+          "medianInclusiveMs": 71.88949049999928,
+          "medianExclusiveMs": 3.1605559999989055,
+          "resultKinds": {
+            "undefined": 72,
+            "object": 16
+          }
+        },
+        "closureLiteralType -> nativeSourceType": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.012406499999087828,
+          "medianExclusiveMs": 0.012406499999087828,
+          "resultKinds": {
+            "primitive": 2
+          }
+        },
+        "closureLiteralType -> provenArgumentType": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 1.979828000001362,
+          "medianExclusiveMs": 0.13147100000287537,
+          "resultKinds": {
+            "undefined": 2
+          }
+        },
+        "closureLiteralType -> signatures": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.27737450000040553,
+          "medianExclusiveMs": 0.27128950000042096,
+          "resultKinds": {
+            "array": 2
+          }
+        },
+        "completedCallSignature -> completedCallSignatures": {
+          "calls": [
+            480,
+            480,
+            480,
+            480
+          ],
+          "medianInclusiveMs": 129.6429885000025,
+          "medianExclusiveMs": 2.3826275000133137,
+          "resultKinds": {
+            "array": 480
+          }
+        },
+        "completedCallSignatures -> methodCandidatesForArguments": {
+          "calls": [
+            823,
+            823,
+            823,
+            823
+          ],
+          "medianInclusiveMs": 29.136861000009958,
+          "medianExclusiveMs": 6.881197500007147,
+          "resultKinds": {
+            "array": 823
+          }
+        },
+        "completedCallSignatures -> signatures": {
+          "calls": [
+            823,
+            823,
+            823,
+            823
+          ],
+          "medianInclusiveMs": 117.64268050000646,
+          "medianExclusiveMs": 78.27815149999606,
+          "resultKinds": {
+            "array": 823
+          }
+        },
+        "incompatibleArguments -> completedCallSignature": {
+          "calls": [
+            480,
+            480,
+            480,
+            480
+          ],
+          "medianInclusiveMs": 130.30857450000985,
+          "medianExclusiveMs": 0.6184000000184824,
+          "resultKinds": {
+            "undefined": 344,
+            "function": 85,
+            "method": 51
+          }
+        },
+        "incompatibleArguments -> nativeSourceType": {
+          "calls": [
+            186,
+            186,
+            186,
+            186
+          ],
+          "medianInclusiveMs": 1.8033289999948465,
+          "medianExclusiveMs": 1.8033289999948465,
+          "resultKinds": {
+            "primitive": 168,
+            "unknown": 6,
+            "union": 12
+          }
+        },
+        "incompatibleArguments -> phpDocDiagnosticType": {
+          "calls": [
+            23,
+            23,
+            23,
+            23
+          ],
+          "medianInclusiveMs": 0.8002035000035903,
+          "medianExclusiveMs": 0.32756249999783904,
+          "resultKinds": {
+            "array": 13,
+            "union": 4,
+            "undefined": 6
+          }
+        },
+        "incompatibleArguments -> provenArgumentType": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 169.40470250000044,
+          "medianExclusiveMs": 8.811008499982108,
+          "resultKinds": {
+            "undefined": 135,
+            "primitive": 59,
+            "named": 1,
+            "literal": 5,
+            "list": 3
+          }
+        },
+        "incompatibleArguments -> scalarArgumentFact": {
+          "calls": [
+            199,
+            199,
+            199,
+            199
+          ],
+          "medianInclusiveMs": 194.4386174999977,
+          "medianExclusiveMs": 9.671451999995043,
+          "resultKinds": {
+            "undefined": 133,
+            "object": 66
+          }
+        },
+        "linearLocalValueType -> containingScope": {
+          "calls": [
+            1375,
+            1375,
+            1375,
+            1375
+          ],
+          "medianInclusiveMs": 1.4051659999931871,
+          "medianExclusiveMs": 1.4051659999931871,
+          "resultKinds": {
+            "method": 1375
+          }
+        },
+        "linearLocalValueType -> provenArgumentType": {
+          "calls": [
+            242,
+            242,
+            242,
+            242
+          ],
+          "medianInclusiveMs": 123.71798450000415,
+          "medianExclusiveMs": 7.258996500005651,
+          "resultKinds": {
+            "undefined": 238,
+            "primitive": 4
+          }
+        },
+        "linearLocalValueType -> signatures": {
+          "calls": [
+            38,
+            38,
+            38,
+            38
+          ],
+          "medianInclusiveMs": 2.925532999999632,
+          "medianExclusiveMs": 1.5273124999953325,
+          "resultKinds": {
+            "array": 38
+          }
+        },
+        "memberChainResultType -> containingScope": {
+          "calls": [
+            26,
+            26,
+            26,
+            26
+          ],
+          "medianInclusiveMs": 0.048849500001779234,
+          "medianExclusiveMs": 0.048849500001779234,
+          "resultKinds": {
+            "method": 26
+          }
+        },
+        "memberChainResultType -> methodCandidatesForArguments": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.002583000000413449,
+          "medianExclusiveMs": 0.002583000000413449,
+          "resultKinds": {
+            "array": 2
+          }
+        },
+        "memberChainResultType -> variableClass": {
+          "calls": [
+            26,
+            26,
+            26,
+            26
+          ],
+          "medianInclusiveMs": 0.1323435000003883,
+          "medianExclusiveMs": 0.11820649999663146,
+          "resultKinds": {
+            "object": 26
+          }
+        },
+        "methodCandidatesForArguments -> phpDocDiagnosticType": {
+          "calls": [
+            52,
+            52,
+            52,
+            52
+          ],
+          "medianInclusiveMs": 1.0156525000029433,
+          "medianExclusiveMs": 0.5975710000011532,
+          "resultKinds": {
+            "union": 39,
+            "primitive": 10,
+            "literal": 3
+          }
+        },
+        "methodCandidatesForArguments -> scalarArgumentFact": {
+          "calls": [
+            15,
+            15,
+            15,
+            15
+          ],
+          "medianInclusiveMs": 21.33505949999926,
+          "medianExclusiveMs": 0.8010209999979452,
+          "resultKinds": {
+            "undefined": 14,
+            "object": 1
+          }
+        },
+        "phpDocDiagnosticType -> phpDocDiagnosticType": {
+          "calls": [
+            182,
+            182,
+            182,
+            182
+          ],
+          "medianInclusiveMs": 1.2973840000036034,
+          "medianExclusiveMs": 1.2916270000046097,
+          "resultKinds": {
+            "primitive": 157,
+            "literal": 12,
+            "union": 4,
+            "undefined": 9
+          }
+        },
+        "provenArgumentType -> callResultType": {
+          "calls": [
+            644,
+            644,
+            644,
+            644
+          ],
+          "medianInclusiveMs": 103.18321149999565,
+          "medianExclusiveMs": 20.40308750000031,
+          "resultKinds": {
+            "undefined": 638,
+            "primitive": 2,
+            "list": 4
+          }
+        },
+        "provenArgumentType -> callableVariableResultType": {
+          "calls": [
+            638,
+            638,
+            638,
+            638
+          ],
+          "medianInclusiveMs": 66.39489049998701,
+          "medianExclusiveMs": 66.39489049998701,
+          "resultKinds": {
+            "undefined": 638
+          }
+        },
+        "provenArgumentType -> closureLiteralType": {
+          "calls": [
+            648,
+            648,
+            648,
+            648
+          ],
+          "medianInclusiveMs": 4.464234999994915,
+          "medianExclusiveMs": 2.1946259999940594,
+          "resultKinds": {
+            "undefined": 648
+          }
+        },
+        "provenArgumentType -> containingScope": {
+          "calls": [
+            663,
+            663,
+            663,
+            663
+          ],
+          "medianInclusiveMs": 1.0207875000114655,
+          "medianExclusiveMs": 1.0207875000114655,
+          "resultKinds": {
+            "method": 663
+          }
+        },
+        "provenArgumentType -> dynamicClassConstantType": {
+          "calls": [
+            701,
+            701,
+            701,
+            701
+          ],
+          "medianInclusiveMs": 1.0145494999833318,
+          "medianExclusiveMs": 1.0145494999833318,
+          "resultKinds": {
+            "undefined": 701
+          }
+        },
+        "provenArgumentType -> expressionSyntax": {
+          "calls": [
+            208,
+            208,
+            208,
+            208
+          ],
+          "medianInclusiveMs": 4.8071580000014364,
+          "medianExclusiveMs": 4.8071580000014364,
+          "resultKinds": {
+            "undefined": 182,
+            "object": 26
+          }
+        },
+        "provenArgumentType -> linearLocalValueType": {
+          "calls": [
+            275,
+            275,
+            275,
+            275
+          ],
+          "medianInclusiveMs": 114.29514600000402,
+          "medianExclusiveMs": 46.83311499998945,
+          "resultKinds": {
+            "undefined": 275
+          }
+        },
+        "provenArgumentType -> memberChainResultType": {
+          "calls": [
+            638,
+            638,
+            638,
+            638
+          ],
+          "medianInclusiveMs": 22.593130000014753,
+          "medianExclusiveMs": 22.427179000013894,
+          "resultKinds": {
+            "undefined": 638
+          }
+        },
+        "provenArgumentType -> phpDocDiagnosticType": {
+          "calls": [
+            27,
+            27,
+            27,
+            27
+          ],
+          "medianInclusiveMs": 0.6820669999997335,
+          "medianExclusiveMs": 0.6820669999997335,
+          "resultKinds": {
+            "undefined": 12,
+            "primitive": 15
+          }
+        },
+        "provenArgumentType -> provenArgumentType": {
+          "calls": [
+            28,
+            28,
+            28,
+            28
+          ],
+          "medianInclusiveMs": 22.901295500000742,
+          "medianExclusiveMs": 0.9067370000002484,
+          "resultKinds": {
+            "primitive": 2,
+            "undefined": 26
+          }
+        },
+        "provenArgumentType -> signatures": {
+          "calls": [
+            16,
+            16,
+            16,
+            16
+          ],
+          "medianInclusiveMs": 0.9460340000000542,
+          "medianExclusiveMs": 0.5877059999997982,
+          "resultKinds": {
+            "array": 16
+          }
+        },
+        "provenArgumentType -> standaloneLocalVariableAnnotationType": {
+          "calls": [
+            238,
+            238,
+            238,
+            238
+          ],
+          "medianInclusiveMs": 2.782310500008407,
+          "medianExclusiveMs": 2.782310500008407,
+          "resultKinds": {
+            "undefined": 238
+          }
+        },
+        "provenArgumentType -> structuredArrayLiteralType": {
+          "calls": [
+            644,
+            644,
+            644,
+            644
+          ],
+          "medianInclusiveMs": 3.472630500033574,
+          "medianExclusiveMs": 3.472630500033574,
+          "resultKinds": {
+            "undefined": 644
+          }
+        },
+        "provenArgumentType -> unknownCallMayMutateVariable": {
+          "calls": [
+            328,
+            328,
+            328,
+            328
+          ],
+          "medianInclusiveMs": 25.51379149999275,
+          "medianExclusiveMs": 19.83515850000913,
+          "resultKinds": {
+            "boolean": 328
+          }
+        },
+        "provenArgumentType -> variableClass": {
+          "calls": [
+            177,
+            177,
+            177,
+            177
+          ],
+          "medianInclusiveMs": 190.48475849999113,
+          "medianExclusiveMs": 52.41119649998109,
+          "resultKinds": {
+            "undefined": 161,
+            "object": 16
+          }
+        },
+        "scalarArgumentFact -> provenArgumentType": {
+          "calls": [
+            238,
+            238,
+            238,
+            238
+          ],
+          "medianInclusiveMs": 272.65720199999487,
+          "medianExclusiveMs": 15.898460000023988,
+          "resultKinds": {
+            "undefined": 219,
+            "named": 1,
+            "literal": 5,
+            "list": 3,
+            "primitive": 10
+          }
+        },
+        "signatures -> containingScope": {
+          "calls": [
+            3,
+            3,
+            3,
+            3
+          ],
+          "medianInclusiveMs": 0.006996499999331718,
+          "medianExclusiveMs": 0.006996499999331718,
+          "resultKinds": {
+            "function": 3
+          }
+        },
+        "signatures -> methodCandidatesForArguments": {
+          "calls": [
+            479,
+            479,
+            479,
+            479
+          ],
+          "medianInclusiveMs": 0.9176150000207599,
+          "medianExclusiveMs": 0.9176150000207599,
+          "resultKinds": {
+            "array": 479
+          }
+        },
+        "signatures -> variableClass": {
+          "calls": [
+            289,
+            289,
+            289,
+            289
+          ],
+          "medianInclusiveMs": 39.02353999999332,
+          "medianExclusiveMs": 24.200327499933337,
+          "resultKinds": {
+            "undefined": 136,
+            "object": 153
+          }
+        },
+        "unknownCallMayMutateVariable -> containingScope": {
+          "calls": [
+            7096,
+            7096,
+            7096,
+            7096
+          ],
+          "medianInclusiveMs": 4.503925000039999,
+          "medianExclusiveMs": 4.503925000039999,
+          "resultKinds": {
+            "method": 6988,
+            "arrow": 108
+          }
+        },
+        "unknownCallMayMutateVariable -> signatures": {
+          "calls": [
+            322,
+            322,
+            322,
+            322
+          ],
+          "medianInclusiveMs": 1.081708000002891,
+          "medianExclusiveMs": 1.081708000002891,
+          "resultKinds": {
+            "array": 322
+          }
+        },
+        "variableClass -> callResultType": {
+          "calls": [
+            113,
+            113,
+            113,
+            113
+          ],
+          "medianInclusiveMs": 26.417115000001104,
+          "medianExclusiveMs": 6.749476500004221,
+          "resultKinds": {
+            "undefined": 113
+          }
+        },
+        "variableClass -> callableVariableResultType": {
+          "calls": [
+            113,
+            113,
+            113,
+            113
+          ],
+          "medianInclusiveMs": 9.439398500001062,
+          "medianExclusiveMs": 9.439398500001062,
+          "resultKinds": {
+            "undefined": 113
+          }
+        },
+        "variableClass -> containingScope": {
+          "calls": [
+            8786,
+            8786,
+            8786,
+            8786
+          ],
+          "medianInclusiveMs": 7.631857500120532,
+          "medianExclusiveMs": 7.631857500120532,
+          "resultKinds": {
+            "method": 8759,
+            "arrow": 21,
+            "function": 6
+          }
+        },
+        "variableClass -> linearLocalValueType": {
+          "calls": [
+            246,
+            246,
+            246,
+            246
+          ],
+          "medianInclusiveMs": 95.40040599999247,
+          "medianExclusiveMs": 34.31428649997588,
+          "resultKinds": {
+            "undefined": 246
+          }
+        },
+        "variableClass -> provenArgumentType": {
+          "calls": [
+            3,
+            3,
+            3,
+            3
+          ],
+          "medianInclusiveMs": 1.451943000000938,
+          "medianExclusiveMs": 0.11853699999937817,
+          "resultKinds": {
+            "undefined": 3
+          }
+        },
+        "variableClass -> signatures": {
+          "calls": [
+            10,
+            10,
+            10,
+            10
+          ],
+          "medianInclusiveMs": 0.6048689999993258,
+          "medianExclusiveMs": 0.5811349999989943,
+          "resultKinds": {
+            "array": 10
+          }
+        },
+        "variableClass -> standaloneLocalVariableAnnotationType": {
+          "calls": [
+            442,
+            442,
+            442,
+            442
+          ],
+          "medianInclusiveMs": 4.841599000002589,
+          "medianExclusiveMs": 4.841599000002589,
+          "resultKinds": {
+            "undefined": 442
+          }
+        },
+        "variableClass -> unknownCallMayMutateVariable": {
+          "calls": [
+            60,
+            60,
+            60,
+            60
+          ],
+          "medianInclusiveMs": 1.381170500000735,
+          "medianExclusiveMs": 1.1647640000091997,
+          "resultKinds": {
+            "boolean": 60
+          }
+        },
+        "variableClass -> variableClass": {
+          "calls": [
+            112,
+            112,
+            112,
+            112
+          ],
+          "medianInclusiveMs": 20.168556999990415,
+          "medianExclusiveMs": 6.271209999976691,
+          "resultKinds": {
+            "object": 58,
+            "undefined": 54
+          }
+        }
+      },
+      "expressionKinds": {
+        "provenArgumentType / array-expression": {
+          "calls": [
+            4,
+            4,
+            4,
+            4
+          ],
+          "medianInclusiveMs": 0.11691700000119454,
+          "medianExclusiveMs": 0.11005799999929877,
+          "resultKinds": {
+            "list": 4
+          }
+        },
+        "provenArgumentType / member-expression": {
+          "calls": [
+            239,
+            239,
+            239,
+            239
+          ],
+          "medianInclusiveMs": 116.20527400000537,
+          "medianExclusiveMs": 6.738672999950722,
+          "resultKinds": {
+            "undefined": 239
+          }
+        },
+        "provenArgumentType / other-expression": {
+          "calls": [
+            202,
+            202,
+            202,
+            202
+          ],
+          "medianInclusiveMs": 95.33068600000252,
+          "medianExclusiveMs": 6.655592999994951,
+          "resultKinds": {
+            "primitive": 19,
+            "undefined": 169,
+            "literal": 10,
+            "list": 4
+          }
+        },
+        "provenArgumentType / quoted-expression": {
+          "calls": [
+            43,
+            43,
+            43,
+            43
+          ],
+          "medianInclusiveMs": 0.7523335000005318,
+          "medianExclusiveMs": 0.6044979999951465,
+          "resultKinds": {
+            "primitive": 43
+          }
+        },
+        "provenArgumentType / variable": {
+          "calls": [
+            236,
+            236,
+            236,
+            236
+          ],
+          "medianInclusiveMs": 386.9395614999953,
+          "medianExclusiveMs": 19.39517800001977,
+          "resultKinds": {
+            "undefined": 219,
+            "primitive": 15,
+            "named": 2
+          }
+        },
+        "scalarArgumentFact / array-expression": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.10023349999937636,
+          "medianExclusiveMs": 0.027149499999723048,
+          "resultKinds": {
+            "object": 2
+          }
+        },
+        "scalarArgumentFact / member-expression": {
+          "calls": [
+            36,
+            36,
+            36,
+            36
+          ],
+          "medianInclusiveMs": 15.560911000000488,
+          "medianExclusiveMs": 0.3736244999968221,
+          "resultKinds": {
+            "undefined": 36
+          }
+        },
+        "scalarArgumentFact / other-expression": {
+          "calls": [
+            86,
+            86,
+            86,
+            86
+          ],
+          "medianInclusiveMs": 23.786791999997604,
+          "medianExclusiveMs": 0.783959499996854,
+          "resultKinds": {
+            "object": 24,
+            "undefined": 62
+          }
+        },
+        "scalarArgumentFact / quoted-expression": {
+          "calls": [
+            47,
+            47,
+            47,
+            47
+          ],
+          "medianInclusiveMs": 0.17910149999852365,
+          "medianExclusiveMs": 0.17910149999852365,
+          "resultKinds": {
+            "object": 47
+          }
+        },
+        "scalarArgumentFact / variable": {
+          "calls": [
+            131,
+            131,
+            131,
+            131
+          ],
+          "medianInclusiveMs": 246.5228649999999,
+          "medianExclusiveMs": 12.27100000000246,
+          "resultKinds": {
+            "undefined": 121,
+            "object": 10
+          }
+        }
+      }
+    },
+    {
+      "localOnly": false,
+      "methodMedianMs": 498.61971749999975,
+      "unattributedRootMedianMs": 28.830406499965648,
+      "helpers": {
+        "callResultType": {
+          "calls": [
+            757,
+            757,
+            757,
+            757
+          ],
+          "medianInclusiveMs": 124.26215249999586,
+          "medianExclusiveMs": 25.426084499972603,
+          "resultKinds": {
+            "undefined": 751,
+            "primitive": 2,
+            "list": 4
+          }
+        },
+        "callableVariableResultType": {
+          "calls": [
+            751,
+            751,
+            751,
+            751
+          ],
+          "medianInclusiveMs": 72.97911149998981,
+          "medianExclusiveMs": 72.97911149998981,
+          "resultKinds": {
+            "undefined": 751
+          }
+        },
+        "closureLiteralType": {
+          "calls": [
+            648,
+            648,
+            648,
+            648
+          ],
+          "medianInclusiveMs": 4.5938129999822195,
+          "medianExclusiveMs": 2.1235655000018596,
+          "resultKinds": {
+            "undefined": 648
+          }
+        },
+        "completedCallSignature": {
+          "calls": [
+            480,
+            480,
+            480,
+            480
+          ],
+          "medianInclusiveMs": 125.02948449999622,
+          "medianExclusiveMs": 0.6131230000164578,
+          "resultKinds": {
+            "undefined": 344,
+            "function": 85,
+            "method": 51
+          }
+        },
+        "completedCallSignatures": {
+          "calls": [
+            833,
+            833,
+            833,
+            833
+          ],
+          "medianInclusiveMs": 146.33829700000751,
+          "medianExclusiveMs": 4.160268500048005,
+          "resultKinds": {
+            "array": 833
+          }
+        },
+        "containingScope": {
+          "calls": [
+            17214,
+            17214,
+            17214,
+            17214
+          ],
+          "medianInclusiveMs": 12.210951500010196,
+          "medianExclusiveMs": 12.210951500010196,
+          "resultKinds": {
+            "method": 17076,
+            "arrow": 129,
+            "function": 9
+          }
+        },
+        "dynamicClassConstantType": {
+          "calls": [
+            701,
+            701,
+            701,
+            701
+          ],
+          "medianInclusiveMs": 0.9576109999889013,
+          "medianExclusiveMs": 0.9576109999889013,
+          "resultKinds": {
+            "undefined": 701
+          }
+        },
+        "expressionSyntax": {
+          "calls": [
+            208,
+            208,
+            208,
+            208
+          ],
+          "medianInclusiveMs": 4.593867500003398,
+          "medianExclusiveMs": 4.593867500003398,
+          "resultKinds": {
+            "undefined": 182,
+            "object": 26
+          }
+        },
+        "linearLocalValueType": {
+          "calls": [
+            520,
+            520,
+            520,
+            520
+          ],
+          "medianInclusiveMs": 200.20628249998208,
+          "medianExclusiveMs": 76.90036549996239,
+          "resultKinds": {
+            "undefined": 520
+          }
+        },
+        "memberChainResultType": {
+          "calls": [
+            638,
+            638,
+            638,
+            638
+          ],
+          "medianInclusiveMs": 23.09874099996523,
+          "medianExclusiveMs": 22.92890049995367,
+          "resultKinds": {
+            "undefined": 638
+          }
+        },
+        "methodCandidatesForArguments": {
+          "calls": [
+            1276,
+            1276,
+            1276,
+            1276
+          ],
+          "medianInclusiveMs": 29.78716849997818,
+          "medianExclusiveMs": 7.755081000005703,
+          "resultKinds": {
+            "array": 1276
+          }
+        },
+        "nativeSourceType": {
+          "calls": [
+            188,
+            188,
+            188,
+            188
+          ],
+          "medianInclusiveMs": 1.7267790000028072,
+          "medianExclusiveMs": 1.7267790000028072,
+          "resultKinds": {
+            "primitive": 170,
+            "unknown": 6,
+            "union": 12
+          }
+        },
+        "phpDocDiagnosticType": {
+          "calls": [
+            384,
+            384,
+            384,
+            384
+          ],
+          "medianInclusiveMs": 4.6330644999925426,
+          "medianExclusiveMs": 3.528455499995289,
+          "resultKinds": {
+            "primitive": 256,
+            "array": 35,
+            "undefined": 27,
+            "union": 47,
+            "literal": 15,
+            "list": 4
+          }
+        },
+        "provenArgumentType": {
+          "calls": [
+            724,
+            724,
+            724,
+            724
+          ],
+          "medianInclusiveMs": 569.8719340000125,
+          "medianExclusiveMs": 33.0457045000785,
+          "resultKinds": {
+            "undefined": 627,
+            "primitive": 77,
+            "named": 2,
+            "literal": 10,
+            "list": 8
+          }
+        },
+        "scalarArgumentFact": {
+          "calls": [
+            302,
+            302,
+            302,
+            302
+          ],
+          "medianInclusiveMs": 267.5104150000152,
+          "medianExclusiveMs": 13.686983000025066,
+          "resultKinds": {
+            "undefined": 219,
+            "object": 83
+          }
+        },
+        "signatures": {
+          "calls": [
+            1181,
+            1181,
+            1181,
+            1181
+          ],
+          "medianInclusiveMs": 115.24659849995805,
+          "medianExclusiveMs": 76.5111924999701,
+          "resultKinds": {
+            "array": 1181
+          }
+        },
+        "standaloneLocalVariableAnnotationType": {
+          "calls": [
+            662,
+            662,
+            662,
+            662
+          ],
+          "medianInclusiveMs": 7.64751049998722,
+          "medianExclusiveMs": 7.64751049998722,
+          "resultKinds": {
+            "undefined": 662
+          }
+        },
+        "structuredArrayLiteralType": {
+          "calls": [
+            644,
+            644,
+            644,
+            644
+          ],
+          "medianInclusiveMs": 3.2352210000071864,
+          "medianExclusiveMs": 3.2352210000071864,
+          "resultKinds": {
+            "undefined": 644
+          }
+        },
+        "unknownCallMayMutateVariable": {
+          "calls": [
+            388,
+            388,
+            388,
+            388
+          ],
+          "medianInclusiveMs": 21.89050700002008,
+          "medianExclusiveMs": 16.95307700002195,
+          "resultKinds": {
+            "boolean": 388
+          }
+        },
+        "variableClass": {
+          "calls": [
+            580,
+            580,
+            580,
+            580
+          ],
+          "medianInclusiveMs": 243.4785815000223,
+          "medianExclusiveMs": 78.97084699999323,
+          "resultKinds": {
+            "undefined": 333,
+            "object": 247
+          }
+        }
+      },
+      "callers": {
+        "callResultType -> completedCallSignatures": {
+          "calls": [
+            353,
+            353,
+            353,
+            353
+          ],
+          "medianInclusiveMs": 21.92762000001403,
+          "medianExclusiveMs": 1.9652400000331909,
+          "resultKinds": {
+            "array": 353
+          }
+        },
+        "callResultType -> containingScope": {
+          "calls": [
+            22,
+            22,
+            22,
+            22
+          ],
+          "medianInclusiveMs": 0.03289299999596551,
+          "medianExclusiveMs": 0.03289299999596551,
+          "resultKinds": {
+            "method": 22
+          }
+        },
+        "callResultType -> phpDocDiagnosticType": {
+          "calls": [
+            100,
+            100,
+            100,
+            100
+          ],
+          "medianInclusiveMs": 1.2957609999966735,
+          "medianExclusiveMs": 0.999899499998719,
+          "resultKinds": {
+            "primitive": 74,
+            "array": 22,
+            "list": 4
+          }
+        },
+        "callResultType -> provenArgumentType": {
+          "calls": [
+            8,
+            8,
+            8,
+            8
+          ],
+          "medianInclusiveMs": 6.008459000000585,
+          "medianExclusiveMs": 0.23412149999148824,
+          "resultKinds": {
+            "primitive": 2,
+            "undefined": 4,
+            "list": 2
+          }
+        },
+        "callResultType -> scalarArgumentFact": {
+          "calls": [
+            88,
+            88,
+            88,
+            88
+          ],
+          "medianInclusiveMs": 69.18659150000076,
+          "medianExclusiveMs": 2.96582600000238,
+          "resultKinds": {
+            "undefined": 72,
+            "object": 16
+          }
+        },
+        "closureLiteralType -> nativeSourceType": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.03558899999916321,
+          "medianExclusiveMs": 0.03558899999916321,
+          "resultKinds": {
+            "primitive": 2
+          }
+        },
+        "closureLiteralType -> provenArgumentType": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 2.1605795000004946,
+          "medianExclusiveMs": 0.15064599999914208,
+          "resultKinds": {
+            "undefined": 2
+          }
+        },
+        "closureLiteralType -> signatures": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.3350000000000364,
+          "medianExclusiveMs": 0.32905750000008993,
+          "resultKinds": {
+            "array": 2
+          }
+        },
+        "completedCallSignature -> completedCallSignatures": {
+          "calls": [
+            480,
+            480,
+            480,
+            480
+          ],
+          "medianInclusiveMs": 124.47359849998793,
+          "medianExclusiveMs": 2.195028500014814,
+          "resultKinds": {
+            "array": 480
+          }
+        },
+        "completedCallSignatures -> methodCandidatesForArguments": {
+          "calls": [
+            823,
+            823,
+            823,
+            823
+          ],
+          "medianInclusiveMs": 28.862012500000674,
+          "medianExclusiveMs": 6.820282500000758,
+          "resultKinds": {
+            "array": 823
+          }
+        },
+        "completedCallSignatures -> signatures": {
+          "calls": [
+            823,
+            823,
+            823,
+            823
+          ],
+          "medianInclusiveMs": 113.31601599995884,
+          "medianExclusiveMs": 74.59520849997261,
+          "resultKinds": {
+            "array": 823
+          }
+        },
+        "incompatibleArguments -> completedCallSignature": {
+          "calls": [
+            480,
+            480,
+            480,
+            480
+          ],
+          "medianInclusiveMs": 125.02948449999622,
+          "medianExclusiveMs": 0.6131230000164578,
+          "resultKinds": {
+            "undefined": 344,
+            "function": 85,
+            "method": 51
+          }
+        },
+        "incompatibleArguments -> nativeSourceType": {
+          "calls": [
+            186,
+            186,
+            186,
+            186
+          ],
+          "medianInclusiveMs": 1.690509500002463,
+          "medianExclusiveMs": 1.690509500002463,
+          "resultKinds": {
+            "primitive": 168,
+            "unknown": 6,
+            "union": 12
+          }
+        },
+        "incompatibleArguments -> phpDocDiagnosticType": {
+          "calls": [
+            23,
+            23,
+            23,
+            23
+          ],
+          "medianInclusiveMs": 0.8238389999996798,
+          "medianExclusiveMs": 0.28781050000361574,
+          "resultKinds": {
+            "array": 13,
+            "union": 4,
+            "undefined": 6
+          }
+        },
+        "incompatibleArguments -> provenArgumentType": {
+          "calls": [
+            203,
+            203,
+            203,
+            203
+          ],
+          "medianInclusiveMs": 162.55257900000925,
+          "medianExclusiveMs": 9.265356500030975,
+          "resultKinds": {
+            "undefined": 135,
+            "primitive": 59,
+            "named": 1,
+            "literal": 5,
+            "list": 3
+          }
+        },
+        "incompatibleArguments -> scalarArgumentFact": {
+          "calls": [
+            199,
+            199,
+            199,
+            199
+          ],
+          "medianInclusiveMs": 177.3594260000027,
+          "medianExclusiveMs": 9.894562500005122,
+          "resultKinds": {
+            "undefined": 133,
+            "object": 66
+          }
+        },
+        "linearLocalValueType -> containingScope": {
+          "calls": [
+            1374,
+            1374,
+            1374,
+            1374
+          ],
+          "medianInclusiveMs": 1.4140085000062754,
+          "medianExclusiveMs": 1.4140085000062754,
+          "resultKinds": {
+            "method": 1374
+          }
+        },
+        "linearLocalValueType -> provenArgumentType": {
+          "calls": [
+            242,
+            242,
+            242,
+            242
+          ],
+          "medianInclusiveMs": 121.07098150001457,
+          "medianExclusiveMs": 6.808195500027068,
+          "resultKinds": {
+            "undefined": 238,
+            "primitive": 4
+          }
+        },
+        "linearLocalValueType -> signatures": {
+          "calls": [
+            16,
+            16,
+            16,
+            16
+          ],
+          "medianInclusiveMs": 0.06041849999928672,
+          "medianExclusiveMs": 0.06041849999928672,
+          "resultKinds": {
+            "array": 16
+          }
+        },
+        "memberChainResultType -> containingScope": {
+          "calls": [
+            26,
+            26,
+            26,
+            26
+          ],
+          "medianInclusiveMs": 0.04819949999819073,
+          "medianExclusiveMs": 0.04819949999819073,
+          "resultKinds": {
+            "method": 26
+          }
+        },
+        "memberChainResultType -> methodCandidatesForArguments": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.002941500000815722,
+          "medianExclusiveMs": 0.002941500000815722,
+          "resultKinds": {
+            "array": 2
+          }
+        },
+        "memberChainResultType -> variableClass": {
+          "calls": [
+            26,
+            26,
+            26,
+            26
+          ],
+          "medianInclusiveMs": 0.1393815000064933,
+          "medianExclusiveMs": 0.12366250000286527,
+          "resultKinds": {
+            "object": 26
+          }
+        },
+        "methodCandidatesForArguments -> phpDocDiagnosticType": {
+          "calls": [
+            52,
+            52,
+            52,
+            52
+          ],
+          "medianInclusiveMs": 0.8260964999899443,
+          "medianExclusiveMs": 0.5419929999879969,
+          "resultKinds": {
+            "union": 39,
+            "primitive": 10,
+            "literal": 3
+          }
+        },
+        "methodCandidatesForArguments -> scalarArgumentFact": {
+          "calls": [
+            15,
+            15,
+            15,
+            15
+          ],
+          "medianInclusiveMs": 20.99361950000184,
+          "medianExclusiveMs": 0.8412234999987049,
+          "resultKinds": {
+            "undefined": 14,
+            "object": 1
+          }
+        },
+        "phpDocDiagnosticType -> phpDocDiagnosticType": {
+          "calls": [
+            182,
+            182,
+            182,
+            182
+          ],
+          "medianInclusiveMs": 1.1046089999972537,
+          "medianExclusiveMs": 1.0960129999984929,
+          "resultKinds": {
+            "primitive": 157,
+            "literal": 12,
+            "union": 4,
+            "undefined": 9
+          }
+        },
+        "provenArgumentType -> callResultType": {
+          "calls": [
+            644,
+            644,
+            644,
+            644
+          ],
+          "medianInclusiveMs": 97.55413299999691,
+          "medianExclusiveMs": 18.67998999996871,
+          "resultKinds": {
+            "undefined": 638,
+            "primitive": 2,
+            "list": 4
+          }
+        },
+        "provenArgumentType -> callableVariableResultType": {
+          "calls": [
+            638,
+            638,
+            638,
+            638
+          ],
+          "medianInclusiveMs": 63.11107899999115,
+          "medianExclusiveMs": 63.11107899999115,
+          "resultKinds": {
+            "undefined": 638
+          }
+        },
+        "provenArgumentType -> closureLiteralType": {
+          "calls": [
+            648,
+            648,
+            648,
+            648
+          ],
+          "medianInclusiveMs": 4.5938129999822195,
+          "medianExclusiveMs": 2.1235655000018596,
+          "resultKinds": {
+            "undefined": 648
+          }
+        },
+        "provenArgumentType -> containingScope": {
+          "calls": [
+            630,
+            630,
+            630,
+            630
+          ],
+          "medianInclusiveMs": 0.9761759999992137,
+          "medianExclusiveMs": 0.9761759999992137,
+          "resultKinds": {
+            "method": 630
+          }
+        },
+        "provenArgumentType -> dynamicClassConstantType": {
+          "calls": [
+            701,
+            701,
+            701,
+            701
+          ],
+          "medianInclusiveMs": 0.9576109999889013,
+          "medianExclusiveMs": 0.9576109999889013,
+          "resultKinds": {
+            "undefined": 701
+          }
+        },
+        "provenArgumentType -> expressionSyntax": {
+          "calls": [
+            208,
+            208,
+            208,
+            208
+          ],
+          "medianInclusiveMs": 4.593867500003398,
+          "medianExclusiveMs": 4.593867500003398,
+          "resultKinds": {
+            "undefined": 182,
+            "object": 26
+          }
+        },
+        "provenArgumentType -> linearLocalValueType": {
+          "calls": [
+            275,
+            275,
+            275,
+            275
+          ],
+          "medianInclusiveMs": 104.71497150000232,
+          "medianExclusiveMs": 42.1859629999808,
+          "resultKinds": {
+            "undefined": 275
+          }
+        },
+        "provenArgumentType -> memberChainResultType": {
+          "calls": [
+            638,
+            638,
+            638,
+            638
+          ],
+          "medianInclusiveMs": 23.09874099996523,
+          "medianExclusiveMs": 22.92890049995367,
+          "resultKinds": {
+            "undefined": 638
+          }
+        },
+        "provenArgumentType -> phpDocDiagnosticType": {
+          "calls": [
+            27,
+            27,
+            27,
+            27
+          ],
+          "medianInclusiveMs": 0.6364420000045357,
+          "medianExclusiveMs": 0.6364420000045357,
+          "resultKinds": {
+            "undefined": 12,
+            "primitive": 15
+          }
+        },
+        "provenArgumentType -> provenArgumentType": {
+          "calls": [
+            28,
+            28,
+            28,
+            28
+          ],
+          "medianInclusiveMs": 20.93090199999915,
+          "medianExclusiveMs": 0.8836675000002288,
+          "resultKinds": {
+            "primitive": 2,
+            "undefined": 26
+          }
+        },
+        "provenArgumentType -> signatures": {
+          "calls": [
+            10,
+            10,
+            10,
+            10
+          ],
+          "medianInclusiveMs": 0.027707499999451102,
+          "medianExclusiveMs": 0.027707499999451102,
+          "resultKinds": {
+            "array": 10
+          }
+        },
+        "provenArgumentType -> standaloneLocalVariableAnnotationType": {
+          "calls": [
+            238,
+            238,
+            238,
+            238
+          ],
+          "medianInclusiveMs": 2.801262499997847,
+          "medianExclusiveMs": 2.801262499997847,
+          "resultKinds": {
+            "undefined": 238
+          }
+        },
+        "provenArgumentType -> structuredArrayLiteralType": {
+          "calls": [
+            644,
+            644,
+            644,
+            644
+          ],
+          "medianInclusiveMs": 3.2352210000071864,
+          "medianExclusiveMs": 3.2352210000071864,
+          "resultKinds": {
+            "undefined": 644
+          }
+        },
+        "provenArgumentType -> unknownCallMayMutateVariable": {
+          "calls": [
+            328,
+            328,
+            328,
+            328
+          ],
+          "medianInclusiveMs": 20.5393505000211,
+          "medianExclusiveMs": 15.813919500010343,
+          "resultKinds": {
+            "boolean": 328
+          }
+        },
+        "provenArgumentType -> variableClass": {
+          "calls": [
+            177,
+            177,
+            177,
+            177
+          ],
+          "medianInclusiveMs": 186.33763649999673,
+          "medianExclusiveMs": 50.9319930000438,
+          "resultKinds": {
+            "undefined": 161,
+            "object": 16
+          }
+        },
+        "scalarArgumentFact -> provenArgumentType": {
+          "calls": [
+            238,
+            238,
+            238,
+            238
+          ],
+          "medianInclusiveMs": 253.82343199999013,
+          "medianExclusiveMs": 15.520536500027447,
+          "resultKinds": {
+            "undefined": 219,
+            "named": 1,
+            "literal": 5,
+            "list": 3,
+            "primitive": 10
+          }
+        },
+        "signatures -> containingScope": {
+          "calls": [
+            3,
+            3,
+            3,
+            3
+          ],
+          "medianInclusiveMs": 0.007533999999395746,
+          "medianExclusiveMs": 0.007533999999395746,
+          "resultKinds": {
+            "function": 3
+          }
+        },
+        "signatures -> methodCandidatesForArguments": {
+          "calls": [
+            451,
+            451,
+            451,
+            451
+          ],
+          "medianInclusiveMs": 0.9221759999754795,
+          "medianExclusiveMs": 0.9221759999754795,
+          "resultKinds": {
+            "array": 451
+          }
+        },
+        "signatures -> variableClass": {
+          "calls": [
+            265,
+            265,
+            265,
+            265
+          ],
+          "medianInclusiveMs": 37.98453899998913,
+          "medianExclusiveMs": 22.89008550001745,
+          "resultKinds": {
+            "undefined": 118,
+            "object": 147
+          }
+        },
+        "unknownCallMayMutateVariable -> containingScope": {
+          "calls": [
+            7096,
+            7096,
+            7096,
+            7096
+          ],
+          "medianInclusiveMs": 3.9043239999809884,
+          "medianExclusiveMs": 3.9043239999809884,
+          "resultKinds": {
+            "method": 6988,
+            "arrow": 108
+          }
+        },
+        "unknownCallMayMutateVariable -> signatures": {
+          "calls": [
+            322,
+            322,
+            322,
+            322
+          ],
+          "medianInclusiveMs": 1.035173000002942,
+          "medianExclusiveMs": 1.035173000002942,
+          "resultKinds": {
+            "array": 322
+          }
+        },
+        "variableClass -> callResultType": {
+          "calls": [
+            113,
+            113,
+            113,
+            113
+          ],
+          "medianInclusiveMs": 25.594147999997404,
+          "medianExclusiveMs": 6.243045499993968,
+          "resultKinds": {
+            "undefined": 113
+          }
+        },
+        "variableClass -> callableVariableResultType": {
+          "calls": [
+            113,
+            113,
+            113,
+            113
+          ],
+          "medianInclusiveMs": 9.732809000003726,
+          "medianExclusiveMs": 9.732809000003726,
+          "resultKinds": {
+            "undefined": 113
+          }
+        },
+        "variableClass -> containingScope": {
+          "calls": [
+            8063,
+            8063,
+            8063,
+            8063
+          ],
+          "medianInclusiveMs": 5.532101999947372,
+          "medianExclusiveMs": 5.532101999947372,
+          "resultKinds": {
+            "method": 8036,
+            "arrow": 21,
+            "function": 6
+          }
+        },
+        "variableClass -> linearLocalValueType": {
+          "calls": [
+            245,
+            245,
+            245,
+            245
+          ],
+          "medianInclusiveMs": 94.75747599997158,
+          "medianExclusiveMs": 34.71440249998159,
+          "resultKinds": {
+            "undefined": 245
+          }
+        },
+        "variableClass -> provenArgumentType": {
+          "calls": [
+            3,
+            3,
+            3,
+            3
+          ],
+          "medianInclusiveMs": 1.4812624999995023,
+          "medianExclusiveMs": 0.11560149999968417,
+          "resultKinds": {
+            "undefined": 3
+          }
+        },
+        "variableClass -> signatures": {
+          "calls": [
+            8,
+            8,
+            8,
+            8
+          ],
+          "medianInclusiveMs": 0.17323799999849143,
+          "medianExclusiveMs": 0.17034199999852717,
+          "resultKinds": {
+            "array": 8
+          }
+        },
+        "variableClass -> standaloneLocalVariableAnnotationType": {
+          "calls": [
+            424,
+            424,
+            424,
+            424
+          ],
+          "medianInclusiveMs": 4.8706639999891195,
+          "medianExclusiveMs": 4.8706639999891195,
+          "resultKinds": {
+            "undefined": 424
+          }
+        },
+        "variableClass -> unknownCallMayMutateVariable": {
+          "calls": [
+            60,
+            60,
+            60,
+            60
+          ],
+          "medianInclusiveMs": 1.448980000006486,
+          "medianExclusiveMs": 1.208995000010873,
+          "resultKinds": {
+            "boolean": 60
+          }
+        },
+        "variableClass -> variableClass": {
+          "calls": [
+            112,
+            112,
+            112,
+            112
+          ],
+          "medianInclusiveMs": 18.92963150000014,
+          "medianExclusiveMs": 5.676401500014435,
+          "resultKinds": {
+            "object": 58,
+            "undefined": 54
+          }
+        }
+      },
+      "expressionKinds": {
+        "provenArgumentType / array-expression": {
+          "calls": [
+            4,
+            4,
+            4,
+            4
+          ],
+          "medianInclusiveMs": 0.14704750000328204,
+          "medianExclusiveMs": 0.14035950000197772,
+          "resultKinds": {
+            "list": 4
+          }
+        },
+        "provenArgumentType / member-expression": {
+          "calls": [
+            239,
+            239,
+            239,
+            239
+          ],
+          "medianInclusiveMs": 115.23369950001143,
+          "medianExclusiveMs": 6.359811999998783,
+          "resultKinds": {
+            "undefined": 239
+          }
+        },
+        "provenArgumentType / other-expression": {
+          "calls": [
+            202,
+            202,
+            202,
+            202
+          ],
+          "medianInclusiveMs": 85.23555000001306,
+          "medianExclusiveMs": 6.43301050005266,
+          "resultKinds": {
+            "primitive": 19,
+            "undefined": 169,
+            "literal": 10,
+            "list": 4
+          }
+        },
+        "provenArgumentType / quoted-expression": {
+          "calls": [
+            43,
+            43,
+            43,
+            43
+          ],
+          "medianInclusiveMs": 0.825381999997262,
+          "medianExclusiveMs": 0.6499774999974761,
+          "resultKinds": {
+            "primitive": 43
+          }
+        },
+        "provenArgumentType / variable": {
+          "calls": [
+            236,
+            236,
+            236,
+            236
+          ],
+          "medianInclusiveMs": 368.4141739999959,
+          "medianExclusiveMs": 19.38787800002592,
+          "resultKinds": {
+            "undefined": 219,
+            "primitive": 15,
+            "named": 2
+          }
+        },
+        "scalarArgumentFact / array-expression": {
+          "calls": [
+            2,
+            2,
+            2,
+            2
+          ],
+          "medianInclusiveMs": 0.12760000000162108,
+          "medianExclusiveMs": 0.019566500000109954,
+          "resultKinds": {
+            "object": 2
+          }
+        },
+        "scalarArgumentFact / member-expression": {
+          "calls": [
+            36,
+            36,
+            36,
+            36
+          ],
+          "medianInclusiveMs": 15.85587100000339,
+          "medianExclusiveMs": 0.35067899999467045,
+          "resultKinds": {
+            "undefined": 36
+          }
+        },
+        "scalarArgumentFact / other-expression": {
+          "calls": [
+            86,
+            86,
+            86,
+            86
+          ],
+          "medianInclusiveMs": 22.33325250000962,
+          "medianExclusiveMs": 0.7614880000155608,
+          "resultKinds": {
+            "object": 24,
+            "undefined": 62
+          }
+        },
+        "scalarArgumentFact / quoted-expression": {
+          "calls": [
+            47,
+            47,
+            47,
+            47
+          ],
+          "medianInclusiveMs": 0.16799950000313402,
+          "medianExclusiveMs": 0.16799950000313402,
+          "resultKinds": {
+            "object": 47
+          }
+        },
+        "scalarArgumentFact / variable": {
+          "calls": [
+            131,
+            131,
+            131,
+            131
+          ],
+          "medianInclusiveMs": 230.05679300000156,
+          "medianExclusiveMs": 12.382091500005117,
+          "resultKinds": {
+            "undefined": 121,
+            "object": 10
+          }
+        }
+      }
+    }
+  ],
+  "completeVisibleResultEquality": true,
+  "products": 2087,
+  "projectInputs": 66079,
+  "changedProducts": [],
+  "changedProjectInputs": [],
+  "productionChanged": false,
+  "fullObjectiveComplete": false,
+  "nextScope": "Private necessary-character gate before callable-variable syntax traversal; no result cache or proof reuse",
+  "newProductionChange": false
+}

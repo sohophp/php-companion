@@ -1,0 +1,44 @@
+{
+  "qualifiedCompleteStandalonePackagedFlow": true,
+  "actualCommandExitCode": 0,
+  "durationSeconds": 434.59463621408213,
+  "engineBuildId": "b403e33a2c93c6959507fd8248703c148886849b91b1d05f0a9ffbb23f4d5951",
+  "frozenInputsChecked": 3326,
+  "compiledJavaScriptCount": 105,
+  "packageSha256": [
+    "2de6c3ec1cc4b6810b98c98bf75209a31797736723c7bf90945bbb9c40e776d6",
+    "75ad24d76e0dec2b9165fbb959023cc7f0db04833aa03a24054b2a4dab2e3171"
+  ],
+  "packagedRuntimeEntriesVerified": 16,
+  "originalCompleteEntryRetained": true,
+  "originalAssertionsAndTimeoutsPreserved": true,
+  "originalInjectedCrashAndRecoveryRetained": true,
+  "lifecycle": {
+    "unexpectedCloses": 1,
+    "restartFailures": 0,
+    "pendingVersionRefreshes": 0,
+    "restarting": false,
+    "scheduled": false
+  },
+  "checkedProcessIds": [
+    69125,
+    69132,
+    69134,
+    69138,
+    69639,
+    71278
+  ],
+  "ownedProcessesGroupsFixtureAndDisplayGone": true,
+  "realWslAcceptance": false,
+  "fullPerformanceQualified": false,
+  "fullObjectiveComplete": false,
+  "profileUpdated": false,
+  "recordedAtUtc": "2026-10-14T02:43:22.275968+00:00",
+  "actualAuditorExitCode": 0,
+  "archiveFiles": 50,
+  "archiveOriginalAndCopyHashesVerified": true,
+  "auditSHA256": "8f6ff8006d69a2aa88c68515b06de894978a0a5c86cedcd3e7a630135586af47",
+  "archiveManifestSHA256": "1eeb65711ad3d7b06597fa9e49470b245cf16627e91e6b8bfb996fd18d081b7e",
+  "installed": false,
+  "published": false
+}

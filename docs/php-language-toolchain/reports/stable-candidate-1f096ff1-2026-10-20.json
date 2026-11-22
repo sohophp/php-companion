@@ -1,0 +1,235 @@
+{
+  "date": "2026-10-20",
+  "sourceCommit": "1f096ff102cb26b5cdcbd9e53872dbcceacfaf2a",
+  "ciRun": 39277517219,
+  "ciJobsPassed": 20,
+  "coreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+  "sourceBuildMatchesCiPackage": true,
+  "realWslAcceptance": false,
+  "fullObjectiveComplete": false,
+  "firstControllerRun": {
+    "correctnessPassed": true,
+    "diagnostics": {
+      "p95Ms": 1580.9935509999996,
+      "medianMs": 1347.283578999999,
+      "maxMs": 2156.010891
+    },
+    "completion": {
+      "p95Ms": 606.232489,
+      "medianMs": 121.84794799999872,
+      "maxMs": 668.8794170000001
+    },
+    "originalDiagnosticBudgetMs": 500,
+    "originalCompletionBudgetMs": 150,
+    "diagnosticBudgetPassed": false,
+    "completionBudgetPassed": false,
+    "diskUnchanged": true,
+    "ownedServerGone": true,
+    "cacheRemoved": true,
+    "performanceQualification": false,
+    "reason": "Overlapped local TypeScript build; preserved, excluded from formal performance decision."
+  },
+  "controller25": {
+    "correctnessPassed": true,
+    "diagnostics": {
+      "p95Ms": 1527.621245000002,
+      "medianMs": 1352.877926000001,
+      "maxMs": 2281.520041999999
+    },
+    "completion": {
+      "p95Ms": 634.5652730000002,
+      "medianMs": 130.4967319999996,
+      "maxMs": 636.1271280000001
+    },
+    "originalDiagnosticBudgetMs": 500,
+    "originalCompletionBudgetMs": 150,
+    "diagnosticBudgetPassed": false,
+    "completionBudgetPassed": false,
+    "diskUnchanged": true,
+    "ownedServerGone": true,
+    "cacheRemoved": true,
+    "source": "controller-25-after-build",
+    "localBuildCompletedBeforeStart": true,
+    "all25CompleteResultsMatchHistoricalWorkflow": true
+  },
+  "installationReview": {
+    "date": "2026-10-20",
+    "installedFromCiRun": 39277517219,
+    "artifacts": [
+      {
+        "id": "sohophp.php-companion",
+        "filesVerified": 18
+      },
+      {
+        "id": "sohophp.php-companion-symfony",
+        "filesVerified": 15
+      },
+      {
+        "id": "sohophp.php-companion-open-source-pack",
+        "filesVerified": 6
+      }
+    ],
+    "allFilesMatchCi": true,
+    "alphaProfileMembers": 15,
+    "other14ProfileEntriesUnchanged": true,
+    "targetVersionAndLocationUnchanged": true,
+    "targetInstallerMetadataUpdated": true,
+    "backedUpPriorSymfonyFiles": 16,
+    "remoteCliExitCode": 143,
+    "remoteCliTerminatedBeforeStandaloneInstall": true,
+    "standaloneInstallerExitCode": 0,
+    "manualWindowReloadVerified": false,
+    "realWslAcceptance": false
+  },
+  "installedPackagesBeforeUpdate": [
+    {
+      "id": "sohophp.php-companion",
+      "directory": "/home/jason/.vscode-server/extensions/sohophp.php-companion-0.4.13",
+      "checkedFiles": 18,
+      "differences": []
+    },
+    {
+      "id": "sohophp.php-companion-symfony",
+      "directory": "/home/jason/.vscode-server/extensions/sohophp.php-companion-symfony-0.4.13",
+      "checkedFiles": 15,
+      "differences": [
+        {
+          "file": "dist/static-route-provider.js",
+          "reason": "content"
+        },
+        {
+          "file": "dist/service-provider.js",
+          "reason": "content"
+        },
+        {
+          "file": "dist/event-provider.js",
+          "reason": "content"
+        },
+        {
+          "file": "dist/controller-context-provider.js",
+          "reason": "content"
+        }
+      ]
+    },
+    {
+      "id": "sohophp.php-companion-open-source-pack",
+      "directory": "/home/jason/.vscode-server/extensions/sohophp.php-companion-open-source-pack-0.4.13",
+      "checkedFiles": 6,
+      "differences": []
+    }
+  ],
+  "externalProfileReview": {
+    "date": "2026-10-20",
+    "source": "Actual Alpha Profile extensions.json",
+    "profile": "5db630d7",
+    "frozenExternalVersionsMatch": false,
+    "mismatches": [
+      {
+        "id": "redhat.vscode-yaml",
+        "expected": "1.24.0",
+        "installed": "2.0.0"
+      },
+      {
+        "id": "xdebug.php-debug",
+        "expected": "1.40.1",
+        "installed": "1.40.2"
+      }
+    ],
+    "activeProvidersVerified": false,
+    "manualWslAcceptance": false
+  },
+  "linuxOnDemandMatrix": {
+    "date": "2026-10-20",
+    "commit": "193cda547dc8f7a1b7a365719e8d6635b84eeb71",
+    "coreSHA256": "5095cf1541e5fdbe8d72277987358676e21382bcdcc2f6429700e3aadafe7e8c",
+    "mode": "onDemand",
+    "platform": "linux",
+    "actualRunnerExitCode": 0,
+    "independentAuditPassed": true,
+    "cases": [
+      {
+        "phpVersion": "7.2",
+        "mode": "onDemand",
+        "platform": "linux",
+        "diagnosticP95Ms": 30.517084999999497,
+        "maxHotQueryP95Ms": 6.128082999999606,
+        "cancellationMs": 19.66095199999836
+      },
+      {
+        "phpVersion": "7.3",
+        "mode": "onDemand",
+        "platform": "linux",
+        "diagnosticP95Ms": 30.706516000000192,
+        "maxHotQueryP95Ms": 6.646928999998636,
+        "cancellationMs": 5.2245140000013635
+      },
+      {
+        "phpVersion": "7.4",
+        "mode": "onDemand",
+        "platform": "linux",
+        "diagnosticP95Ms": 30.668188999999984,
+        "maxHotQueryP95Ms": 6.496924000002764,
+        "cancellationMs": 5.654262000000017
+      },
+      {
+        "phpVersion": "8.0",
+        "mode": "onDemand",
+        "platform": "linux",
+        "diagnosticP95Ms": 30.843721000001096,
+        "maxHotQueryP95Ms": 6.201021999997465,
+        "cancellationMs": 5.815948999999819
+      },
+      {
+        "phpVersion": "8.1",
+        "mode": "onDemand",
+        "platform": "linux",
+        "diagnosticP95Ms": 30.87007799999992,
+        "maxHotQueryP95Ms": 5.9378059999999095,
+        "cancellationMs": 5.108415999999124
+      },
+      {
+        "phpVersion": "8.2",
+        "mode": "onDemand",
+        "platform": "linux",
+        "diagnosticP95Ms": 30.76820299999963,
+        "maxHotQueryP95Ms": 6.43836999999985,
+        "cancellationMs": 31.918526000001293
+      },
+      {
+        "phpVersion": "8.3",
+        "mode": "onDemand",
+        "platform": "linux",
+        "diagnosticP95Ms": 31.049308000001474,
+        "maxHotQueryP95Ms": 6.42973400000119,
+        "cancellationMs": 13.296672000000399
+      },
+      {
+        "phpVersion": "8.4",
+        "mode": "onDemand",
+        "platform": "linux",
+        "diagnosticP95Ms": 30.84515900000042,
+        "maxHotQueryP95Ms": 6.943052999999054,
+        "cancellationMs": 4.970094000000245
+      },
+      {
+        "phpVersion": "8.5",
+        "mode": "onDemand",
+        "platform": "linux",
+        "diagnosticP95Ms": 31.01238999999987,
+        "maxHotQueryP95Ms": 6.82013999999981,
+        "cancellationMs": 5.695418999999674
+      }
+    ],
+    "formalEdits": 4500,
+    "warmupEdits": 450,
+    "loadedTargetProofs": 9,
+    "allRuntimeAndRawEvidenceHashesVerified": true,
+    "ownedProcessesGone": true,
+    "temporaryOwnerRemoved": true,
+    "maxDiagnosticP95Ms": 31.049308000001474,
+    "maxQueryP95Ms": 6.943052999999054,
+    "maxCancellationMs": 31.918526000001293,
+    "wholePlatformMatrixQualified": false,
+    "fullObjectiveComplete": false
+  }
+}
