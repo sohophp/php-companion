@@ -12012,6 +12012,23 @@ class GlobalMoveRunner { public const TEXT = '?>'; }`;
       ['state->items', 'string', 'array'],
     ]);
   });
+  it('treats PHP 8.6 readonly defaults as already initialized', () => {
+    const uri = 'file:///ReadonlyDefaults.php';
+    const source = `<?php
+      readonly class Defaults {
+        public int $timeout = 30;
+        public int $retries;
+        public function __construct(public int $port = 80) {
+          $this->timeout = 10;
+          $this->retries = 3;
+        }
+      }
+    `;
+    workspace.update(uri, source);
+    expect(workspace.readonlyPropertyAssignments(uri)).toMatchObject([
+      { name: 'timeout', minimumPhpVersion: '8.6' },
+    ]);
+  });
   it('reports only definitely external writes to readonly properties', () => {
     const source = `<?php namespace ReadonlyWrites;
       class State { public readonly int $id; public int $count; public function initialize(): void { $this->id = 1; } }

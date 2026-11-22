@@ -868,7 +868,8 @@ export function analyzePhpDocument(document: TextDocument, parser: PhpSyntaxPars
         const violations = [
           property.type === undefined ? diagnosticMessage(language, 'readonlyTypeRequired') : undefined,
           property.static ? diagnosticMessage(language, 'readonlyStatic') : undefined,
-          property.defaultValue !== undefined && !property.promoted ? diagnosticMessage(language, 'readonlyDefault') : undefined,
+          !isSyntaxAvailable(targetVersion, '8.6') && property.defaultValue !== undefined && !property.promoted
+            ? diagnosticMessage(language, 'readonlyDefault') : undefined,
           isSyntaxAvailable(targetVersion, '8.4') && property.hooks?.length ? diagnosticMessage(language, 'readonlyHooks') : undefined,
         ].filter((item): item is string => item !== undefined);
         if (violations.length === 0) return [];

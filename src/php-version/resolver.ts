@@ -29,14 +29,14 @@ export async function resolvePhpVersion(options: ResolvePhpVersionOptions): Prom
   if (platformMinor) {
     return { ...withoutProbe, target: platformMinor, detectedVersion: platform, source: 'composer-platform', sourceDetail: 'composer.json config.platform.php' };
   }
-  if (platform) warnings.push(`composer.json config.platform.php is outside PHP 7.2–8.5 or invalid: ${platform}`);
+  if (platform) warnings.push(`composer.json config.platform.php is outside PHP 7.2–8.6 or invalid: ${platform}`);
 
   const lockPlatform = options.composer?.lockPlatformPhp;
   const lockMinor = lockPlatform ? toSupportedMinor(lockPlatform) : undefined;
   if (lockMinor) {
     return { ...withoutProbe, target: lockMinor, detectedVersion: lockPlatform, source: 'composer-lock-platform', sourceDetail: 'composer.lock platform-overrides.php' };
   }
-  if (lockPlatform) warnings.push(`composer.lock platform-overrides.php is outside PHP 7.2–8.5 or invalid: ${lockPlatform}`);
+  if (lockPlatform) warnings.push(`composer.lock platform-overrides.php is outside PHP 7.2–8.6 or invalid: ${lockPlatform}`);
 
   const requirement = options.composer?.requiredPhp;
   const requiredMinor = requirement ? lowestSupportedVersion(requirement) : undefined;

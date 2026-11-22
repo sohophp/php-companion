@@ -56,11 +56,18 @@ describe('F14 public manifest baseline', () => {
     const symfony = publicContract(await readJson('packages/php-companion-symfony/package.json') as unknown as Manifest,
       await readJson('packages/php-companion-symfony/package.nls.json'),
       await readJson('packages/php-companion-symfony/package.nls.zh-cn.json'));
-    const coreBaseline = baseline.core as { commands: Array<{ command: string }> };
+    const coreBaseline = baseline.core as {
+      commands: Array<{ command: string }>;
+      configuration: Record<string, Record<string, unknown>> & { 'phpCompanion.phpVersion': { enum: string[] } };
+    };
+    const phpVersion = coreBaseline.configuration['phpCompanion.phpVersion'];
     expect(core).toEqual({ ...coreBaseline, commands: [...coreBaseline.commands, {
       command: 'phpCompanion.moveMember', title: 'Move PHP Member with Preview', category: 'SoPHP',
       enablement: 'phpCompanion.safeRenameAvailable',
-    }] });
+    }], configuration: {
+      ...coreBaseline.configuration,
+      'phpCompanion.phpVersion': { ...phpVersion, enum: [...phpVersion.enum, '8.6'] },
+    } });
     expect(symfony).toEqual(baseline.symfony);
     const commands = [...(core.commands as Array<{ command: string; category?: string }>),
       ...(symfony.commands as Array<{ command: string; category?: string }>)];

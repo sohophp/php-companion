@@ -1,6 +1,4 @@
-import type { SupportedPhpVersion } from './index.js';
-
-const VERSIONS: readonly SupportedPhpVersion[] = ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5'];
+import { SUPPORTED_PHP_VERSIONS as VERSIONS, type SupportedPhpVersion } from './php-versions.js';
 
 const LIBXML_CONSTANTS = `
 const LIBXML_VERSION = 0; const LIBXML_DOTTED_VERSION = ''; const LIBXML_LOADED_VERSION = '';

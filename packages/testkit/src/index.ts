@@ -99,6 +99,7 @@ export const PHP_VERSION_FIXTURES: readonly PhpVersionFixture[] = Object.freeze(
   { version: '8.3', feature: 'typed class constant and dynamic fetch', source: '<?php class C { public const string NAME = "x"; } echo C::{"NAME"};' },
   { version: '8.4', feature: 'property hook', source: '<?php class C { public string $name { get => $this->name; } }' },
   { version: '8.5', feature: 'pipe operator', source: '<?php $result = "x" |> trim(...);' },
+  { version: '8.6', feature: 'partial function application', source: '<?php $length = strlen(?);' },
 ]);
 
 export async function generatePhpComposerProject(root: string, fileCount: number): Promise<void> {

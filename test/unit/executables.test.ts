@@ -9,6 +9,7 @@ describe('PHP executable probing', () => {
     ['php82', '8.2'],
     ['php84', '8.4'],
     ['php85', '8.5'],
+    ['php86', '8.6'],
   ])('probes %s with injected process dependencies', async (command, minor) => {
     const result = await probePhp(
       command,
@@ -63,9 +64,9 @@ describe('PHP executable probing', () => {
   it('uses an installed versioned command when PHP is absent from PATH', async () => {
     const resolution = await resolvePhpVersion({
       setting: 'auto',
-      executableResolver: async (command) => command === 'php85' ? '/runtime/php85' : undefined,
-      processRunner: async () => '8.5.9',
+      executableResolver: async (command) => command === 'php86' ? '/runtime/php86' : undefined,
+      processRunner: async () => '8.6.0',
     });
-    expect(resolution).toMatchObject({ target: '8.5', source: 'discovered-executable', sourceDetail: '/runtime/php85' });
+    expect(resolution).toMatchObject({ target: '8.6', source: 'discovered-executable', sourceDetail: '/runtime/php86' });
   });
 });

@@ -2,17 +2,13 @@ import { access } from 'node:fs/promises';
 import { delimiter, isAbsolute, join } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { DEFAULT_PHP_COMMANDS } from '@php-companion/runtime-probe';
 import { toSupportedMinor, type PhpExecutable } from './types.js';
 
 const execFileAsync = promisify(execFile);
 export type PhpVersionRunner = (path: string, env: NodeJS.ProcessEnv) => Promise<string>;
 export type ExecutableResolver = (command: string, env: NodeJS.ProcessEnv) => Promise<string | undefined>;
-export const DEFAULT_PHP_COMMANDS = [
-  'php',
-  'php85', 'php8.5', 'php84', 'php8.4', 'php83', 'php8.3', 'php82', 'php8.2',
-  'php81', 'php8.1', 'php80', 'php8.0', 'php74', 'php7.4', 'php73', 'php7.3',
-  'php72', 'php7.2',
-] as const;
+export { DEFAULT_PHP_COMMANDS };
 
 async function exists(path: string): Promise<boolean> {
   try {

@@ -26,7 +26,7 @@ describe('@php-companion/testkit', () => {
   });
 
   it('registers one representative fixture for every supported PHP minor', () => {
-    expect(PHP_VERSION_FIXTURES.map((fixture) => fixture.version)).toEqual(['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']);
+    expect(PHP_VERSION_FIXTURES.map((fixture) => fixture.version)).toEqual(['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5', '8.6']);
   });
   it('generates a deterministic Composer benchmark project', async () => {
     const root = await mkdtemp(join(tmpdir(), 'php-companion-testkit-'));

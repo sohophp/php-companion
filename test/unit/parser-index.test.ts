@@ -1,4 +1,3 @@
-import { resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PhpSyntaxParser } from '../../src/parser/phpParser.js';
 import { WorkspaceSymbolIndex } from '../../src/index/workspaceIndex.js';
@@ -6,10 +5,7 @@ import { WorkspaceSymbolIndex } from '../../src/index/workspaceIndex.js';
 describe('PHP parser and symbol index', () => {
   let parser: PhpSyntaxParser;
   beforeAll(async () => {
-    parser = await PhpSyntaxParser.create({
-      coreWasmPath: resolve('node_modules/web-tree-sitter/web-tree-sitter.wasm'),
-      phpWasmPath: resolve('node_modules/tree-sitter-php/tree-sitter-php.wasm'),
-    });
+    parser = await PhpSyntaxParser.createDefault();
   });
   afterAll(() => parser.dispose());
 

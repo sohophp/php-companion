@@ -11,6 +11,7 @@ import { once } from 'node:events';
 import { copyFile, mkdtemp, mkdir, readFile, readdir, readlink, rename, rm, stat, symlink, utimes, writeFile } from 'node:fs/promises';
 import { tmpdir as osTmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
+import { defaultPhpParserPaths } from '@php-companion/parser';
 import { afterEach, describe, expect, it } from 'vitest';
 import { ReferenceResultStore } from '../src/referenceResultStore.js';
 import { GD_FUNCTIONS } from '../../language-spec/dist/gd-catalog.js';
@@ -39,14 +40,13 @@ function lspOffset(source: string, position: { line: number; character: number }
   return lines.slice(0, position.line).reduce((total, line) => total + line.length + 1, 0) + position.character;
 }
 
+const { coreWasmPath, phpWasmPath } = defaultPhpParserPaths();
+const providerParserArgs = ['--parser-core-wasm', coreWasmPath, '--php-wasm', phpWasmPath];
+
 const symfonyServiceProviderDescriptor = {
   providerId: 'php-companion.symfony.services',
   command: process.execPath,
-  args: [
-    resolve('../provider-symfony-services/dist/cli.js'),
-    '--parser-core-wasm', resolve('../parser/node_modules/web-tree-sitter/web-tree-sitter.wasm'),
-    '--php-wasm', resolve('../parser/node_modules/tree-sitter-php/tree-sitter-php.wasm'),
-  ],
+  args: [resolve('../provider-symfony-services/dist/cli.js'), ...providerParserArgs],
   timeoutMs: 10_000,
   requiresProjectTypes: true,
   acceptsDocumentSnapshots: true,
@@ -56,11 +56,7 @@ const symfonyServiceProviderDescriptor = {
 const symfonyEventProviderDescriptor = {
   providerId: 'php-companion.symfony.events',
   command: process.execPath,
-  args: [
-    resolve('../provider-symfony-events/dist/cli.js'),
-    '--parser-core-wasm', resolve('../parser/node_modules/web-tree-sitter/web-tree-sitter.wasm'),
-    '--php-wasm', resolve('../parser/node_modules/tree-sitter-php/tree-sitter-php.wasm'),
-  ],
+  args: [resolve('../provider-symfony-events/dist/cli.js'), ...providerParserArgs],
   timeoutMs: 10_000,
   requiresProjectTypes: true,
   requiresContainerServices: true,
@@ -71,11 +67,7 @@ const symfonyEventProviderDescriptor = {
 const symfonyStaticRouteProviderDescriptor = {
   providerId: 'php-companion.symfony.static-routes',
   command: process.execPath,
-  args: [
-    resolve('../provider-symfony-routes/dist/cli.js'),
-    '--parser-core-wasm', resolve('../parser/node_modules/web-tree-sitter/web-tree-sitter.wasm'),
-    '--php-wasm', resolve('../parser/node_modules/tree-sitter-php/tree-sitter-php.wasm'),
-  ],
+  args: [resolve('../provider-symfony-routes/dist/cli.js'), ...providerParserArgs],
   timeoutMs: 10_000,
   replacesStaticRoutes: true,
 } as const;
@@ -123,7 +115,17 @@ function messagesFrom(process: ChildProcessWithoutNullStreams): {
 
 describe('language server stdio', () => {
   let server: ChildProcessWithoutNullStreams | undefined;
-  afterEach(() => server?.kill());
+  afterEach(async () => {
+    const child = server;
+    server = undefined;
+    if (!child || child.exitCode !== null || child.signalCode !== null) return;
+    const exited = once(child, 'exit');
+    child.kill();
+    const forceExit = setTimeout(() => {
+      if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+    }, 1_000);
+    try { await exited; } finally { clearTimeout(forceExit); }
+  });
   it.each(['onDemand', 'progressive'].flatMap(indexingMode => [false, true].map(limited => ({ indexingMode, limited }))))(
     'checks current disk type conflicts before extracting an interface in $indexingMode mode (limited=$limited)', async ({ indexingMode, limited }) => {
     const root = await mkdtemp(join(tmpdir(), 'sophp-extract-conflict-'));
@@ -22210,9 +22212,7 @@ final class Subscriber implements \\Symfony\\Component\\EventDispatcher\\EventSu
       server.stdin.write(encode({ jsonrpc: '2.0', id: 680, method: 'initialize', params: {
         processId: null, capabilities: {}, rootUri: pathToFileURL(root).toString(), initializationOptions: {
           bundledSemanticProviders: [{ providerId: 'php-companion.symfony.controller-contexts', command: process.execPath,
-            args: [resolve('../provider-symfony-controller-contexts/dist/cli.js'),
-              '--parser-core-wasm', resolve('../parser/node_modules/web-tree-sitter/web-tree-sitter.wasm'),
-              '--php-wasm', resolve('../parser/node_modules/tree-sitter-php/tree-sitter-php.wasm')], timeoutMs: 10_000,
+            args: [resolve('../provider-symfony-controller-contexts/dist/cli.js'), ...providerParserArgs], timeoutMs: 10_000,
             requiresProjectTypes: true, acceptsDocumentSnapshots: true, replacesControllerContexts: true }], indexingMode: 'onDemand',
         },
       } }));

@@ -197,8 +197,10 @@ export interface ParsedCall extends SourceRange {
   argumentsStart: number;
   argumentsEnd: number;
   arguments: Array<SourceRange & { name?: string; nameStart?: number; nameEnd?: number; unpacked: boolean }>;
-  /** Acquires a Closure with `callable(...)`; it does not invoke the target. */
+  /** Acquires a Closure instead of invoking the target. */
   firstClassCallable?: boolean;
+  /** Closure with arguments bound or explicit single-argument placeholders. */
+  partialApplication?: boolean;
   flat: boolean;
   standalone: boolean;
   /** The call is the whole expression statement and its return value is unused. */
@@ -327,7 +329,7 @@ export function defaultPhpParserPaths(): PhpParserPaths {
   const require = createRequire(import.meta.url);
   return {
     coreWasmPath: join(dirname(require.resolve('web-tree-sitter')), 'web-tree-sitter.wasm'),
-    phpWasmPath: require.resolve('tree-sitter-php/tree-sitter-php.wasm'),
+    phpWasmPath: require.resolve('../vendor/tree-sitter-php.wasm'),
   };
 }
 
@@ -1192,7 +1194,11 @@ export class PhpSyntaxParser {
           && !(nodeType === 'function_call_expression' && source.slice(nameNode.startIndex, nameNode.endIndex).toLowerCase() === 'clone') && (nameNode.type === 'name' || nameNode.type === 'qualified_name' || nameNode.type === 'relative_name'
           || (nodeType === 'function_call_expression' && nameNode.type === 'variable_name') || preciseDynamicName)) {
           const arguments_ = argumentsNode?.namedChildren.filter((child) => child.type === 'argument') ?? [];
-          const firstClassCallable = argumentsNode?.namedChildren.some((child) => child.type === 'variadic_placeholder') ?? false;
+          const argumentNodes = argumentsNode?.namedChildren.filter((child) => child.type !== 'comment') ?? [];
+          const variadicPlaceholder = argumentNodes.some((child) => child.type === 'variadic_placeholder');
+          const partialApplication = (variadicPlaceholder && argumentNodes.length > 1)
+            || arguments_.some((argument) => argument.namedChildren.some((child) => child.type === 'argument_placeholder'));
+          const firstClassCallable = variadicPlaceholder || partialApplication;
           const nestedCall = (candidate: SyntaxNode): boolean => candidate.namedChildren.some((child) => callTypes.has(child.type) || nestedCall(child));
           const nameRange = preciseDynamicName?.range ?? nodeRange(source, nameNode);
           const argumentsRange = argumentsNode ? nodeRange(source, argumentsNode) : { start: node.endIndex, end: node.endIndex };
@@ -1282,6 +1288,7 @@ export class PhpSyntaxParser {
                 : nodeType === 'scoped_call_expression' ? 'static-method' : 'method',
             argumentsStart: argumentsRange.start, argumentsEnd: argumentsRange.end,
             firstClassCallable,
+            ...(partialApplication ? { partialApplication } : {}),
             arguments: arguments_.map((argument) => {
               const argumentName = argument.childForFieldName('name');
               const argumentNameRange = argumentName ? nodeRange(source, argumentName) : undefined;

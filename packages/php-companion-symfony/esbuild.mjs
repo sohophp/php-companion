@@ -26,5 +26,6 @@ await build({
 await mkdir('dist', { recursive: true });
 await Promise.all([
   copyFile('../../node_modules/web-tree-sitter/web-tree-sitter.wasm', 'dist/web-tree-sitter.wasm'),
-  copyFile('../../node_modules/tree-sitter-php/tree-sitter-php.wasm', 'dist/tree-sitter-php.wasm'),
+  copyFile('../parser/vendor/tree-sitter-php.wasm', 'dist/tree-sitter-php.wasm'),
+  copyFile('../parser/vendor/LICENSE-tree-sitter-php', 'dist/LICENSE-tree-sitter-php'),
 ]);

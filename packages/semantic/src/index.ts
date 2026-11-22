@@ -395,7 +395,7 @@ export interface DeprecatedAttributeTarget extends SemanticLocation {
 export interface ReadonlyPropertyAssignment extends SemanticLocation {
   name: string;
   ownerFqcn: string;
-  minimumPhpVersion: '7.2' | '8.1' | '8.2' | '8.3';
+  minimumPhpVersion: '7.2' | '8.1' | '8.2' | '8.3' | '8.6';
   maximumPhpVersion?: '8.3';
   operation?: 'reference-iteration';
   propertyNames?: string[];
@@ -9552,9 +9552,12 @@ export class SemanticWorkspace {
       const accessFrom = this.containingCallable(file, propertyStart)?.containerFqcn;
       const insideWritableFamily = member.synthetic !== 'enum-native' && member.synthetic !== 'phpdoc-magic'
         && this.memberVisibilityAllowed(member.writeVisibility ?? (member.visibility === 'private' ? 'private' : 'protected'), member.typeScopeFqcn, accessFrom);
-      const versionRestrictedInitialization = !alwaysModification && insideWritableFamily && member.writeVisibility === undefined
+      const initializedByDefault = insideWritableFamily && !alwaysModification && !member.promoted
+        && this.files.get(member.uri)?.properties.some(property => property.start === member.start
+          && property.defaultValue !== undefined);
+      const versionRestrictedInitialization = !initializedByDefault && !alwaysModification && insideWritableFamily && member.writeVisibility === undefined
         && accessFrom?.toLowerCase() !== member.typeScopeFqcn.toLowerCase();
-      if (!alwaysModification && insideWritableFamily && !versionRestrictedInitialization) return;
+      if (!initializedByDefault && !alwaysModification && insideWritableFamily && !versionRestrictedInitialization) return;
       const key = `${propertyStart}:${propertyEnd}`;
       if (reported.has(key)) {
         const existing = reported.get(key);
@@ -9563,7 +9566,8 @@ export class SemanticWorkspace {
       }
       const assignment: ReadonlyPropertyAssignment = {
         uri, start: propertyStart, end: propertyEnd, name: member.name, ownerFqcn: member.typeScopeFqcn,
-        minimumPhpVersion: member.synthetic === 'phpdoc-magic' ? '7.2' : this.readonlyPropertyMinimumVersion(member),
+        minimumPhpVersion: initializedByDefault ? '8.6'
+          : member.synthetic === 'phpdoc-magic' ? '7.2' : this.readonlyPropertyMinimumVersion(member),
         ...(versionRestrictedInitialization ? { maximumPhpVersion: '8.3' as const } : {}),
       };
       reported.set(key, assignment); results.push(assignment);
@@ -13045,7 +13049,7 @@ export class SemanticWorkspace {
     if (this.priorReferenceMutations(file, scope, variable, offset).length) return [];
     if (assignment.sourceVariable) return this.firstClassCallableSignatures(file, assignment.sourceVariable, assignment.start, visited, parametersOnly);
     if (!assignment.sourceCall) return [];
-    const acquisitions = file.calls.filter((call) => call.firstClassCallable && call.start >= assignment.start
+    const acquisitions = file.calls.filter((call) => call.firstClassCallable && !call.partialApplication && call.start >= assignment.start
       && call.end <= assignment.end && (call.kind !== undefined || parametersOnly));
     if (acquisitions.length !== 1) return [];
     const acquisition = acquisitions[0]!;

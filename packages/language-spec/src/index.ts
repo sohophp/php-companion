@@ -1,3 +1,4 @@
+import { PHP_86_CORE_STUB } from './php86-core.js';
 import { auditedGetrusageStub, normalizeGetrusageRuntimeFacts, type GetrusageRuntimeFacts } from './getrusage.js';
 export { normalizeGetrusageRuntimeFacts, type GetrusageRuntimeFacts } from './getrusage.js';
 import semver from 'semver';
@@ -146,8 +147,8 @@ export type { PdoRuntimeFacts } from './pdo-drivers.js';
 export { bcmathNumberPhpStub } from './bcmath.js';
 export { filterClassesPhpStub } from './filter-classes.js';
 
-export const SUPPORTED_PHP_VERSIONS = ['7.2', '7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5'] as const;
-export type SupportedPhpVersion = typeof SUPPORTED_PHP_VERSIONS[number];
+import { SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from './php-versions.js';
+export { SUPPORTED_PHP_VERSIONS, type SupportedPhpVersion } from './php-versions.js';
 export const CONFIGURABLE_PHP_EXTENSIONS = ['apcu', 'bcmath', 'bz2', 'calendar', 'ctype', 'curl', 'dom', 'exif', 'fileinfo', 'filter', 'ftp', 'gd', 'gettext', 'iconv', 'igbinary', 'imagick', 'intl', 'mbstring', 'mcrypt', 'msgpack', 'mysqli', 'openssl', 'pcntl', 'pdo', 'pgsql', 'phar', 'posix', 'readline', 'redis', 'session', 'shmop', 'simplexml', 'sockets', 'sodium', 'sqlite3', 'sysvmsg', 'sysvsem', 'sysvshm', 'tokenizer', 'xml', 'xmlreader', 'xmlwriter', 'xsl', 'yaml', 'zip', 'zlib'] as const;
 export type ConfigurablePhpExtension = typeof CONFIGURABLE_PHP_EXTENSIONS[number];
 export const CONDITIONAL_PHP_FUNCTIONS = ['curl_upkeep', 'intltz_get_iana_id', 'readline_list_history', 'sys_getloadavg', 'strptime', 'ftok', ...GD_FUNCTIONS, ...MHASH_FUNCTIONS] as const;
@@ -3645,7 +3646,8 @@ export function builtinPhpStub(version: SupportedPhpVersion, options: BuiltinPhp
     + (disabled.has('imagick') ? '' : builtinPhpExtensionStub(version, 'imagick', options))
     + (disabled.has('zip') ? '' : builtinPhpExtensionStub(version, 'zip', options))
     + (disabled.has('zlib') ? '' : builtinPhpExtensionStub(version, 'zlib', options))
-    + (disabled.has('tokenizer') ? '' : builtinPhpExtensionStub(version, 'tokenizer', options));
+    + (disabled.has('tokenizer') ? '' : builtinPhpExtensionStub(version, 'tokenizer', options))
+    + (version === '8.6' ? PHP_86_CORE_STUB : '');
 }
 
 export interface SyntaxNodeLike { type: string; text: string; startIndex: number; endIndex: number; namedChildren: readonly SyntaxNodeLike[]; children?: readonly SyntaxNodeLike[]; parent?: SyntaxNodeLike | null; }
@@ -3665,6 +3667,7 @@ const FEATURE_VERSIONS: Record<string, { feature: string; version: SupportedPhpV
   nullsafe_member_call_expression: { feature: 'null-safe member access', version: '8.0' },
   nullsafe_member_access_expression: { feature: 'null-safe member access', version: '8.0' },
   bottom_type: { feature: 'never type', version: '8.1' },
+  argument_placeholder: { feature: 'partial function application', version: '8.6' },
 };
 const versionNumber = (version: SupportedPhpVersion): number => Number(version.replace('.', ''));
 const SYNTAX_FEATURE_NODE_TYPES = [...new Set([
@@ -3845,9 +3848,14 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
     }
     if (nodeType === 'anonymous_function' && isWithinConstantExpression(node)) rule = { feature: 'closure in constant expression', version: '8.5' };
     if (nodeType === 'variadic_placeholder') {
-      const call = node.parent?.type === 'arguments' ? node.parent.parent : undefined;
-      rule = { feature: isWithinConstantExpression(node) ? 'first-class callable in constant expression' : 'first-class callable', version: isWithinConstantExpression(node) ? '8.5' : '8.1' };
-      range = call ?? node;
+      const args = node.parent?.type === 'arguments' ? node.parent : undefined;
+      if (args?.namedChildren.some((child) => child.type === 'argument')) {
+        rule = { feature: 'partial function application', version: '8.6' };
+      } else {
+        const constant = isWithinConstantExpression(node);
+        rule = { feature: constant ? 'first-class callable in constant expression' : 'first-class callable', version: constant ? '8.5' : '8.1' };
+        range = args?.parent ?? node;
+      }
     }
     if (nodeType === 'final_modifier' && node.parent?.type === 'property_declaration') rule = { feature: 'final property', version: '8.4' };
     if (nodeType === 'abstract_modifier' && node.parent?.type === 'property_declaration') rule = { feature: 'abstract property', version: '8.4' };
@@ -3862,7 +3870,7 @@ export function unsupportedSyntax(root: SyntaxNodeLike, target: SupportedPhpVers
       && /^clone\s*\(/iu.test(source.slice(node.startIndex, node.endIndex));
     if (recoveredClone && fieldNode('arguments')?.children?.some(child => child.type === ',')) {
       rule = { feature: 'clone with properties', version: '8.5' };
-    } else if (source === undefined && nodeType === 'clone_expression' && /^clone\s*\(/i.test(node.text)) {
+    } else if (nodeType === 'clone_expression' && fieldNode('arguments')?.children?.some(child => child.type === ',')) {
       rule = { feature: 'clone with properties', version: '8.5' };
     }
     if (nodeType === 'class_constant_access_expression' && /::\s*\{/.test(node.text)) {

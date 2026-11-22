@@ -6,6 +6,16 @@ describe('@php-companion/parser', () => {
   beforeAll(async () => { parser = await PhpSyntaxParser.createDefault(); });
   afterAll(() => parser.dispose());
 
+  it('records partial applications as Closure creation', () => {
+    const parsed = parser.parse('<?php strlen(?); substr("abc", length: ?); substr("abc", ...); strlen(...); strlen("abc");');
+    try {
+      expect(parsed.errors).toEqual([]);
+      expect(parsed.calls.map(call => [call.firstClassCallable, call.partialApplication])).toEqual([
+        [true, true], [true, true], [true, true], [true, undefined], [false, undefined],
+      ]);
+    } finally { parsed.tree.delete(); }
+  });
+
   it('keeps recovered namespace ownership across PHP/HTML and UTF-16 trivia', () => {
     const source = '<?php\r\nnamespace A; class C {} $text="namespace StringFake;"; /* namespace CommentFake; */ ?>'
       + '\r\n<div>namespace HtmlFake;🙂</div>\r\n<?php namespace B; class D {} function unfinished(';
