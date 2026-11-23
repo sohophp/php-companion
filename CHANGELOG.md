@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.16 - 2026-11-23
+
+- Publish the SoPHP, SoPHP Symfony, and SoPHP Dev Pack READMEs in English and Simplified Chinese.
+
 ## 0.4.15 - 2026-11-23
 
 - Retry PHP References and Implementation when a previous request has abandoned a shared candidate scan.

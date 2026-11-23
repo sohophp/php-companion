@@ -1,5 +1,47 @@
 # SoPHP
 
+[English](#english) · [简体中文](#简体中文)
+
+## English
+
+SoPHP is a PHP language server and VS Code extension for Composer projects, with version-aware analysis for PHP 7.2 through 8.6.
+
+### Install
+
+Install SoPHP for PHP support, or choose SoPHP Dev Pack to install SoPHP, SoPHP Symfony, TwigPlus, formatting, and debugging tools together. [Install SoPHP](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion) · [Install SoPHP Dev Pack](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)
+
+The language server is enabled by default. If Intelephense is already installed, SoPHP defers to it unless you explicitly set `phpCompanion.languageServer.enabled`. Select a single PHP language server for each workspace.
+
+### Edit and navigate PHP
+
+- Complete classes, types, functions, and members from the current file, Composer autoload mappings, and installed dependencies. Hover, signature help, and inlay hints use the inferred types.
+- Go to definitions and implementations, find references, browse type hierarchies, and follow PHP Manual links for built-in definitions.
+- Check syntax, PHP version compatibility, PSR-4 names, imports, inheritance, member access, and supported argument, return, and property types.
+- Create PSR-4 classes, interfaces, traits, enums, and PHPUnit test files from the Explorer. Import unresolved classes and preview cleanup for existing imports.
+- Use F2 to rename supported declarations and their proven references. Review the preview before applying a rename or a file move.
+
+The server reads Composer metadata statically. Analysis follows the configured PHP target and handles supported PHPDoc types, generics, generators, and callable types. Dynamic code and edits whose references cannot be established may have limited results.
+
+### Configure a project
+
+Select PHP with `SoPHP: Select PHP Version` or set the target and executable in workspace settings. Use the path seen by the extension host in WSL, SSH, or a container.
+
+```json
+{
+  "phpCompanion.phpVersion": "8.5",
+  "phpCompanion.phpExecutablePath": "/usr/bin/php85",
+  "phpCompanion.indexing.mode": "onDemand"
+}
+```
+
+On-demand indexing is the default. The progressive mode prepares reference data in the background. When a search cannot establish complete results, SoPHP shows the reason in the status bar and records the details in its output channel.
+
+Use `phpCompanion.diagnostics.disabledCodes` and `phpCompanion.diagnostics.severity` to tune individual diagnostics. Run PHPUnit and Pest through the project CLI. Symfony and Twig features are provided by SoPHP Symfony and TwigPlus, respectively.
+
+For the development plan and supported feature boundaries, see the [toolchain documentation](docs/php-language-toolchain/README.md) and [implementation status](docs/php-language-toolchain/status.md).
+
+## 简体中文
+
 SoPHP 提供自研 PHP Language Server、类型系统以及轻量、按需的 PhpStorm 式项目工作流。
 
 在 VS Code 中开发 PHP 项目时，推荐通过 SoPHP Dev Pack（SoPHP 开发套件）一起安装 SoPHP、SoPHP Symfony、TwigPlus、格式化器和调试工具。套件默认启用 SoPHP 语言服务器，PHPUnit/Pest 通过项目命令行运行。[在 VS Code Marketplace 获取 SoPHP Dev Pack](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)
@@ -12,7 +54,7 @@ PHP 8.4 property hooks 已进入自研 parser、语义和 LSP 主链：backed/vi
 
 自研 PHP 语言服务器与类型系统正在按 [PHP 语言工具链开发计划](docs/php-language-toolchain/README.md) 实施；当前完成范围和未完成边界以 [实施状态](docs/php-language-toolchain/status.md) 为准。以下稳定功能与自研服务器预览能力分别说明。
 
-## 自研语言服务器
+### 自研语言服务器
 
 Generator 内的普通 `yield` 使用自身函数／闭包的有效四参数 PHPDoc 合同推断接收值，匿名模板只使用可证明的上界；嵌套 callable 不借用外层合同。`Generator::send()` 保留 TSend 输入约束，send／throw 的输出保留 TValue|null。渐进索引的 References 会核对当前候选文件，处理 watcher 到达前新增、修改或删除的未打开调用者；未变化的准备事实继续复用。正常新构建验收进度见实施状态。
 
@@ -58,7 +100,7 @@ Generator 内的普通 `yield` 使用自身函数／闭包的有效四参数 PHP
 
 `semanticProviders` 只接受用户显式配置的可信可执行文件，不从 Composer 或工作区元数据自动发现命令。每次索引以独立无 shell 子进程请求一份完整事实快照；超时、崩溃、输出超限或协议、身份、generation 校验失败时保留上一代事实。该机制隔离 Provider 故障，不是操作系统安全沙箱。
 
-## 稳定功能
+### 稳定功能
 
 - 按 Composer `autoload.psr-4` / `autoload-dev.psr-4` 和 PHP 7.2–8.6 约束理解项目。
 - 从资源管理器创建 Class、Abstract Class、Interface、Trait、Enum 和 PHPUnit Test。
@@ -69,7 +111,7 @@ Generator 内的普通 `yield` 使用自身函数／闭包的有效四参数 PHP
 - 从未解析类型的 Quick Fix 或命令导入 Composer PSR-4 类；多候选始终由用户选择。
 - 粘贴代码时按需补充确定性 import，并可预览清理、去重和排序当前文件的 imports。
 
-## Import 工作流
+### Import 工作流
 
 `Import Class` 只处理光标下的未解析类型。`Optimize Imports` 对 class/function/const 和 group use 做保守分析；语法错误、动态或无法证明未使用的 import 会被保留。
 
@@ -83,7 +125,7 @@ Generator 内的普通 `yield` 使用自身函数／闭包的有效四参数 PHP
 
 候选发现和优化只在命令调用时索引当前 Composer 项目。将 `indexing.mode` 设为 `off` 会同时禁用这些项目级能力，普通粘贴不受影响。
 
-## F2 Rename
+### F2 Rename
 
 SoPHP 默认接管类型声明和唯一解析类型使用点上的标准 Rename Symbol。文件名严格匹配类型名时会随类型同步重命名，并支持 VS Code 标准重构预览；直接短名、全限定名、import 路径、PHPDoc 与 Attribute 引用会同步，显式 alias 的使用名保持不变且不能作为发起点，普通字符串、配置文件、属性、变量和相关测试文件不会被修改。启用自研语言服务器后，可从非魔术方法声明或唯一解析的调用点发起 Rename：private 方法只修改直接解析到同一声明的引用；public/protected 方法要求完整层级，并同步接口、父类、重写实现及已解析直接调用。Trait 源方法 Rename 会同步声明、Trait 内调用、已证明的宿主/子类调用和具名 `Trait::method as alias` 的源方法，同时保留 alias 名；alias 自身也可从 adaptation 或唯一解析调用点独立 Rename，不修改源方法。多个 Trait 的同名方法由完整 `insteadof` 规则收敛到唯一 winner 时，被选中方法会同步 precedence token，被排除方法保留该 token 并同步自己的具名 alias 源。无法唯一收敛的多 Trait 来源、不完整消费关系、层级冲突、动态方法和数组/字符串 callable 会拒绝；无法解析或复合类型中不属于同一方法族的调用点、反射和工作区外引用不会被改写。
 
@@ -107,7 +149,7 @@ SoPHP 默认接管类型声明和唯一解析类型使用点上的标准 Rename 
 
 独立安装和 SoPHP Dev Pack 均默认启用自研服务器。若已安装 Intelephense 且没有显式设置 `phpCompanion.languageServer.enabled`，SoPHP 会保留现有提供者并不启动自身服务器；用户显式设置 `true` 或 `false` 时以该选择为准。继续使用 Intelephense Rename 时还应关闭 `phpCompanion.rename.enabled`，避免 Provider 竞争。
 
-## 性能模型
+### 性能模型
 
 扩展激活只注册命令和 Provider，不扫描工作区、不启动 PHP 进程，也不初始化 Tree-sitter。Composer/PHP 检测仅在打开 PHP 文档或执行相关命令后发生。完整符号索引仅供实验功能按需加载，并受文件数、单文件大小和总读取量限制。
 
@@ -138,7 +180,7 @@ SoPHP 默认接管类型声明和唯一解析类型使用点上的标准 Rename 
 
 使用 `SoPHP: Show Diagnostics Report` 和 `Show Performance Log` 查看加载与索引情况。日志不会记录源码。
 
-## 推荐职责边界
+### 推荐职责边界
 
 - SoPHP 自研服务器：负责 PHP 补全、诊断、类型、符号导航和安全重构；当前由 SoPHP Dev Pack 默认启用。
 - PHP Debug：Xdebug 调试。

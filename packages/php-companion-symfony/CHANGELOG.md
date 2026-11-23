@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.16 - 2026-11-23
+
+- Document installation and Symfony navigation in English and Simplified Chinese.
+
 ## 0.4.15 - 2026-11-23
 
 - Recommend SoPHP Dev Pack for installing Symfony, PHP, and Twig support together.

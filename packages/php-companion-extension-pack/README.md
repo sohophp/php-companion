@@ -1,12 +1,45 @@
 # SoPHP Dev Pack
 
+[English](#english) · [简体中文](#简体中文)
+
+## English
+
+SoPHP Dev Pack is a VS Code extension pack for PHP and Symfony projects. It installs PHP language support, framework and template tools, formatting, and debugging from one entry point. [Install SoPHP Dev Pack](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)
+
+### What's included
+
+| Extension | What it provides |
+| --- | --- |
+| SoPHP | PHP completion, diagnostics, navigation, Composer support, and proven refactorings |
+| SoPHP Symfony | Services, dependency injection, routes, events, and controller context |
+| TwigPlus | Twig formatting, completion, diagnostics, and navigation |
+| YAML | YAML schemas, completion, validation, and formatting |
+| XML | XML validation, schemas, editing, and formatting |
+| PHP Debug | Xdebug breakpoints, stepping, variables, and stacks |
+| PHP CS Fixer | PHP formatting and project coding standards |
+| EditorConfig | Project indentation, line endings, and character encoding |
+| Apache Conf Snippets | Apache configuration and `.htaccess` snippets |
+| PHP DocBlocker | Generates PHPDoc scaffolding |
+
+### Start a project
+
+1. Open the PHP project in VS Code or in the remote environment where PHP and Composer run.
+2. Select the PHP target in SoPHP. Configure the matching PHP executable and your project PHP CS Fixer settings when needed.
+3. Run PHPUnit or Pest via your project's command line, for example `./vendor/bin/phpunit` or `./vendor/bin/pest`.
+
+The pack selects SoPHP for language features and uses on-demand indexing. It sets PHP CS Fixer as the PHP formatter and Red Hat XML as the XML formatter. Format-on-save is a workspace or user preference.
+
+The pack installs members by extension ID. Follow the [Alpha candidate guide](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/alpha-candidate.md) when you need to reproduce a locally verified set of VSIX packages.
+
+## 简体中文
+
 SoPHP 开发套件是面向 PHP 开发者的 VS Code 扩展包，集成 SoPHP 语言服务器、Symfony 和 Twig 支持、代码格式化及 Xdebug 调试工具。扩展包保持职责精简，不安装重复的 namespace、重构、格式化或全项目静态分析扩展。
 
-0.4.15 组合为 10 项：SoPHP Core、SoPHP Symfony 和下表的 8 项外部工具。原版 PHPUnit & Pest Test Explorer 3.9.40 在配置了测试目录的完整组合中仍会因测试文件 Rename 读取旧路径，因此已从默认安装清单移出。测试先使用项目 PHPUnit/Pest CLI；测试视图作为可选扩展单独评估。Pack 声明扩展 ID，但外部成员版本仍随 Marketplace 更新；需要复现验证组合时，请使用对应候选的 `candidate.json` 和 `SHA256SUMS`。
+0.4.16 组合为 10 项：SoPHP Core、SoPHP Symfony 和下表的 8 项外部工具。原版 PHPUnit & Pest Test Explorer 3.9.40 在配置了测试目录的完整组合中仍会因测试文件 Rename 读取旧路径，因此已从默认安装清单移出。测试先使用项目 PHPUnit/Pest CLI；测试视图作为可选扩展单独评估。Pack 声明扩展 ID，但外部成员版本仍随 Marketplace 更新；需要复现验证组合时，请使用对应候选的 `candidate.json` 和 `SHA256SUMS`。
 
 成员职责、现有验证范围和 Core 下一步见[Open Source Pack 当前执行清单](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-current-priority-2026-09-27.md)。[Marketplace 与源码清单核对](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-marketplace-audit-2026-09-25.md)记录了公开旧包的实际成员与外部工具的稳定版本快照。
 
-## 包含内容
+### 包含内容
 
 | 扩展 | 职责 |
 |---|---|
@@ -21,7 +54,7 @@ SoPHP 开发套件是面向 PHP 开发者的 VS Code 扩展包，集成 SoPHP �
 | Apache Conf Snippets | `.htaccess` / Apache 配置片段；依赖 Apache Conf 语法扩展 |
 | PHP DocBlocker | 输入 `/**` 生成 PHPDoc，补全 `@param` 等标签；SoPHP 负责解析生成的类型 |
 
-以上 10 项的扩展 ID 以本包 `package.json` 的 `extensionPack` 为准；Pack 只负责组合安装，成员的 Marketplace 版本不会被锁定。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 已在其公开 VSIX 中声明为依赖。当前唯一维护的组合入口是 SoPHP Dev Pack，旧 Recommended Pack 不再随新版本生成。安装时核对 Core、Symfony 和 Pack 都为 0.4.15；实际使用前的运行位置、唯一语言服务和回退检查见[日常开发组合方案](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/daily-use-assembly.md)。
+以上 10 项的扩展 ID 以本包 `package.json` 的 `extensionPack` 为准；Pack 只负责组合安装，成员的 Marketplace 版本不会被锁定。Apache Conf Snippets 所需的 `mrmlnc.vscode-apache` 已在其公开 VSIX 中声明为依赖。当前唯一维护的组合入口是 SoPHP Dev Pack，旧 Recommended Pack 不再随新版本生成。安装时核对 Core、Symfony 和 Pack 都为 0.4.16；实际使用前的运行位置、唯一语言服务和回退检查见[日常开发组合方案](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/daily-use-assembly.md)。
 
 **测试入口：**默认用项目 CLI 运行 PHPUnit/Pest。需要 PHPUnit 测试视图时，可单独试用 `aossoftware.aos-phpunit` 0.2.0：它已在隔离 Linux 的完整组合中通过实际 PHPUnit 运行和测试文件 Rename/Undo/Redo，但 Pest 与真实 WSL Remote 尚未验收，因此不随 Pack 自动安装。`recca0120.vscode-phpunit` 原版 3.9.40 在完整组合的文件 Rename 后有旧路径错误；若已单独安装并遇到此错误，应在该工作区禁用。见[测试提供者评估](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/reports/open-source-pack-test-provider-candidates-2026-09-25.md)。
 
@@ -44,7 +77,7 @@ JSON/JSONC、HTML、CSS、JavaScript、TypeScript 和 Markdown 使用 VS Code �
 
 此 Pack 不安装第三方 PHP Language Server，并通过扩展包默认设置启用 SoPHP 自研语言服务器。若另外安装了 Intelephense 且没有显式选择，SoPHP 会保留该现有提供者并保持自身服务器关闭；用户设置的 `phpCompanion.languageServer.enabled` 明确值始终优先。
 
-## 性能默认值
+### 性能默认值
 
 - SoPHP 仅按需索引，不在启动时扫描工作区。
 - 粘贴 Import 默认显示预览。
@@ -56,7 +89,7 @@ JSON/JSONC、HTML、CSS、JavaScript、TypeScript 和 Markdown 使用 VS Code �
 
 VS Code 内建 PHP 校验默认在保存时调用 PHP CLI。项目使用 PHP 8.5 等非 PATH 默认版本时，将 `php.validate.executablePath` 指向**运行项目的同一个环境**中的 PHP，例如 WSL Remote 中的 `/usr/bin/php85`；同时确认 SoPHP 的目标版本与项目一致。在多根 `.code-workspace` 中，把该设置放在工作区级 `settings`：内建校验只读取一个工作区级可执行文件，混合 PHP 版本的根目录应分开工作区验证。否则旧 CLI 可能把合法新语法报成错误。
 
-## 本地候选安装
+### 本地候选安装
 
 私有候选在 `artifacts/php-companion-alpha-<版本>-<提交号>/`，由 `pnpm candidate:alpha` 输出准确目录；它们用于验证未发布增量，不代表公开 Marketplace 版本。本地试用须在隔离 Profile 安装同一候选的三个 VSIX，并先核对该目录中的 `SHA256SUMS`。具体 Profile、WSL Remote 和预检步骤见[Alpha 候选说明](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/alpha-candidate.md)。日常 Core 开发按相关包运行定向测试；只有冻结下一批候选时才重新打包。
 

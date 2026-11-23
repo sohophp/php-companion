@@ -1,5 +1,32 @@
 # SoPHP Symfony
 
+[English](#english) · [简体中文](#简体中文)
+
+## English
+
+SoPHP Symfony adds Symfony-aware navigation and editing to the SoPHP PHP language server.
+
+### Install
+
+SoPHP Symfony uses SoPHP for PHP analysis and TwigPlus for template editing. For a Symfony project, we recommend installing all three through [SoPHP Dev Pack](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack).
+
+### Work with Symfony code and configuration
+
+- Navigate and complete service IDs, aliases, dependency injection targets, and supported `#[Autowire(service: '…')]` values across PHP Configurator, YAML, and XML.
+- Find references, complete, and rename provable Symfony parameter IDs, including supported `%parameter.id%` and `param()` references.
+- Find static routes and event subscribers and listeners. Navigation follows provable route declarations, imports, and event relationships.
+- Share typed controller context with TwigPlus so Twig expressions can navigate to PHP declarations and controller sources.
+
+Services, parameters, routes, and events use separate providers. Unsaved edits can be included through bounded editor snapshots. Rename requires an unambiguous declaration and complete evidence, and applies its verified changes as one undoable edit.
+
+### Runtime and installation details
+
+Static service and route discovery reads project sources without starting the Symfony kernel or project autoloader. Winstar module routes can opt in to the runtime route provider with `phpCompanion.symfony.winstarRoutes.enabled`.
+
+Keep the three SoPHP extension versions aligned for local VSIX installs. Build this extension with `pnpm package:symfony` or follow the [Alpha candidate installation guide](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/alpha-candidate.md).
+
+## 简体中文
+
 SoPHP Symfony 集成扩展。它依赖 `sohophp.php-companion` 的通用 PHP 语言核心，负责服务容器、依赖注入、事件订阅、路由和 Controller → Twig 上下文编排。Twig 语法、模板补全、导航和格式化继续由 twig-plus 负责。
 
 在 VS Code 中开发 Symfony 项目时，推荐通过 SoPHP Dev Pack 一起安装 SoPHP、SoPHP Symfony 和 TwigPlus，以便在 PHP 代码、路由、服务配置和 Twig 模板之间导航。[在 VS Code Marketplace 获取 SoPHP Dev Pack](https://marketplace.visualstudio.com/items?itemName=sohophp.php-companion-open-source-pack)
@@ -16,10 +43,10 @@ SoPHP Symfony 集成扩展。它依赖 `sohophp.php-companion` 的通用 PHP 语
 
 Twig 语言能力继续由 TwigPlus 提供，通用 YAML/XML 语法和格式化继续由 Red Hat YAML/XML 提供。本扩展不复制这些能力。
 
-## 本地安装
+### 本地安装
 
 ```bash
 pnpm package:symfony
 ```
 
-VSIX 文件名以打包命令输出的当前版本为准。公开安装时应让 Core、Symfony 和 SoPHP Dev Pack 保持同一版本；试用未发布增量时按[同批 Alpha 候选说明](../../docs/php-language-toolchain/alpha-candidate.md)安装三份 VSIX。源码增量验证无需每次重新打包。
+VSIX 文件名以打包命令输出的当前版本为准。公开安装时应让 Core、Symfony 和 SoPHP Dev Pack 保持同一版本；试用未发布增量时按[同批 Alpha 候选说明](https://github.com/sohophp/php-companion/blob/main/docs/php-language-toolchain/alpha-candidate.md)安装三份 VSIX。源码增量验证无需每次重新打包。
